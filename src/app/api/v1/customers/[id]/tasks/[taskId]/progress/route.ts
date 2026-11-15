@@ -1,0 +1,5 @@
+import { revalidatePath } from 'next/cache';
+import { crmTaskProgressSchema,crmTaskSchema } from '@hvac/api-client';
+import { ApiFault,authenticate,databaseError,endpoint,json,preflight,readBody,uuid } from '@/lib/api/http';
+export function POST(request:Request,{params}:{params:Promise<{id:string;taskId:string}>}){return endpoint(request,async()=>{const {db,role,user}=await authenticate(request);if(!['admin','office','technician'].includes(role))throw new ApiFault(403,'ACCESS_DENIED','Brak dostępu do zadań.');const input=crmTaskProgressSchema.parse(await readBody(request)),p=await params,id=uuid.parse(p.id),r=await db.rpc('crm_task_progress',{p_customer:id,p_id:uuid.parse(p.taskId),p_version:input.version,p_state:input.state,p_result:input.result});databaseError(r.error);const response=json(request,crmTaskSchema.refine(t=>role!=='technician'||t.assigneeId===user.id),r.data);revalidatePath(`/dashboard/customers/${id}`);revalidatePath('/dashboard/tasks');revalidatePath('/dashboard/team-tasks');revalidatePath('/dashboard','layout');return response;});}
+export function OPTIONS(request:Request){return preflight(request,['POST']);}

@@ -1,0 +1,18 @@
+import Link from 'next/link';
+import { z } from 'zod';
+import { companyProfileSchema,documentFromCompanyProfile,offerRecordSchema,savedOfferDocumentSchema,staffPublicationsSchema } from '@hvac/api-client';
+import { requireStaff } from '@/lib/auth';
+import { notFound } from 'next/navigation';
+import { OfferDelivery } from '@/components/offer-delivery';
+import { customerOfferPreview,catalogUnits,millsToQuantity } from '@hvac/api-client';
+import { catalogMoney,catalogPercent } from '@/lib/catalog/format';
+export default async function OfferPreview({params}:{params:Promise<{id:string}>}){
+ const {id}=await params;if(!z.string().uuid().safeParse(id).success)notFound();
+ const {db}=await requireStaff(),result=await db.rpc('offer_document_context',{p_id:id});
+ if(result.error)throw new Error('Nie udało się odczytać podglądu.');if(!result.data)notFound();
+ const context=z.object({offer:offerRecordSchema,document:savedOfferDocumentSchema.nullable()}).parse(result.data);
+ let defaults=null;if(!context.document){const profile=await db.rpc('company_profile');if(profile.error)throw new Error('Nie udało się odczytać profilu firmy.');defaults=companyProfileSchema.nullable().parse(profile.data);}
+ const record=context.offer,preview=customerOfferPreview(record);
+ const history=await db.rpc('staff_offer_publications',{p_offer:id});if(history.error)throw new Error('Nie udało się odczytać historii udostępnień.');const publications=staffPublicationsSchema.parse(history.data);
+ return <main className="list-page"><div className="page-heading"><div><p className="eyebrow">{preview.number}</p><h1>Podgląd oferty</h1><p className="muted">Podgląd bieżącej kalkulacji. Wersje udostępnione klientowi znajdziesz w historii poniżej.</p></div><Link className="button secondary" href={`/dashboard/offers/${id}`}>Wróć do kalkulacji</Link></div><OfferDelivery key={`${id}:${context.document?.version??'new'}`} id={id} customerId={record.customerId} customerName={record.customerSnapshot.name} title={record.title} offerVersion={record.version} initial={context.document?.data??documentFromCompanyProfile(defaults)} documentVersion={context.document?.version??null} archived={record.archived} publications={publications.items}/><article className="offer-customer-preview"><header><p className="eyebrow">Oferta {preview.number}</p><h2>{preview.title}</h2><p><strong>{preview.customer.name}</strong><br/>{preview.customer.address}{preview.customer.address&&', '}{preview.customer.postalCode} {preview.customer.city}</p></header>{preview.variants.map(v=><section key={v.id} className="offer-preview-variant"><div className="section-heading"><h2>{v.name}</h2>{v.id===preview.mainVariantId&&<span className="badge">Wariant główny</span>}</div>{v.note&&<p className="offer-preview-note">{v.note}</p>}<div className="table-scroll"><table><thead><tr><th>Pozycja</th><th>Ilość</th><th>VAT</th><th>Netto</th><th>Brutto</th></tr></thead><tbody>{v.lines.map((l,i)=><tr key={i}><td><strong>{l.name}</strong>{l.description&&<span className="list-record-subtitle">{l.description}</span>}</td><td>{millsToQuantity(l.quantityMills)} {catalogUnits[l.unit]}</td><td>{catalogPercent(l.vatBasisPoints/100)}</td><td>{catalogMoney(l.netCents)}</td><td>{catalogMoney(l.grossCents)}</td></tr>)}</tbody></table></div>{!v.lines.length&&<p className="empty">Ten wariant nie ma jeszcze pozycji.</p>}<dl className="offer-preview-totals"><dt>Razem netto</dt><dd>{catalogMoney(v.netCents)}</dd><dt>VAT</dt><dd>{catalogMoney(v.vatCents)}</dd><dt>Razem brutto</dt><dd><strong>{catalogMoney(v.grossCents)}</strong></dd></dl></section>)}</article></main>;
+}

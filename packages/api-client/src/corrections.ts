@@ -1,0 +1,18 @@
+import { z } from 'zod';
+import { handoverSnapshotSchema,handoverReceiptSchema } from './handovers';
+const text=(n:number)=>z.string().trim().max(n).refine(v=>!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(v)&&v.split('\n').length<=80);
+const short=(n:number)=>text(n).refine(v=>!/[\n\t]/.test(v));
+export const correctionFieldsSchema=z.object({performedOn:z.string().date().regex(/^20\d{2}-/),performerName:short(160),workPerformed:text(6000),checks:text(6000),observations:text(4000),recommendations:text(4000)}).strict();
+export const correctionTaskInputSchema=z.object({id:z.string().uuid(),title:short(160).refine(v=>v.length>0),assigneeId:z.string().uuid(),dueOn:z.string().date().regex(/^20\d{2}-/),state:z.enum(['todo','in_progress','completed','cancelled']),result:text(2000),internalNote:text(2000)}).strict().refine(v=>!['completed','cancelled'].includes(v.state)||v.result.length>0,{message:'Opisz wykonanie lub przyczynę anulowania.'});
+export const correctionTaskSchema=z.object({id:z.string().uuid(),title:z.string(),assigneeId:z.string().uuid(),dueOn:z.string(),state:z.enum(['todo','in_progress','completed','cancelled']),result:z.string(),internalNote:z.string(),completedAt:z.string().nullable()}).strict();
+export const correctionRoundSchema=z.object({round:z.number().int().min(1).max(100),version:z.number().int().nonnegative(),state:z.enum(['draft','published']),fields:correctionFieldsSchema,internalNote:z.string(),tasks:z.array(correctionTaskSchema),publishedAt:z.string().nullable(),snapshot:handoverSnapshotSchema.nullable(),receipt:handoverReceiptSchema.nullable()}).strict();
+export const publicCorrectionSchema=correctionRoundSchema.pick({round:true,publishedAt:true,snapshot:true,receipt:true}).extend({publishedAt:z.string(),snapshot:handoverSnapshotSchema}).strict();
+export const correctionContextSchema=z.object({rounds:z.array(correctionRoundSchema),canStart:z.boolean(),sourceComment:z.string(),technicians:z.array(z.object({id:z.string().uuid(),email:z.string()}).strict()),canManage:z.boolean()}).strict();
+export const correctionTaskSaveSchema=z.object({version:z.number().int().nonnegative(),task:correctionTaskInputSchema}).strict();
+export const correctionDraftSaveSchema=z.object({version:z.number().int().nonnegative(),fields:correctionFieldsSchema,internalNote:text(4000)}).strict();
+export const correctionPublishSchema=z.object({version:z.number().int().nonnegative(),confirm:z.literal(true)}).strict();
+export const correctionHistorySchema=z.array(publicCorrectionSchema);
+export type CorrectionContext=z.infer<typeof correctionContextSchema>;
+export type CorrectionRound=z.infer<typeof correctionRoundSchema>;
+export type CorrectionTaskInput=z.infer<typeof correctionTaskInputSchema>;
+export type PublicCorrection=z.infer<typeof publicCorrectionSchema>;

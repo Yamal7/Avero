@@ -1,0 +1,11 @@
+import { requirePortalContext } from '@/lib/portal/context';
+import { portalHref } from '@/lib/portal/routes';
+import type { PortalDocument } from '@/lib/portal/types';
+import { PortalContextPicker,PortalDocumentCard,PortalEmpty,PortalHeading,PortalNoScope,PortalPager } from '@/components/portal-ui';
+export default async function PortalDocumentsPage({searchParams}:{searchParams:Promise<{customer?:string;customerSearch?:string;kind?:string;page?:string}>}) {
+ const params=await searchParams,{db,scope,choices}=await requirePortalContext(params.customer,params.customerSearch);const picker=<PortalContextPicker scope={scope} choices={choices} search={params.customerSearch} />;
+ if(!scope.customer)return <>{picker}<PortalNoScope preview={scope.preview} /></>;
+ const id=scope.customer.id,kind=['all','protocol','file','handover'].includes(params.kind||'')?params.kind!:'all',page=Math.min(100000,Math.max(1,Number.parseInt(params.page||'1')||1));
+ const {data,error}=await db.rpc('portal_documents',{p_customer:id,p_kind:kind,p_page:page});if(error)throw new Error('Nie udało się pobrać dokumentów.');const documents=data.documents as PortalDocument[];
+ return <>{picker}<PortalHeading eyebrow="WSZYSTKO W JEDNYM MIEJSCU" title="Moje dokumenty"><p>Protokoły serwisowe, instrukcje i pliki udostępnione przez firmę.</p></PortalHeading><form action="/portal/documents" className="portal-search"><input type="hidden" name="customer" value={id} /><label>Rodzaj dokumentu<select name="kind" defaultValue={kind}><option value="all">Wszystkie dokumenty</option><option value="handover">Protokoły odbioru montażu</option><option value="protocol">Protokoły serwisowe</option><option value="file">Udostępnione pliki</option></select></label><button className="secondary">Pokaż</button></form>{documents.length?<div className="portal-document-list">{documents.map(document=><PortalDocumentCard key={`${document.kind}-${document.id}`} document={document} customer={id} />)}</div>:<PortalEmpty icon="file" title="Nie ma jeszcze dokumentów"><p>Zatwierdzone protokoły i pliki udostępnione przez firmę pojawią się tutaj.</p></PortalEmpty>}<PortalPager page={page} total={data.total} href={value=>portalHref('/portal/documents',id,{kind,page:String(value)})} /></>;
+}

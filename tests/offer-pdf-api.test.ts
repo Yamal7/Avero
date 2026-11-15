@@ -1,0 +1,23 @@
+import { beforeEach,afterEach,it,expect,vi } from 'vitest';
+const mocks=vi.hoisted(()=>({authenticate:vi.fn(),rpc:vi.fn(),render:vi.fn(),revalidate:vi.fn()}));
+vi.mock('@/lib/api/http',async original=>({...await original<typeof import('@/lib/api/http')>(),authenticate:mocks.authenticate}));
+vi.mock('@/lib/offers/pdf',()=>({renderOfferPdf:mocks.render}));
+vi.mock('next/cache',()=>({revalidatePath:mocks.revalidate}));
+import { GET } from '@/app/api/v1/offers/[id]/pdf/route';
+import { PUT,GET as documentGet } from '@/app/api/v1/offers/[id]/document/route';
+import { customerOfferPreview } from '@hvac/api-client';
+import { pdfFixture,fixtureId as id } from './helpers/offer-pdf-fixture';
+const params={params:Promise.resolve({id})};
+const request=(query='offerVersion=0&documentVersion=0')=>new Request(`http://localhost:3100/api/v1/offers/${id}/pdf?${query}`);
+const put=()=>new Request(`http://localhost:3100/api/v1/offers/${id}/document`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:null,offerVersion:0,data:pdfFixture().meta})});
+beforeEach(()=>{vi.clearAllMocks();vi.stubEnv('APP_URL','http://localhost:3100');vi.stubEnv('NATIVE_ALLOWED_ORIGINS','');mocks.authenticate.mockResolvedValue({role:'office',db:{rpc:mocks.rpc}});const {record,meta}=pdfFixture();mocks.rpc.mockResolvedValue({data:{offer:record,document:{version:0,data:meta}},error:null});mocks.render.mockResolvedValue(Buffer.from('%PDF-test'));});afterEach(()=>vi.unstubAllEnvs());
+it.each(['client','technician','none'])('blocks private PDF access and metadata writes for %s',async role=>{mocks.authenticate.mockResolvedValue({role});expect((await GET(request(),params)).status).toBe(403);expect((await PUT(put(),params)).status).toBe(403);expect((await documentGet(request(),params)).status).toBe(403);expect(mocks.rpc).not.toHaveBeenCalled();expect(mocks.render).not.toHaveBeenCalled();});
+it('passes only customer data to the renderer and returns a private attachment',async()=>{const response=await GET(request(),params);expect(response.status).toBe(200);expect(response.headers.get('Content-Type')).toBe('application/pdf');expect(response.headers.get('Cache-Control')).toContain('no-store');expect(response.headers.get('Content-Disposition')).toBe('attachment; filename="Oferta-OF-2026-PRZYKLAD.pdf"');expect(mocks.render).toHaveBeenCalledWith(customerOfferPreview(pdfFixture().record),pdfFixture().meta);expect(JSON.stringify(mocks.render.mock.calls[0])).not.toMatch(/PRIVATE-|costCents|profitCents/);expect(await response.text()).toBe('%PDF-test');});
+it.each(['offerVersion=1&documentVersion=0','offerVersion=0&documentVersion=1'])('rejects stale snapshots %s',async query=>{expect((await GET(request(query),params)).status).toBe(409);expect(mocks.render).not.toHaveBeenCalled();});
+it('requires explicit validated version parameters',async()=>{expect((await GET(request(''),params)).status).toBe(400);expect(mocks.rpc).not.toHaveBeenCalled();});
+it('requires saved metadata and nonempty variants',async()=>{const {record,meta}=pdfFixture();mocks.rpc.mockResolvedValueOnce({data:{offer:record,document:null},error:null});expect((await GET(request(),params)).status).toBe(409);record.variants[0].lines=[];mocks.rpc.mockResolvedValueOnce({data:{offer:record,document:{version:0,data:meta}},error:null});expect((await GET(request(),params)).status).toBe(409);expect(mocks.render).not.toHaveBeenCalled();});
+it('does not generate documents when missing or unavailable',async()=>{mocks.rpc.mockResolvedValueOnce({data:null,error:null});expect((await GET(request(),params)).status).toBe(404);mocks.rpc.mockResolvedValueOnce({data:null,error:{code:'42501'}});expect((await GET(request(),params)).status).toBe(403);expect(mocks.render).not.toHaveBeenCalled();});
+it('saves bounded metadata with both calculation and document versions',async()=>{const {meta}=pdfFixture();mocks.rpc.mockResolvedValue({data:{version:0,data:meta},error:null});expect((await PUT(put(),params)).status).toBe(200);expect(mocks.rpc).toHaveBeenCalledWith('save_offer_document',{p_id:id,p_data:meta,p_version:null,p_offer_version:0});expect(mocks.revalidate).toHaveBeenCalled();});
+it('reports version conflicts without successful invalidation',async()=>{mocks.rpc.mockResolvedValue({data:null,error:{code:'40001'}});expect((await PUT(put(),params)).status).toBe(409);expect(mocks.revalidate).not.toHaveBeenCalled();});
+
+it('returns saved document metadata and its matching calculation version',async()=>{const response=await documentGet(request(),params);expect(response.status).toBe(200);expect(await response.json()).toEqual({offerVersion:0,document:{version:0,data:pdfFixture().meta}});});

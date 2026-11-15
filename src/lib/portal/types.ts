@@ -1,0 +1,13 @@
+import type { Protocol, TicketStatus, VisitStatus, Priority } from '@/lib/service/types';
+export type PortalCustomer = { id:string; name:string; archived_at:string|null };
+export type PortalScope = { preview:boolean; customer:PortalCustomer|null };
+export type PortalTicket = { id:string; ticket_number:number; subject:string; description:string; status:TicketStatus; priority:Priority; created_at:string; installation_type:string; address:string; city:string };
+export type PortalVisit = { id:string; ticket_id:string; ticket_number:number; subject:string; scheduled_at:string|null; duration_minutes:number; status:VisitStatus; notes:string|null; completed_at:string|null; installation_type:string; address:string; city:string; overdue:boolean };
+export type PortalDocument = { id:string; kind:'protocol'|'file'|'handover'; title:string; created_at:string; installation_type:string; address:string; city:string };
+export type PortalInstallation = { id:string; type:string; status:string; installed_on:string|null; address:string; city:string; postal_code:string|null; device_count:number; next_due_on:string|null };
+export type PortalInstallationDetail = Omit<PortalInstallation,'device_count'|'next_due_on'> & { devices:{id:string;manufacturer:string;model:string|null;serial_number:string|null;warranty_until:string|null;warranty_terms?:string;installed_on?:string|null}[]; maintenance:{title?:string;interval_months:number;next_due_on:string}[]; history:Pick<PortalTicket,'id'|'ticket_number'|'subject'|'status'|'created_at'>[] };
+export type PortalTicketDetail = PortalTicket & { installation_id:string; visits:(Pick<PortalVisit,'id'|'status'|'scheduled_at'|'duration_minutes'|'completed_at'|'notes'> & { protocol:{id:string;protocol_number:number;published_at:string}|null })[] };
+export type PortalOverview = { installations:number;open_tickets:number;documents:number;next_due_on:string|null;visits:PortalVisit[];tickets:PortalTicket[] };
+export type PortalAccount = PortalCustomer & { email:string|null;phone:string|null;type:string };
+export type PortalProtocol = Protocol;
+export type PortalFile = {id:string;file_name:string;storage_path:string};

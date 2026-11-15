@@ -1,0 +1,8 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { z } from 'zod';
+import { handoverContextSchema,correctionContextSchema } from '@hvac/api-client';
+import { requireSession } from '@/lib/auth';
+import { CorrectionManager } from '@/components/correction-manager';
+import { HandoverEditor } from '@/components/handover-editor';
+export default async function Page({params}:{params:Promise<{id:string}>}){const {id}=await params;if(!z.string().uuid().safeParse(id).success)notFound();const {db,user}=await requireSession(),r=await db.rpc('handover_context',{p_order:id});if(r.error?.code==='42501'||!r.data?.order)notFound();if(r.error)throw new Error('Nie udało się pobrać protokołu.');const context=handoverContextSchema.parse(r.data);let corrections=null;if(context.report?.state==='published'){const result=await db.rpc('correction_context',{p_id:id});if(result.error)throw new Error('Nie udało się pobrać poprawek.');corrections=correctionContextSchema.parse(result.data);}return corrections?<><div className="page-heading"><div><p className="eyebrow">{context.order.number} · ODBIÓR</p><h1>Odbiór i poprawki</h1><p>{context.order.customerName} · {context.order.title}</p></div><Link className="button secondary" href={`/dashboard/work-orders/${id}`}>Wróć do realizacji</Link></div><CorrectionManager id={id} initial={corrections} userId={user.id}/><details className="card" id="first-handover"><summary>Pierwszy protokół · {context.report?.number} · zachowana historia odbioru</summary><HandoverEditor initial={context}/></details></>:<HandoverEditor initial={context}/>;}

@@ -1,0 +1,4 @@
+import { customerActivityQuerySchema,customerActivityListSchema } from '@hvac/api-client';
+import { ApiFault,authenticate,databaseError,endpoint,json,preflight,uuid } from '@/lib/api/http';
+export function GET(request:Request,{params}:{params:Promise<{id:string}>}){return endpoint(request,async()=>{const {db,role}=await authenticate(request);if(!['admin','office','technician'].includes(role))throw new ApiFault(403,'ACCESS_DENIED','Brak dostępu do historii CRM.');const input=customerActivityQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams)),r=await db.rpc('customer_activity',{p_customer:uuid.parse((await params).id),p_kind:input.kind,p_page:input.page});databaseError(r.error);return json(request,role==='technician'?customerActivityListSchema.refine(v=>v.items.every(e=>e.kind!=='offer'&&e.kind!=='crm_note'&&!e.planChange)):customerActivityListSchema,r.data);});}
+export function OPTIONS(request:Request){return preflight(request,['GET']);}

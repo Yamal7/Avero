@@ -1,0 +1,4 @@
+import { teamTasksQuerySchema,teamTasksSchema } from '@hvac/api-client';
+import { ApiFault,authenticate,databaseError,endpoint,json,preflight } from '@/lib/api/http';
+export function GET(request:Request){return endpoint(request,async()=>{const {db,role,user}=await authenticate(request);if(!['admin','office'].includes(role))throw new ApiFault(403,'ACCESS_DENIED','Widok zespołu jest dostępny dla biura.');const q=teamTasksQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams)),r=await db.rpc('team_crm_tasks',{p_date:q.date,p_state:q.state,p_assignee:q.assignee==='all'?null:q.assignee,p_search:q.search,p_page:q.page});databaseError(r.error);return json(request,teamTasksSchema.refine(v=>v.viewerId===user.id),r.data);});}
+export function OPTIONS(request:Request){return preflight(request,['GET']);}

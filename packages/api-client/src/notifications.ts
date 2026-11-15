@@ -1,0 +1,12 @@
+import { z } from 'zod';
+export const notificationCategories={tasks:'Moje zadania',service:'Pilny serwis',maintenance:'Przeglądy'} as const;
+export const notificationQuerySchema=z.object({state:z.enum(['all','unread','read']).default('all'),category:z.enum(['all','tasks','service','maintenance']).default('all'),page:z.coerce.number().int().min(1).max(100000).default(1)}).strict();
+export const notificationSchema=z.object({id:z.string().uuid(),sourceId:z.string().uuid(),category:z.enum(['tasks','service','maintenance']),phase:z.enum(['today','overdue','urgent','upcoming']),dueOn:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),createdAt:z.string(),read:z.boolean(),version:z.number().int().nonnegative(),title:z.string().max(240),customerName:z.string().max(240),href:z.string().max(320).regex(/^\/dashboard\/(customers|service|maintenance)\/[0-9a-f-]{36}(\?tab=tasks&filter=all&page=\d+#crm-[0-9a-f-]{36})?$/),current:z.boolean()}).strict();
+export const notificationListSchema=z.object({viewerId:z.string().uuid(),total:z.number().int().nonnegative(),unread:z.number().int().nonnegative(),items:z.array(notificationSchema).max(25)}).strict();
+export const notificationMarkSchema=z.object({version:z.number().int().min(0).max(2147483646),read:z.boolean()}).strict();
+export const notificationMarkResultSchema=z.object({id:z.string().uuid(),version:z.number().int().nonnegative(),read:z.boolean()}).strict();
+export const notificationSyncSchema=z.object({added:z.number().int().min(0).max(200),more:z.boolean()}).strict();
+export const notificationPreferenceInputSchema=z.object({version:z.number().int().min(0).max(2147483646).nullable(),tasks:z.boolean(),service:z.boolean(),maintenance:z.boolean()}).strict();
+export const notificationPreferencesSchema=z.object({viewerId:z.string().uuid(),version:z.number().int().nonnegative().nullable(),tasks:z.boolean(),service:z.boolean(),maintenance:z.boolean()}).strict();
+export type NotificationList=z.infer<typeof notificationListSchema>;
+export type NotificationPreferences=z.infer<typeof notificationPreferencesSchema>;

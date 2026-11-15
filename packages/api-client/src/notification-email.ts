@@ -1,0 +1,7 @@
+import { z } from 'zod';
+export const emailDeliveryLabels={queued:'W kolejce',sending:'Wysyłanie',retry:'Ponowna próba',accepted:'Przyjęto do wysyłki',delivered:'Dostarczono',bounced:'Odrzucono',failed:'Błąd wysyłki',cancelled:'Anulowano',uncertain:'Wymaga sprawdzenia',local:'W skrzynce testowej'} as const;
+export const emailPreferenceSaveSchema=z.object({enabled:z.boolean(),version:z.number().int().min(0).max(2147483646).nullable()}).strict();
+export const emailHistoryQuerySchema=z.object({page:z.coerce.number().int().min(1).max(100000).default(1)}).strict();
+export const emailHistorySchema=z.object({viewerId:z.string().uuid(),enabled:z.boolean(),version:z.number().int().nonnegative().nullable(),total:z.number().int().nonnegative(),items:z.array(z.object({id:z.string().uuid(),category:z.enum(['tasks','service','maintenance']),state:z.enum(['queued','sending','retry','accepted','delivered','bounced','failed','cancelled','uncertain','local']),attempts:z.number().int().min(0).max(5),createdAt:z.string(),nextAttemptAt:z.string().nullable(),acceptedAt:z.string().nullable(),deliveredAt:z.string().nullable(),reason:z.enum(['disabled','ineligible','lease_expired','retry_limit','transport_error','rate_limited','provider_rejected','invalid_response','payload_changed']).nullable()}).strict()).max(20)}).strict();
+export const emailViewSchema=z.object({history:emailHistorySchema,email:z.string().email().nullable(),mode:z.enum(['disabled','local','resend']),configured:z.boolean()}).strict();
+export type EmailView=z.infer<typeof emailViewSchema>;

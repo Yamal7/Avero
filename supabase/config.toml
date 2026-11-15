@@ -1,0 +1,20 @@
+project_id = "hvac-mvp"
+[api]
+enabled = true
+port = 54321
+[db]
+port = 54322
+[studio]
+port = 54323
+[auth]
+enabled = true
+site_url = "http://localhost:3100"
+additional_redirect_urls = ["http://localhost:3100/**", "http://127.0.0.1:3100/**"]
+[auth.email]
+enable_confirmations = true
+[auth.email.template.confirmation]
+subject = "Potwierdź dostęp do HVAC CRM"
+content_path = "./supabase/templates/access.html"
+[auth.email.template.magic_link]
+subject = "Twój link dostępu do HVAC CRM"
+content_path = "./supabase/templates/access.html"
