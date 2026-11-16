@@ -425,3 +425,101 @@ table { font-variant-numeric: tabular-nums; }
   .pui-main a.pui-pill { height: 36px; border-radius: 18px; }
   .pui-main .my-task-row { flex-wrap: wrap; padding-left: 12px; }
 }
+
+/* ───────── 3f. Record page (karta firmy) ───────── */
+.pui-page a.rec-crumb:hover { text-decoration: underline; text-underline-offset: 2px; }
+.rec-body { flex: 1 1 auto; display: flex; align-items: stretch; min-height: 0; border-top: 1px solid var(--edge); }
+.rec-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.rec-hero { display: flex; align-items: flex-start; gap: 16px; padding: 16px 24px; }
+.rec-mark {
+  flex: 0 0 40px; width: 40px; height: 40px; border-radius: 12px; background: var(--bg-subtle); color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;
+}
+.rec-mark.is-person { border-radius: 50%; }
+.rec-title { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pui-main .rec-title h2 { margin: 0; font-size: 18px !important; line-height: 26px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; overflow-wrap: anywhere; }
+.rec-title p { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.rec-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.pui-main .rec-actions .button, .pui-main .rec-actions button { height: 32px; min-height: 32px; padding: 0 12px 0 10px; gap: 6px; border: 0; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: none; }
+.pui-main .rec-actions .secondary { background: var(--bg-subtle); color: var(--text-primary); }
+.pui-main .rec-actions .secondary:hover { background: var(--bg-shell-hover); }
+.rec-actions svg { width: 14px; height: 14px; }
+.rec-tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--edge); overflow-x: auto; }
+.pui-page .rec-tabs a {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 8px; margin-bottom: -1px; white-space: nowrap;
+  border-bottom: 2px solid transparent; color: var(--text-secondary); transition: color var(--dur-fast) var(--ease);
+}
+.rec-tabs a:hover { color: var(--text-primary); }
+.rec-tabs a[aria-current=page] { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+.rec-tabs a span { font-size: 12px; color: var(--text-tertiary); font-weight: 400; }
+.rec-content { display: flex; flex-direction: column; gap: 16px; padding: 20px 24px 32px; min-width: 0; }
+.rec-content a { color: var(--text-primary); }
+.rec-facts { margin: 0 0 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rec-facts > div { display: flex; flex-direction: column; gap: 2px; }
+.rec-facts dt { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.rec-facts dd { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-tertiary); }
+.rec-facts dd.num { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--text-primary); }
+.rec-side { flex: 0 0 400px; min-width: 0; border-left: 1px solid var(--edge); display: flex; flex-direction: column; }
+.rec-section { display: flex; flex-direction: column; gap: 4px; padding: 12px 20px; }
+.rec-section + .rec-section { border-top: 1px solid var(--edge); }
+.rec-section-head { display: flex; align-items: center; gap: 8px; }
+.rec-section-head h3 { flex: 1 1 auto; }
+.rec-section-head a { font-size: 12px; color: var(--text-secondary); }
+.rec-section-head a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pui-main .rec-section h3, .pui-main .rec-crm h2, .pui-main .rec-crm h3 { margin: 0; min-height: 24px; display: flex; align-items: center; font-size: 12px !important; line-height: 16px !important; font-weight: 500 !important; color: var(--text-secondary); letter-spacing: 0 !important; }
+.rec-props { margin: 0 -8px; display: grid; grid-template-columns: 120px minmax(0, 1fr); row-gap: 2px; align-items: center; }
+.rec-props dt { padding: 0 8px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.rec-props dd { margin: 0; min-width: 0; min-height: 32px; display: flex; align-items: center; padding: 6px 8px; line-height: 20px; overflow-wrap: anywhere; }
+.rec-props dd a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.rec-none { color: var(--text-tertiary); margin: 0; }
+.pui-page a.rec-link { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; color: var(--text-primary); }
+.rec-link svg { color: var(--text-tertiary); }
+.rec-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pui-page details.rec-edit { margin: 4px 0 0; padding: 0; border: 0; background: transparent; }
+.rec-edit > summary { display: inline-flex; align-items: center; min-height: 28px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.rec-edit > summary:hover { color: var(--text-primary); }
+.rec-edit[open] > summary { margin-bottom: 8px; }
+/* legacy inner blocks living inside the new record page */
+.rec-crm .crm-panel-section { margin: 0; padding: 0; border: 0; background: transparent; }
+.rec-content .crm-section-heading { margin-bottom: 4px; align-items: center; }
+.pui-main .rec-content .crm-section-heading h2 { font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; }
+.pui-main .rec-content .crm-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 8px 0; margin: 0; border: 0; background: transparent; text-align: left; }
+.rec-content .crm-empty > svg { display: none; }
+.pui-main .rec-content .crm-empty h3 { margin: 0; font-size: 13px; font-weight: 500; }
+.pui-main .rec-content .crm-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 36px; margin: 0; padding: 0; border: 0; font-size: 12px; color: var(--text-secondary); }
+.pui-main .rec-content table th { font-size: 12px; font-weight: 400; color: var(--text-secondary); text-transform: none; letter-spacing: 0; background: transparent; padding: 0 8px; height: 32px; border-bottom: 1px solid var(--edge); }
+.pui-main .rec-content table td { padding: 6px 8px; border-bottom: 1px solid var(--edge); font-size: 13px; }
+.pui-main .rec-content .badge { display: inline-flex; align-items: center; gap: 6px; padding: 0; background: transparent !important; font-size: 12px; font-weight: 400; -webkit-text-fill-color: var(--text-secondary); }
+.pui-main .rec-content .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+@media (max-width: 1100px) {
+  .rec-body { flex-direction: column; }
+  .rec-side { flex: 0 0 auto; border-left: 0; border-top: 1px solid var(--edge); }
+}
+@media (max-width: 760px) {
+  .rec-hero { flex-wrap: wrap; padding: 12px; }
+  .rec-actions { flex: 1 1 100%; justify-content: flex-start; }
+  .rec-tabs { padding: 0 4px; }
+  .pui-page .rec-tabs a { height: 44px; }
+  .rec-content { padding: 16px 12px 24px; }
+  .rec-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rec-section { padding: 12px; }
+}
+.pui-main .rec-content .crm-filter { align-items: center; gap: 8px; padding: 0; border: 0; }
+.pui-main .rec-content .crm-filter label { display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 0 1 auto; max-width: none; font-size: 12px; color: var(--text-secondary); margin: 0; }
+.pui-main .rec-content .crm-filter select { height: 28px; min-height: 28px; width: auto; padding: 0 28px 0 8px; border: 0; border-radius: 8px; background-color: var(--bg-subtle); font-size: 12px; }
+.pui-main .rec-content .crm-filter button { height: 28px; min-height: 28px; padding: 0 10px; border: 0; background: var(--bg-subtle); font-size: 12px; }
+.pui-main .crm-timeline-day { margin: 12px 0 4px; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-tertiary); text-transform: none; letter-spacing: 0; }
+.pui-main .crm-event { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 12px; padding: 8px; margin: 0 -8px; border-radius: 10px; align-items: start; }
+.pui-main .crm-event:hover { background: var(--bg-subtle); }
+.pui-main .crm-event::before { display: none; }
+.pui-main .crm-event-icon { width: 20px; height: 20px; border: 0; background: transparent; color: var(--text-tertiary); }
+.pui-main .crm-event-icon svg { width: 16px; height: 16px; }
+.pui-main .crm-event-title { font-size: 13px; font-weight: 500; }
+.pui-main .crm-event p { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.pui-main .crm-event time { font-size: 12px; color: var(--text-tertiary); padding: 2px 0 0; font-variant-numeric: tabular-nums; }
+.pui-main .rec-crm .crm-panel-section + .crm-panel-section, .pui-main .rec-crm .crm-next-contact { margin-top: 8px; padding-top: 8px; border-top: 0; }
+.pui-main .rec-crm .eyebrow, .pui-main .rec-crm dt, .pui-main .rec-crm .muted { font-size: 12px; text-transform: none; letter-spacing: 0; color: var(--text-secondary); }
+.pui-main .rec-crm strong { font-weight: 500; }
+.pui-main .rec-crm details { margin: 4px 0 0; padding: 0; border: 0; background: transparent; }
+.pui-main .rec-crm summary { font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.pui-main .rec-crm hr { display: none; }
