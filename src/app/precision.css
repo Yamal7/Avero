@@ -300,3 +300,128 @@ table { font-variant-numeric: tabular-nums; }
 .pui-page-head h1, .pui-page-sub { white-space: nowrap; }
 .pui-page-sub { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 @media (max-width: 760px) { .pui-page-head { padding-left: 12px; } .pui-page-meta { display: none; } .day-rail { max-width: none; } .day-row.is-visit { grid-template-columns: 44px 14px minmax(0, 1fr) 96px; } .day-rows { min-width: 0; } .day-row.is-item { grid-template-columns: 14px minmax(0, 1fr) 96px; } }
+
+/* ───────── 3d. Collection view (all list screens) ───────── */
+.pui-main .workspace:has(> .list-page), .pui-main .workspace:has(> .my-tasks-page) { padding: 0; }
+.pui-main .list-page { padding: 0; display: flex; flex-direction: column; min-height: 100%; --info-fg: var(--accent); }
+.pui-main .list-page > :not(.pui-page-head):not(.list-toolbar):not(.cv-table):not(.list-footer):not(.list-empty):not(.cv-pills) { margin-left: 20px; margin-right: 20px; }
+.pui-main a.pui-pill {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 14px; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.pui-main a.pui-pill:hover { color: var(--text-primary); }
+.pui-main a.pui-pill.is-active { background: var(--bg-subtle); color: var(--text-primary); font-weight: 500; }
+.pui-pill-count { color: var(--text-tertiary); font-weight: 400; font-variant-numeric: tabular-nums; }
+.pui-main .pui-pills { display: flex; gap: 4px; flex-wrap: wrap; margin: 0; padding: 0; background: transparent; }
+.pui-main .list-page > .cv-pills { padding: 8px 12px 8px 16px; }
+.cv-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.pui-main .cv-actions .button, .pui-main .cv-actions button {
+  height: 28px; min-height: 28px; padding: 0 10px 0 8px; gap: 6px; border-radius: 8px; border: 0; box-shadow: none;
+  font-size: 13px; font-weight: 500; white-space: nowrap; text-decoration: none;
+}
+.pui-main .cv-actions .secondary { background: var(--bg-subtle); color: var(--text-primary); padding: 0 10px; }
+.pui-main .cv-actions .secondary:hover { background: var(--bg-shell-hover); }
+.cv-actions svg { width: 14px; height: 14px; }
+.pui-main .list-page .list-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px 8px 16px; margin: 0; justify-content: flex-start; }
+.list-toolbar .cv-search { order: 2; margin-left: auto; }
+.cv-search { flex: 0 1 280px; min-width: 160px; }
+.cv-search label {
+  display: flex; flex-direction: row; align-items: center; gap: 6px; height: 28px; padding: 0 8px; margin: 0; border-radius: 8px;
+  background: var(--bg-subtle); color: var(--text-tertiary); transition: box-shadow var(--dur-fast) var(--ease);
+}
+.cv-search label:focus-within { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.pui-main .cv-search input {
+  flex: 1 1 auto; min-width: 0; width: auto; height: 28px; min-height: 0; padding: 0; margin: 0; border: 0; border-radius: 0; outline: 0;
+  background: transparent; color: var(--text-primary); font-size: 13px;
+}
+.cv-search input::placeholder { color: var(--text-tertiary); }
+.cv-table { flex: 0 0 auto; min-width: 0; overflow-x: auto; border-top: 1px solid var(--edge); }
+.cv-table table { width: 100%; min-width: 650px; margin: 0; border-collapse: collapse; }
+.pui-main .cv-table th {
+  height: 36px; padding: 0 8px; border: 0; border-bottom: 1px solid var(--edge); border-radius: 0; background: var(--bg-surface);
+  font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); text-align: left; text-transform: none; letter-spacing: 0; white-space: nowrap;
+}
+.pui-main .cv-table td {
+  height: 40px; padding: 6px 8px; border: 0; border-bottom: 1px solid var(--edge); font-size: 13px; line-height: 20px; vertical-align: middle;
+  color: var(--text-secondary); transition: background-color var(--dur-fast) var(--ease);
+}
+.pui-main .cv-table th:first-child, .pui-main .cv-table td:first-child { padding-left: 20px; }
+.pui-main .cv-table th:last-child, .pui-main .cv-table td:last-child { padding-right: 12px; }
+.pui-main .cv-table td:first-child { color: var(--text-primary); min-width: 180px; }
+.cv-table tbody tr:hover td { background: var(--bg-subtle); }
+.cv-table .cv-num { text-align: right; font-variant-numeric: tabular-nums; }
+.pui-main .cv-table a { color: inherit; text-decoration: none; }
+.pui-main .cv-table a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pui-main .list-record-title, .pui-main .cv-table td:first-child a.list-record-title { display: inline; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-primary); }
+.pui-main .list-record-subtitle { display: block; margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.cv-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cv-mark {
+  flex: 0 0 20px; width: 20px; height: 20px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600;
+}
+.cv-mark.is-person { border-radius: 50%; }
+/* status = dot + neutral text; the dot keeps the semantic colour of the badge */
+.pui-main .cv-table .badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; border-radius: 0; background: transparent !important;
+  font-size: 12px; line-height: 16px; font-weight: 400; white-space: nowrap; -webkit-text-fill-color: var(--text-secondary);
+}
+.cv-table .badge::before { content: ""; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.cv-table .badge.neutral-badge { color: var(--text-tertiary); }
+.pui-main .list-actions { width: 44px; text-align: right; }
+.pui-main .record-actions-button {
+  width: 24px; min-width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent;
+  color: var(--text-tertiary); font-size: 12px; letter-spacing: 1px;
+}
+.pui-main .record-actions-button:hover { background: var(--bg-shell-hover); color: var(--text-primary); }
+.pui-main .list-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 36px; padding: 0 12px 0 20px; margin: 0;
+  font-size: 12px; color: var(--text-secondary);
+}
+.pui-main .list-footer .muted { font-size: 12px; }
+.pui-main .list-footer .pagination { display: flex; align-items: center; gap: 12px; margin: 0; }
+.pui-main .list-footer .pagination a { color: var(--text-primary); text-decoration: none; }
+.pui-main .list-footer .pagination a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pui-main .list-empty {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 20px; margin: 0; border: 0; border-radius: 0;
+  background: transparent; text-align: left; color: var(--text-secondary);
+}
+.pui-main .list-empty > svg { display: none; }
+.pui-main .list-empty h2 { margin: 0; font-size: 13px !important; font-weight: 500 !important; color: var(--text-primary); }
+.pui-main .list-empty p { margin: 0; }
+
+/* ───────── 3e. Zadania ───────── */
+.pui-main .my-tasks-page { display: flex; flex-direction: column; min-height: 100%; padding: 0; }
+.pui-main .my-tasks-page > .error { margin: 8px 20px; }
+.pui-main .my-tasks-page .my-tasks-list { padding: 0; border-top: 1px solid var(--edge); }
+.pui-main .my-task-row { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px 8px 20px; border-bottom: 1px solid var(--edge); transition: background-color var(--dur-fast) var(--ease); }
+.pui-main .my-task-row:hover { background: var(--bg-subtle); }
+.pui-main .my-task-row:last-child { border-bottom: 1px solid var(--edge); }
+.pui-main .my-task-symbol { width: 16px; height: 16px; border-radius: 0; background: transparent; color: var(--text-tertiary); }
+.pui-main .my-task-symbol svg { width: 16px; height: 16px; }
+.pui-main .my-task-symbol.my-task-late { color: var(--danger); }
+.pui-main .my-task-main h3, .pui-main .my-task-main strong { font-size: 13px; line-height: 20px; font-weight: 500; margin: 0; }
+.pui-main .my-task-main p { margin: 0; font-size: 12px; line-height: 16px; }
+.pui-main .my-task-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.pui-main .my-task-meta a { color: var(--text-secondary); }
+.pui-main .my-task-late { color: var(--danger); font-weight: 500; }
+.pui-main .my-task-row .badge { display: inline-flex; align-items: center; gap: 6px; padding: 0; background: transparent !important; font-size: 12px; font-weight: 400; -webkit-text-fill-color: var(--text-secondary); }
+.pui-main .my-task-row .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pui-main .my-task-actions { flex-direction: row; align-items: center; gap: 4px; }
+.pui-main .my-task-actions button { height: 28px; min-height: 28px; padding: 0 10px; border: 0; border-radius: 8px; font-size: 12px; font-weight: 500; }
+.pui-main .my-task-actions button.secondary { background: var(--bg-subtle); }
+.pui-main .my-task-actions button.secondary:hover { background: var(--bg-shell-hover); }
+.pui-main .my-tasks-page .crm-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; margin: 0; border: 0; border-top: 1px solid var(--edge); border-radius: 0; background: transparent; text-align: left; color: var(--text-secondary); }
+.pui-main .my-tasks-page .crm-empty h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.pui-main .my-tasks-page .crm-empty p { margin: 0; }
+.pui-main .my-tasks-page .crm-empty > svg, .pui-main .my-tasks-page .crm-empty .eyebrow { display: none; }
+.pui-main .my-tasks-page .crm-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 36px; padding: 0 12px 0 20px; margin: 0; border: 0; font-size: 12px; color: var(--text-secondary); }
+.pui-main .my-tasks-page .crm-pagination a { color: var(--text-primary); }
+.pui-main .my-tasks-footnote { margin: 0; padding: 8px 20px 16px; font-size: 12px; color: var(--text-tertiary); }
+@media (max-width: 760px) {
+  .pui-page-head.cv-head { height: auto; min-height: 44px; flex-wrap: wrap; padding: 6px 12px; }
+  .list-toolbar .cv-search { order: 0; margin-left: 0; flex: 1 1 100%; }
+  .pui-main .cv-table th:first-child, .pui-main .cv-table td:first-child { padding-left: 12px; }
+  .pui-main .cv-search label, .pui-main .cv-search input { height: 44px; }
+  .pui-main a.pui-pill { height: 36px; border-radius: 18px; }
+  .pui-main .my-task-row { flex-wrap: wrap; padding-left: 12px; }
+}

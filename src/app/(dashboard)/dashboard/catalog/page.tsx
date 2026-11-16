@@ -11,7 +11,7 @@ export default async function CatalogPage({searchParams}:{searchParams:Promise<{
  const result=await db.rpc('list_catalog_items',{p_search:input.search,p_category:input.category,p_state:input.state,p_page:input.page});if(result.error)throw new Error('Nie udało się pobrać katalogu.');
  const list=catalogListSchema.parse({...result.data,apiVersion:'1',page:input.page,pageSize:25});
  const href=(changes:Partial<typeof input>)=>`/dashboard/catalog?${new URLSearchParams({...input,...changes,page:String(changes.page??1)})}`;
- return <main className="list-page"><ListHeader category="Produkty i usługi" title="Katalog"><Link className="button" href="/dashboard/catalog/new"><Icon name="plus" size={19}/>Dodaj pozycję</Link></ListHeader>
+ return <main className="list-page"><ListHeader category="Finanse i magazyn" title="Katalog"><Link className="button" href="/dashboard/catalog/new"><Icon name="plus" size={19}/>Dodaj pozycję</Link></ListHeader>
  <div className="list-toolbar"><ListSearch action="/dashboard/catalog" name="search" value={input.search} placeholder="Szukaj nazwy, kodu, producenta lub dostawcy" hidden={{category:input.category,state:input.state}}/><ListTabs label="Status pozycji katalogu" items={Object.entries({active:'Aktywne',archived:'Archiwum',all:'Wszystkie'}).map(([value,label])=>({label,href:href({state:value as typeof input.state}),active:input.state===value}))}/></div>
  <ListTabs label="Kategorie katalogu" items={Object.entries({all:'Wszystkie',...catalogCategories}).map(([value,label])=>({label,href:href({category:value as typeof input.category}),active:input.category===value}))}/>
  {!parsed.success&&<p role="status" className="muted">Przywrócono domyślne filtry — parametry adresu były nieprawidłowe.</p>}
