@@ -665,3 +665,33 @@ table { font-variant-numeric: tabular-nums; }
 .pui-main .catalog-pick-list > button { min-height: 44px; padding: 8px; border-bottom: 1px solid var(--edge); border-radius: 0; font-size: 13px; }
 .pui-main .catalog-pick-list > button:hover { background: var(--bg-subtle); }
 .pui-main .catalog-pick-list small { margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
+
+/* ───────── 3h. Record blocks shared by detail pages ───────── */
+.rec-block { display: flex; flex-direction: column; gap: 8px; }
+.pui-main .rec-block > h3, .pui-main .rec-block .rec-section-head h3 { margin: 0; font-size: 13px !important; line-height: 20px; font-weight: 500 !important; color: var(--text-primary); }
+.rec-block > p { margin: 0; }
+.rec-item { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--edge); }
+.rec-item-head, .rec-item-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rec-item-row svg { color: var(--text-tertiary); }
+.rec-item-meta { font-size: 12px; color: var(--text-secondary); }
+.rec-item-note { margin: 0; color: var(--text-secondary); }
+.pui-main .rec-item .button, .pui-main .rec-item button { height: 28px; min-height: 28px; padding: 0 10px; font-size: 12px; }
+.pui-main .rec-item .draft-protocol, .pui-main .rec-side .rec-section form { margin: 0; padding: 0; border: 0; background: transparent; }
+.pui-main .rec-side .rec-section form + form { margin-top: 8px; }
+.pui-main .rec-side .rec-section .button-group { gap: 8px; }
+.pui-main .rec-block .section-heading { margin: 0; }
+.pui-main .rec-block .section-heading h3 { margin: 0; font-size: 13px; font-weight: 500; }
+.pui-main .rec-block .section-heading strong { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.pui-main .work-visits { display: flex; flex-direction: column; }
+.pui-main .work-visits .rec-item { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; padding: 12px 0; margin: 0; border: 0; border-top: 1px solid var(--edge); background: transparent; border-radius: 0; }
+.pui-main .work-visits .rec-item p { margin: 2px 0 0; font-size: 12px; color: var(--text-secondary); }
+.pui-main .work-visits .rec-item strong { font-weight: 500; font-variant-numeric: tabular-nums; }
+.pui-main .rec-side .rec-section > .button-group, .pui-main .rec-side .rec-section > button { margin-top: 4px; }
+.pui-main .rec-side .rec-section .button, .pui-main .rec-side .rec-section button { height: 28px; min-height: 28px; padding: 0 10px; font-size: 12px; }
+.pui-main .rec-side .rec-section .muted { margin: 0; }
+.pui-main .rec-content .work-fieldset, .pui-main .rec-content .work-crew { margin: 0; padding: 0; border: 0; }
+.pui-main .rec-content .work-crew legend { font-size: 12px; color: var(--text-secondary); padding: 0; margin-bottom: 4px; }
+.pui-main .rec-content .offer-preview-note { margin: 0; color: var(--text-secondary); }
+.pui-main .list-page > .offer-body { margin: 0; padding: 16px 20px 32px; border-top: 1px solid var(--edge); }
+.pui-main .offer-body .offer-calculation-heading .eyebrow { margin: 0 0 4px; }
+.pui-main .offer-body .offer-title-input { font-size: 18px; font-weight: 600; }

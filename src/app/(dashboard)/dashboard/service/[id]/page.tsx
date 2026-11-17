@@ -5,6 +5,7 @@ import { requireSession } from '@/lib/auth';
 import { getServiceTicket } from '@/lib/service/data';
 import { displayDateTime } from '@/lib/service/dates';
 import { priorityLabels,ticketLabels,visitLabels,type Technician } from '@/lib/service/types';
+import { Icon } from '@/components/icon';
 import { AssignServiceTechnician,ScheduleVisit,ServiceProtocolForm,TicketStatusForm,VisitActions } from '@/components/service-forms';
 export default async function TicketPage({params}:{params:Promise<{id:string}>}) {
  const {id}=await params;if(!z.string().uuid().safeParse(id).success) notFound();
@@ -16,14 +17,55 @@ export default async function TicketPage({params}:{params:Promise<{id:string}>})
  if(canManage) { const {data,error}=await db.rpc('service_technicians',{p_customer:ticket.customer_id});if(error) throw new Error('Nie udało się pobrać techników.');technicians=data as Technician[]; }
  const visits=[...ticket.service_visits].sort((a,b)=>(a.scheduled_at||'').localeCompare(b.scheduled_at||''));
  const location=ticket.installations.locations;
- return <main><Link href="/dashboard/service">← Zgłoszenia serwisowe</Link><div className="page-heading"><div><p className="eyebrow">Zgłoszenie #{String(ticket.ticket_number).padStart(5,'0')}</p><h1>{ticket.subject}</h1><p>{ticket.customers.name} · {ticket.installations.type}</p></div><div className="button-group"><span className={`badge ticket-${ticket.status}`}>{ticketLabels[ticket.status]}</span><span className={`badge priority-${ticket.priority}`}>{priorityLabels[ticket.priority]}</span></div></div>
- <div className="service-detail-grid"><section className="card"><h2>Opis problemu</h2><p className="preserve-lines">{ticket.description}</p><div className="service-location"><strong>{location.address}</strong><p>{location.postal_code} {location.city}</p><Link href={`/dashboard/customers/${ticket.customer_id}`}>Otwórz kartę klienta →</Link></div><p className="muted">Utworzono: {displayDateTime(ticket.created_at)}</p></section><section className="card"><h2>Obsługa zgłoszenia</h2>{canManage?<AssignServiceTechnician key={ticket.assigned_to||'unassigned'} id={id} assigned={ticket.assigned_to} technicians={technicians} />:<p>{ticket.assigned_to?'Technik został przydzielony.':'Zgłoszenie oczekuje na przydzielenie technika.'}</p>}{canEdit&&<TicketStatusForm key={`${ticket.status}-${ticket.priority}`} id={id} status={ticket.status} priority={ticket.priority} manager={canManage} />}</section></div>
- <section className="card"><h2>Załączniki zgłoszenia</h2><p>Dokumenty i zdjęcia związane z tym zgłoszeniem. Pliki wewnętrzne i udostępnione klientowi mają oddzielne oznaczenia.</p><Link className="button secondary" href={`/dashboard/installations/${ticket.installations.id}/documents?ticket=${id}`}>Otwórz załączniki</Link></section><div className="section-heading"><h2>Wizyty i protokoły</h2><Link href="/dashboard/calendar">Zobacz kalendarz →</Link></div>
- {visits.length?visits.map(visit=><section className="card service-visit" key={visit.id}><div className="section-heading"><div><p className="eyebrow">Wizyta serwisowa</p><h3>{displayDateTime(visit.scheduled_at)}</h3><p className="muted">Czas: {visit.duration_minutes} min{visit.completed_at?` · Zakończono: ${displayDateTime(visit.completed_at)}`:''}</p></div><span className={`badge visit-${visit.status}`}>{visitLabels[visit.status]}</span></div>{visit.notes&&<div className="service-visit-note"><strong>Informacja dla klienta</strong><p className="preserve-lines">{visit.notes}</p></div>}
- {canEdit&&ticket.status!=='closed'&&<VisitActions key={visit.status} visit={visit} manager={canManage} />}
- {canManage&&ticket.status!=='closed'&&['planned','cancelled'].includes(visit.status)&&<details><summary>{visit.status==='cancelled'?'Ustal ponownie termin':'Zmień termin wizyty'}</summary><ScheduleVisit key={`${visit.scheduled_at}-${visit.duration_minutes}`} ticketId={id} visit={visit} /></details>}
- {visit.service_protocols?.status==='published'?<div className="published-protocol"><strong>Protokół PS-{String(visit.service_protocols.protocol_number).padStart(6,'0')}</strong><p className="muted">Zatwierdzono: {displayDateTime(visit.service_protocols.published_at)}</p><Link className="button secondary" href={`/dashboard/service/protocols/${visit.service_protocols.id}`}>Otwórz protokół / wydruk</Link></div>:canEdit&&visit.status==='in_progress'?<div className="draft-protocol"><h3>Protokół serwisowy {visit.service_protocols?`· wersja robocza ${visit.service_protocols.version}`:''}</h3><ServiceProtocolForm key={visit.service_protocols?.version||0} visitId={visit.id} protocol={visit.service_protocols} /></div>:null}
- </section>):<section className="card empty">Nie zaplanowano jeszcze wizyty.</section>}
- {canManage&&ticket.status!=='closed'&&<section className="card"><h2>Zaplanuj nową wizytę</h2>{ticket.assigned_to?<ScheduleVisit ticketId={id} />:<p>Najpierw przypisz aktywnego technika do zgłoszenia.</p>}</section>}
+ const number=`#${String(ticket.ticket_number).padStart(5,'0')}`;
+ const technician=technicians.find(t=>t.id===ticket.assigned_to);
+ return <main className="pui-page rec">
+  <div className="pui-page-head">
+   <Icon name="alert" size={16}/>
+   <Link className="pui-page-sub rec-crumb" href="/dashboard/service">Zgłoszenia</Link>
+   <span className="pui-crumb-sep" aria-hidden="true"><Icon name="right" size={12}/></span>
+   <h1 className="num">{number}</h1>
+   <span className="pui-spacer"/>
+   <Link className="pui-ib" href="/dashboard/calendar" aria-label="Planowanie" title="Planowanie"><Icon name="plan" size={14}/></Link>
+  </div>
+  <div className="rec-body">
+   <div className="rec-main">
+    <header className="rec-hero">
+     <div className="rec-title"><h2>{ticket.subject}</h2><p>{ticket.customers.name} · {ticket.installations.type}</p></div>
+    </header>
+    <div className="rec-content">
+     <section className="rec-block"><h3>Opis problemu</h3><p className="preserve-lines">{ticket.description}</p></section>
+     <section className="rec-block">
+      <div className="rec-section-head"><h3>Wizyty i protokoły</h3><span className="day-count num">{visits.length}</span></div>
+      {visits.length?visits.map(visit=><article className="rec-item" key={visit.id}>
+       <div className="rec-item-head"><strong className="num">{displayDateTime(visit.scheduled_at)}</strong><span className="rec-item-meta num">{visit.duration_minutes} min{visit.completed_at?` · zakończono ${displayDateTime(visit.completed_at)}`:''}</span><span className="pui-spacer"/><span className={`badge visit-${visit.status}`}>{visitLabels[visit.status]}</span></div>
+       {visit.notes&&<p className="preserve-lines rec-item-note">{visit.notes}</p>}
+       {canEdit&&ticket.status!=='closed'&&<VisitActions key={visit.status} visit={visit} manager={canManage} />}
+       {canManage&&ticket.status!=='closed'&&['planned','cancelled'].includes(visit.status)&&<details className="rec-edit"><summary>{visit.status==='cancelled'?'Ustal ponownie termin':'Zmień termin wizyty'}</summary><ScheduleVisit key={`${visit.scheduled_at}-${visit.duration_minutes}`} ticketId={id} visit={visit} /></details>}
+       {visit.service_protocols?.status==='published'?<div className="rec-item-row"><Icon name="contract" size={14}/><span>Protokół <span className="num">PS-{String(visit.service_protocols.protocol_number).padStart(6,'0')}</span></span><span className="rec-item-meta num">zatwierdzono {displayDateTime(visit.service_protocols.published_at)}</span><span className="pui-spacer"/><Link className="button secondary" href={`/dashboard/service/protocols/${visit.service_protocols.id}`}>Otwórz protokół</Link></div>:canEdit&&visit.status==='in_progress'?<div className="draft-protocol"><h3>Protokół serwisowy {visit.service_protocols?`· wersja robocza ${visit.service_protocols.version}`:''}</h3><ServiceProtocolForm key={visit.service_protocols?.version||0} visitId={visit.id} protocol={visit.service_protocols} /></div>:null}
+      </article>):<p className="rec-none">Nie zaplanowano jeszcze wizyty.</p>}
+     </section>
+     {canManage&&ticket.status!=='closed'&&<section className="rec-block"><h3>Zaplanuj nową wizytę</h3>{ticket.assigned_to?<ScheduleVisit ticketId={id} />:<p className="rec-none">Najpierw przypisz aktywnego technika do zgłoszenia.</p>}</section>}
+    </div>
+   </div>
+   <aside className="rec-side" aria-label="Szczegóły zgłoszenia">
+    <section className="rec-section"><h3>Szczegóły</h3>
+     <dl className="rec-props">
+      <dt>Status</dt><dd><span className={`badge ticket-${ticket.status}`}>{ticketLabels[ticket.status]}</span></dd>
+      <dt>Priorytet</dt><dd>{priorityLabels[ticket.priority]}</dd>
+      <dt>Technik</dt><dd>{technician?technician.email:ticket.assigned_to?'Przydzielony':<span className="rec-none">Bez przydziału</span>}</dd>
+      <dt>Klient</dt><dd><Link href={`/dashboard/customers/${ticket.customer_id}`}>{ticket.customers.name}</Link></dd>
+      <dt>Instalacja</dt><dd>{ticket.installations.type}</dd>
+      <dt>Adres</dt><dd>{location.address}, {location.postal_code} {location.city}</dd>
+      <dt>Utworzono</dt><dd className="num">{displayDateTime(ticket.created_at)}</dd>
+     </dl>
+    </section>
+    {(canManage||canEdit)&&<section className="rec-section"><h3>Obsługa</h3>
+     {canManage&&<AssignServiceTechnician key={ticket.assigned_to||'unassigned'} id={id} assigned={ticket.assigned_to} technicians={technicians} />}
+     {canEdit&&<TicketStatusForm key={`${ticket.status}-${ticket.priority}`} id={id} status={ticket.status} priority={ticket.priority} manager={canManage} />}
+    </section>}
+    <section className="rec-section"><h3>Załączniki</h3><Link className="rec-link" href={`/dashboard/installations/${ticket.installations.id}/documents?ticket=${id}`}><Icon name="contract" size={14}/>Dokumenty i zdjęcia zgłoszenia</Link></section>
+   </aside>
+  </div>
  </main>;
 }
