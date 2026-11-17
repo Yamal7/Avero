@@ -695,3 +695,49 @@ table { font-variant-numeric: tabular-nums; }
 .pui-main .list-page > .offer-body { margin: 0; padding: 16px 20px 32px; border-top: 1px solid var(--edge); }
 .pui-main .offer-body .offer-calculation-heading .eyebrow { margin: 0 0 4px; }
 .pui-main .offer-body .offer-title-input { font-size: 18px; font-weight: 600; }
+
+/* ───────── 3i. Command palette (⌘K) ───────── */
+dialog.cmdk { width: 640px; max-width: calc(100vw - 32px); max-height: min(560px, calc(100dvh - 160px)); margin: 120px auto auto; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-modal); overflow: hidden; font: 400 13px/20px var(--font-sans); }
+dialog.cmdk[open] { display: flex; flex-direction: column; }
+dialog.cmdk::backdrop { background: var(--scrim); }
+.cmdk-input { flex: 0 0 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid var(--border); color: var(--text-tertiary); }
+.cmdk-input input { flex: 1 1 auto; min-width: 0; height: 32px; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent !important; box-shadow: none !important; outline: 0; font: 400 15px/20px var(--font-sans); color: var(--text-primary); }
+.cmdk-input input::placeholder { color: var(--text-tertiary); }
+.cmdk-list { flex: 1 1 auto; overflow-y: auto; padding: 4px; }
+.cmdk-group { height: 28px; display: flex; align-items: flex-end; padding: 0 12px 4px; font-size: 12px; line-height: 16px; color: var(--text-tertiary); }
+a.cmdk-opt { display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 12px; border-radius: 6px; color: var(--text-primary); text-decoration: none; }
+a.cmdk-opt > svg { flex: 0 0 auto; color: var(--text-secondary); }
+a.cmdk-opt.is-active { background: var(--bg-subtle); }
+a.cmdk-opt.is-active > svg { color: var(--text-primary); }
+.cmdk-num { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.cmdk-label { flex: 1 1 auto; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.cmdk-label > :first-child { flex: 0 1 auto; }
+.cmdk-sub { flex: 0 10000 auto; color: var(--text-secondary); }
+.cmdk-label .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.cmdk-keys { display: inline-flex; gap: 4px; }
+.cmdk-empty { margin: 0; padding: 12px; font-size: 12px; color: var(--text-secondary); }
+.cmdk-foot { flex: 0 0 36px; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-tertiary); }
+.cmdk-foot span { display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 760px) { dialog.cmdk { margin-top: 56px; } .cmdk-foot { display: none; } a.cmdk-opt { height: 44px; } }
+
+/* ───────── 3j. Layout switch + task board ───────── */
+.cv-seg { display: inline-flex; gap: 2px; padding: 2px; margin-left: auto; border-radius: 10px; background: var(--bg-subtle); }
+.pui-main .cv-seg a { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 8px; font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+.pui-main .cv-seg a.is-active { background: var(--bg-surface); color: var(--text-primary); font-weight: 500; }
+.cv-seg + .cv-search { margin-left: 8px; }
+.tb { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, 1fr); gap: 12px; padding: 8px 16px 16px; overflow-x: auto; border-top: 1px solid var(--edge); align-items: start; }
+.tb-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 4px; border-radius: 14px; background: var(--bg-raised); }
+.pui-main .tb-head { display: flex; align-items: center; gap: 8px; height: 32px; margin: 0; padding: 0 8px; font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; }
+.tb-mark { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--text-secondary); }
+.tb-mark.is-in_progress { border-color: var(--st-progress); background: linear-gradient(90deg, transparent 50%, var(--st-progress) 50%); }
+.tb-mark.is-done { border-color: var(--success); background: var(--success); }
+.tb-mark.is-cancelled { border-color: var(--text-tertiary); border-style: dashed; }
+.tb-cards { display: flex; flex-direction: column; gap: 4px; }
+.pui-main a.tb-card { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--edge); color: var(--text-primary); text-decoration: none; transition: background-color var(--dur-fast) var(--ease); }
+.pui-main a.tb-card:hover { background: var(--bg-subtle); }
+.tb-title { font-weight: 500; }
+.tb-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.tb-meta .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tb-meta .is-late { color: var(--danger); font-weight: 500; }
+.tb-empty { margin: 0; padding: 4px 8px 8px; font-size: 12px; color: var(--text-tertiary); }
+@media (max-width: 760px) { .cv-seg { margin-left: 0; } .cv-seg span { display: none; } }

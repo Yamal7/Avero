@@ -9,6 +9,7 @@ import { logout } from '@/app/(dashboard)/dashboard/actions';
 import { roleLabels,type AccessRole } from '@/lib/access/types';
 import { Icon,type IconName } from './icon';
 import { ThemeCapsule } from './theme-switcher';
+import { CommandPalette,type PaletteEntry } from './command-palette';
 type NavEntry={href:string;label:string;icon:IconName;soon?:boolean;roles?:string[];count?:number};
 type NavGroup={id:string;title:string;items:NavEntry[]};
 const soon=(slug:string)=>'/dashboard/soon/'+slug;
@@ -50,18 +51,20 @@ const top:NavEntry[]=[{href:'/dashboard/notifications',label:'Skrzynka',icon:'in
 const allEntries=[...top,...groups.flatMap(group=>group.items),...bottom];
 const isActive=(href:string,pathname:string)=>href==='/dashboard'?pathname===href:pathname===href||pathname.startsWith(href+'/');
 type Panel='search'|'alerts'|'profile';
+const paletteActions=(role:string):PaletteEntry[]=>[{href:'/dashboard/service/new',label:'Nowe zgłoszenie serwisowe',icon:'alert'},...(staff.includes(role)?[{href:'/dashboard/customers/new',label:'Nowy klient',icon:'building' as IconName},{href:'/dashboard/offers',label:'Nowa oferta',icon:'offer' as IconName},{href:'/dashboard/catalog/new',label:'Nowa pozycja katalogu',icon:'book' as IconName}]:[])];
 export function AppShell({children,email,displayName,role,alerts,taskAlerts}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number}}){
  const router=useRouter();
  const [notificationUnread,setNotificationUnread]=useState(0);
  const mobileButton=useRef<HTMLButtonElement>(null),sidebar=useRef<HTMLElement>(null),wasOpen=useRef(false),dialog=useRef<HTMLDialogElement>(null),trigger=useRef<HTMLElement|null>(null);
  const [taskData,setTaskData]=useState<TaskAlerts|null>(taskAlerts),[taskLoading,setTaskLoading]=useState(false),[taskError,setTaskError]=useState(''),[alertReload,setAlertReload]=useState(0);
  useEffect(()=>{setTaskData(taskAlerts);},[taskAlerts]);
+ const [palette,setPalette]=useState(false);
  const [mobileOpen,setMobileOpen]=useState(false),[panel,setPanel]=useState<Panel|null>(null),pathname=usePathname();
  useEffect(()=>{if(!mobileOpen)return;const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setMobileOpen(false);};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);},[mobileOpen]);
  useEffect(()=>{if(mobileOpen)sidebar.current?.querySelector<HTMLAnchorElement>('a')?.focus();else if(wasOpen.current)mobileButton.current?.focus();wasOpen.current=mobileOpen;},[mobileOpen]);
  useEffect(()=>{const desktop=window.matchMedia('(min-width:761px)');const close=()=>{if(desktop.matches)setMobileOpen(false);};desktop.addEventListener('change',close);return()=>desktop.removeEventListener('change',close);},[]);
  useEffect(()=>{if(panel&&!dialog.current?.open){dialog.current?.showModal();if(panel==='search')dialog.current?.querySelector<HTMLInputElement>('input[type="search"]')?.focus();}else if(!panel&&dialog.current?.open)dialog.current.close();},[panel]);
- useEffect(()=>{const key=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();trigger.current=document.activeElement as HTMLElement;setMobileOpen(false);setPanel('search');}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
+ useEffect(()=>{const key=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();trigger.current=document.activeElement as HTMLElement;setMobileOpen(false);setPalette(true);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
  useEffect(()=>{if(panel!=='alerts')return;const controller=new AbortController();setTaskLoading(true);setTaskError('');
   void (async()=>{try{const r=await fetch('/api/v1/tasks/alerts',{cache:'no-store',signal:controller.signal});if(!r.ok)throw new Error('Nie udało się odświeżyć zadań.');const parsed=taskAlertsSchema.refine(v=>v.viewerId===taskAlerts.viewerId).parse(await r.json());if(!controller.signal.aborted)setTaskData(parsed);}catch{if(!controller.signal.aborted){setTaskData(null);setTaskError('Nie udało się odświeżyć Twoich zadań. Spróbuj ponownie.');}}finally{if(!controller.signal.aborted)setTaskLoading(false);}})();
   return()=>controller.abort();
@@ -86,7 +89,7 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts}:{ta
   <div className="pui-top-left">
    <button ref={mobileButton} type="button" className="pui-round pui-menu" aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
    <Link className="pui-ws" href="/dashboard" aria-label="Avero — przejdź do Mojego dnia"><span className="pui-ws-mark" aria-hidden="true">A</span><span className="ell">Avero</span></Link>
-   <button type="button" className="pui-round" aria-label="Szukaj" title="Szukaj  ⌘K" onClick={event=>openPanel('search',event.currentTarget)}><Icon name="find" size={16}/></button>
+   <button type="button" className="pui-round" aria-label="Szukaj" title="Szukaj  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}}><Icon name="find" size={16}/></button>
    <Link className="pui-round is-raised" href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie"><Icon name="compose" size={16}/></Link>
   </div>
   <div className="pui-tabs" aria-label="Bieżący widok">{current&&<span className="pui-tab"><Icon name={current.icon} size={14}/><span className="ell">{current.label}</span></span>}</div>
@@ -104,6 +107,7 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts}:{ta
    <span className="pui-side-spacer"/>
    <nav className="pui-nav-group" aria-label="Administracja">{bottom.filter(allowed).map(item)}</nav>
   </aside>
+ <CommandPalette open={palette} onClose={()=>setPalette(false)} actions={paletteActions(role)} places={allEntries.filter(entry=>allowed(entry)&&!entry.soon).map(entry=>({href:entry.href,label:entry.label,icon:entry.icon}))}/>
  <dialog ref={dialog} className="shell-dialog" aria-labelledby="shell-dialog-title" onCancel={closePanel} onClose={finishClose}><div className="shell-dialog-heading"><h2 id="shell-dialog-title">{panel==='search'?'Szukaj':panel==='alerts'?'Powiadomienia':'Twój profil'}</h2><button className="sidebar-icon-button" aria-label="Zamknij okno" onClick={closePanel}>×</button></div>
  {panel==='search'&&<form action="/dashboard/customers"><label>Klient, adres, instalacja lub numer seryjny<input name="q" type="search" autoFocus maxLength={200} placeholder="Wpisz, czego szukasz…" required/></label><div className="shell-dialog-footer"><span className="muted">Enter — szukaj · Esc — zamknij</span><button type="submit"><Icon name="search" size={18}/>Szukaj</button></div></form>}
  <div hidden={panel!=='alerts'}><NotificationBellSummary open={panel==='alerts'} viewerId={taskAlerts.viewerId} onCount={setNotificationUnread} onNavigate={closePanel}/></div>
