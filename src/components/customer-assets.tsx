@@ -4,7 +4,7 @@ import { RecordForm } from './record-form';
 export function CustomerAssets({customer,editable}:{customer:Customer;editable:boolean}){const id=customer.id;return <>
     <h2>Lokalizacje i instalacje</h2>
     {!customer.locations.length && <p className="empty card">Ten klient nie ma jeszcze lokalizacji.</p>}
-    {customer.locations.map(location => <section className="card" key={location.id}><p className="eyebrow">LOKALIZACJA</p><h2>{location.address}</h2><p>{location.postal_code} {location.city}</p>
+    {customer.locations.map(location => <section className="card" key={location.id}><p className="eyebrow">Lokalizacja</p><h2>{location.address}</h2><p>{location.postal_code} {location.city}</p>
       {editable && <details><summary>Edytuj adres</summary><RecordForm entity="locations" customerId={id} record={{ id: location.id, address: location.address, city: location.city, postal_code: location.postal_code }} /></details>}
       {!location.installations.length && <p className="muted">Brak instalacji.</p>}
       {location.installations.map(installation => <article className="installation" key={installation.id}><span className="badge">{({ active: 'Aktywna', inactive: 'Nieaktywna', archived: 'Archiwalna' } as Record<string, string>)[installation.status]}</span><h3>{installation.type}</h3><Link href={`/dashboard/service/new?installation=${installation.id}`}>Zgłoś serwis tej instalacji →</Link><p className="muted">Montaż: {installation.installed_on || 'Nie podano'}</p>

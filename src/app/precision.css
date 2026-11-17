@@ -525,66 +525,130 @@ table { font-variant-numeric: tabular-nums; }
 .pui-main .rec-crm hr { display: none; }
 
 /* ───────── 2b. Global skin for screens not rebuilt yet (forms, details) ───────── */
-.pui-main * { text-transform: none !important; letter-spacing: normal !important; }
-.pui-main h3 { font-size: 13px; line-height: 20px; font-weight: 600; margin: 0 0 4px; }
-.pui-main h4 { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text-secondary); margin: 0 0 4px; }
-.pui-main p { margin: 4px 0 12px; }
-.pui-main a:not([class]) { color: var(--text-primary); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 2px; }
-.pui-main a:not([class]):hover { text-decoration-color: currentColor; }
-.pui-main .eyebrow { font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); margin: 0 0 2px; }
-.pui-main .page-heading { margin: 0 0 16px; gap: 16px; align-items: flex-start; }
-.pui-main .page-heading p { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
-.pui-main .muted { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
-.pui-main .section-heading { margin-bottom: 8px; }
-.pui-main .section-heading a { color: var(--text-secondary); font-size: 12px; }
-.pui-main .button-group { gap: 8px; }
-.pui-main button, .pui-main .button { min-height: 32px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: none; }
-.pui-main .secondary { background: var(--bg-subtle); color: var(--text-primary); border-color: transparent; }
-.pui-main .secondary:hover { background: var(--bg-shell-hover); }
-.pui-main button:disabled { opacity: .5; }
-.pui-main label { gap: 4px; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); }
-.pui-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), .pui-main select, .pui-main textarea {
+:is(.pui-main, .portal-shell) * { text-transform: none !important; letter-spacing: normal !important; }
+:is(.pui-main, .portal-shell) h3 { font-size: 13px; line-height: 20px; font-weight: 600; margin: 0 0 4px; }
+:is(.pui-main, .portal-shell) h4 { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text-secondary); margin: 0 0 4px; }
+:is(.pui-main, .portal-shell) p { margin: 4px 0 12px; }
+:is(.pui-main, .portal-shell) a:not([class]) { color: var(--text-primary); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 2px; }
+:is(.pui-main, .portal-shell) a:not([class]):hover { text-decoration-color: currentColor; }
+:is(.pui-main, .portal-shell) .eyebrow { font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); margin: 0 0 2px; }
+:is(.pui-main, .portal-shell) .page-heading { margin: 0 0 16px; gap: 16px; align-items: flex-start; }
+:is(.pui-main, .portal-shell) .page-heading p { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) .muted { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) .section-heading { margin-bottom: 8px; }
+:is(.pui-main, .portal-shell) .section-heading a { color: var(--text-secondary); font-size: 12px; }
+:is(.pui-main, .portal-shell) .button-group { gap: 8px; }
+:is(.pui-main, .portal-shell) button, :is(.pui-main, .portal-shell) .button { min-height: 32px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: none; }
+:is(.pui-main, .portal-shell) .secondary { background: var(--bg-subtle); color: var(--text-primary); border-color: transparent; }
+:is(.pui-main, .portal-shell) .secondary:hover { background: var(--bg-shell-hover); }
+:is(.pui-main, .portal-shell) button:disabled { opacity: .5; }
+:is(.pui-main, .portal-shell) label { gap: 4px; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), :is(.pui-main, .portal-shell) select, :is(.pui-main, .portal-shell) textarea {
   min-height: 32px; padding: 6px 10px; border: 0; border-radius: 8px; background-color: var(--bg-subtle); color: var(--text-primary);
   font: 400 13px/20px var(--font-sans); outline: 0; transition: box-shadow var(--dur-fast) var(--ease);
 }
-.pui-main textarea { min-height: 72px; resize: vertical; }
-.pui-main input:not([type=checkbox]):not([type=radio]):focus, .pui-main select:focus, .pui-main textarea:focus { box-shadow: inset 0 0 0 1.5px var(--accent); outline: 0; }
-.pui-main input::placeholder, .pui-main textarea::placeholder { color: var(--text-tertiary); }
-.pui-main input[type=checkbox], .pui-main input[type=radio] { accent-color: var(--accent); width: 14px; height: 14px; min-height: 14px; }
-.pui-main .checkbox { align-items: center; gap: 8px; margin: 8px 0; font-size: 13px; line-height: 20px; color: var(--text-primary); }
-.pui-main .checkbox input { margin: 0; }
-.pui-main input::file-selector-button { border: 0; border-radius: 6px; background: var(--bg-surface); color: var(--text-primary); padding: 2px 8px; margin-right: 8px; font: inherit; font-size: 12px; }
-.pui-main .fields { gap: 12px 16px; margin: 12px 0; }
-.pui-main .card { border: 1px solid var(--edge); border-radius: 12px; padding: 16px; margin-bottom: 16px; background: var(--bg-surface); box-shadow: none; }
-.pui-main details { margin: 8px 0; }
-.pui-main summary { color: var(--text-secondary); font-weight: 400; padding: 4px 0; }
-.pui-main summary:hover { color: var(--text-primary); }
-.pui-main table { font-variant-numeric: tabular-nums; }
-.pui-main th { background: transparent; border-radius: 0 !important; border-bottom: 1px solid var(--edge); padding: 8px; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); }
-.pui-main td { border-bottom: 1px solid var(--edge); padding: 8px; font-size: 13px; line-height: 20px; }
-.pui-main tbody tr:hover { background: var(--bg-subtle); }
+:is(.pui-main, .portal-shell) textarea { min-height: 72px; resize: vertical; }
+:is(.pui-main, .portal-shell) input:not([type=checkbox]):not([type=radio]):focus, :is(.pui-main, .portal-shell) select:focus, :is(.pui-main, .portal-shell) textarea:focus { box-shadow: inset 0 0 0 1.5px var(--accent); outline: 0; }
+:is(.pui-main, .portal-shell) input::placeholder, :is(.pui-main, .portal-shell) textarea::placeholder { color: var(--text-tertiary); }
+:is(.pui-main, .portal-shell) input[type=checkbox], :is(.pui-main, .portal-shell) input[type=radio] { accent-color: var(--accent); width: 14px; height: 14px; min-height: 14px; }
+:is(.pui-main, .portal-shell) .checkbox { align-items: center; gap: 8px; margin: 8px 0; font-size: 13px; line-height: 20px; color: var(--text-primary); }
+:is(.pui-main, .portal-shell) .checkbox input { margin: 0; }
+:is(.pui-main, .portal-shell) input::file-selector-button { border: 0; border-radius: 6px; background: var(--bg-surface); color: var(--text-primary); padding: 2px 8px; margin-right: 8px; font: inherit; font-size: 12px; }
+:is(.pui-main, .portal-shell) .fields { gap: 12px 16px; margin: 12px 0; }
+:is(.pui-main, .portal-shell) .card { border: 1px solid var(--edge); border-radius: 12px; padding: 16px; margin-bottom: 16px; background: var(--bg-surface); box-shadow: none; }
+:is(.pui-main, .portal-shell) details { margin: 8px 0; }
+:is(.pui-main, .portal-shell) summary { color: var(--text-secondary); font-weight: 400; padding: 4px 0; }
+:is(.pui-main, .portal-shell) summary:hover { color: var(--text-primary); }
+:is(.pui-main, .portal-shell) table { font-variant-numeric: tabular-nums; }
+:is(.pui-main, .portal-shell) th { background: transparent; border-radius: 0 !important; border-bottom: 1px solid var(--edge); padding: 8px; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) td { border-bottom: 1px solid var(--edge); padding: 8px; font-size: 13px; line-height: 20px; }
+:is(.pui-main, .portal-shell) tbody tr:hover { background: var(--bg-subtle); }
 /* statuses: dot + neutral text; the dot keeps the semantic colour */
-.pui-main .badge {
+:is(.pui-main, .portal-shell) .badge {
   display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; border-radius: 0; background: transparent !important;
   font-size: 12px; line-height: 16px; font-weight: 400; white-space: nowrap; -webkit-text-fill-color: var(--text-secondary);
 }
-.pui-main .badge::before { content: ""; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+:is(.pui-main, .portal-shell) .badge::before { content: ""; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 /* number tiles → plain facts */
-.pui-main .metrics { gap: 16px; margin: 0 0 16px; }
-.pui-main .metrics .metric, .pui-main .metric.card { display: flex; flex-direction: column; gap: 2px; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; }
-.pui-main .metric-icon, .pui-main .empty-icon { display: none; }
-.pui-main .metric p { font-size: 12px; line-height: 16px; color: var(--text-secondary); margin: 0; }
-.pui-main .metric strong { font-size: 18px; line-height: 26px; font-weight: 600; }
-.pui-main .metric small { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-tertiary); }
-.pui-main .empty, .pui-main .welcome-empty { text-align: left; padding: 12px 0; color: var(--text-secondary); }
-.pui-main .pagination { justify-content: flex-start; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--text-secondary); }
-.pui-main .error { color: var(--danger); }
-.pui-main .success { color: var(--success); }
-.pui-main dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-modal); }
-.pui-main dialog::backdrop { background: var(--scrim); }
+:is(.pui-main, .portal-shell) .metrics { gap: 16px; margin: 0 0 16px; }
+:is(.pui-main, .portal-shell) .metrics .metric, :is(.pui-main, .portal-shell) .metric.card { display: flex; flex-direction: column; gap: 2px; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; }
+:is(.pui-main, .portal-shell) .metric-icon, :is(.pui-main, .portal-shell) .empty-icon { display: none; }
+:is(.pui-main, .portal-shell) .metric p { font-size: 12px; line-height: 16px; color: var(--text-secondary); margin: 0; }
+:is(.pui-main, .portal-shell) .metric strong { font-size: 18px; line-height: 26px; font-weight: 600; }
+:is(.pui-main, .portal-shell) .metric small { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-tertiary); }
+:is(.pui-main, .portal-shell) .empty, :is(.pui-main, .portal-shell) .welcome-empty { text-align: left; padding: 12px 0; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) .pagination { justify-content: flex-start; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--text-secondary); }
+:is(.pui-main, .portal-shell) .error { color: var(--danger); }
+:is(.pui-main, .portal-shell) .success { color: var(--success); }
+:is(.pui-main, .portal-shell) dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-modal); }
+:is(.pui-main, .portal-shell) dialog::backdrop { background: var(--scrim); }
 @media (max-width: 760px) {
-  .pui-main button, .pui-main .button { min-height: 44px; }
-  .pui-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), .pui-main select, .pui-main textarea { min-height: 44px; font-size: 16px; }
+  :is(.pui-main, .portal-shell) button, :is(.pui-main, .portal-shell) .button { min-height: 44px; }
+  :is(.pui-main, .portal-shell) input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), :is(.pui-main, .portal-shell) select, :is(.pui-main, .portal-shell) textarea { min-height: 44px; font-size: 16px; }
 }
 .pui-main .cv-search input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]) { height: 28px; min-height: 0; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
 @media (max-width: 760px) { .pui-main .cv-search input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]) { height: 44px; } }
+
+/* ───────── 3g. Customer portal ───────── */
+.portal-shell { min-height: 100dvh; background: var(--bg-shell); color: var(--text-primary); font-size: 14px; line-height: 20px; }
+.portal-shell h1 { font-size: 18px; line-height: 26px; font-weight: 600; letter-spacing: -0.015em !important; margin: 0 0 4px; }
+.portal-shell h2 { font-size: 15px; line-height: 22px; font-weight: 600; letter-spacing: -0.01em !important; margin: 0 0 4px; }
+.portal-shell a.button, .portal-shell button { text-decoration: none; }
+.portal-topbar { position: sticky; top: 0; z-index: 40; height: 48px; padding: 0 max(12px, calc((100vw - 1060px) / 2)); gap: 8px; background: var(--bg-shell); }
+.portal-shell .portal-brand { gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-primary); text-decoration: none; }
+.portal-mark { width: 20px; height: 20px; border-radius: 6px; background: var(--text-primary); color: var(--bg-shell); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+.portal-topbar-actions { gap: 4px; }
+.portal-shell .portal-refresh { height: 28px; min-height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 400; }
+.portal-shell .portal-refresh:hover { background: var(--bg-shell-hover); color: var(--text-primary); }
+.portal-shell .portal-avatar { width: 28px; height: 28px; background: var(--bg-surface); color: var(--text-secondary); font-size: 10px; font-weight: 500; text-decoration: none; }
+.portal-shell .theme-capsule-button { min-width: 44px; min-height: 28px; }
+.portal-preview-banner { padding: 6px 12px; background: var(--bg-raised); color: var(--text-secondary); font-size: 12px; }
+.portal-shell .portal-preview-banner a { color: var(--text-primary); font-weight: 500; }
+.portal-main { max-width: 760px; margin: 0 auto; padding: 16px 12px 112px; }
+.portal-shell .portal-card { background: var(--bg-surface); border: 1px solid var(--edge); border-radius: 14px; padding: 16px; margin: 0 0 12px; }
+.portal-shell .portal-card h2 { font-size: 15px; }
+.portal-shell .portal-hero { gap: 12px; background: var(--bg-surface); border: 1px solid var(--edge); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.portal-shell .portal-hero h2 { font-size: 18px; line-height: 26px; margin: 0 0 4px; }
+.portal-shell .portal-hero p { font-size: 13px; color: var(--text-secondary); }
+.portal-shell .portal-hero-symbol { display: none; }
+.portal-shell .portal-hero .button-group { margin-top: 12px; }
+.portal-shell .portal-section-heading { margin: 20px 0 8px; }
+.portal-shell .portal-section-heading h2 { font-size: 13px; line-height: 20px; font-weight: 500; }
+.portal-shell .portal-section-heading a { color: var(--text-secondary); font-size: 12px; text-decoration: none; }
+.portal-shell .portal-grid { gap: 12px; }
+.portal-shell .portal-empty { text-align: left; }
+.portal-shell .portal-maintenance > svg { display: none; }
+.portal-shell .portal-context { background: var(--bg-raised); border: 0; border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; }
+.portal-shell .portal-bottom-nav {
+  bottom: 12px; padding: 4px; gap: 2px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-pop);
+}
+.portal-shell .portal-nav-item { min-height: 48px; gap: 2px; border-radius: 12px; color: var(--text-secondary); font-size: 11px; line-height: 14px; font-weight: 400; text-decoration: none; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.portal-shell .portal-nav-item svg { width: 18px; height: 18px; }
+.portal-shell .portal-nav-item:hover { background: var(--bg-subtle); color: var(--text-primary); }
+.portal-shell .portal-nav-item.active { background: var(--bg-subtle); color: var(--text-primary); font-weight: 500; }
+/* phone-first controls in the portal: 44 px targets, 15 px text */
+.portal-shell button, .portal-shell .button { min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; }
+.portal-shell input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), .portal-shell select, .portal-shell textarea { min-height: 44px; font-size: 15px; border-radius: 10px; }
+.portal-shell label { font-size: 13px; }
+@media (min-width: 761px) { .portal-main { padding-top: 24px; } }
+.portal-shell .portal-page-heading { margin: 0 0 16px; }
+.portal-shell .portal-page-heading h1 { font-size: 18px; margin: 0; }
+.portal-shell .portal-page-heading p:not(.eyebrow) { font-size: 13px; color: var(--text-secondary); margin: 4px 0 0; }
+.portal-shell .portal-metrics { gap: 12px; margin-bottom: 20px; padding: 12px 16px; border-radius: 14px; background: var(--bg-raised); }
+.portal-shell .portal-metrics > a { flex-direction: column; align-items: flex-start; gap: 2px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-primary); text-decoration: none; }
+.portal-shell .portal-metrics svg { display: none; }
+.portal-shell .portal-metrics strong { font-size: 18px; line-height: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.portal-shell .portal-metrics span { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.portal-shell .portal-record-icon { width: 20px; height: 20px; flex: 0 0 20px; border-radius: 0; background: transparent; color: var(--text-tertiary); }
+.portal-shell .portal-record-icon svg { width: 16px; height: 16px; }
+.portal-shell .portal-record-footer { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--edge); color: var(--text-tertiary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.portal-shell a.portal-record, .portal-shell .portal-record a { text-decoration: none; color: inherit; }
+.portal-shell .portal-back { margin-bottom: 8px; font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+.portal-shell .portal-facts { margin: 0 0 16px; }
+.portal-shell .portal-facts > div { gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--edge); }
+.portal-shell .portal-facts dt { font-size: 12px; color: var(--text-secondary); }
+.portal-shell .portal-tabs { gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--edge); }
+.portal-shell .portal-tabs a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; margin-bottom: -1px; border-bottom: 2px solid transparent; color: var(--text-secondary); text-decoration: none; }
+.portal-shell .portal-tabs a.active { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 500; }
+.portal-shell .portal-hero-link { color: var(--text-secondary); font-size: 12px; }
+.portal-shell .theme-capsule-track { transform: scale(.8); }

@@ -15,5 +15,5 @@ export default async function NewTicketPage({ searchParams }: { searchParams:Pro
   if(item && !item.locations.customers.archived_at) choices.push({id:item.id,label:`${item.locations.customers.name} · ${item.locations.address}, ${item.locations.city} · ${item.type}`});
  }
  const selected=choices.some(row=>row.id===installation)?installation!:'';
- return <main><Link href="/dashboard/service">← Zgłoszenia serwisowe</Link><div className="page-heading"><div><p className="eyebrow">OBSŁUGA SERWISOWA</p><h1>Nowe zgłoszenie</h1><p>Powiąż problem z konkretną instalacją i opisz objawy.</p></div></div><section className="card"><NewServiceTicket options={choices} selected={selected} manager={manager.data===true} requestId={randomUUID()} /></section></main>;
+ return <main><Link href="/dashboard/service">← Zgłoszenia serwisowe</Link><div className="page-heading"><div><p className="eyebrow">Obsługa serwisowa</p><h1>Nowe zgłoszenie</h1><p>Powiąż problem z konkretną instalacją i opisz objawy.</p></div></div><section className="card"><NewServiceTicket options={choices} selected={selected} manager={manager.data===true} requestId={randomUUID()} /></section></main>;
 }

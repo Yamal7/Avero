@@ -18,5 +18,5 @@ export default async function PortalNewTicketPage({searchParams}:{searchParams:P
  if(item&&item.status!=='archived')options.push({id:item.id,label:`${item.type} · ${item.address}, ${item.city}`});
  }
  const selected=options.some(row=>row.id===params.installation)?params.installation!:'';
- return <>{picker}<Link className="portal-back" href={portalHref('/portal/service',id)}>← Moje zgłoszenia</Link><PortalHeading eyebrow="JESTEŚMY DO POMOCY" title="Zgłoś problem"><p>Wybierz instalację i opisz, w czym możemy pomóc.</p></PortalHeading><PortalTicketForm customerId={id} options={options} selected={selected} requestId={randomUUID()} /></>;
+ return <>{picker}<Link className="portal-back" href={portalHref('/portal/service',id)}>← Moje zgłoszenia</Link><PortalHeading eyebrow="Jesteśmy do pomocy" title="Zgłoś problem"><p>Wybierz instalację i opisz, w czym możemy pomóc.</p></PortalHeading><PortalTicketForm customerId={id} options={options} selected={selected} requestId={randomUUID()} /></>;
 }
