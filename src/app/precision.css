@@ -315,13 +315,13 @@ table { font-variant-numeric: tabular-nums; }
 .pui-main .pui-pills { display: flex; gap: 4px; flex-wrap: wrap; margin: 0; padding: 0; background: transparent; }
 .pui-main .list-page > .cv-pills { padding: 8px 12px 8px 16px; }
 .cv-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-.pui-main .cv-actions .button, .pui-main .cv-actions button {
+.pui-main .cv-actions > .button, .pui-main .cv-actions > button {
   height: 28px; min-height: 28px; padding: 0 10px 0 8px; gap: 6px; border-radius: 8px; border: 0; box-shadow: none;
   font-size: 13px; font-weight: 500; white-space: nowrap; text-decoration: none;
 }
-.pui-main .cv-actions .secondary { background: var(--bg-subtle); color: var(--text-primary); padding: 0 10px; }
-.pui-main .cv-actions .secondary:hover { background: var(--bg-shell-hover); }
-.cv-actions svg { width: 14px; height: 14px; }
+.pui-main .cv-actions > .secondary { background: var(--bg-subtle); color: var(--text-primary); padding: 0 10px; }
+.pui-main .cv-actions > .secondary:hover { background: var(--bg-shell-hover); }
+.cv-actions > .button > svg, .cv-actions > button > svg { width: 14px; height: 14px; }
 .pui-main .list-page .list-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px 8px 16px; margin: 0; justify-content: flex-start; }
 .list-toolbar .cv-search { order: 2; margin-left: auto; }
 .cv-search { flex: 0 1 280px; min-width: 160px; }
@@ -440,10 +440,10 @@ table { font-variant-numeric: tabular-nums; }
 .pui-main .rec-title h2 { margin: 0; font-size: 18px !important; line-height: 26px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; overflow-wrap: anywhere; }
 .rec-title p { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
 .rec-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.pui-main .rec-actions .button, .pui-main .rec-actions button { height: 32px; min-height: 32px; padding: 0 12px 0 10px; gap: 6px; border: 0; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: none; }
-.pui-main .rec-actions .secondary { background: var(--bg-subtle); color: var(--text-primary); }
-.pui-main .rec-actions .secondary:hover { background: var(--bg-shell-hover); }
-.rec-actions svg { width: 14px; height: 14px; }
+.pui-main .rec-actions > .button, .pui-main .rec-actions > button { height: 32px; min-height: 32px; padding: 0 12px 0 10px; gap: 6px; border: 0; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: none; }
+.pui-main .rec-actions > .secondary { background: var(--bg-subtle); color: var(--text-primary); }
+.pui-main .rec-actions > .secondary:hover { background: var(--bg-shell-hover); }
+.rec-actions > .button > svg, .rec-actions > button > svg { width: 14px; height: 14px; }
 .rec-tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--edge); overflow-x: auto; }
 .pui-page .rec-tabs a {
   display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 8px; margin-bottom: -1px; white-space: nowrap;
@@ -538,7 +538,9 @@ table { font-variant-numeric: tabular-nums; }
 :is(.pui-main, .portal-shell) .section-heading { margin-bottom: 8px; }
 :is(.pui-main, .portal-shell) .section-heading a { color: var(--text-secondary); font-size: 12px; }
 :is(.pui-main, .portal-shell) .button-group { gap: 8px; }
-:is(.pui-main, .portal-shell) button, :is(.pui-main, .portal-shell) .button { min-height: 32px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: none; }
+/* :where() keeps specificity at element level, so component buttons with their own size (tiles, list rows) are not flattened */
+:where(.pui-main, .portal-shell) button, :where(.pui-main, .portal-shell) .button { min-height: 32px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+:is(.pui-main, .portal-shell) button, :is(.pui-main, .portal-shell) .button { box-shadow: none; }
 :is(.pui-main, .portal-shell) .secondary { background: var(--bg-subtle); color: var(--text-primary); border-color: transparent; }
 :is(.pui-main, .portal-shell) .secondary:hover { background: var(--bg-shell-hover); }
 :is(.pui-main, .portal-shell) button:disabled { opacity: .5; }
@@ -583,7 +585,7 @@ table { font-variant-numeric: tabular-nums; }
 :is(.pui-main, .portal-shell) dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-modal); }
 :is(.pui-main, .portal-shell) dialog::backdrop { background: var(--scrim); }
 @media (max-width: 760px) {
-  :is(.pui-main, .portal-shell) button, :is(.pui-main, .portal-shell) .button { min-height: 44px; }
+  :where(.pui-main, .portal-shell) button, :where(.pui-main, .portal-shell) .button { min-height: 44px; }
   :is(.pui-main, .portal-shell) input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), :is(.pui-main, .portal-shell) select, :is(.pui-main, .portal-shell) textarea { min-height: 44px; font-size: 16px; }
 }
 .pui-main .cv-search input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]) { height: 28px; min-height: 0; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
@@ -627,7 +629,7 @@ table { font-variant-numeric: tabular-nums; }
 .portal-shell .portal-nav-item:hover { background: var(--bg-subtle); color: var(--text-primary); }
 .portal-shell .portal-nav-item.active { background: var(--bg-subtle); color: var(--text-primary); font-weight: 500; }
 /* phone-first controls in the portal: 44 px targets, 15 px text */
-.portal-shell button, .portal-shell .button { min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; }
+:where(.portal-shell) button, :where(.portal-shell) .button { min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; }
 .portal-shell input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), .portal-shell select, .portal-shell textarea { min-height: 44px; font-size: 15px; border-radius: 10px; }
 .portal-shell label { font-size: 13px; }
 @media (min-width: 761px) { .portal-main { padding-top: 24px; } }
@@ -652,3 +654,14 @@ table { font-variant-numeric: tabular-nums; }
 .portal-shell .portal-tabs a.active { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 500; }
 .portal-shell .portal-hero-link { color: var(--text-secondary); font-size: 12px; }
 .portal-shell .theme-capsule-track { transform: scale(.8); }
+
+/* offer wizard: type tiles and catalog rows on new tokens */
+.pui-main .wizard-types { gap: 8px; }
+.pui-main .wizard-types > button { min-height: 64px; padding: 12px; gap: 12px; border: 1px solid var(--edge); border-radius: 12px; background: var(--bg-surface); }
+.pui-main .wizard-types > button:hover { background: var(--bg-subtle); }
+.pui-main .wizard-types > button.selected { background: var(--bg-subtle); border-color: var(--border-strong); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.pui-main .wizard-types strong { font-size: 13px; font-weight: 500; }
+.pui-main .wizard-types small { margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
+.pui-main .catalog-pick-list > button { min-height: 44px; padding: 8px; border-bottom: 1px solid var(--edge); border-radius: 0; font-size: 13px; }
+.pui-main .catalog-pick-list > button:hover { background: var(--bg-subtle); }
+.pui-main .catalog-pick-list small { margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
