@@ -27,3 +27,20 @@ export function StatusIcon({ state }: { state: State }) {
   return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><circle cx="7" cy="7" r="5.75" fill="none" strokeWidth="1.5" strokeDasharray={state === 'cancelled' ? '2.2 2.31' : 'none'} style={{ stroke: color }} /><path d={fill} style={{ fill: color }} /><circle cx="7" cy="7" r="6.5" opacity={done} style={{ fill: color }} /><path d="M4.4 7.2 6.2 9 9.6 5.4" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={done} style={{ stroke: 'var(--bg-surface)' }} /></svg>;
 }
 
+
+export type Priority = 'none' | 'low' | 'normal' | 'high' | 'urgent';
+export const priorityLabel: Record<Priority, string> = { none: 'Bez priorytetu', low: 'Niski', normal: 'Normalny', high: 'Wysoki', urgent: 'Pilny' };
+export function PriorityIcon({ priority }: { priority: Priority }) {
+  if (priority === 'none') return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><path d="M1.5 7h2M6 7h2M10.5 7h2" fill="none" strokeWidth="1.5" strokeLinecap="round" style={{ stroke: 'var(--text-tertiary)' }} /></svg>;
+  if (priority === 'urgent') return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><rect x="1" y="1" width="12" height="12" rx="3" style={{ fill: 'var(--danger)' }} /><path d="M7 4v3.5M7 10v.01" fill="none" strokeWidth="1.6" strokeLinecap="round" style={{ stroke: 'var(--bg-surface)' }} /></svg>;
+  const on = priority === 'high' ? 3 : priority === 'normal' ? 2 : 1, c = (i: number) => (i <= on ? 'var(--text-secondary)' : 'var(--border-strong)');
+  return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><rect x="1" y="8" width="3" height="5" rx="1" style={{ fill: c(1) }} /><rect x="5.5" y="5" width="3" height="8" rx="1" style={{ fill: c(2) }} /><rect x="10" y="2" width="3" height="11" rx="1" style={{ fill: c(3) }} /></svg>;
+}
+
+export type TaskLabel = 'purchasing' | 'offers' | 'fgas' | 'documents' | 'customers' | 'warranty' | 'contracts' | 'tools' | 'internal';
+export const taskLabels: Record<TaskLabel, { name: string; color: string }> = {
+  purchasing: { name: 'Zakupy', color: 'rgb(224, 112, 42)' }, offers: { name: 'Oferty', color: 'rgb(124, 133, 224)' }, fgas: { name: 'F-gaz', color: 'rgb(43, 179, 177)' },
+  documents: { name: 'Dokumenty', color: 'rgb(138, 143, 152)' }, customers: { name: 'Klienci', color: 'rgb(78, 167, 232)' }, warranty: { name: 'Gwarancje', color: 'rgb(168, 123, 234)' },
+  contracts: { name: 'Umowy', color: 'rgb(78, 167, 232)' }, tools: { name: 'Narzędzia', color: 'rgb(138, 143, 152)' }, internal: { name: 'Wewnętrzne', color: 'rgb(138, 143, 152)' },
+};
+export const taskNumber = (n: number) => `ZD-${n}`;

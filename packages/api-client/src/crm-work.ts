@@ -11,7 +11,14 @@ export const crmOwnerSaveSchema=z.object({version,ownerId:z.string().uuid().null
 export const crmTaskProgressSchema=z.object({version:z.number().int().nonnegative(),state:z.enum(['todo','in_progress','done']),result:text(2000)}).strict();
 const record={id:z.string().uuid(),customerId:z.string().uuid(),version:z.number().int().nonnegative(),createdAt:z.string(),updatedAt:z.string(),contactLabel:z.string().nullable()};
 export const crmNoteSchema=crmNoteFieldsSchema.extend(record).strict();
-export const crmTaskSchema=crmTaskFieldsSchema.extend({...record,assigneeLabel:z.string(),completedAt:z.string().nullable()}).strict();
+export const crmTaskPriorities=['none','low','normal','high','urgent'] as const;
+export const crmTaskLabels=['purchasing','offers','fgas','documents','customers','warranty','contracts','tools','internal'] as const;
+export const crmTaskSchema=crmTaskFieldsSchema.extend({...record,assigneeLabel:z.string(),completedAt:z.string().nullable(),number:z.number().int().positive(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable(),comments:z.number().int().nonnegative()}).strict();
+export const crmTaskMetaSchema=z.object({version:z.number().int().nonnegative(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable()}).strict();
+export const crmTaskCommentSchema=z.object({id:z.string().uuid(),taskId:z.string().uuid(),authorId:z.string().uuid(),authorLabel:z.string(),body:z.string(),createdAt:z.string()}).strict();
+export const crmTaskCommentsSchema=z.array(crmTaskCommentSchema).max(200);
+export const crmTaskCommentInputSchema=z.object({id:z.string().uuid(),body:text(2000).refine(v=>v.length>0)}).strict();
+export type CrmTaskComment=z.infer<typeof crmTaskCommentSchema>;
 export const crmNotesSchema=z.object({total:z.number().int().nonnegative(),items:z.array(crmNoteSchema)}).strict();
 export const crmTasksSchema=z.object({total:z.number().int().nonnegative(),items:z.array(crmTaskSchema)}).strict();
 const option=z.object({id:z.string().uuid(),label:z.string()}).strict();
