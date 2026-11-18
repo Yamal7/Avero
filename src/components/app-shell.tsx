@@ -145,7 +145,8 @@ function useRecentTabs(pathname:string,current:NavEntry|undefined,key:string,exc
   if(!current||excludeKey.split('|').includes(pathname)||pathname.startsWith('/dashboard/soon'))return;
   const timer=window.setTimeout(()=>{
    const isModule=current.href===pathname;
-   const heading=document.querySelector('.pui-main h1')?.textContent?.replace(/\s+/g,' ').trim();
+   const heading=document.querySelector('.pui-main main h1')?.textContent?.replace(/\s+/g,' ').trim();
+   if(document.querySelector('.pui-main .error-state, .pui-main [data-error-boundary]')||heading==='Nie udało się wczytać danych')return;
    const label=isModule?current.label:(heading&&heading.length<=60?heading:current.label);
    setTabs(prev=>{const next=[{href:pathname,label,icon:current.icon},...prev.filter(t=>t.href!==pathname)].slice(0,5);try{localStorage.setItem(key,JSON.stringify(next));}catch{/* ignore */}return next;});
   },400);

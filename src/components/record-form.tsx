@@ -5,7 +5,7 @@ import type { Entity, FormState } from '@/lib/validation/crm';
 
 type Field = { name: string; label: string; type?: string; required?: boolean; max?: number; options?: [string, string][] };
 const fields: Record<Entity, Field[]> = {
-  customers: [{ name: 'name', label: 'Nazwa klienta', required: true, max: 200 }, { name: 'type', label: 'Typ klienta', options: [['individual', 'Osoba prywatna'], ['company', 'Firma']] }, { name: 'email', label: 'E-mail', type: 'email', max: 320 }, { name: 'phone', label: 'Telefon', type: 'tel', max: 40 }],
+  customers: [{ name: 'name', label: 'Nazwa klienta', required: true, max: 200 }, { name: 'type', label: 'Typ klienta', options: [['individual', 'Osoba prywatna'], ['company', 'Firma']] }, { name: 'email', label: 'E-mail', type: 'email', max: 320 }, { name: 'phone', label: 'Telefon', type: 'tel', max: 40 }, { name: 'tax_id', label: 'NIP', max: 40 }, { name: 'payment_terms', label: 'Warunki płatności', max: 80 }],
   locations: [{ name: 'address', label: 'Ulica i numer', required: true, max: 300 }, { name: 'city', label: 'Miejscowość', required: true, max: 100 }, { name: 'postal_code', label: 'Kod pocztowy', max: 20 }],
   installations: [{ name: 'type', label: 'Rodzaj instalacji', required: true, max: 100 }, { name: 'installed_on', label: 'Data montażu', type: 'date' }, { name: 'status', label: 'Status', options: [['active', 'Aktywna'], ['inactive', 'Nieaktywna'], ['archived', 'Archiwalna']] }],
   devices: [{ name: 'manufacturer', label: 'Producent', required: true, max: 100 }, { name: 'model', label: 'Model', max: 200 }, { name: 'serial_number', label: 'Numer seryjny', max: 200 }, { name: 'warranty_until', label: 'Gwarancja do', type: 'date' }],

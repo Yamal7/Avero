@@ -4,5 +4,7 @@ export const customerSchema = z.object({
   email: z.string().trim().email().max(320).nullable().optional(),
   phone: z.string().trim().max(40).nullable().optional(),
   type: z.enum(['individual', 'company']),
+  tax_id: z.string().trim().max(40).nullable().optional(),
+  payment_terms: z.string().trim().max(80).nullable().optional(),
 });
 export type CustomerInput = z.infer<typeof customerSchema>;
