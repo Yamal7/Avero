@@ -23,6 +23,8 @@ export function OfferCrumbs({ number, meta, children }: { number: string; meta?:
   return (
     <div className="pui-page-head cv-head">
       <Icon name="offer" size={16} />
+      <span className="pui-page-sub">Sprzedaż</span>
+      <span className="pui-crumb-sep" aria-hidden="true"><Icon name="right" size={12} /></span>
       <Link className="pui-page-sub rec-crumb" href="/dashboard/offers">Oferty</Link>
       <span className="pui-crumb-sep" aria-hidden="true"><Icon name="right" size={12} /></span>
       <h1 className="num">{number}</h1>

@@ -32,7 +32,6 @@ export default async function OfferPreview({ params, searchParams }: { params: P
   return (
     <main className="list-page of-page">
       <OfferCrumbs number={preview.number} />
-      <OfferSteps id={id} customerId={record.customerId} customerName={record.customerSnapshot.name} current={step} positions={`${record.variants.length} ${record.variants.length === 1 ? 'wariant' : 'warianty'} · ${lineCount} pozycji`} termsReady={doc !== null} published={publications.length > 0} />
       <div className="of-head-row">
         <OfferTitle title={<h2 className="of-title-text">{record.title}</h2>} customerId={record.customerId} customer={record.customerSnapshot} workType={offerWorkTypes[record.workType]} status={status}
           extra={doc && <span className="of-chip" title={`Ważna do: ${fullDay(doc.data.validUntil)}`}><Icon name="calendar" size={14} />Ważna do {dayLabel(doc.data.validUntil)}</span>} />
@@ -42,6 +41,7 @@ export default async function OfferPreview({ params, searchParams }: { params: P
             : <Link className="button secondary" href={offerStepHref(id, 'warunki')}>Wróć do warunków</Link>}
         </div>
       </div>
+      <OfferSteps id={id} customerId={record.customerId} customerName={record.customerSnapshot.name} current={step} positions={`${record.variants.length} ${record.variants.length === 1 ? 'wariant' : 'warianty'} · ${lineCount} pozycji`} termsReady={doc !== null} published={publications.length > 0} />
       <div className="of-grid of-grid-wide">
         <div className="of-main">
           {step === 'warunki'
