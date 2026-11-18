@@ -52,7 +52,8 @@ const allEntries=[...top,...groups.flatMap(group=>group.items),...bottom];
 const isActive=(href:string,pathname:string)=>href==='/dashboard'?pathname===href:pathname===href||pathname.startsWith(href+'/');
 type Panel='search'|'alerts'|'profile';
 const paletteActions=(role:string):PaletteEntry[]=>[{href:'/dashboard/service/new',label:'Nowe zgłoszenie serwisowe',icon:'alert'},...(staff.includes(role)?[{href:'/dashboard/customers/new',label:'Nowy klient',icon:'building' as IconName},{href:'/dashboard/offers',label:'Nowa oferta',icon:'offer' as IconName},{href:'/dashboard/catalog/new',label:'Nowa pozycja katalogu',icon:'book' as IconName}]:[])];
-export function AppShell({children,email,displayName,role,alerts,taskAlerts}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number}}){
+export function AppShell({children,email,displayName,role,alerts,taskAlerts,companyName}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number};companyName?:string|null}){
+ const company=(companyName||'').trim()||'Avero';
  const router=useRouter();
  const [notificationUnread,setNotificationUnread]=useState(0);
  const mobileButton=useRef<HTMLButtonElement>(null),sidebar=useRef<HTMLElement>(null),wasOpen=useRef(false),dialog=useRef<HTMLDialogElement>(null),trigger=useRef<HTMLElement|null>(null);
@@ -77,26 +78,33 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts}:{ta
  const allowed=(entry:NavEntry)=>!entry.roles||entry.roles.includes(role);
  const current=allEntries.filter(entry=>isActive(entry.href,pathname)).sort((x,y)=>y.href.length-x.href.length)[0];
  const badge=notificationUnread||totalAlerts;
+ const pinned=[top[0],allEntries.find(e=>e.href==='/dashboard/calendar')!];
+ const recent=useRecentTabs(pathname,current,viewerKey(taskAlerts.viewerId),pinned.map(e=>e.href).join('|'));
+ const currentTabHref=recent.find(t=>t.href===pathname)?.href??current?.href;
  function item(entry:NavEntry){
   const active=current?.href===entry.href;
   return <Link key={entry.href} href={entry.href} className={`pui-nav${active?' is-active':''}`} aria-current={active?'page':undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:undefined} onClick={()=>setMobileOpen(false)}>
    <Icon name={entry.icon} size={16}/><span className="ell">{entry.label}</span>
-   {entry.soon?<span className="pui-nav-soon">wkrótce</span>:entry.count?<span className="pui-nav-count num">{entry.count}</span>:null}
+   {!entry.soon&&entry.count?<span className="pui-nav-count num">{entry.count}</span>:null}
   </Link>;
  }
- return <div className={`pui-shell${mobileOpen?' is-nav-open':''}`}>
+ return <div className={`pui-shell av${mobileOpen?' is-nav-open':''}`}>
  <header className="pui-top no-print">
   <div className="pui-top-left">
    <button ref={mobileButton} type="button" className="pui-round pui-menu" aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
-   <Link className="pui-ws" href="/dashboard" aria-label="Avero — przejdź do Mojego dnia"><span className="pui-ws-mark" aria-hidden="true">A</span><span className="ell">Avero</span></Link>
-   <button type="button" className="pui-round" aria-label="Szukaj" title="Szukaj  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}}><Icon name="find" size={16}/></button>
-   <Link className="pui-round is-raised" href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie"><Icon name="compose" size={16}/></Link>
+   <button type="button" className="shellbtn pui-ws" title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)} style={{flex:'1 1 auto',minWidth:0,display:'flex',alignItems:'center',gap:8,height:32,padding:'0 8px',border:0,borderRadius:10,background:'transparent',textAlign:'left'}}><span style={{width:20,height:20,borderRadius:6,background:'var(--text-primary)',color:'var(--bg-shell)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:600,flex:'0 0 auto'}}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="ell" style={{fontWeight:500}}>{company}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{flex:'0 0 auto',color:'var(--text-tertiary)'}}><path d="m6 9 6 6 6-6"/></svg></button>
+   <button type="button" className="shellbtn" aria-label="Szukaj" title="Szukaj  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+   <Link className="shellbtn" href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie  C" style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'var(--bg-surface)',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></Link>
   </div>
-  <div className="pui-tabs" aria-label="Bieżący widok">{current&&<span className="pui-tab"><Icon name={current.icon} size={14}/><span className="ell">{current.label}</span></span>}</div>
-  <span className="pui-top-spacer"/>
-  <div className="pui-top-right">
-   <button type="button" className="pui-round" aria-label={`Powiadomienia${notificationUnread?` — nieprzeczytane: ${notificationUnread}`:totalAlerts?` — bieżące sprawy: ${totalAlerts}`:''}`} title="Powiadomienia" onClick={event=>openPanel('alerts',event.currentTarget)}><Icon name="ring" size={16}/>{badge>0&&<span className="pui-count-dot num" aria-hidden="true">{badge>99?'99+':badge}</span>}</button>
-   <button type="button" className="pui-round" aria-label={`Profil użytkownika: ${displayName}`} title={`${displayName} · ${roleLabels[role as AccessRole]||role}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className="pui-avatar" aria-hidden="true">{initials||'U'}</span></button>
+  <div role="tablist" aria-label="Karty" className="pui-tabs" style={{flex:'0 1 auto',minWidth:0,overflow:'hidden',display:'flex',alignItems:'center',gap:2}}>
+   {pinned.map((entry,i)=>{const on=current?.href===entry.href;return <Link key={entry.href} role="tab" aria-selected={on} href={entry.href} className={`dtab${on?' act':''}`} aria-label={`${entry.label}, karta przypięta`} title={entry.label} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,color:on?'var(--text-primary)':i===0?'var(--text-tertiary)':'var(--text-secondary)',padding:0,marginRight:i===pinned.length-1?6:0}}><Icon name={entry.icon} size={14}/></Link>;})}
+   {recent.map(tabEntry=>{const on=tabEntry.href===currentTabHref;return <Link key={tabEntry.href} role="tab" aria-selected={on} href={tabEntry.href} className={`dtab${on?' act':''}`} title={tabEntry.label} style={{flex:'0 1 auto',minWidth:0,maxWidth:200,display:'inline-flex',alignItems:'center',gap:6,height:28,padding:'0 10px',border:0,borderRadius:8,color:on?'var(--text-primary)':'var(--text-secondary)',fontSize:12,fontWeight:on?500:400}}><Icon name={tabEntry.icon} size={14}/><span className="ell">{tabEntry.label}</span></Link>;})}
+  </div>
+  <button type="button" className="ib" aria-label="Nowa karta" title="Nowa karta  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,background:'transparent',color:'var(--text-tertiary)',padding:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+  <span className="pui-top-spacer" style={{flex:'1 1 auto'}}/>
+  <div className="pui-top-right" style={{flex:'0 0 auto',display:'flex',alignItems:'center',gap:4}}>
+   <span style={{position:'relative',display:'inline-flex'}}><button type="button" className="shellbtn" aria-label={`Powiadomienia${notificationUnread?` — nieprzeczytane: ${notificationUnread}`:totalAlerts?` — bieżące sprawy: ${totalAlerts}`:''}`} title="Powiadomienia  G I" onClick={event=>openPanel('alerts',event.currentTarget)} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.27 21a2 2 0 0 0 3.46 0"/><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33"/></svg></button>{badge>0&&<span className="num" aria-hidden="true" style={{position:'absolute',top:2,right:2,minWidth:14,height:14,padding:'0 3px',borderRadius:7,background:'var(--text-primary)',color:'var(--bg-shell)',fontSize:10,lineHeight:'14px',fontWeight:600,textAlign:'center',pointerEvents:'none'}}>{badge>99?'99+':badge}</span>}</span>
+   <button type="button" className="shellbtn" aria-label={`${displayName}, ${roleLabels[role as AccessRole]||role}`} title={`${displayName} · ${roleLabels[role as AccessRole]||role}`} onClick={event=>openPanel('profile',event.currentTarget)} style={{width:28,height:28,display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',padding:0}}><span style={{width:24,height:24,borderRadius:'50%',background:'var(--bg-surface)',border:0,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,color:'var(--text-secondary)'}}>{initials||'U'}</span></button>
   </div>
  </header>
  <div className="pui-body">
@@ -123,4 +131,25 @@ function NavigationGroup({id,title,viewerId,children}:{id:string;title:string;vi
  useEffect(()=>{try{setCollapsed(localStorage.getItem(storageKey)==='collapsed');}catch{setCollapsed(false);}},[storageKey]);
  function toggle(){const next=!collapsed;setCollapsed(next);try{localStorage.setItem(storageKey,next?'collapsed':'expanded');}catch{/* Navigation remains usable when storage is unavailable. */}}
  return <section className="pui-nav-group"><button type="button" className="pui-group-h" aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={`pui-caret${collapsed?' is-closed':''}`} aria-hidden="true"><Icon name="down" size={12}/></span></button><div id={'nav-group-'+id} className="pui-nav-group" hidden={collapsed}>{children}</div></section>;
+}
+
+
+/* Recently opened screens shown as tabs in the top bar (design: "Karty"). Kept per user in localStorage; module pages use their
+   navigation label, record pages the page heading. */
+type RecentTab={href:string;label:string;icon:IconName};
+const viewerKey=(id:string)=>'hvac.tabs.'+id;
+function useRecentTabs(pathname:string,current:NavEntry|undefined,key:string,excludeKey:string){
+ const [tabs,setTabs]=useState<RecentTab[]>([]);
+ useEffect(()=>{try{const raw=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(raw))setTabs(raw.filter((t:RecentTab)=>t&&typeof t.href==='string'&&typeof t.label==='string').slice(0,5));}catch{/* tabs are a convenience */}},[key]);
+ useEffect(()=>{
+  if(!current||excludeKey.split('|').includes(pathname)||pathname.startsWith('/dashboard/soon'))return;
+  const timer=window.setTimeout(()=>{
+   const isModule=current.href===pathname;
+   const heading=document.querySelector('.pui-main h1')?.textContent?.replace(/\s+/g,' ').trim();
+   const label=isModule?current.label:(heading&&heading.length<=60?heading:current.label);
+   setTabs(prev=>{const next=[{href:pathname,label,icon:current.icon},...prev.filter(t=>t.href!==pathname)].slice(0,5);try{localStorage.setItem(key,JSON.stringify(next));}catch{/* ignore */}return next;});
+  },400);
+  return()=>window.clearTimeout(timer);
+ },[pathname,current,key,excludeKey]);
+ return tabs;
 }

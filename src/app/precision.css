@@ -75,8 +75,8 @@ body {
 h1 { font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
 h2 { font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: -0.01em; }
 h3 { font-size: 13px; line-height: 20px; font-weight: 600; }
-.pui-main h1 { font-size: 18px !important; line-height: 24px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
-.pui-main h2 { font-size: 15px !important; line-height: 20px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
+.pui-main h1:not(.dk *) { font-size: 18px !important; line-height: 24px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
+.pui-main h2:not(.dk *) { font-size: 15px !important; line-height: 20px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
 button, .button {
   min-height: var(--control-h); padding: 0 12px; gap: 6px; border-radius: 8px;
   font-size: 13px; line-height: 20px; font-weight: 500;
@@ -979,3 +979,65 @@ a.cmdk-opt.is-active > svg { color: var(--text-primary); }
 .pui-main .of-main .offer-document-settings .section-heading > .button:hover { background: var(--bg-subtle); }
 .pui-main table.of-client-table { min-width: 0; table-layout: auto; }
 .of-client .table-scroll, .of-client { overflow-x: auto; }
+
+/* ───────── 0. Design kit: class rules copied 1:1 from the design (Main.dc.html) ───────── */
+.av{font-family:var(--font-sans);font-size:13px;line-height:20px;color:var(--text-primary);-webkit-font-smoothing:antialiased}
+
+
+.av a{color:inherit;text-decoration:none}
+.av button{font:inherit;color:inherit;cursor:pointer}
+.av .nav,.av .row,.av .ghost,.av .sec{transition:background-color 120ms var(--ease),color 120ms var(--ease)}
+.av .nav:hover,.av .ghost:hover,.av .row:hover,.av .sec:hover,.av .row.sel,.av .opt.sel{background:var(--bg-subtle)}
+.av .nav:hover{color:var(--text-primary)}
+.av .pri:hover{filter:brightness(1.06)}
+.av :focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.av .mono{font-family:"Geist Mono",ui-monospace,monospace;font-size:12px;letter-spacing:0}
+.av .num{font-variant-numeric:tabular-nums}
+.av .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@media (prefers-reduced-motion:reduce){.av *{transition:none!important}}
+
+.av .nav:hover,.av .nav.act,.av .shellbtn:hover{background:var(--bg-shell-hover)}
+.av .nav:hover{background:var(--bg-shell-hover)}
+.av .ib{transition:background-color 120ms var(--ease),color 120ms var(--ease)}
+.av .ib:hover,.av .ib.on{background:var(--bg-subtle);color:var(--text-primary)}
+.av .grp:hover{background:var(--bg-shell-hover)}
+.av .grp{transition:background-color 120ms var(--ease)}
+.av .tab:hover{color:var(--text-primary)}
+.av .caret{transition:transform 160ms var(--ease)}
+.av .nav svg{color:var(--text-tertiary);transition:color 120ms var(--ease)}
+.av .grp-h{transition:color 120ms var(--ease)}
+.av .grp-h:hover{color:var(--text-secondary)}
+.av .dtab,.av .prop,.av .ghost{background:transparent}
+.av .shellbtn:hover,.av .grp:hover,.av .dtab:hover{background:var(--bg-shell-hover)!important}
+.av .ib:hover,.av .ib.on{background:var(--bg-subtle)!important;color:var(--text-primary)!important}
+.av .dtab.act,.av .dtab.act:hover{background:var(--bg-surface)!important}
+.av .prop{transition:background-color 120ms var(--ease)}
+.av .prop:hover,.av .ghost:hover{background:var(--bg-subtle)}
+.av .prop:hover{filter:brightness(0.97)}
+[data-theme=dark] .av .prop:hover{filter:brightness(1.15)}
+.av .chip-off:hover{color:var(--text-secondary);background:var(--bg-subtle)!important}
+.av .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.av .sec{transition:filter 120ms var(--ease)}
+.av .sec:hover{filter:brightness(0.96)}
+[data-theme=dark] .av .sec:hover{filter:brightness(1.18)}
+.av input,.av textarea{outline:0;transition:box-shadow 120ms var(--ease)}
+.av input:focus,.av textarea:focus{box-shadow:inset 0 0 0 1.5px var(--accent)}
+@media (prefers-contrast:more){.av .sec,.av input,.av textarea,.av .card,.av .prop{outline:1px solid var(--border-strong);outline-offset:-1px}.av{--edge:var(--border-strong)}}
+.av .card{transition:background-color 120ms var(--ease)}
+.av .card:hover{background:var(--bg-subtle)!important}
+.av .card.sel{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.av .trow{background:var(--bg-surface);transition:background-color 120ms var(--ease)}
+.av .trow:hover{background:var(--bg-subtle)}
+.av .flink:hover{text-decoration:underline;text-underline-offset:2px}
+.av .capd{background:var(--bg-subtle);transition:filter 120ms var(--ease)}
+.av .capd:hover{filter:brightness(0.97)}
+[data-theme=dark] .av .capd:hover{filter:brightness(1.15)}
+@media (prefers-contrast:more){.av .capd{outline:1px solid var(--border-strong);outline-offset:-1px}}
+.av .nav:hover svg,.av .nav.act svg{color:var(--text-primary)}
+.av .dtab{transition:background-color 120ms var(--ease),color 120ms var(--ease)}
+.av .dtab:hover{background:var(--bg-shell-hover);color:var(--text-primary)}
+.av .dtab.act,.av .dtab.act:hover{background:var(--bg-surface);color:var(--text-primary)}
+/* Neutralise legacy global form styles inside screens ported 1:1 from the design (root class .dk). */
+.pui-main .dk button, .pui-main .dk a { min-height: 0; box-shadow: none; text-transform: none; letter-spacing: normal; justify-content: normal; font: inherit; }
+.pui-main .dk h1, .pui-main .dk h2, .pui-main .dk h3 { letter-spacing: normal; text-transform: none; }
+.pui-main .workspace:has(> .dk) { padding: 0; }

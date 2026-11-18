@@ -1,30 +1,69 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { myTasksQuerySchema,myTasksSchema,type MyTasksQuery } from '@hvac/api-client';
+import { myTasksQuerySchema, myTasksSchema, type MyTasksQuery } from '@hvac/api-client';
 import { requireSession } from '@/lib/auth';
-import { MyTasksBoard } from '@/components/my-tasks';
 import { TaskBoard } from '@/components/task-board';
-import { Icon } from '@/components/icon';
-const filters:Record<MyTasksQuery['filter'],string>={today:'Dzisiaj',overdue:'Po terminie',upcoming:'Nadchodzące',open:'Otwarte',closed:'Zamknięte'};
-export default async function MyTasksPage({searchParams}:{searchParams:Promise<{filter?:string;search?:string;page?:string;view?:string}>}){
- const {db,user,access}=await requireSession();if(!['admin','office','technician'].includes(access.role))redirect('/portal');
- const {view:viewParam,...rawQuery}=await searchParams,view=viewParam==='board'?'board':'list',parsed=myTasksQuerySchema.safeParse(rawQuery),query=parsed.success?parsed.data:myTasksQuerySchema.parse({}),r=await db.rpc('my_crm_tasks',{p_filter:query.filter,p_search:query.search,p_page:query.page});if(r.error)throw new Error('Nie udało się pobrać Twoich zadań.');const data=myTasksSchema.refine(v=>v.viewerId===user.id).parse(r.data);
- const href=(filter:MyTasksQuery['filter'],page=1,v:string=view)=>`/dashboard/tasks?${new URLSearchParams({filter,search:query.search,page:String(page),...(v==='board'?{view:'board'}:{})})}`;
- const dateLabel=new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw',dateStyle:'long'}).format(new Date(data.today+'T12:00:00Z'));
- return <main className="my-tasks-page">
-  <div className="pui-page-head cv-head">
-   <span className="pui-page-sub">Projekty</span><span className="pui-crumb-sep" aria-hidden="true"><Icon name="right" size={12}/></span><h1>Zadania</h1>
-   <span className="pui-spacer"/>
-   <time className="pui-page-meta" dateTime={data.today}>{dateLabel}</time>
-   {['admin','office'].includes(access.role)&&<div className="cv-actions"><Link className="button secondary" href="/dashboard/team-tasks">Zadania zespołu</Link></div>}
-  </div>
-  {!parsed.success&&<p className="error" role="alert">Filtry były nieprawidłowe. Przywrócono domyślny widok.</p>}
-  <div className="list-toolbar" style={{display:'flex',alignItems:'center',flexWrap:'wrap',gap:8,padding:'8px 12px 8px 16px'}}>
-   <nav className="pui-pills" aria-label="Widoki moich zadań">{Object.entries(filters).map(([filter,label])=><Link key={filter} className={`pui-pill${query.filter===filter?' is-active':''}`} href={href(filter as MyTasksQuery['filter'])} aria-current={query.filter===filter?'page':undefined}>{label}<span className="pui-pill-count">{data.counts[filter as MyTasksQuery['filter']]}</span></Link>)}</nav>
-   <nav className="cv-seg" aria-label="Układ"><Link className={view==='list'?'is-active':''} aria-current={view==='list'?'page':undefined} href={href(query.filter,1,'list')} title="Lista"><Icon name="menu" size={14}/><span>Lista</span></Link><Link className={view==='board'?'is-active':''} aria-current={view==='board'?'page':undefined} href={href(query.filter,1,'board')} title="Tablica"><Icon name="layers" size={14}/><span>Tablica</span></Link></nav><form action="/dashboard/tasks" className="cv-search" role="search"><input type="hidden" name="filter" value={query.filter}/>{view==='board'&&<input type="hidden" name="view" value="board"/>}<label><span className="sr-only">Szukaj zadania lub klienta</span><Icon name="find" size={14}/><input type="search" name="search" maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta"/></label><button type="submit" className="sr-only">Szukaj</button></form>
-  </div>
-  <section aria-label={`Zadania: ${filters[query.filter]}`}>{view==='board'?<TaskBoard data={data}/>:<MyTasksBoard key={`${query.filter}-${query.search}-${query.page}`} data={data}/>}</section>
-  {data.total>0&&<nav className="crm-pagination" aria-label="Strony moich zadań">{query.page>1?<Link href={href(query.filter,query.page-1)}>Poprzednia</Link>:<span/>}<span className="num">Strona {query.page} · zadań: {data.total}{query.search?' · wyszukiwanie aktywne':''}</span>{query.page*20<data.total?<Link href={href(query.filter,query.page+1)}>Następna</Link>:<span/>}</nav>}
-  <p className="my-tasks-footnote">Daty według czasu polskiego. Zadania nie rezerwują terminów ekip w kalendarzu.</p>
- </main>;
+import { TaskListView } from '@/components/task-list';
+import { DI } from '@/components/design-icons';
+
+/* Saved views of the design ("Wszystkie / Moje / Ten tydzień / F-gaz") map onto the filters the task query supports. */
+const views: [MyTasksQuery['filter'], string][] = [['open', 'Otwarte'], ['today', 'Dziś'], ['overdue', 'Po terminie'], ['upcoming', 'Nadchodzące'], ['closed', 'Zamknięte']];
+
+export default async function MyTasksPage({ searchParams }: { searchParams: Promise<{ filter?: string; search?: string; page?: string; view?: string }> }) {
+  const { db, user, access } = await requireSession();
+  if (!['admin', 'office', 'technician'].includes(access.role)) redirect('/portal');
+  const { view: viewParam, ...raw } = await searchParams;
+  const view = viewParam === 'board' ? 'board' : 'list';
+  const parsed = myTasksQuerySchema.safeParse({ filter: 'open', ...raw });
+  const query = parsed.success ? parsed.data : myTasksQuerySchema.parse({ filter: 'open' });
+  const r = await db.rpc('my_crm_tasks', { p_filter: query.filter, p_search: query.search, p_page: query.page });
+  if (r.error) throw new Error('Nie udało się pobrać Twoich zadań.');
+  const data = myTasksSchema.refine(v => v.viewerId === user.id).parse(r.data);
+  const href = (filter: MyTasksQuery['filter'], page = 1, v: string = view) => `/dashboard/tasks?${new URLSearchParams({ filter, ...(query.search ? { search: query.search } : {}), ...(page > 1 ? { page: String(page) } : {}), ...(v === 'board' ? { view: 'board' } : {}) })}`;
+  const staff = ['admin', 'office'].includes(access.role);
+
+  const header = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
+      <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{DI.check}</span>
+      <span style={{ color: 'var(--text-secondary)' }}>Projekty</span>
+      <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+      <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Zadania</h1>
+      <span style={{ flex: '1 1 auto' }} />
+      <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{data.counts.open} otwartych</span>
+    </div>
+  );
+  const tabs = (
+    <div role="tablist" aria-label="Widoki zadań" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {views.map(([filter, label]) => {
+        const on = query.filter === filter;
+        return <Link key={filter} role="tab" aria-selected={on} className="tab" href={href(filter)} title={`${label}: ${data.counts[filter]}`} style={{ height: 28, padding: '0 12px', borderRadius: 14, border: 0, background: on ? 'var(--bg-subtle)' : 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: on ? 500 : 400, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>{label}</Link>;
+      })}
+    </div>
+  );
+  const layout = (
+    <div role="group" aria-label="Układ" style={{ display: 'inline-flex', gap: 2, padding: 2, margin: '0 4px', borderRadius: 10, background: 'var(--bg-subtle)' }}>
+      <Link href={href(query.filter, query.page, 'list')} aria-current={view === 'list' ? 'page' : undefined} aria-label="Lista" title="Lista" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'list' ? 'var(--bg-surface)' : 'transparent', color: view === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{DI.list}</Link>
+      <Link href={href(query.filter, query.page, 'board')} aria-current={view === 'board' ? 'page' : undefined} aria-label="Tablica" title="Tablica" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'board' ? 'var(--bg-surface)' : 'transparent', color: view === 'board' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{DI.board}</Link>
+    </div>
+  );
+  const search = (
+    <form action="/dashboard/tasks" role="search" style={{ display: 'inline-flex' }}>
+      <input type="hidden" name="filter" value={query.filter} />
+      {view === 'board' && <input type="hidden" name="view" value="board" />}
+      <label htmlFor="task-search" className="vh">Szukaj zadania lub klienta</label>
+      <input id="task-search" type="search" name="search" autoFocus maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta" style={{ width: 220, height: 28, padding: '0 10px', border: 0, borderRadius: 8, background: 'var(--bg-subtle)', font: 'inherit', color: 'var(--text-primary)', minHeight: 0, boxShadow: 'none' }} />
+    </form>
+  );
+  const extra = staff
+    ? <Link href="/dashboard/team-tasks" className="pri" title="Zadania całego zespołu" style={{ height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px', marginLeft: 4, border: 0, borderRadius: 8, background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 500 }}>Zadania zespołu</Link>
+    : null;
+  const footer = (data.total > 20 || !parsed.success) && (
+    <nav aria-label="Strony zadań" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, minHeight: 36, padding: '0 20px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
+      {query.page > 1 ? <Link href={href(query.filter, query.page - 1)}>Poprzednia</Link> : <span />}
+      <span className="num">Strona {query.page} · zadań: {data.total}</span>
+      {query.page * 20 < data.total ? <Link href={href(query.filter, query.page + 1)}>Następna</Link> : <span />}
+    </nav>
+  );
+
+  return <TaskListView key={`${query.filter}-${query.search}-${query.page}-${view}`} data={data} header={header} toolbarTabs={tabs} layoutSwitch={layout} search={search} toolbarExtra={extra} footer={footer} board={view === 'board' ? <TaskBoard data={data} /> : undefined} />;
 }
