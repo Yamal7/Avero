@@ -1,198 +1,260 @@
-import type { ReactNode } from 'react';
+/* Mój dzień — ported 1:1 from the design artboard "Mój dzień · jasny" (inline styles copied from the rendered design).
+   Groups and widgets show the data the program has; SLA, contracts and invoices are modules that do not exist yet. */
+import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { maintenanceListSchema } from '@hvac/api-client';
+import { z } from 'zod';
+import { crmTaskCommentSchema, maintenanceListSchema } from '@hvac/api-client';
 import { getTaskAlerts } from '@/lib/data/task-alerts';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
 import { displayTime, localDate, SERVICE_TIME_ZONE, visitOnDate } from '@/lib/service/dates';
 import { visitLabels, type CalendarVisit } from '@/lib/service/types';
 import { requireSession } from '@/lib/auth';
-import { Icon } from '@/components/icon';
+import { DI, PersonAvatar, PriorityIcon, ProgressGlyph, StatusIcon, personName, taskNumber, ticketCode, type Priority } from '@/components/design-icons';
 
-type Phase = 'todo' | 'progress' | 'done' | 'alert';
-const phaseColor: Record<Phase, string> = { todo: 'var(--text-secondary)', progress: 'var(--st-progress)', done: 'var(--success)', alert: 'var(--st-blocked)' };
+const sv = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
+const I = {
+  sun: <svg {...sv} width={16} height={16}><circle key="1" cx="12" cy="12" r="4" /><path key="2" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>,
+  alert: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><path key="1" d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path key="2" d="M12 9v4M12 17h.01" /></svg>,
+  clock: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 6v6l4 2" /></svg>,
+  late: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 8v4M12 16h.01" /></svg>,
+  cal: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><rect key="1" x="3" y="4" width="18" height="18" rx="2" /><path key="2" d="M16 2v4M8 2v4M3 10h18" /></svg>,
+  cal16: <svg {...sv} width={16} height={16}><rect key="1" x="3" y="4" width="18" height="18" rx="2" /><path key="2" d="M16 2v4M8 2v4M3 10h18" /></svg>,
+  tool: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>,
+  inbox: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M12 8v4M12 16h.01" /><circle key="2" cx="12" cy="12" r="10" /></svg>,
+  people: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path key="2" d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4" /></svg>,
+};
+const ibStyle = (size: number): CSSProperties => ({ width: size, height: size, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-secondary)', padding: 0 });
+const rowStyle = (cols: string): CSSProperties => ({ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 });
+const tabStyle = (on: boolean): CSSProperties => ({ height: 28, padding: '0 12px', borderRadius: 14, border: 0, background: on ? 'var(--bg-subtle)' : 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: on ? 500 : 400, display: 'inline-flex', alignItems: 'center' });
 
-/** Status mark from the design: shape + colour of the phase, never colour alone. */
-function StatusMark({ phase, label }: { phase: Phase; label: string }) {
-  const c = phaseColor[phase];
+function Group({ title, count, action, children }: { title: string; count: number; action?: ReactNode; children: ReactNode }) {
   return (
-    <span className="day-status" role="img" aria-label={label} title={label}>
-      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-        {phase === 'done' ? (
-          <><circle cx="7" cy="7" r="6.5" fill={c} /><path d="M4.4 7.2 6.2 9 9.6 5.4" fill="none" stroke="var(--bg-surface)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></>
-        ) : (
-          <>
-            <circle cx="7" cy="7" r="5.75" fill="none" stroke={c} strokeWidth="1.5" />
-            {phase === 'progress' && <path d="M7 7L7 4A3 3 0 0 1 7 10Z" fill={c} />}
-            {phase === 'alert' && <path d="M7 4.2v3.3M7 9.7v.01" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" />}
-          </>
-        )}
-      </svg>
-    </span>
-  );
-}
-
-function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
-  return (
-    <details className="day-group" open>
-      <summary><Icon name="down" size={12} /><h2>{title}</h2><span className="day-count num">{count}</span></summary>
-      {children}
+    <details open style={{ display: 'flex', flexDirection: 'column' }}>
+      <summary className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, background: 'transparent', marginBottom: 4, listStyle: 'none', cursor: 'pointer' }}>
+        <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px' }}>
+          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.caret}</span>
+          <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{title}</h2>
+          <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{count}</span>
+        </span>
+        {action}
+      </summary>
+      <div style={{ overflowX: 'auto', margin: '0 -8px', padding: 0 }}><div style={{ minWidth: 640, padding: 0 }}>{children}</div></div>
     </details>
   );
 }
-
-function Widget({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+function Widget({ title, note, action, children }: { title: string; note?: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <details className="day-widget" open>
-      <summary><h2>{title}</h2><Icon name="down" size={12} />{note && <span className="day-count">{note}</span>}</summary>
-      <div className="day-widget-body">{children}</div>
+    <details open style={{ border: 0, borderRadius: 14, background: 'var(--bg-raised)', padding: 4 }}>
+      <summary style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 4px', listStyle: 'none', cursor: 'pointer' }}>
+        <span className="tab" style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', gap: 6, height: 28, padding: '0 6px', borderRadius: 8, color: 'var(--text-secondary)' }}>
+          <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500, color: 'var(--text-primary)' }}>{title}</h2>
+          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.caret}</span>
+        </span>
+        {note && <span style={{ fontSize: 12, color: 'var(--text-tertiary)', paddingRight: 6 }}>{note}</span>}
+        {action}
+      </summary>
+      <div style={{ padding: '0 0 4px' }}>{children}</div>
     </details>
   );
 }
+function Stat({ href, icon, label, value, dot }: { href: string; icon: ReactNode; label: string; value: ReactNode; dot?: boolean }) {
+  return <Link href={href} className="row" style={{ display: 'flex', alignItems: 'center', gap: 8, height: 32, padding: '0 8px', borderRadius: 10 }}><span style={{ display: 'inline-flex' }}>{icon}</span><span className="ell" style={{ flex: '1 1 auto', color: 'var(--text-secondary)' }}>{label}</span>{dot && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--danger)', flex: '0 0 auto' }} />}<span className="num" style={{ fontWeight: 500 }}>{value}</span></Link>;
+}
+const Empty = ({ children }: { children: ReactNode }) => <p style={{ margin: 0, padding: '8px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>{children}</p>;
 
-const shortDate = (day: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: SERVICE_TIME_ZONE, day: 'numeric', month: 'short' }).format(new Date(day + 'T12:00:00Z'));
+const shortDate = (day: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: SERVICE_TIME_ZONE, day: 'numeric', month: 'short' }).format(new Date(day + 'T12:00:00Z')).replace('.', '');
+const longStamp = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: SERVICE_TIME_ZONE, dateStyle: 'long', timeStyle: 'short' }).format(new Date(v));
+function elapsed(from: string, now: Date) {
+  const min = Math.max(0, Math.round((now.getTime() - new Date(from).getTime()) / 60000));
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} h ${min % 60} min`;
+  const d = Math.floor(h / 24);
+  return `${d} d ${h % 24} h`;
+}
+function ago(from: string, now: Date) {
+  const min = Math.max(0, Math.round((now.getTime() - new Date(from).getTime()) / 60000));
+  if (min < 60) return `${min} min`;
+  if (min < 24 * 60) return `${Math.floor(min / 60)} godz.`;
+  return shortDate(localDate(from));
+}
+const days = (from: string, to: string) => Math.round((new Date(to + 'T12:00:00Z').getTime() - new Date(from + 'T12:00:00Z').getTime()) / 86400000);
+const plural = (n: number, one: string, few: string, many: string) => n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many;
+const ticketPriority = (p: string): Priority => p === 'high' ? 'high' : p === 'low' ? 'low' : 'normal';
+const ticketPriorityLabel: Record<string, string> = { high: 'Wysoki', normal: 'Normalny', low: 'Niski' };
+const visitGlyph = (s: CalendarVisit['status']) => s === 'completed' ? <ProgressGlyph color="var(--success)" fraction={1} /> : s === 'in_progress' ? <ProgressGlyph color="var(--st-progress)" fraction={2 / 3} /> : s === 'en_route' ? <ProgressGlyph color="var(--st-progress)" fraction={1 / 3} /> : <ProgressGlyph color="var(--text-secondary)" />;
 
-export default async function Dashboard() {
+type TicketRow = { id: string; ticket_number: number; subject: string; priority: string; created_at: string; customer: { name: string } | null; installation: { location: { city: string | null } | null } | null };
+const feedSchema = z.array(crmTaskCommentSchema.extend({ taskNumber: z.number(), taskTitle: z.string(), customerId: z.string().uuid() }));
+
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ widgets?: string }> }) {
+  const { widgets } = await searchParams, showRail = widgets !== 'off';
   const { db, access } = await requireSession(), now = new Date(), today = localDate(now.toISOString()), manager = ['admin', 'office'].includes(access.role);
-  const [customers, serviceCount, urgent, unassigned, calendar, maintenance, tasks] = await Promise.all([
+  const ticketCols = 'id,ticket_number,subject,priority,created_at,customer:customers(name),installation:installations(location:locations(city))';
+  const [customers, serviceCount, urgent, unassigned, calendar, maintenance, tasks, feed, techs] = await Promise.all([
     db.from('customers').select('id', { count: 'exact', head: true }).is('archived_at', null),
     db.from('service_tickets').select('id', { count: 'exact', head: true }).neq('status', 'closed'),
-    db.from('service_tickets').select('id,subject', { count: 'exact' }).neq('status', 'closed').eq('priority', 'high').order('created_at').limit(5),
-    db.from('service_tickets').select('id,subject', { count: 'exact' }).neq('status', 'closed').is('assigned_to', null).order('created_at').limit(5),
-    db.rpc('calendar_service_visits', { p_from: today }), db.rpc('maintenance_schedule'), getTaskAlerts(),
+    db.from('service_tickets').select(ticketCols, { count: 'exact' }).neq('status', 'closed').eq('priority', 'high').order('created_at').limit(5),
+    db.from('service_tickets').select(ticketCols, { count: 'exact' }).neq('status', 'closed').is('assigned_to', null).order('created_at').limit(5),
+    db.rpc('calendar_service_visits', { p_from: today }), db.rpc('maintenance_schedule'), getTaskAlerts(), db.rpc('my_task_comment_feed'),
+    manager ? db.rpc('service_technicians', { p_customer: null }) : Promise.resolve({ data: [], error: null }),
   ]);
-  if ([customers, serviceCount, urgent, unassigned, calendar, maintenance].some(result => result.error)) throw new Error('Nie udało się pobrać podsumowania.');
+  const failed = Object.entries({ customers, serviceCount, urgent, unassigned, calendar, maintenance, feed, techs }).find(([, result]) => result.error);
+  if (failed) { console.error('Mój dzień:', failed[0], failed[1].error); throw new Error('Nie udało się pobrać podsumowania.'); }
   const plans = maintenanceListSchema.parse({ ...maintenance.data, apiVersion: '1', page: 1, pageSize: 20 });
-  const visits = (calendar.data as CalendarVisit[]).filter(visit => visit.status !== 'cancelled' && visitOnDate(visit.scheduled_at, visit.duration_minutes, today));
+  const week = (calendar.data as CalendarVisit[]).filter(v => v.status !== 'cancelled');
+  const visits = week.filter(visit => visitOnDate(visit.scheduled_at, visit.duration_minutes, today));
+  const people = new Map(((techs.data || []) as { id: string; email: string }[]).map(t => [t.id, t.email]));
   const overduePlans = plans.plans.filter(plan => plan.state === 'overdue').slice(0, 5);
   const upcomingPlans = plans.plans.filter(plan => plan.state !== 'overdue').slice(0, 4);
+  const urgentRows = (urgent.data || []) as unknown as TicketRow[], freeRows = (unassigned.data || []) as unknown as TicketRow[];
   const unassignedCount = manager ? unassigned.count || 0 : 0;
+  const mentions = feedSchema.parse(feed.data);
   const taskTotal = tasks.counts.today + tasks.counts.overdue;
   const total = visits.length + (urgent.count || 0) + unassignedCount + plans.summary.overdue + taskTotal;
   const dayLabel = new Intl.DateTimeFormat('pl-PL', { timeZone: SERVICE_TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long' }).format(now);
   const fullDate = new Intl.DateTimeFormat('pl-PL', { timeZone: SERVICE_TIME_ZONE, dateStyle: 'full' }).format(now);
-  const visitPhase = (status: CalendarVisit['status']): Phase => status === 'completed' ? 'done' : status === 'planned' ? 'todo' : 'progress';
+  const weekEnd = new Date(today + 'T12:00:00Z'); weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+  const weekNote = `${shortDate(today).split(' ')[0]}–${shortDate(weekEnd.toISOString().slice(0, 10))}`;
+  const plansThisWeek = plans.plans.filter(p => p.next_due_on >= today && p.next_due_on <= weekEnd.toISOString().slice(0, 10)).length;
+  const team = [...new Set(visits.map(v => v.assigned_to).filter((x): x is string => !!x))].map(id => {
+    const own = visits.filter(v => v.assigned_to === id), done = own.filter(v => v.status === 'completed').length, active = own.some(v => v.status === 'in_progress' || v.status === 'en_route');
+    return { id, label: people.get(id) || 'Technik', done, total: own.length, active };
+  });
+  const groupAction = (href: string, label: string) => <Link href={href} className="ib" aria-label={label} title={label} style={ibStyle(24)}>{DI.plus16}</Link>;
 
   return (
-    <main className="pui-page">
-      <div className="pui-page-head">
-        <Icon name="day" size={16} />
-        <h1>Mój dzień</h1>
-        <span className="pui-crumb-sep" aria-hidden="true"><Icon name="right" size={12} /></span>
-        <time className="pui-page-sub" dateTime={today} title={fullDate}>{dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1)}</time>
-        <span className="pui-spacer" />
-        <span className="pui-page-meta num">{total} {total === 1 ? 'sprawa' : total % 10 >= 2 && total % 10 <= 4 && (total % 100 < 12 || total % 100 > 14) ? 'sprawy' : 'spraw'}</span>
-        <Link className="pui-ib" href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie"><Icon name="plus" size={14} /></Link>
+    <main className="dk" style={{ flex: '1 1 auto', minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
+        <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.sun}</span>
+        <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Mój dzień</h1>
+        <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+        <time dateTime={today} title={fullDate} style={{ color: 'var(--text-secondary)' }}>{dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1)}</time>
+        <span style={{ flex: '1 1 auto' }} />
+        <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{total} {plural(total, 'sprawa', 'sprawy', 'spraw')}</span>
       </div>
-      <div className="pui-toolbar">
-        <nav className="pui-pills" aria-label="Zakres">
-          <Link className="pui-pill is-active" href="/dashboard" aria-current="page">Dziś</Link>
-          <Link className="pui-pill" href={`/dashboard/calendar?week=${today}`}>Ten tydzień</Link>
-          <Link className="pui-pill" href="/dashboard/notifications">Aktywność</Link>
-        </nav>
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, padding: '8px 12px 8px 16px' }}>
+        <div role="tablist" aria-label="Zakres" style={{ display: 'flex', gap: 4 }}>
+          <Link role="tab" aria-selected="true" className="tab" href="/dashboard" style={tabStyle(true)}>Dziś</Link>
+          <Link role="tab" aria-selected="false" className="tab" href={`/dashboard/calendar?week=${today}`} style={tabStyle(false)}>Ten tydzień</Link>
+          <Link role="tab" aria-selected="false" className="tab" href="/dashboard/notifications" style={tabStyle(false)}>Aktywność</Link>
+        </div>
+        <span style={{ flex: '1 1 auto' }} />
+        <Link href={showRail ? '/dashboard?widgets=off' : '/dashboard'} className={`ib${showRail ? ' on' : ''}`} aria-label="Pokaż lub ukryj widgety" aria-pressed={showRail} title="Pokaż lub ukryj widgety" style={ibStyle(28)}>{DI.panel}</Link>
       </div>
-      <div className="day-layout">
-        <div className="day-main">
-          <Group title="Wizyty" count={visits.length}>
-            {visits.length ? (
-              <div className="day-scroll"><div className="day-rows">
-                {visits.map(visit => (
-                  <Link className="day-row is-visit" href={`/dashboard/service/${visit.ticket_id}`} key={visit.id}>
-                    <time className="day-time num" dateTime={visit.scheduled_at}>{localDate(visit.scheduled_at) < today ? 'Trwa' : displayTime(visit.scheduled_at)}</time>
-                    <StatusMark phase={visitPhase(visit.status)} label={visitLabels[visit.status]} />
-                    <span className="day-title"><span className="ell">{visit.subject}</span><span className="ell">{visit.customer_name} · {visit.city}</span></span>
-                    <span className="day-meta ell">{visitLabels[visit.status]}</span>
-                  </Link>
-                ))}
-              </div></div>
-            ) : (
-              <div className="day-empty">
-                <p>Na dziś nie ma zaplanowanych wizyt. Terminy pojawią się tutaj po zapisaniu ich w planowaniu.</p>
-                <p className="day-hint"><Link href={`/dashboard/calendar?week=${today}`}>Otwórz planowanie</Link></p>
-              </div>
-            )}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 16, padding: '4px 12px 24px' }}>
+        <div style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <Group title="Wizyty" count={visits.length} action={manager ? groupAction(`/dashboard/calendar?week=${today}`, 'Zaplanuj wizytę') : undefined}>
+            {visits.length ? visits.map(v => (
+              <Link key={v.id} href={`/dashboard/service/${v.ticket_id}`} className="row" style={rowStyle('40px 64px 14px minmax(0px, 1fr) 44px')}>
+                <span className="num" style={{ color: 'var(--text-secondary)' }}>{localDate(v.scheduled_at) < today ? 'Trwa' : displayTime(v.scheduled_at)}</span>
+                <span className="num" style={{ color: 'var(--text-tertiary)' }}>{ticketCode(v.ticket_number)}</span>
+                <span role="img" aria-label={visitLabels[v.status]} title={visitLabels[v.status]} style={{ display: 'inline-flex', alignItems: 'center' }}>{visitGlyph(v.status)}</span>
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{v.subject}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{v.customer_name}{v.city ? ` · ${v.city}` : ''}</span></span>
+                <span style={{ display: 'flex', justifyContent: 'flex-end' }}>{v.assigned_to && <PersonAvatar id={v.assigned_to} label={people.get(v.assigned_to) || 'Technik'} />}</span>
+              </Link>
+            )) : <Empty>Na dziś nie ma zaplanowanych wizyt. Terminy pojawią się tutaj po zapisaniu ich w planowaniu.</Empty>}
           </Group>
 
           {(urgent.count || 0) > 0 && (
             <Group title="Pilne zgłoszenia" count={urgent.count || 0}>
-              <div className="day-scroll"><div className="day-rows">
-                {(urgent.data || []).map(ticket => (
-                  <Link className="day-row is-item" href={`/dashboard/service/${ticket.id}`} key={ticket.id}>
-                    <StatusMark phase="alert" label="Pilne" />
-                    <span className="day-title"><span className="ell">{ticket.subject}</span><span /></span>
-                    <span className="day-meta">Pilny</span>
-                  </Link>
-                ))}
-              </div></div>
+              {urgentRows.map(t => (
+                <Link key={t.id} href={`/dashboard/service/${t.id}`} className="row" style={rowStyle('80px minmax(0px, 1fr) 20px 132px')}>
+                  <span className="num" style={{ color: 'var(--text-tertiary)' }}>{ticketCode(t.ticket_number)}</span>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.subject}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{t.customer?.name}</span></span>
+                  <span title="Priorytet: Wysoki" style={{ display: 'flex', alignItems: 'center' }}><PriorityIcon priority={ticketPriority(t.priority)} /></span>
+                  <span title={`Zgłoszono ${longStamp(t.created_at)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, fontSize: 12 }}>{I.alert}<span className="num" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{elapsed(t.created_at, now)}</span></span>
+                </Link>
+              ))}
             </Group>
           )}
 
           {unassignedCount > 0 && (
-            <Group title="Bez technika" count={unassignedCount}>
-              <div className="day-scroll"><div className="day-rows">
-                {(unassigned.data || []).map(ticket => (
-                  <Link className="day-row is-item" href={`/dashboard/service/${ticket.id}`} key={ticket.id}>
-                    <StatusMark phase="todo" label="Nieprzypisane" />
-                    <span className="day-title"><span className="ell">{ticket.subject}</span><span /></span>
-                    <span className="day-meta">Przypisz technika</span>
-                  </Link>
-                ))}
-              </div></div>
+            <Group title="Bez technika" count={unassignedCount} action={groupAction('/dashboard/service/new', 'Nowe zgłoszenie')}>
+              {freeRows.map(t => (
+                <Link key={t.id} href={`/dashboard/service/${t.id}`} className="row" style={rowStyle('80px minmax(0px, 1fr) 20px 132px')}>
+                  <span className="num" style={{ color: 'var(--text-tertiary)' }}>{ticketCode(t.ticket_number)}</span>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.subject}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{[t.customer?.name, t.installation?.location?.city].filter(Boolean).join(' · ')}</span></span>
+                  <span title={`Priorytet: ${ticketPriorityLabel[t.priority] ?? t.priority}`} style={{ display: 'flex', alignItems: 'center' }}><PriorityIcon priority={ticketPriority(t.priority)} /></span>
+                  <span title={`Czeka od ${longStamp(t.created_at)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>{I.clock}<span className="num">{elapsed(t.created_at, now)}</span></span>
+                </Link>
+              ))}
             </Group>
           )}
 
           {plans.summary.overdue > 0 && (
-            <Group title="Przeglądy po terminie" count={plans.summary.overdue}>
-              <div className="day-scroll"><div className="day-rows">
-                {overduePlans.map(plan => (
-                  <Link className="day-row is-item" href={`/dashboard/maintenance/${plan.id}`} key={plan.id}>
-                    <StatusMark phase="alert" label="Po terminie" />
-                    <span className="day-title"><span className="ell">{plan.title}</span><span className="ell">{plan.customer_name}</span></span>
-                    <time className="day-meta is-late num" dateTime={plan.next_due_on} title={plan.next_due_on}>{shortDate(plan.next_due_on)}</time>
+            <Group title="Po terminie" count={plans.summary.overdue}>
+              {overduePlans.map(p => {
+                const late = days(p.next_due_on, today);
+                return (
+                  <Link key={p.id} href={`/dashboard/maintenance/${p.id}`} className="row" style={rowStyle('minmax(0px, 1fr) 160px')}>
+                    <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{p.title}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{p.customer_name}</span></span>
+                    <span title={`Termin: ${p.next_due_on}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, fontSize: 12 }}>{I.late}<span className="num" style={{ color: 'var(--danger)', fontWeight: 500 }}>{late} {plural(late, 'dzień', 'dni', 'dni')} po terminie</span></span>
                   </Link>
-                ))}
-              </div></div>
+                );
+              })}
             </Group>
           )}
 
-          <Group title="Moje zadania" count={taskTotal}>
-            {tasks.items.length ? (
-              <div className="day-scroll"><div className="day-rows">
-                {tasks.items.map(task => {
-                  const late = task.dueOn < tasks.today;
-                  return (
-                    <Link className="day-row is-item" href={myTaskCustomerHref(task)} key={task.id}>
-                      <StatusMark phase={task.state === 'in_progress' ? 'progress' : 'todo'} label={task.state === 'in_progress' ? 'W toku' : 'Do zrobienia'} />
-                      <span className="day-title"><span className="ell">{task.title}</span><span className="ell">{task.customerName}</span></span>
-                      <time className={`day-meta num${late ? ' is-late' : ''}`} dateTime={task.dueOn} title={task.dueOn}>{late ? shortDate(task.dueOn) : 'Dziś'}</time>
-                    </Link>
-                  );
-                })}
-              </div></div>
-            ) : (
-              <div className="day-empty">
-                <p>Nie masz zaległych ani dzisiejszych zadań.</p>
-                <p className="day-hint"><Link href="/dashboard/tasks?filter=open">Wszystkie otwarte zadania</Link></p>
-              </div>
-            )}
+          <Group title="Moje zadania" count={taskTotal} action={<Link href="/dashboard/tasks" className="ib" aria-label="Wszystkie zadania" title="Wszystkie zadania" style={ibStyle(24)}>{DI.chev}</Link>}>
+            {tasks.items.length ? tasks.items.map(t => {
+              const late = t.dueOn < tasks.today;
+              return (
+                <Link key={t.id} href={myTaskCustomerHref(t)} className="row" style={rowStyle('56px 14px minmax(0px, 1fr) 76px')}>
+                  <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(t.number)}</span>
+                  <span style={{ display: 'inline-flex' }}><StatusIcon state={t.state} /></span>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.title}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{t.customerName}</span></span>
+                  <span className="num" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: late ? 'var(--danger)' : 'var(--text-primary)', fontWeight: 500 }}>{late ? DI.calLate : DI.calToday}<span>{late ? shortDate(t.dueOn) : 'Dziś'}</span></span>
+                </Link>
+              );
+            }) : <Empty>Nie masz zaległych ani dzisiejszych zadań.</Empty>}
           </Group>
+
+          {mentions.length > 0 && (
+            <Group title="Wzmianki" count={mentions.length}>
+              {mentions.map(m => (
+                <Link key={m.id} href={`/dashboard/tasks?filter=open`} className="row" style={{ display: 'grid', gridTemplateColumns: '20px minmax(0px, 1fr) auto', gap: '2px 12px', alignItems: 'center', padding: 8, borderRadius: 8 }}>
+                  <span style={{ gridRow: '1 / span 2', alignSelf: 'start', marginTop: 2 }}><PersonAvatar id={m.authorId} label={m.authorLabel} /></span>
+                  <span className="ell" style={{ fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}><span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{personName(m.authorLabel)}</span> w <span className="mono" style={{ fontSize: 11 }}>{taskNumber(m.taskNumber)}</span> · <span>{m.taskTitle}</span></span>
+                  <span className="num" title={longStamp(m.createdAt)} style={{ fontSize: 12, lineHeight: '16px', color: 'var(--text-tertiary)' }}>{ago(m.createdAt, now)}</span>
+                  <span className="ell" style={{ gridColumn: '2 / span 2' }}>{m.body}</span>
+                </Link>
+              ))}
+            </Group>
+          )}
         </div>
 
-        <aside className="day-rail" aria-label="Widgety">
-          <Widget title="Stan firmy">
-            <Link className="day-stat" href="/dashboard/customers"><span className="ell">Aktywni klienci</span><span className="num">{(customers.count || 0).toLocaleString('pl-PL')}</span></Link>
-            <Link className="day-stat" href="/dashboard/service?status=open"><span className="ell">Otwarte zgłoszenia</span><span className="num">{serviceCount.count || 0}</span></Link>
-            <Link className="day-stat" href="/dashboard/maintenance?view=overdue"><span className="ell">Przeglądy po terminie</span>{plans.summary.overdue > 0 && <span className="day-dot" aria-hidden="true" />}<span className="num">{plans.summary.overdue}</span></Link>
-            <Link className="day-stat" href="/dashboard/maintenance?view=upcoming"><span className="ell">Przeglądy w ciągu 30 dni</span><span className="num">{plans.summary.upcoming}</span></Link>
-            <Link className="day-stat" href="/dashboard/tasks?filter=overdue"><span className="ell">Moje zadania po terminie</span>{tasks.counts.overdue > 0 && <span className="day-dot" aria-hidden="true" />}<span className="num">{tasks.counts.overdue}</span></Link>
-          </Widget>
-          <Widget title="Najbliższe przeglądy">
-            {upcomingPlans.length ? upcomingPlans.map(plan => (
-              <Link className="day-stat" href={`/dashboard/maintenance/${plan.id}`} key={plan.id} title={`${plan.title} · ${plan.customer_name}`}>
-                <span className="ell">{plan.customer_name}</span><time className="num" dateTime={plan.next_due_on}>{shortDate(plan.next_due_on)}</time>
-              </Link>
-            )) : <div className="day-empty"><p>Brak zbliżających się przeglądów.</p></div>}
-          </Widget>
-        </aside>
+        {showRail && (
+          <aside aria-label="Widgety" style={{ flex: '1 1 300px', maxWidth: 340, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {manager && (
+              <Widget title="Zespół dziś" action={<Link href={`/dashboard/calendar?week=${today}`} className="ib" aria-label="Otwórz planowanie" title="Otwórz planowanie" style={ibStyle(24)}>{I.cal16}</Link>}>
+                {team.length ? team.map(p => (
+                  <Link key={p.id} href={`/dashboard/calendar?week=${today}`} className="row" title={`${p.label} · ${p.done}/${p.total} wizyt zakończonych`} style={{ display: 'flex', alignItems: 'center', gap: 8, height: 36, padding: '0 8px', borderRadius: 10 }}>
+                    <PersonAvatar id={p.id} label={p.label} />
+                    <span className="ell" style={{ flex: '1 1 auto', fontWeight: 500 }}>{personName(p.label)}</span>
+                    <span role="img" aria-label={p.done === p.total ? 'Zakończone' : p.active ? 'W realizacji' : 'Zaplanowane'} style={{ display: 'inline-flex' }}>{p.done === p.total ? <ProgressGlyph color="var(--success)" done /> : p.active ? <ProgressGlyph color="var(--st-progress)" fraction={Math.max(1 / 3, p.done / p.total)} /> : <ProgressGlyph color="var(--text-secondary)" />}</span>
+                    <span className="num" style={{ width: 28, textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)' }}>{p.done}/{p.total}</span>
+                  </Link>
+                )) : <Empty>Nikt z zespołu nie ma dziś wizyt.</Empty>}
+              </Widget>
+            )}
+            <Widget title="Najbliższe 7 dni" note={weekNote}>
+              <Stat href={`/dashboard/calendar?week=${today}`} icon={I.tool} label="Wizyty" value={week.length} />
+              <Stat href="/dashboard/maintenance?view=upcoming" icon={I.cal} label="Przeglądy" value={plansThisWeek} />
+              <Stat href="/dashboard/service?status=open" icon={I.inbox} label="Otwarte zgłoszenia" value={serviceCount.count || 0} />
+              <Stat href="/dashboard/maintenance?view=overdue" icon={DI.calLate} label="Przeglądy po terminie" value={plans.summary.overdue} dot={plans.summary.overdue > 0} />
+              <Stat href="/dashboard/customers" icon={I.people} label="Aktywni klienci" value={(customers.count || 0).toLocaleString('pl-PL')} />
+            </Widget>
+            <Widget title="Najbliższe przeglądy">
+              {upcomingPlans.length ? upcomingPlans.map(p => (
+                <Link key={p.id} href={`/dashboard/maintenance/${p.id}`} className="row" title={`${p.title} · ${p.customer_name}`} style={{ display: 'flex', alignItems: 'center', gap: 8, height: 32, padding: '0 8px', borderRadius: 10 }}>
+                  <span className="ell" style={{ flex: '1 1 auto', color: 'var(--text-secondary)' }}>{p.customer_name}</span>
+                  <span className="num" style={{ fontWeight: 500 }}>{shortDate(p.next_due_on)}</span>
+                </Link>
+              )) : <Empty>Brak zbliżających się przeglądów.</Empty>}
+            </Widget>
+          </aside>
+        )}
       </div>
     </main>
   );

@@ -38,7 +38,7 @@ export type MyTasks=z.infer<typeof myTasksSchema>;
 export type MyTask=z.infer<typeof myTaskSchema>;
 export type MyTasksQuery=z.infer<typeof myTasksQuerySchema>;
 
-export const taskAlertItemSchema=z.object({id:z.string().uuid(),customerId:z.string().uuid(),customerName:z.string(),customerPage:z.number().int().positive(),title,dueOn:day,state:z.enum(['todo','in_progress'])}).strict();
+export const taskAlertItemSchema=z.object({id:z.string().uuid(),customerId:z.string().uuid(),customerName:z.string(),customerPage:z.number().int().positive(),title,dueOn:day,state:z.enum(['todo','in_progress']),number:z.number().int().positive()}).strict();
 export const taskAlertsSchema=z.object({viewerId:z.string().uuid(),today:day,counts:z.object({today:count,overdue:count}).strict(),items:z.array(taskAlertItemSchema).max(5)}).strict().refine(v=>{const total=v.counts.today+v.counts.overdue;return v.items.length===Math.min(5,total)&&v.items.filter(item=>item.dueOn<v.today).length===Math.min(5,v.counts.overdue)&&v.items.every((item,i)=>item.dueOn<=v.today&&(i===0||v.items[i-1].dueOn<=item.dueOn));});
 export type TaskAlerts=z.infer<typeof taskAlertsSchema>;
 

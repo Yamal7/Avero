@@ -44,3 +44,20 @@ export const taskLabels: Record<TaskLabel, { name: string; color: string }> = {
   contracts: { name: 'Umowy', color: 'rgb(78, 167, 232)' }, tools: { name: 'Narzędzia', color: 'rgb(138, 143, 152)' }, internal: { name: 'Wewnętrzne', color: 'rgb(138, 143, 152)' },
 };
 export const taskNumber = (n: number) => `ZD-${n}`;
+
+/** Generic progress glyph of the design: ring + pie of the given fraction; `done` fills with a check, `alert` shows "!". */
+export function ProgressGlyph({ color, fraction = 0, done = false, alert = false, dashed = false }: { color: string; fraction?: number; done?: boolean; alert?: boolean; dashed?: boolean }) {
+  const f = Math.max(0, Math.min(1, fraction)), a = f * 2 * Math.PI, x = (7 + 3 * Math.sin(a)).toFixed(2), y = (7 - 3 * Math.cos(a)).toFixed(2);
+  const pie = f <= 0 ? 'M7 7Z' : f >= 1 ? 'M7 4a3 3 0 1 1 0 6a3 3 0 1 1 0-6Z' : `M7 7L7 4A3 3 0 ${f > 0.5 ? 1 : 0} 1 ${x} ${y}Z`;
+  return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><circle cx="7" cy="7" r="5.75" fill="none" strokeWidth="1.5" strokeDasharray={dashed ? '2.2 2.31' : 'none'} style={{ stroke: color }} /><path d={alert ? 'M7 7Z' : pie} style={{ fill: color }} /><circle cx="7" cy="7" r="6.5" opacity={done ? 1 : 0} style={{ fill: color }} /><path d="M4.4 7.2 6.2 9 9.6 5.4" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={done ? 1 : 0} style={{ stroke: 'var(--bg-surface)' }} /><path d="M7 4.2v3.3M7 9.7v.01" fill="none" strokeWidth="1.5" strokeLinecap="round" opacity={alert ? 1 : 0} style={{ stroke: color }} /></svg>;
+}
+
+const personPalette = ['rgb(59, 130, 214)', 'rgb(155, 107, 224)', 'rgb(31, 167, 165)', 'rgb(224, 112, 42)', 'rgb(214, 69, 61)', 'rgb(47, 158, 91)'];
+export function personColor(id: string) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return personPalette[h % personPalette.length]; }
+export function personInitials(label: string) { const base = label.includes('@') ? label.split('@')[0]! : label; return base.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join('') || '?'; }
+export function personName(label: string) { return label.includes('@') ? label.split('@')[0]! : label; }
+/** Coloured person avatar from the design (20px, white initials). */
+export function PersonAvatar({ id, label, size = 20 }: { id: string; label: string; size?: number }) {
+  return <span title={label} style={{ width: size, height: size, flex: '0 0 auto', borderRadius: '50%', background: personColor(id), boxShadow: '0 0 0 2px var(--bg-surface)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: size <= 16 ? 7 : 9, lineHeight: '10px', fontWeight: 600, color: 'rgb(255, 255, 255)' }}>{personInitials(label)}</span>;
+}
+export const ticketCode = (n: number) => `ZG-${String(n).padStart(4, '0')}`;

@@ -1041,3 +1041,7 @@ a.cmdk-opt.is-active > svg { color: var(--text-primary); }
 .pui-main .dk button, .pui-main .dk a { min-height: 0; box-shadow: none; text-transform: none; letter-spacing: normal; justify-content: normal; font: inherit; }
 .pui-main .dk h1, .pui-main .dk h2, .pui-main .dk h3 { letter-spacing: normal; text-transform: none; }
 .pui-main .workspace:has(> .dk) { padding: 0; }
+.dk summary::-webkit-details-marker { display: none; }
+.dk .day-caret { transition: transform 160ms var(--ease); }
+.dk details:not([open]) > summary .day-caret { transform: rotate(-90deg); }
+.dk details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
