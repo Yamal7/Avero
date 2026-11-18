@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-export type IconName = 'check' | 'home' | 'users' | 'device' | 'search' | 'menu' | 'arrow' | 'plus' | 'logout' | 'sun' | 'moon' | 'bell' | 'settings' | 'wrench' | 'calendar' | 'pin' | 'file' | 'chevron' | 'box' | 'catalog' | 'layers' | 'inbox' | 'day' | 'userPlus' | 'target' | 'offer' | 'building' | 'place' | 'cube' | 'contract' | 'alert' | 'tool' | 'plan' | 'cycle' | 'stack' | 'task' | 'invoice' | 'book' | 'archive' | 'cart' | 'chart' | 'sliders' | 'compose' | 'find' | 'ring' | 'down' | 'right' | 'people' | 'eye';
+export type IconName = 'check' | 'home' | 'users' | 'device' | 'search' | 'menu' | 'arrow' | 'plus' | 'logout' | 'sun' | 'moon' | 'bell' | 'settings' | 'wrench' | 'calendar' | 'pin' | 'file' | 'chevron' | 'box' | 'catalog' | 'layers' | 'inbox' | 'day' | 'userPlus' | 'target' | 'offer' | 'building' | 'place' | 'cube' | 'contract' | 'alert' | 'tool' | 'plan' | 'cycle' | 'stack' | 'task' | 'invoice' | 'book' | 'archive' | 'cart' | 'chart' | 'sliders' | 'compose' | 'find' | 'ring' | 'down' | 'right' | 'people' | 'eye' | 'close' | 'link';
 const paths: Record<IconName, React.ReactNode> = {
   check: <><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m7 12 3 3 7-7"/></>,
   home: <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z" /></>,
@@ -49,6 +49,8 @@ const paths: Record<IconName, React.ReactNode> = {
   down: <path d="m6 9 6 6 6-6"/>,
   right: <path d="m9 18 6-6-6-6"/>,
   people: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+  close: <><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>,
+  link: <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
   eye: <><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></>,
 };
 export function Icon({ name, size = 22, style }: { name: IconName; size?: number; style?: CSSProperties }) {

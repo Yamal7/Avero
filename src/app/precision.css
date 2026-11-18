@@ -741,3 +741,55 @@ a.cmdk-opt.is-active > svg { color: var(--text-primary); }
 .tb-meta .is-late { color: var(--danger); font-weight: 500; }
 .tb-empty { margin: 0; padding: 4px 8px 8px; font-size: 12px; color: var(--text-tertiary); }
 @media (max-width: 760px) { .cv-seg { margin-left: 0; } .cv-seg span { display: none; } }
+
+/* ───────── 3k. Task record panel ───────── */
+.tp { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.tp.has-panel { grid-template-columns: minmax(0, 1fr) 400px; }
+.pui-main .my-task-row { cursor: default; }
+.pui-main .my-task-row.is-selected { background: var(--bg-subtle); box-shadow: inset 2px 0 0 var(--accent); }
+.pui-main .my-task-main h2 { margin: 0; font-size: 13px !important; line-height: 20px; font-weight: 500 !important; letter-spacing: 0 !important; }
+.pui-main button.my-task-open { all: unset; cursor: pointer; border-radius: 4px; overflow-wrap: anywhere; }
+.pui-main button.my-task-open:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pui-main button.my-task-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pui-main .my-task-meta { margin-top: 2px; }
+.pui-main .my-task-meta .my-task-customer { margin: 0; font-size: 12px; color: var(--text-primary); }
+.tp-hint { margin: 0; padding: 8px 20px; font-size: 12px; color: var(--text-tertiary); }
+.tp-hint kbd, .tp-panel kbd { font: 500 11px/16px var(--font-mono); padding: 0 4px; border: 1px solid var(--edge); border-radius: 4px; color: var(--text-secondary); }
+.tp-panel { position: sticky; top: 0; max-height: 100dvh; overflow-y: auto; min-width: 0; border-left: 1px solid var(--edge); border-top: 1px solid var(--edge); background: var(--bg-surface); outline: none; }
+.tp-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 12px 0 20px; border-bottom: 1px solid var(--edge); background: var(--bg-surface); }
+.tp-kind { font-size: 12px; color: var(--text-secondary); }
+.pui-main .tp-panel .ib { display: inline-grid; place-items: center; width: 28px; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; transition: background-color var(--dur-fast) var(--ease); }
+.pui-main .tp-panel .ib:hover { background: var(--bg-subtle); color: var(--text-primary); }
+.pui-main .tp-panel .ib:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tp-body { display: flex; flex-direction: column; gap: 16px; padding: 16px 20px 24px; }
+.pui-main .tp-title { margin: 0; font-size: 18px !important; line-height: 24px; font-weight: 600 !important; letter-spacing: -0.01em !important; overflow-wrap: anywhere; }
+.tp-desc { margin: -8px 0 0; font-size: 13px; line-height: 20px; color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
+.tp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tp-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--edge); border-radius: 8px; font-size: 12px; color: var(--text-primary); max-width: 100%; }
+.tp-chip svg { color: var(--text-secondary); flex: none; }
+.tp-chip.is-late, .tp-chip.is-late svg { color: var(--danger); font-weight: 500; }
+.tp-av { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--bg-subtle); font-size: 10px; font-weight: 600; color: var(--text-secondary); }
+.pui-main a.tp-rel { display: flex; align-items: center; gap: 12px; min-height: 36px; padding: 0 8px; margin: -4px -8px 0; border-radius: 6px; font-size: 13px; color: var(--text-primary); text-decoration: none; }
+.pui-main a.tp-rel:hover { background: var(--bg-subtle); }
+.tp-rel-label { width: 72px; flex: none; font-size: 12px; color: var(--text-secondary); }
+.tp-rel .ell { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-rel svg { color: var(--text-tertiary); }
+.tp-note { margin: 0; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.tp-sec { display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--edge); }
+.pui-main .tp-sec h3 { margin: 0; font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; }
+.tp-form fieldset { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.tp-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+.tp-form .error { margin: 8px 0 0; }
+.tp-hint-sm { margin: 6px 0 0; font-size: 12px; color: var(--text-tertiary); }
+.tp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tp-log { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.tp-log li { display: flex; align-items: center; gap: 12px; min-height: 32px; font-size: 12px; color: var(--text-secondary); }
+.tp-log .ell { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-log time { color: var(--text-tertiary); }
+@media (max-width: 1100px) {
+  .tp.has-panel { grid-template-columns: minmax(0, 1fr); }
+  .tp-panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 40; width: min(100%, 440px); max-height: none; border-top: 0; box-shadow: var(--shadow-modal); animation: tp-in var(--dur-base) var(--ease); }
+}
+@media (max-width: 760px) { .tp-head { height: 52px; } .pui-main .tp-panel .ib { width: 44px; height: 44px; } }
+@keyframes tp-in { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tp-panel { animation: none; } }
