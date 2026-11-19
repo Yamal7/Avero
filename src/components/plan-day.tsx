@@ -49,7 +49,7 @@ export function PlanDay({ day, isToday, nowIso, technicians, visits, backlog, du
     let km: number | null = null;
     if (best && t.at) { const prev = visits.filter(v => v.techIds.includes(best!.tech.id) && v.at && localMinutes(v.start) < best!.at).sort((a, b) => b.start.localeCompare(a.start))[0]; const origin = prev?.at ?? base; if (origin) km = roadKm(origin, t.at); }
     return [t.id, best ? { ...best, km } : null] as const;
-  })), [backlog, technicians, visits, from]);
+  })), [backlog, technicians, visits, from, base]);
   const late = isToday ? visits.filter(v => v.kind === 'service' && v.status === 'planned' && localMinutes(v.start) + 30 < nowMin) : [];
   const urgentUnplanned = backlog.filter(t => t.priority === 'high');
 

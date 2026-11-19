@@ -106,7 +106,8 @@ export function PlanMap({ day, isToday, nowIso, technicians, visits, backlog, ba
       </aside>
 
       <div ref={box} className="plan-map" onPointerDown={e => { if ((e.target as HTMLElement).closest('button,a')) return; drag.current = { x: e.clientX, y: e.clientY, cx: c.x, cy: c.y }; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); }} onPointerMove={e => { const d = drag.current; if (d) { setZoom(z); setCenter({ x: d.cx - (e.clientX - d.x), y: d.cy - (e.clientY - d.y) }); } }} onPointerUp={() => { drag.current = null; }} style={{ position: 'relative', flex: '1 1 auto', minWidth: 0, minHeight: 560, overflow: 'hidden', background: 'var(--map-land, #F2F1EE)', cursor: drag.current ? 'grabbing' : 'grab', touchAction: 'none' }}>
-        <div className="plan-tiles" aria-hidden="true">{tiles.map(t => <img key={`${z}-${t.x}-${t.y}-${t.left}`} alt="" draggable={false} src={`https://tile.openstreetmap.org/${z}/${t.x}/${t.y}.png`} width={TILE} height={TILE} style={{ position: 'absolute', left: t.left, top: t.top, width: TILE, height: TILE, userSelect: 'none' }} />)}</div>
+        <div className="plan-tiles" aria-hidden="true">{tiles.map(t => /* map tiles: next/image optimisation does not apply */ // eslint-disable-next-line @next/next/no-img-element
+          <img key={`${z}-${t.x}-${t.y}-${t.left}`} alt="" draggable={false} src={`https://tile.openstreetmap.org/${z}/${t.x}/${t.y}.png`} width={TILE} height={TILE} style={{ position: 'absolute', left: t.left, top: t.top, width: TILE, height: TILE, userSelect: 'none' }} />)}</div>
         <svg width={size.w} height={size.h} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
           {routes.map(({ tech, color, stops }) => {
             const pts = [base, ...stops.map(s => s.at)].filter((p): p is LatLng => !!p).map(px);
