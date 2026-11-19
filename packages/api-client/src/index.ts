@@ -21,3 +21,5 @@ export * from './company-profile';
 export * from './notifications';
 
 export * from './notification-email';
+
+export * from './service-job';
