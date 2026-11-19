@@ -38,7 +38,7 @@ const groups:NavGroup[]=[
  {id:'finance',title:'Finanse i magazyn',items:[
   {href:soon('faktury'),label:'Faktury',icon:'invoice',soon:true,roles:staff},
   {href:'/dashboard/catalog',label:'Katalog',icon:'book',roles:staff},
-  {href:soon('magazyn'),label:'Magazyn',icon:'archive',soon:true},
+  {href:'/dashboard/stock',label:'Magazyn',icon:'archive'},
   {href:soon('zakupy'),label:'Zakupy',icon:'cart',soon:true,roles:staff}]},
 ];
 const bottom:NavEntry[]=[
