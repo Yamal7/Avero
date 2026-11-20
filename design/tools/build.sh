@@ -8,5 +8,6 @@ python3 design/tools/zm.py          # zlecenie montażu ZS-1052
 python3 design/tools/faktura.py     # faktura końcowa
 python3 design/tools/przeglady.py   # przeglądy + umowa serwisowa
 python3 design/tools/raporty.py     # raporty
+python3 design/tools/ustawienia.py  # ustawienia: profil firmy, użytkownicy, integracje
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 echo "Gotowe: design/canvas/Main.dc.html"
