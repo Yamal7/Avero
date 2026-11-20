@@ -1,5 +1,5 @@
 'use client';
-/* Karta firmy header: „1 z 48” and previous / next record with K / J, without going back to the table. */
+/* Karta firmy header: „1 z 48” and previous / next record with J / K (owner's decision 2026-11-20), without going back to the table. */
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,8 +13,8 @@ export function RecordPager({ position, total, previousHref, nextHref, noun }: {
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement;
       if (e.metaKey || e.ctrlKey || e.altKey || t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || document.querySelector('dialog[open],[role=dialog]')) return;
-      if (e.key === 'k' && previousHref) { e.preventDefault(); router.push(previousHref); }
-      if (e.key === 'j' && nextHref) { e.preventDefault(); router.push(nextHref); }
+      if (e.key === 'j' && previousHref) { e.preventDefault(); router.push(previousHref); }
+      if (e.key === 'k' && nextHref) { e.preventDefault(); router.push(nextHref); }
     }
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   }, [previousHref, nextHref, router]);
@@ -22,8 +22,8 @@ export function RecordPager({ position, total, previousHref, nextHref, noun }: {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
       <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{position} z {total}</span>
-      {previousHref ? <Link href={previousHref} className="ib" aria-label={`Poprzednia ${noun}`} title={`Poprzednia ${noun}  K`} style={btn}>{chev('m18 15-6-6-6 6')}</Link> : <span aria-hidden="true" style={{ ...btn, opacity: 0.35 }}>{chev('m18 15-6-6-6 6')}</span>}
-      {nextHref ? <Link href={nextHref} className="ib" aria-label={`Następna ${noun}`} title={`Następna ${noun}  J`} style={btn}>{chev('m6 9 6 6 6-6')}</Link> : <span aria-hidden="true" style={{ ...btn, opacity: 0.35 }}>{chev('m6 9 6 6 6-6')}</span>}
+      {previousHref ? <Link href={previousHref} className="ib" aria-label={`Poprzednia ${noun}`} title={`Poprzednia ${noun}  J`} style={btn}>{chev('m18 15-6-6-6 6')}</Link> : <span aria-hidden="true" style={{ ...btn, opacity: 0.35 }}>{chev('m18 15-6-6-6 6')}</span>}
+      {nextHref ? <Link href={nextHref} className="ib" aria-label={`Następna ${noun}`} title={`Następna ${noun}  K`} style={btn}>{chev('m6 9 6 6 6-6')}</Link> : <span aria-hidden="true" style={{ ...btn, opacity: 0.35 }}>{chev('m6 9 6 6 6-6')}</span>}
     </span>
   );
 }

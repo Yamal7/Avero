@@ -10,7 +10,7 @@ Stos: Next.js 15 (App Router), React 19, TypeScript, Supabase (Postgres z RLS, d
 |---|---|---|---|
 | Widok kolekcji (silnik) | działa w Zadaniach | 2026-11-20 | grupowanie, sortowanie, kolumny, filtry priorytetu i etykiety, zapisane widoki jako pigułki; ustawienia na koncie |
 | Rama aplikacji · skróty | działa | 2026-11-20 | ⌥T / ⌘T nowa karta, ⌥1–9 / ⌘1–9 przełączanie kart; zwinięte grupy menu zapisane na koncie |
-| Karta firmy · nawigacja | działa | 2026-11-20 | „2 z 4”, poprzednia / następna firma klawiszami K / J |
+| Karta firmy · nawigacja | działa | 2026-11-20 | „2 z 4”, poprzednia / następna firma klawiszami J / K |
 | Osoby | działa na danych | 2026-11-20 | kontakty firm i klienci indywidualni razem; kategorie osób; widoki Decyzyjne, Klienci indywidualni, Bez kontaktu 30 dni |
 | Firmy · filtry i podsumowanie | działa na danych | 2026-11-20 | kolory kategorii z „Zarządzaj”, filtr którakolwiek / wszystkie / żadna, sortowanie po ostatnim kontakcie, widok „Bez kontaktu 30 dni”, wiersz podsumowania |
 | Magazyn · reguły z rozmowy | działa na danych | 2026-11-20 | WZ, numer butli, minimum na bus i „Uzupełnij braki (N)”, szkice dokumentów, rezerwacja na zadanie, jednostka blokowana po pierwszym ruchu, ⌘↵ |
@@ -51,9 +51,12 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 
 ## Pytania do projektu
 
-- **J / K na karcie firmy:** `screens/04-klienci.md` mówi „J / K = poprzednia / następna”, a rozmowa projektowa „K / J”. Zrobiłem K = poprzednia, J = następna, tak jak J/K w listach (w dół = następny). Potwierdźcie.
-- **Ikona „Do sprawdzenia”:** w makiecie pełne zielone kółko bez ptaszka. Czy ma się odróżniać od „Gotowe” czymś więcej niż kolorem (dla daltonistów)?
-- **Gdzie edytuje się minimum na bus** i kategorie osób kontaktowych — makiety tego nie pokazują.
+- **Kategorie osób kontaktowych:** makiety nie pokazują, gdzie się je edytuje; teraz w komórce tabeli Osoby.
+
+Rozstrzygnięte przez właściciela 2026-11-20:
+- J = poprzednia, K = następna firma (zgodnie z `screens/04-klienci.md`).
+- Ikona „Do sprawdzenia” zostaje jak w makiecie (pełne zielone kółko).
+- Minimum na bus ustawiane dwuklikiem w komórce „W samochodach” zostaje.
 
 ## Dziennik
 
