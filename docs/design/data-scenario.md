@@ -32,6 +32,13 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 - Faktura końcowa **FV/2026/12/003**: do zapłaty 33 279,12 zł brutto (30 814,00 netto + 2 465,12 VAT), termin 8 gru, poza KSeF (B2C).
 - Przegląd gwarancyjny 1 gru 2027; propozycja umowy serwisowej 590 zł netto / rok (637,20 brutto), e-mail 15 gru.
 
+## Leady i szanse (piątek 13 lis 2026, 9:14)
+- Opiekunowie handlowi: **Pascal Kranz (PK)** `#5F636B` i **Agnieszka (AW)**; doradcy techniczni na oględzinach: TL (pompy ciepła), MZ/KN.
+- Leady do kontaktu: **Gabinet DentSopot** (dr Karolina Mazur, Monte Cassino 41, Sopot; polecenie Przychodni Zdrowie, e-mail 7:50 → kontakt do 9:50; ~22 tys.); **Joanna Krawczyk** (formularz 8:20, Redłowo, blok 4. p., 64 m², 3 pokoje, montaż w grudniu; multi-split 2,5/2,5/3,5 kW, 14–17 tys. netto; kontakt do 10:20); **Adam Wróbel** (telefon 12 lis 17:40, Chwaszczyno, Leśna 8, dom 180 m², gaz z 2009, ~45 tys.; oddzwonić 10:00, PK).
+- Leady w kwalifikacji: **Delikatesy Morskie** — wymiana lodziarki UR-3107 na R290, ~28 tys. (od KN po ZS-1047, AW); **Wspólnota Kasztanowa 7**, Rumia — wentylacja garażu 42 miejsca, ~38 tys., uchwała 24 lis (PK).
+- Szanse otwarte (10, 450 020 zł, ważona 219 081 zł): Kwalifikacja — DentSopot 22 000 (AW), Wspólnota 38 000 (PK); Oględziny — Adam Wróbel 45 000, OG-0418 pon 16 lis 15:00 (TL), Restauracja Przystań komora 6 m² 31 000, wt 17 lis 9:00 (KN); Wycena — Piekarnia Rogal szafa mroźnicza 18 400 (2 dni po terminie, AW), Biuro Bilans 2 sale 9 800 (dziś, AW); Oferta — **Marek Zieliński OF-2026-118 44 020** (otwarta 3×, ost. czw 12 lis 21:14, TL), Kancelaria Wit OF-2026-114 27 300 (nieotwarta 4 dni, PK), Galeria Bałtycka VRV sala eventowa OF-2026-109 86 500 (zarząd 30 lis, PK); Negocjacje — Przychodnia Zdrowie 2 centrale OF-2026-102 v3 128 000 (prośba o rabat 5 %, marża po rabacie 24,1 %, PK).
+- Wygrane w listopadzie: 6 / 214 300 zł (październik 5 / 168 900 zł); przegrane 3 (cena 2, termin 1). Średni pierwszy kontakt w listopadzie: 1 h 25 min.
+
 ## Przeglądy i umowy
 - **UM-2026-031** Galeria Bałtycka sp. z o.o. (KL-0142, Grunwaldzka 141, Gdańsk): 1 lut 2026 – 31 sty 2027, ryczałt 2 400 zł/mies., reakcja 4 h 7:00–20:00, poza ryczałtem 140 zł/h, części −10 %. 14 urządzeń (VRV 6 jedn. R410A 24 kg = 50,1 t → co 6 mies.; wytwornica wody lodowej; 3 centrale; 4 klimatyzatory w rozdzielni). Rentowność 51 %, SLA 7/7. Wygasa za 73 dni (od 19 lis) → propozycja aneksu +4 %.
 - **UR-2871** Piekarnia Rogal (Chylońska 70, Gdynia) — komora mroźnicza R452A 8 kg = 17,1 t → kontrola co 12 mies., ostatnia 9 gru 2025, termin 9 gru 2026 (środa). Proponowane połączenie z przeglądem witryn w Delikatesach Morskich (UM-2025-014, 2 km dalej), technik KN.

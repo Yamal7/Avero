@@ -586,6 +586,38 @@
       "title": "Skrzynka · ciemny",
       "x": 4560,
       "y": 30340
+    },
+    "Leady.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Leady · lista i podgląd (Joanna Krawczyk)",
+      "x": 0,
+      "y": 31820
+    },
+    "Leady-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Leady · ciemny",
+      "x": 1520,
+      "y": 31820
+    },
+    "Szanse.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Szanse · tablica etapów",
+      "x": 3040,
+      "y": 31820
+    },
+    "Szanse-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Szanse · ciemny",
+      "x": 4560,
+      "y": 31820
     }
   },
   "createdOnFiles": {
@@ -798,7 +830,11 @@
     "Zgloszenia.dc.html",
     "Zgloszenia-ciemny.dc.html",
     "Skrzynka.dc.html",
-    "Skrzynka-ciemny.dc.html"
+    "Skrzynka-ciemny.dc.html",
+    "Leady.dc.html",
+    "Leady-ciemny.dc.html",
+    "Szanse.dc.html",
+    "Szanse-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",

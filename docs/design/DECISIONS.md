@@ -2,6 +2,15 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Leady i Szanse)
+- **Lead ≠ szansa.** Lead to niezweryfikowane zapytanie (formularz, telefon, e-mail ze Skrzynki, polecenie, technik po wizycie). Po rozmowie: „Zakwalifikuj i umów oględziny” tworzy szansę (i oględziny) albo „Odrzuć” z powodem. Zgodnie z PRODUCT_PLAN etap 4.
+- **Cel pierwszego kontaktu: 2 h od wpłynięcia, w godzinach pracy** — kolumna „Kontakt do” i średnia w nagłówku. Wartość do ustawienia w Ustawieniach (domyślnie 2 h).
+- **Etapy szansy**: Kwalifikacja → Oględziny → Wycena → Oferta → Negocjacje → Wygrana / Przegrana. Prawdopodobieństwa do wartości ważonej: 10 / 25 / 40 / 55 / 75 % (edytowalne w Ustawieniach).
+- **Etap szansy nie jest statusem oferty**: karta pokazuje ofertę (numer, wersja, otwarcia przez klienta) osobno. Akceptacja oferty online sama zamyka szansę jako wygraną; przegrana wymaga powodu (cena, termin, konkurencja, rezygnacja, inne).
+- **Każda otwarta szansa ma następne działanie z terminem**; po terminie — czerwone, licznik w nagłówku tablicy.
+- **Technik może zgłosić lead** po wizycie (np. wymiana starego urządzenia) — źródło „Od technika”, z numerem zlecenia.
+- Tablica bez kafelków KPI: suma w lejku, wartość ważona i wygrane w miesiącu jako jedna linia faktów.
+
 ## 2026-11-20 (poczta i SMS — decyzje właściciela)
 - **Poczta w Skrzynce przez bezpośrednie połączenie z Microsoft 365 i Google Workspace** (OAuth, logowanie u dostawcy — hasło nigdy nie trafia do Avero). Dostęp tylko do wskazanych skrzynek firmowych (serwis@, biuro@), nie do skrzynek pracowników. Microsoft 365: Microsoft Graph, jednorazowa zgoda administratora. Google: aplikacja wewnętrzna domeny.
 - **Uwaga na przyszłość (Google)**: zakresy Gmail do odczytu poczty są „restricted”. Dla aplikacji używanej tylko we własnej domenie nie ma audytu; jeśli Avero będzie sprzedawane innym firmom, wymagana weryfikacja Google i coroczny audyt bezpieczeństwa (CASA). Microsoft 365 nie ma takiego wymogu.
