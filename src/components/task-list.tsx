@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { useRouter } from 'next/navigation';
 import { crmTaskCommentSchema, crmTaskCommentsSchema, crmTaskLinkOptionsSchema, crmTaskMetaSchema, taskPlanChangeSchema, taskPlanContextSchema, type CrmTaskLink, crmTaskProgressSchema, crmTaskSchema, type CrmTaskComment, type MyTask, type MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
+import { SavedViewPills, ViewOptions, useCollectionView, type ViewState } from './collection-view';
 import { DI, PriorityIcon, StatusIcon, isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from './design-icons';
 
 type Task = MyTask;
@@ -12,6 +13,9 @@ type State = Task['state'];
 const zone = 'Europe/Warsaw';
 const stateLabel = taskStateLabel;
 const linkKind: Record<CrmTaskLink['kind'], string> = { ticket: 'Zgłoszenie', order: 'Zlecenie', offer: 'Oferta' };
+const priorityRank: Record<Priority, number> = { urgent: 0, high: 1, normal: 2, low: 3, none: 4 };
+const viewDefaults: ViewState = { group: 'status', sort: 'priority', showDone: true, showEmpty: false, columns: ['priority', 'number', 'label', 'due', 'assignee', 'customer'], filters: { priority: [], label: [] } };
+type Group = { key: string; label: string; icon: ReactNode; rows: Task[] };
 const groupOrder: State[] = ['in_progress', 'review', 'todo', 'backlog', 'done', 'cancelled'];
 type Progress = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
 const progressStates: Progress[] = ['backlog', 'todo', 'in_progress', 'review', 'done'];
@@ -68,8 +72,21 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     if (!selected || links) return;
     try { const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
   }
-  const groups = groupOrder.map(state => ({ state, rows: items.filter(t => t.state === state) })).filter(g => g.rows.length || g.state === 'in_progress' || g.state === 'review' || g.state === 'todo' || g.state === 'backlog');
-  const visible = groups.flatMap(g => collapsed[g.state] ? [] : g.rows);
+  const view = useCollectionView('tasks', viewDefaults), vs = view.state, [optionsOpen, setOptionsOpen] = useState(false);
+  const col = (c: string) => vs.columns.includes(c);
+  const fp = vs.filters.priority ?? [], fl = vs.filters.label ?? [];
+  const shownItems = items.filter(t => (vs.showDone || open(t)) && (!fp.length || fp.includes(t.priority)) && (!fl.length || (!!t.label && fl.includes(t.label))))
+    .sort((a, b) => vs.sort === 'due' ? a.dueOn.localeCompare(b.dueOn) || b.number - a.number : vs.sort === 'number' ? b.number - a.number : vs.sort === 'created' ? b.createdAt.localeCompare(a.createdAt) : priorityRank[a.priority] - priorityRank[b.priority] || a.dueOn.localeCompare(b.dueOn));
+  const assignees = [...new Map(items.map(t => [t.assigneeId, t.assigneeLabel])).entries()];
+  const groups: Group[] = (vs.group === 'none' ? [{ key: 'all', label: 'Wszystkie zadania', icon: null, test: () => true }]
+    : vs.group === 'priority' ? (Object.keys(priorityRank) as Priority[]).map(p => ({ key: `p-${p}`, label: priorityLabel[p], icon: <PriorityIcon priority={p} />, test: (t: Task) => t.priority === p }))
+    : vs.group === 'label' ? [...(Object.keys(taskLabels) as TaskLabel[]).map(l => ({ key: `l-${l}`, label: taskLabels[l].name, icon: <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: taskLabels[l].color }} />, test: (t: Task) => t.label === l })), { key: 'l-none', label: 'Bez etykiety', icon: null, test: (t: Task) => !t.label }]
+    : vs.group === 'assignee' ? assignees.map(([id, label]) => ({ key: `a-${id}`, label, icon: <span aria-hidden="true" style={avatar(16, 8)}>{initials(label)}</span>, test: (t: Task) => t.assigneeId === id }))
+    : groupOrder.map(st => ({ key: st, label: stateLabel[st], icon: <StatusIcon state={st} />, test: (t: Task) => t.state === st })))
+    .map(g => ({ key: g.key, label: g.label, icon: g.icon, rows: shownItems.filter(g.test) }))
+    .filter(g => g.rows.length || (vs.showEmpty && (vs.showDone || !['done', 'cancelled'].includes(g.key))));
+  const grid = [col('priority') && '14px', col('number') && '56px', '14px', 'minmax(0px, 1fr)', col('label') && 'auto', col('due') && '76px', col('assignee') && '20px'].filter(Boolean).join(' ');
+  const visible = groups.flatMap(g => collapsed[g.key] ? [] : g.rows);
 
   useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
   function select(t: Task | null) { setSelectedId(t?.id ?? null); setError(''); setConflict(false); setCopied(false); setNotice(''); if (t) { setPanelOn(true); requestAnimationFrame(() => document.getElementById(`task-${t.id}`)?.scrollIntoView({ block: 'nearest' })); } }
@@ -79,6 +96,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
       if (e.key === 'Escape' && selected) { e.preventDefault(); setPanelOn(false); return; }
       if (typing(e.target)) return;
       if (e.key === ']') { e.preventDefault(); setPanelOn(v => !v); return; }
+      if (e.key === 'v' && !board) { e.preventDefault(); setOptionsOpen(v => !v); return; }
       if (e.key === 'j' || e.key === 'k') {
         if (!visible.length) return; e.preventDefault();
         const i = visible.findIndex(t => t.id === selectedId);
@@ -148,10 +166,19 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
       {header}
       <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, padding: '8px 12px 8px 16px' }}>
         {toolbarTabs}
+        <SavedViewPills view={view} />
         <span style={{ flex: '1 1 auto' }} />
         {showSearch && search}
         <button type="button" className={`ib${showSearch ? ' on' : ''}`} aria-label="Filtruj" title="Szukaj zadania lub klienta  F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} style={ib(28)}>{DI.filter}</button>
         {layoutSwitch}
+        {!board && <span style={{ position: 'relative', display: 'inline-flex' }}>
+          <button type="button" data-view-options-trigger className={`ib${optionsOpen ? ' on' : ''}`} aria-label="Opcje widoku" title="Opcje widoku  V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} style={ib(28)}>{DI.sliders}</button>
+          {optionsOpen && <ViewOptions view={view} onClose={() => setOptionsOpen(false)}
+            groups={[{ value: 'status', label: 'Status' }, { value: 'priority', label: 'Priorytet' }, { value: 'label', label: 'Etykieta' }, { value: 'assignee', label: 'Osoba' }, { value: 'none', label: 'Bez grupowania' }]}
+            sorts={[{ value: 'priority', label: 'Priorytet' }, { value: 'due', label: 'Termin' }, { value: 'number', label: 'Numer' }, { value: 'created', label: 'Utworzone' }]}
+            columns={[{ value: 'priority', label: 'Priorytet' }, { value: 'number', label: 'Numer' }, { value: 'customer', label: 'Klient' }, { value: 'label', label: 'Etykieta' }, { value: 'due', label: 'Termin' }, { value: 'assignee', label: 'Osoba' }]}
+            filters={[{ key: 'priority', label: 'priorytet', options: (Object.keys(priorityRank) as Priority[]).map(p => ({ value: p, label: priorityLabel[p] })) }, { key: 'label', label: 'etykieta', options: (Object.keys(taskLabels) as TaskLabel[]).map(l => ({ value: l, label: taskLabels[l].name, dot: <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[l].color }} /> })) }]} />}
+        </span>}
         {!board && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" title="Panel szczegółów  ]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} style={ib(28)}>{DI.panel}</button>}
         {toolbarExtra}
       </div>
@@ -159,15 +186,16 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
         <div style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16, padding: '4px 12px 24px' }}>
           {notice && <p role="status" style={{ margin: '0 8px', fontSize: 12, color: 'var(--success)' }}>{notice}</p>}
           {items.length === 0 && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, padding: '16px 8px', color: 'var(--text-secondary)' }}><span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Brak zadań w tym widoku</span><span>Wybierz inny widok lub zmień wyszukiwanie. Nowe zadanie dodasz w karcie klienta.</span></div>}
+          {items.length > 0 && !groups.length && <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>Żadne zadanie nie pasuje do filtrów widoku. Zmień je w Opcjach widoku albo przywróć domyślne.</p>}
           {items.length > 0 && groups.map(g => {
-            const isCollapsed = !!collapsed[g.state];
+            const isCollapsed = !!collapsed[g.key];
             return (
-              <section key={g.state} style={{ display: 'flex', flexDirection: 'column' }}>
+              <section key={g.key} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, marginBottom: 4 }}>
-                  <button type="button" aria-expanded={!isCollapsed} onClick={() => setCollapsed(c => ({ ...c, [g.state]: !isCollapsed }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
+                  <button type="button" aria-expanded={!isCollapsed} onClick={() => setCollapsed(c => ({ ...c, [g.key]: !isCollapsed }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
                     <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>{DI.caret}</span>
-                    <StatusIcon state={g.state} />
-                    <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stateLabel[g.state]}</h2>
+                    {g.icon}
+                    <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{g.label}</h2>
                     <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span>
                   </button>
                 </div>
@@ -177,18 +205,18 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
                     return (
                       <a key={t.id} id={`task-${t.id}`} href={myTaskCustomerHref(t)} className={`row${sel ? ' sel' : ''}`} aria-current={sel ? 'true' : undefined}
                         onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); select(t); }}
-                        style={{ display: 'grid', gridTemplateColumns: '14px 56px 14px minmax(0px, 1fr) auto 76px 20px', alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
-                        <span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} style={{ display: 'inline-flex', alignItems: 'center' }}><PriorityIcon priority={t.priority} /></span>
-                        <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(t.number)}</span>
+                        style={{ display: 'grid', gridTemplateColumns: grid, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
+                        {col('priority') && <span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} style={{ display: 'inline-flex', alignItems: 'center' }}><PriorityIcon priority={t.priority} /></span>}
+                        {col('number') && <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(t.number)}</span>}
                         <span role="img" aria-label={stateLabel[t.state]} title={stateLabel[t.state]} style={{ display: 'inline-flex', alignItems: 'center' }}><StatusIcon state={t.state} /></span>
                         <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
                           <span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.title}</span>
                           {t.link && <span className="mono" title={`${linkKind[t.link.kind]}: ${t.link.title}`} style={{ flex: '0 0 auto', fontSize: 11, color: 'var(--text-tertiary)' }}>{t.link.code}</span>}
-                          <span className="ell" style={{ flex: '0 10000 auto', fontSize: 12, color: 'var(--text-tertiary)' }}>{t.customerName}</span>
+                          {col('customer') && <span className="ell" style={{ flex: '0 10000 auto', fontSize: 12, color: 'var(--text-tertiary)' }}>{t.customerName}</span>}
                         </span>
-                        <span style={{ display: 'flex', justifyContent: 'flex-end' }}>{t.label && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 20, padding: '0 6px', borderRadius: 6, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', background: 'var(--bg-subtle)' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[t.label].color }} />{taskLabels[t.label].name}</span>}</span>
-                        <span className="num" title={`${due.title}: ${longDay(t.dueOn)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: due.color, fontWeight: due.weight }}>{due.icon}<span>{due.text}</span></span>
-                        <span style={{ display: 'flex', justifyContent: 'flex-end' }}><span title={t.assigneeLabel} style={avatar(20, 9)}>{initials(t.assigneeLabel)}</span></span>
+                        {col('label') && <span style={{ display: 'flex', justifyContent: 'flex-end' }}>{t.label && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 20, padding: '0 6px', borderRadius: 6, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', background: 'var(--bg-subtle)' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[t.label].color }} />{taskLabels[t.label].name}</span>}</span>}
+                        {col('due') && <span className="num" title={`${due.title}: ${longDay(t.dueOn)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: due.color, fontWeight: due.weight }}>{due.icon}<span>{due.text}</span></span>}
+                        {col('assignee') && <span style={{ display: 'flex', justifyContent: 'flex-end' }}><span title={t.assigneeLabel} style={avatar(20, 9)}>{initials(t.assigneeLabel)}</span></span>}
                       </a>
                     );
                   })}

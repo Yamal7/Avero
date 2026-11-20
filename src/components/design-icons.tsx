@@ -10,6 +10,7 @@ export const DI = {
   plus16: <svg {...sv}><path key="1" d="M5 12h14M12 5v14" /></svg>,
   plus14: <svg {...sv} width={14} height={14}><path key="1" d="M5 12h14M12 5v14" /></svg>,
   filter: <svg {...sv}><path key="1" d="M3 6h18M7 12h10M10 18h4" /></svg>,
+  sliders: <svg {...sv}><path key="1" d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4" /></svg>,
   list: <svg {...sv} width={14} height={14}><path key="1" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>,
   board: <svg {...sv} width={14} height={14}><path key="1" d="M6 5v11M12 5v6M18 5v14" /></svg>,
   panel: <svg {...sv}><rect key="1" x="3" y="3" width="18" height="18" rx="2" /><path key="2" d="M15 3v18" /></svg>,
