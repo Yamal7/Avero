@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (odpowiedzi na STATUS)
+- **Kategorie osób kontaktowych** — edycja jak kategorie firm: kliknięcie komórki „Kategorie” w tabeli Osoby (oraz pole w panelu osoby) otwiera ten sam popover co filtr kategorii firm: wyszukiwanie, lista z kolorowymi kropkami i ptaszkiem, „Utwórz «…»” gdy brak wyniku, na dole „Zarządzaj” z ikoną zębatki. „Zarządzaj” otwiera okno listy kategorii (nazwa, kolor z 8 próbek, liczba osób, usuń z potwierdzeniem). Kategorie osób i firm to osobne listy. Obecna edycja w komórce zostaje — dochodzi „Zarządzaj”.
+- **Odstępstwa przyjęte**: mapa na kafelkach OSM z SVG i własne ikony SVG (MapLibre i Phosphor — decyzja właściciela), ⌥T / ⌥1–9 w przeglądarce, jedno MM na każdy bus, „+” w kolumnie tablicy → lista firm, filtry na wczytanej stronie (docelowo po stronie serwera).
+- **Tokeny**: źródłem prawdy jest `docs/design/tokens.css`; `src/app/precision.css` ma odwzorować go 1:1. Przy różnicach wygrywa `tokens.css`.
+- **Motyw ciemny**: każdy nowy ekran sprawdzany w ciemnym motywie przed oznaczeniem „działa” w STATUS.
+
 ## 2026-11-20 (Ustawienia — pozostałe zakładki)
 - **Numery ofert, zleceń i zgłoszeń nadaje baza** (kłódka w Ustawieniach); edytowalne są serie faktur, korekt, protokołów i dokumentów magazynowych — zmiana działa od nowego miesiąca.
 - **Progi marży per kategoria** (urządzenia 15 %, materiały 30 %, usługi 45 %, dojazd 0 %) obok progu całej oferty 22 %; domyślnie poniżej progu tylko ostrzeżenie.
