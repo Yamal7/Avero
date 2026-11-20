@@ -25,7 +25,7 @@ Makiety: ekrany `zgłoszenia` i `skrzynka` w `Main.dc.html` (plansze jasne i cie
 - Trzy kolumny: wątki 340 px, wątek, kontekst 340 px.
 - Widoki: Do obsłużenia, Moje, Czeka na klienta, Zamknięte. Filtr kanałów: e-mail serwis, e-mail biuro, portal klienta, formularz na stronie.
 - Wątek na liście: awatar, nadawca (pogrubiony, gdy nieprzeczytany, + kropka akcentu), firma · adres, temat, początek treści, kanał, przypięcie (ZG-…, „pasuje do ZG-0912”, „zapytanie ofertowe”, „finanse”), prowadzący. Grupy dni.
-- Przypięcie: wiadomość z portalu tworzy zgłoszenie automatycznie; e-mail dopasowujemy po nadawcy (kontakt klienta), obiekcie/urządzeniu i numerach dokumentów w treści (ZD-, ZS-, OF-, FV-). Dopasowanie niepewne = propozycja, nie zmiana.
+- Przypięcie: wiadomość z portalu tworzy zgłoszenie automatycznie; e-mail dopasowujemy po nadawcy (kontakt klienta), obiekcie/urządzeniu i numerach dokumentów w treści (ZK/, ZS-, OF-, FV/). Dopasowanie niepewne = propozycja, nie zmiana.
 - Wątek: tytuł, liczba wiadomości, akcje: przypisz (A), zamknij (E), więcej. Wcześniejsze wiadomości zwinięte. Wiadomość klienta na `--bg-raised`, nasza odpowiedź bez tła, notatka wewnętrzna z kapsułką kłódki „notatka wewnętrzna”.
 - Pole odpowiedzi: przełącznik „Odpowiedź do klienta” (R) / „Notatka wewnętrzna” (N), adresat, treść, podpis z Ustawień, załącz, szablony (/), „Wyślij” (⌘↵).
 - Kontekst: nadawca (kontakt dopasowany po e-mailu, telefon), otwarte sprawy klienta (zgłoszenie, urządzenie, wizyta, F-gaz), propozycja Avero (dołącz do zgłoszenia + priorytet, przesunięcie wizyty z planem dnia technika) jako jedna akcja z akcentem, oraz „Albo”: utwórz nowe zgłoszenie (C), oznacz jako nie-serwis.

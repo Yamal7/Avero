@@ -634,6 +634,38 @@
       "title": "Szansa SZ-0179 · ciemny",
       "x": 1520,
       "y": 33300
+    },
+    "Zakupy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · zapotrzebowanie",
+      "x": 0,
+      "y": 35140
+    },
+    "Zakupy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · ciemny",
+      "x": 1520,
+      "y": 35140
+    },
+    "Zamowienie-zakupowe.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zamówienie ZK/2026/11/031 · przyjęcie dostawy",
+      "x": 3040,
+      "y": 35140
+    },
+    "Zamowienie-zakupowe-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zamówienie ZK · ciemny",
+      "x": 4560,
+      "y": 35140
     }
   },
   "createdOnFiles": {
@@ -852,7 +884,11 @@
     "Szanse.dc.html",
     "Szanse-ciemny.dc.html",
     "Szansa.dc.html",
-    "Szansa-ciemny.dc.html"
+    "Szansa-ciemny.dc.html",
+    "Zakupy.dc.html",
+    "Zakupy-ciemny.dc.html",
+    "Zamowienie-zakupowe.dc.html",
+    "Zamowienie-zakupowe-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",

@@ -2,6 +2,15 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Zakupy)
+- **Numeracja zamówień do dostawców: `ZK/RRRR/MM/NNN`** (jak PZ/RW/MM/WZ). Dotychczasowe `ZD-2026-131` i `ZD-2026-128` zmienione na `ZK/2026/11/031` i `ZK/2026/11/028`, bo `ZD-…` to zadania.
+- **Zapotrzebowanie liczone, nie wpisywane**: potrzeby zleceń/zgłoszeń + minima magazynu i busów − dostępne (stan − rezerwacje) − w drodze. Rezerwacje i zamówienia w drodze nie liczą się podwójnie (PRODUCT_PLAN, etap 5). Każda pozycja pokazuje źródło potrzeby (ZS-, ZG-, minimum).
+- **Grupowanie po dostawcy z najlepszą ceną**; nagłówek grupy: termin dostawy, próg darmowej dostawy (z podpowiedzią, co dołożyć), suma, „Utwórz zamówienie” (szkic do sprawdzenia, nie wysyła sam).
+- **Kilka cen zakupu jednej pozycji** (cennik, oferta handlowca, ostatni zakup) z trendem — rejestr dostawców i cenniki w zakładkach Dostawcy / Cenniki.
+- **F-gaz w zakupach i wydaniach**: od 2026 świeże czynniki o GWP > 2500 (np. R404A) nie mogą służyć do serwisu urządzeń chłodniczych; regenerowane / z recyklingu — do końca 2029 r. Pozycja czynnika ma atrybut „świeży / regenerowany”; Avero nie wyda świeżego R404A na zlecenie, a przy PZ regenerowanego wymaga certyfikatu regeneracji. Notatka PD w Skrzynce poprawiona na „regenerowany R404A”.
+- **Przyjęcie dostawy na zamówieniu**: ilość przyjmowana per pozycja (częściowe przyjęcie zostawia otwartą pozycję z przypomnieniem), numer seryjny wymagany dla urządzeń. Zatwierdzenie tworzy PZ, rezerwację pod zlecenie i kartę urządzenia.
+- **Faktura zakupowa z KSeF** dopasowywana automatycznie po NIP dostawcy i numerze ZK; koszt trafia do wyniku zlecenia.
+
 ## 2026-11-20 (Leady i Szanse — zatwierdzone; rekord szansy)
 - Właściciel zatwierdził: cel pierwszego kontaktu 2 h, prawdopodobieństwa etapów 10 / 25 / 40 / 55 / 75 %, Pascal Kranz (PK) jako drugi opiekun handlowy obok Agnieszki.
 - **Rekord szansy**: ścieżka etapów z datami (etap pominięty — szary „pominięte”), historia od leada do realizacji w jednej osi (najnowsze na górze, grupy dni, filtry: Wszystko / Rozmowy / Dokumenty / Klient), po prawej klient, wartość (netto, brutto, marża, zaliczka, pozostało), sprzedaż (źródło, czas pierwszego kontaktu liczony w godzinach pracy, opiekun), „Dalej” i powiązane dokumenty.
@@ -27,7 +36,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Lista grupowana po statusie**, kolumna „Reakcja”: przy umowie z SLA odliczanie do terminu reakcji (czerwone), bez umowy — czas od zgłoszenia.
 - **Ścieżka statusu w podglądzie** (Przyjęte → Technik → Wizyta → Protokół → Zamknięte) — ten sam znak rozpoznawczy co w Mój dzień.
 - **Propozycja technika uwzględnia przypisanie do klienta** (biuro może wybrać tylko technika z dostępem do klienta — reguła z backendu), odległość i wolne okno. Akcja jedną kontrolką: przydziel + zaplanuj + potwierdzenie do klienta.
-- **Skrzynka = jedno miejsce na korespondencję** (e-mail serwis/biuro, portal klienta, formularz na stronie). Każdy wątek ma przypięcie: zgłoszenie, lead lub kategoria nie-serwisowa. Dopasowanie po nadawcy, obiekcie i numerze dokumentu (np. ZD-2026-128 → ZG-0905).
+- **Skrzynka = jedno miejsce na korespondencję** (e-mail serwis/biuro, portal klienta, formularz na stronie). Każdy wątek ma przypięcie: zgłoszenie, lead lub kategoria nie-serwisowa. Dopasowanie po nadawcy, obiekcie i numerze dokumentu (np. ZK/2026/11/028 → ZG-0905).
 - **Odpowiedź do klienta i notatka wewnętrzna w jednym polu z przełącznikiem** (R / N); notatka zawsze oznaczona kłódką. Klient nigdy nie widzi notatek (zgodnie z PRODUCT_PLAN, etap 2 pkt 4).
 - **Propozycje Avero nic nie zmieniają bez kliknięcia**; szkic odpowiedzi tworzony z propozycji jest edytowalny.
 

@@ -58,7 +58,7 @@ a('<div style="display:flex;flex-direction:column;gap:28px;padding:0 24px 32px;m
 a('<section style="display:flex;flex-direction:column;gap:4px">'+h3('Gotowość do montażu',sch(dot('var(--warning)')+'4 z 6','2 punkty otwarte'))+
   card(line(WALLET,'var(--success)','Zaliczka opłacona',obj('FZ/2026/11/014','14 262,48 zł · BLIK · 18 lis 14:52'))+
        line(BOX,'var(--success)','Magazyn: moduł, sterownik, bufor',sch('Zarezerwowane','Magazyn główny, regał B2','var(--bg-surface)'))+
-       line(TRUCK,'var(--warning)','Jednostka zewnętrzna i fundament',obj('ZD-2026-131','Zamówienie u dystrybutora')+sch(ic(CAL,12,'var(--text-tertiary)')+'20 lis','Potwierdzona dostawa · zapas 10 dni','var(--bg-surface)'))+
+       line(TRUCK,'var(--warning)','Jednostka zewnętrzna i fundament',obj('ZK/2026/11/031','Zamówienie u dystrybutora')+sch(ic(CAL,12,'var(--text-tertiary)')+'20 lis','Potwierdzona dostawa · zapas 10 dni','var(--bg-surface)'))+
        line(CAR,'var(--success)','Narzędzia i rura w busie TL',sch('12 m · azot · pompa','Rura 3/8″ + 5/8″ 12 m, butla azotu, pompa próżniowa, waga','var(--bg-surface)'))+
        line(SHIELD,'var(--success)','Zgoda klienta na montaż przed 14 dniami',sch(ic(SIGN,12,'var(--text-tertiary)')+'18 lis','Podpis w akceptacji oferty','var(--bg-surface)'))+
        '<div style="display:flex;align-items:center;gap:10px;min-height:40px;padding:2px 4px 2px 8px;border-radius:10px">'+ic(WARN,16,'var(--warning)')+'<span style="flex:1 1 auto;min-width:0">Odcięcie gazu przed demontażem kotła — brak instalatora z uprawnieniami</span>'
@@ -87,13 +87,13 @@ ok=lambda t,tip: sch(dot('var(--success)')+t,tip); wait=lambda t,tip: sch(dot('v
 a('<section style="display:flex;flex-direction:column;gap:8px">'+h3('Materiały',CNT(8)+SP+sch(ic(ARIN if 'ARIN' in globals() else BOX,12,'var(--text-tertiary)')+'RW przy załadunku','Wydanie RW powstanie przy załadunku busa 30 lis 7:00 — stany zmienią się dopiero wtedy'))+
   '<div role="table" aria-label="Materiały zlecenia" style="display:flex;flex-direction:column">'
   f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;height:24px;align-items:center;padding:0 8px;font-size:12px;color:var(--text-tertiary)"><span>Pozycja</span><span style="text-align:right">Ilość</span><span>Skąd</span><span>Stan</span></div>'+
-  mrow('Jednostka zewnętrzna ERGA08EV','1 szt.',sch(ic(TRUCK,12,'var(--text-tertiary)')+'Dystrybutor','ZD-2026-131'),wait('W drodze','Dostawa 20 lis'))+
+  mrow('Jednostka zewnętrzna ERGA08EV','1 szt.',sch(ic(TRUCK,12,'var(--text-tertiary)')+'Dystrybutor','ZK/2026/11/031'),wait('W drodze','Dostawa 20 lis'))+
   mrow('Moduł wewn. EHVH08S23E6V','1 szt.',sch(ic(BOX,12,'var(--text-tertiary)')+'Magazyn B2','Magazyn główny'),ok('Zarezerwowane','Rezerwacja do 30 lis'))+
   mrow('Sterownik Madoka + Wi-Fi','1 kpl',sch(ic(BOX,12,'var(--text-tertiary)')+'Magazyn B2','Magazyn główny'),ok('Zarezerwowane','Rezerwacja do 30 lis'))+
   mrow('Bufor 50 l z osprzętem','1 kpl',sch(ic(BOX,12,'var(--text-tertiary)')+'Magazyn C1','Magazyn główny'),ok('Zarezerwowane','Rezerwacja do 30 lis'))+
   mrow('Rura 3/8″ + 5/8″ z izolacją','8 m',sch(ic(CAR,12,TL)+'Bus TL','W busie Tomasza: 12 m'),ok('W busie','Wystarczy z zapasem 4 m'))+
   mrow('Armatura: filtr, zawory, naczynie 18 l','1 kpl',sch(ic(BOX,12,'var(--text-tertiary)')+'Magazyn A4','Magazyn główny'),ok('Zarezerwowane','Rezerwacja do 30 lis'))+
-  mrow('Fundament + antywibracja','1 kpl',sch(ic(TRUCK,12,'var(--text-tertiary)')+'Dystrybutor','ZD-2026-131'),wait('W drodze','Dostawa 20 lis'))+
+  mrow('Fundament + antywibracja','1 kpl',sch(ic(TRUCK,12,'var(--text-tertiary)')+'Dystrybutor','ZK/2026/11/031'),wait('W drodze','Dostawa 20 lis'))+
   mrow('Przewód YDY 5×2,5','12 m',sch(ic(CAR,12,MZC)+'Bus MZ','W busie Mateusza: 40 m'),ok('W busie','—'))+
   '</div></section>')
 a('</div></div>')
