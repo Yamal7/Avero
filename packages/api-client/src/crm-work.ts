@@ -13,7 +13,7 @@ const record={id:z.string().uuid(),customerId:z.string().uuid(),version:z.number
 export const crmNoteSchema=crmNoteFieldsSchema.extend(record).strict();
 export const crmTaskPriorities=['none','low','normal','high','urgent'] as const;
 export const crmTaskLabels=['purchasing','offers','fgas','documents','customers','warranty','contracts','tools','internal'] as const;
-export const crmTaskSchema=crmTaskFieldsSchema.extend({...record,assigneeLabel:z.string(),completedAt:z.string().nullable(),number:z.number().int().positive(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable(),comments:z.number().int().nonnegative()}).strict();
+export const crmTaskSchema=crmTaskFieldsSchema.extend({...record,assigneeLabel:z.string(),completedAt:z.string().nullable(),number:z.number().int().positive(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable(),comments:z.number().int().nonnegative(),link:z.lazy(()=>crmTaskLinkSchema).nullable()}).strict();
 export const crmTaskMetaSchema=z.object({version:z.number().int().nonnegative(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable()}).strict();
 export const crmTaskCommentSchema=z.object({id:z.string().uuid(),taskId:z.string().uuid(),authorId:z.string().uuid(),authorLabel:z.string(),body:z.string(),createdAt:z.string()}).strict();
 export const crmTaskCommentsSchema=z.array(crmTaskCommentSchema).max(200);
@@ -57,3 +57,9 @@ export const customerCategoriesInputSchema=z.object({categories:z.array(customer
 export const customerDirectoryItemSchema=z.object({id:z.string().uuid(),name:z.string(),type:z.enum(['company','individual']),email:z.string().nullable(),phone:z.string().nullable(),categories:z.array(z.string()),city:z.string().nullable(),devices:count,lastContact:z.string().nullable(),ownerId:z.string().uuid().nullable(),ownerLabel:z.string().nullable(),revenueCents:z.number().int().nonnegative().nullable()}).strict();
 export const customerDirectorySchema=z.object({total:count,counts:z.object({company:count,individual:count}).strict(),items:z.array(customerDirectoryItemSchema).max(25)}).strict();
 export type CustomerDirectory=z.infer<typeof customerDirectorySchema>;
+
+export const crmTaskLinkKinds=['ticket','order','offer'] as const;
+export const crmTaskLinkSchema=z.object({kind:z.enum(crmTaskLinkKinds),id:z.string().uuid(),code:z.string().min(1).max(40),title:z.string().max(400)}).strict();
+export const crmTaskLinkOptionsSchema=z.array(crmTaskLinkSchema).max(1000);
+export const crmTaskLinkChangeSchema=z.object({version:z.number().int().nonnegative(),kind:z.enum(crmTaskLinkKinds).nullable(),targetId:z.string().uuid().nullable()}).strict().refine(v=>(v.kind===null)===(v.targetId===null));
+export type CrmTaskLink=z.infer<typeof crmTaskLinkSchema>;

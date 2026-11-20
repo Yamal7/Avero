@@ -65,5 +65,5 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
     </nav>
   );
 
-  return <TaskListView key={`${query.filter}-${query.search}-${query.page}-${view}`} data={data} header={header} toolbarTabs={tabs} layoutSwitch={layout} search={search} toolbarExtra={extra} footer={footer} board={view === 'board' ? <TaskBoard data={data} /> : undefined} />;
+  return <TaskListView key={`${query.filter}-${query.search}-${query.page}-${view}`} data={data} header={header} toolbarTabs={tabs} layoutSwitch={layout} search={search} toolbarExtra={extra} footer={footer} canPlan={staff} board={view === 'board' ? <TaskBoard data={data} /> : undefined} />;
 }
