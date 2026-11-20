@@ -506,6 +506,54 @@
       "title": "Ustawienia · użytkownicy · ciemny",
       "x": 4560,
       "y": 25840
+    },
+    "Ustawienia-dokumenty.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "w": 1440,
+      "title": "Ustawienia · dokumenty i numeracja",
+      "x": 0,
+      "y": 27260
+    },
+    "Ustawienia-katalog.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · katalog i marże",
+      "x": 1520,
+      "y": 27260
+    },
+    "Ustawienia-technicy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · technicy i busy",
+      "x": 3040,
+      "y": 27260
+    },
+    "Ustawienia-moj-profil.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · mój profil",
+      "x": 0,
+      "y": 28800
+    },
+    "Ustawienia-powiadomienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · powiadomienia",
+      "x": 1520,
+      "y": 28800
+    },
+    "Ustawienia-wyglad.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · wygląd",
+      "x": 3040,
+      "y": 28800
     }
   },
   "createdOnFiles": {
@@ -708,7 +756,13 @@
     "Ustawienia-profil.dc.html",
     "Ustawienia-uzytkownicy.dc.html",
     "Ustawienia-integracje.dc.html",
-    "Ustawienia-uzytkownicy-ciemny.dc.html"
+    "Ustawienia-uzytkownicy-ciemny.dc.html",
+    "Ustawienia-dokumenty.dc.html",
+    "Ustawienia-katalog.dc.html",
+    "Ustawienia-technicy.dc.html",
+    "Ustawienia-moj-profil.dc.html",
+    "Ustawienia-powiadomienia.dc.html",
+    "Ustawienia-wyglad.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",
