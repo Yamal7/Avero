@@ -2,6 +2,11 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Leady i Szanse — zatwierdzone; rekord szansy)
+- Właściciel zatwierdził: cel pierwszego kontaktu 2 h, prawdopodobieństwa etapów 10 / 25 / 40 / 55 / 75 %, Pascal Kranz (PK) jako drugi opiekun handlowy obok Agnieszki.
+- **Rekord szansy**: ścieżka etapów z datami (etap pominięty — szary „pominięte”), historia od leada do realizacji w jednej osi (najnowsze na górze, grupy dni, filtry: Wszystko / Rozmowy / Dokumenty / Klient), po prawej klient, wartość (netto, brutto, marża, zaliczka, pozostało), sprzedaż (źródło, czas pierwszego kontaktu liczony w godzinach pracy, opiekun), „Dalej” i powiązane dokumenty.
+- Zdarzenia automatyczne (akceptacja, płatność, zlecenie, zamówienie) wpisuje Avero z godziną i numerami; zdjęcia z oględzin zawsze wewnętrzne.
+
 ## 2026-11-20 (Leady i Szanse)
 - **Lead ≠ szansa.** Lead to niezweryfikowane zapytanie (formularz, telefon, e-mail ze Skrzynki, polecenie, technik po wizycie). Po rozmowie: „Zakwalifikuj i umów oględziny” tworzy szansę (i oględziny) albo „Odrzuć” z powodem. Zgodnie z PRODUCT_PLAN etap 4.
 - **Cel pierwszego kontaktu: 2 h od wpłynięcia, w godzinach pracy** — kolumna „Kontakt do” i średnia w nagłówku. Wartość do ustawienia w Ustawieniach (domyślnie 2 h).

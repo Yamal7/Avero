@@ -12,5 +12,6 @@ python3 design/tools/ustawienia.py  # ustawienia: profil firmy, użytkownicy, in
 python3 design/tools/ustawienia2.py # ustawienia: dokumenty, katalog, technicy, mój profil, powiadomienia, wygląd
 python3 design/tools/zgloszenia.py  # zgłoszenia (lista + podgląd) i skrzynka
 python3 design/tools/leady.py       # leady (lista + podgląd) i szanse (tablica etapów)
+python3 design/tools/szansa.py      # rekord szansy SZ-0179
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 echo "Gotowe: design/canvas/Main.dc.html"

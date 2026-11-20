@@ -28,5 +28,11 @@ Makiety: ekrany `leady` i `szanse` w `Main.dc.html` (jasne i ciemne). Scenariusz
 - Pusta kolumna tablicy: tylko „+ Dodaj”.
 - Ładowanie: szkielety wierszy / kart. Błąd zapisu przeniesienia: karta wraca na miejsce + komunikat z „Spróbuj ponownie”.
 
-## Następny krok projektu
-Rekord szansy (oś: lead → oględziny → oferty i wersje → akceptacja → zlecenie), na przykładzie Marka Zielińskiego.
+## Rekord szansy (ekran `szansa`, plansza 1480 px)
+Przykład: **SZ-0179** Marek Zieliński, stan na czwartek 19 lis 2026 (po akceptacji).
+- Nagłówek: okruszki Sprzedaż › Szanse › SZ-0179, pozycja na liście („3 z 6 wygranych”, J/K), link, więcej.
+- Tytuł 18 px, meta (klient, adres, obciążenie cieplne), kapsułki: status (Wygrana · 18 lis), wartość netto (brutto w podpowiedzi), czas od zapytania (średnia dla rodzaju w podpowiedzi), opiekun.
+- Ścieżka etapów na `--bg-raised`: kropka + linia + nazwa + data; pominięty etap szary z „pominięte”; wygrana zielonym kółkiem z ptaszkiem.
+- Historia (najnowsze na górze, grupy dni z dniem tygodnia): ikona rodzaju zdarzenia w kółku, tytuł, autor (awatar), godzina, opis, kapsułki dokumentów (mono). Rodzaje: formularz, rozmowa, oględziny, wysłanie oferty (wersja), otwarcia oferty przez klienta, akceptacja z podpisem, płatność, działania Avero.
+- Panel 340 px: Klient (telefon), Wartość (netto, brutto z powodem stawki VAT, marża z progiem, zaliczka, pozostało), Sprzedaż (źródło, pierwszy kontakt w godzinach pracy vs cel 2 h, opiekun), Dalej (montaż, propozycja umowy serwisowej, przegląd gwarancyjny), Powiązane (OG, OF, FZ, ZS, ZD), „Otwórz zlecenie ZS-1052”.
+- Szansa otwarta: zamiast „Dalej” — następne działanie z terminem i akcje „Zaplanuj działanie”, „Wygrana”, „Przegrana…” (powód).

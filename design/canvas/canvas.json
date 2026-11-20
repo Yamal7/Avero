@@ -618,6 +618,22 @@
       "title": "Szanse · ciemny",
       "x": 4560,
       "y": 31820
+    },
+    "Szansa.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "w": 1440,
+      "title": "Szansa SZ-0179 · Marek Zieliński (wygrana)",
+      "x": 0,
+      "y": 33300
+    },
+    "Szansa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "w": 1440,
+      "title": "Szansa SZ-0179 · ciemny",
+      "x": 1520,
+      "y": 33300
     }
   },
   "createdOnFiles": {
@@ -834,7 +850,9 @@
     "Leady.dc.html",
     "Leady-ciemny.dc.html",
     "Szanse.dc.html",
-    "Szanse-ciemny.dc.html"
+    "Szanse-ciemny.dc.html",
+    "Szansa.dc.html",
+    "Szansa-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",
