@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (poczta i SMS — decyzje właściciela)
+- **Poczta w Skrzynce przez bezpośrednie połączenie z Microsoft 365 i Google Workspace** (OAuth, logowanie u dostawcy — hasło nigdy nie trafia do Avero). Dostęp tylko do wskazanych skrzynek firmowych (serwis@, biuro@), nie do skrzynek pracowników. Microsoft 365: Microsoft Graph, jednorazowa zgoda administratora. Google: aplikacja wewnętrzna domeny.
+- **Uwaga na przyszłość (Google)**: zakresy Gmail do odczytu poczty są „restricted”. Dla aplikacji używanej tylko we własnej domenie nie ma audytu; jeśli Avero będzie sprzedawane innym firmom, wymagana weryfikacja Google i coroczny audyt bezpieczeństwa (CASA). Microsoft 365 nie ma takiego wymogu.
+- **SMS przygotowany teraz, dostawca po umowie**: kanał w Skrzynce, szablony, nadawca „Kranz HVACR” i miejsca użycia (akceptacja oferty, prośba o termin przeglądu, przypomnienie przed montażem) gotowe; w Integracjach stan „Czeka na dostawcę”. Do czasu podłączenia SMS-y nie wychodzą — kod ma być niezależny od dostawcy (adapter), klucz w zmiennej środowiskowej serwera.
+- Wysyłka automatyczna (powiadomienia przez Resend) zostaje osobno od skrzynek odbiorczych.
+
 ## 2026-11-20 (Zgłoszenia i Skrzynka)
 - **Zgłoszenia projektowane pod istniejący backend** (`docs/SERVICE_WORKFLOW.md`): statusy Nowe / W obsłudze / Oczekuje / Zamknięte i priorytety Niski / Normalny / Pilny z kodu. Status i priorytet zawsze kształtem + kolorem, nigdy samym kolorem.
 - **Lista grupowana po statusie**, kolumna „Reakcja”: przy umowie z SLA odliczanie do terminu reakcji (czerwone), bez umowy — czas od zgłoszenia.
@@ -10,7 +16,6 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Skrzynka = jedno miejsce na korespondencję** (e-mail serwis/biuro, portal klienta, formularz na stronie). Każdy wątek ma przypięcie: zgłoszenie, lead lub kategoria nie-serwisowa. Dopasowanie po nadawcy, obiekcie i numerze dokumentu (np. ZD-2026-128 → ZG-0905).
 - **Odpowiedź do klienta i notatka wewnętrzna w jednym polu z przełącznikiem** (R / N); notatka zawsze oznaczona kłódką. Klient nigdy nie widzi notatek (zgodnie z PRODUCT_PLAN, etap 2 pkt 4).
 - **Propozycje Avero nic nie zmieniają bez kliknięcia**; szkic odpowiedzi tworzony z propozycji jest edytowalny.
-- Do decyzji właściciela: sposób odbioru poczty (przekierowanie na adres przychodzący, IMAP czy Microsoft 365 / Google), SMS jako kanał w Skrzynce.
 
 ## 2026-11-20 (decyzje właściciela: ikony i mapa)
 - **Phosphor zatwierdzony** — własne ikony SVG w kodzie zastąpić biblioteką `@phosphor-icons/react` (wariant Regular, 16/20 px, kolor z tokenów tekstu). Nazwy ikon z makiet odpowiadają nazwom Phosphor.

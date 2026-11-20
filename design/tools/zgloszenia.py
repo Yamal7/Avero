@@ -135,7 +135,7 @@ K=[];k=K.append
 k('<sc-if value="{{isSk}}" hint-placeholder-val="{{false}}">')
 k('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 20px;min-width:0">'+ic(INBOX,16,'var(--text-secondary)')+'<h1 style="margin:0;font-size:13px;line-height:20px;font-weight:500">Skrzynka</h1>'
   '<span style="width:8px"></span>'+''.join(f'<a href="#" class="sec" style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:14px;{"background:var(--bg-subtle);color:var(--text-primary);font-weight:500" if i==0 else "color:var(--text-secondary)"}">{t}<span class="num" style="color:var(--text-tertiary)">{n}</span></a>' for i,(t,n) in enumerate([('Do obsłużenia','4'),('Moje','2'),('Czeka na klienta','3'),('Zamknięte','')]))+
-  SP+capd(ic(MAIL,14,'var(--text-tertiary)')+'Wszystkie kanały','E-mail serwis, e-mail biuro, portal klienta, formularz na stronie')+ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'</div>')
+  SP+capd(ic(MAIL,14,'var(--text-tertiary)')+'Wszystkie kanały','E-mail serwis i biuro (Microsoft 365 / Google), portal klienta, formularz na stronie · SMS po podłączeniu dostawcy')+ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'</div>')
 k('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0">')
 # lista wątków
 def th(name,org,subj,snip,tm,ch,tag='',unread=False,sel=False,ini='',col=AWC,who=''):

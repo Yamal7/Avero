@@ -36,6 +36,7 @@ Makiety: ekrany `zgłoszenia` i `skrzynka` w `Main.dc.html` (plansze jasne i cie
 - Ładowanie: szkielety wierszy (lista) i bloków (podgląd). Błąd odbioru poczty: wiersz informacyjny nad listą z czasem ostatniej synchronizacji i „Spróbuj ponownie”.
 - Lista zgłoszeń bez wyników filtra: „Brak zgłoszeń dla tych filtrów” + „Wyczyść filtry”.
 
-## Do decyzji właściciela
-- Odbiór poczty: przekierowanie na adres przychodzący (najprościej), IMAP albo Microsoft 365 / Google.
-- SMS jako kanał w Skrzynce (koszty, dostawca).
+## Kanały (decyzja 20 lis)
+- E-mail: połączenie z **Microsoft 365** (Microsoft Graph, zgoda administratora) i **Google Workspace** (aplikacja wewnętrzna domeny), tylko skrzynki firmowe serwis@ i biuro@. Konfiguracja w Ustawienia → Integracje. Bez połączenia Skrzynka pokazuje portal i formularz.
+- SMS: kanał przygotowany (wątki, szablony, nadawca), dostawca podłączany po podpisaniu umowy; do tego czasu w filtrze kanałów SMS widoczny jako „po podłączeniu dostawcy”.
+- Szczegóły i ograniczenia (audyt Google przy sprzedaży innym firmom): `DECISIONS.md`.

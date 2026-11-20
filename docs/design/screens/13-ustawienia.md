@@ -27,9 +27,9 @@ Projekt oparty na tym, co już działa w kodzie: `docs/COMPANY_PROFILE.md`, `doc
 - Prawy panel (300 px): rola, przypisani klienci (+ Przypisz), bus, **kolor osoby** (7 próbek; używany w awatarze, planowaniu, mapie, raportach), historia dostępu z audytu, „Zablokuj dostęp” (czerwony tekst, potwierdzenie; przypisania zostają).
 
 ## Integracje
-- Grupy: Płatności i dokumenty, Komunikacja, Mapa i dane. Wiersz: ikona na białym kwadracie, nazwa + kapsułka stanu (Połączono / Tryb testowy / Wymaga konfiguracji / Wyłączone), opis, kapsułki szczegółów, jedna akcja.
+- Grupy: Płatności i dokumenty, Komunikacja, Mapa i dane. Wiersz: ikona na białym kwadracie, nazwa + kapsułka stanu (Połączono / Tryb testowy / Czeka na dostawcę / Wymaga konfiguracji / Wyłączone), opis, kapsułki szczegółów, jedna akcja.
 - **Klucze tylko na serwerze**: kapsułka z ikoną serwera pokazuje nazwę zmiennej środowiskowej (np. `NOTIFICATION_MAIL_MODE=local`), nigdy wartość.
-- Przelewy24 (sandbox, powiadomienia działają, „Przełącz na produkcję” — zwykły przycisk, nie akcent), KSeF (B2B; B2C poza KSeF; najpierw środowisko testowe), Poczta (Mailpit lokalnie, nadawca niezweryfikowany, „Wyślij test”), SMS (brak dostawcy → „3 funkcje czekają”), Mapa (OSM/Nominatim, pamięć podręczna, limit 1 zapytanie/s), Biała lista VAT i CEIDG.
+- Przelewy24 (sandbox, powiadomienia działają, „Przełącz na produkcję” — zwykły przycisk, nie akcent), KSeF (B2B; B2C poza KSeF; najpierw środowisko testowe), Microsoft 365 i Google Workspace (skrzynki serwis@ i biuro@ do Skrzynki; „Połącz z …”, logowanie u dostawcy), Wysyłka automatyczna (Mailpit lokalnie, nadawca niezweryfikowany, „Wyślij test”), SMS (stan „Czeka na dostawcę”: kanał gotowy, „3 funkcje czekają”, nadawca, `SMS_*`, „Podłącz dostawcę”), Mapa (OSM/Nominatim, pamięć podręczna, limit 1 zapytanie/s), Biała lista VAT i CEIDG.
 
 ## Dokumenty i numeracja
 - **Serie numeracji** (tabela): dokument z kolorową ikoną, format ze znacznikami `{RRRR}` `{MM}` `{N}` `{NNN}` `{TYP}` (kapsułki mono), następny numer, kiedy licznik od nowa (nigdy / co miesiąc), akcja.
