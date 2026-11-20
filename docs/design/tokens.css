@@ -1,0 +1,130 @@
+/*
+ * Avero — tokeny projektu (Precision UI)
+ * Źródło: makiety w design/canvas/Main.dc.html (klasa .av / .av.dark).
+ * W kodzie: zmapuj te zmienne w Tailwind (theme.extend) — nie używaj surowych hexów w komponentach.
+ * Motyw ciemny przełączany atrybutem [data-theme="dark"] na <html>.
+ */
+
+:root {
+  /* Tła: rama aplikacji (shell) jest ciemniejsza niż panel główny */
+  --bg-shell: #F5F4F2;        /* górny pasek + panel boczny */
+  --bg-shell-hover: #EAE9E6;
+  --bg-app: #FBFBFA;
+  --bg-surface: #FFFFFF;      /* panel główny, karty, okna */
+  --bg-subtle: #EDECE9;       /* wypełnienie pól, kapsułek, hover wierszy, zaznaczenie */
+  --bg-raised: #F4F3F0;       /* bloki sekcji (karty „wypełnieniem”, bez ramek) */
+
+  /* Linie: używane oszczędnie — tylko tam, gdzie niosą znaczenie */
+  --edge: rgba(27, 26, 25, .07);   /* domyślny podział (prawie niewidoczny) */
+  --border: #E7E6E3;
+  --border-strong: #D6D4D0;        /* puste checkboxy, radio, przerywane obrysy */
+
+  /* Tekst */
+  --text-primary: #1B1A19;
+  --text-secondary: #63605B;
+  --text-tertiary: #9C9893;
+
+  /* Jeden akcent: akcja główna, zaznaczenie, fokus (1–3 miejsca na ekranie) */
+  --accent: #5E6AD2;
+  --on-accent: #FFFFFF;
+
+  /* Statusy — tylko z ikoną/kształtem + tekstem, nigdy samo tło wiersza */
+  --success: #2F9E5B;
+  --warning: #C98A12;
+  --danger: #D6453D;
+  --st-progress: #B38600;   /* „W realizacji” */
+  --st-blocked: #D2691E;    /* „Wstrzymane” */
+
+  /* Warstwy pływające (menu, popover, modal) — jedyne miejsca z cieniem */
+  --shadow-pop: 0 4px 16px rgba(0, 0, 0, .08);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, .16);
+  --scrim: rgba(15, 15, 14, .16);
+
+  /* Mapa (MapLibre + OSM, styl przygaszony) */
+  --map-land: #F2F1EE;
+  --map-park: #E8ECE3;
+  --map-water: #E1E8EC;
+
+  /* Typografia */
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --text-micro: 11px;
+  --text-small: 12px;
+  --text-body: 13px;      /* bazowo; line-height 20px */
+  --text-heading: 15px;
+  --text-title: 18px;
+  --text-display: 24px;
+
+  /* Siatka 4 px */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+
+  /* Promienie — zależne od wysokości elementu (desktop) */
+  --radius-xs: 6px;    /* elementy do 20 px wysokości (kbd, małe znaczniki) */
+  --radius-sm: 8px;    /* 24–28 px: przyciski ikon, zakładki */
+  --radius-md: 10px;   /* 32–40 px: przyciski, pola, wiersze listy */
+  --radius-lg: 12px;   /* karty i bloki sekcji */
+  --radius-xl: 14px;   /* popovery, okna modalne */
+  --radius-pill: 999px;/* WYŁĄCZNIE kapsułki właściwości / filtrów (wysokość 22–28 px) */
+  /* Telefon: pola 14, przyciski i opcje 16, karty 20–24 */
+
+  /* Wymiary */
+  --control-h: 32px;
+  --row-h: 36px;
+  --sidebar-w: 232px;
+  --detail-w: 340px;   /* prawy panel szczegółów (340–400) */
+
+  /* Ruch */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+}
+
+[data-theme="dark"] {
+  --bg-shell: #0B0B0A;
+  --bg-shell-hover: #1B1A19;
+  --bg-app: #0F0F0E;
+  --bg-surface: #171716;
+  --bg-subtle: #1F1E1D;
+  --bg-raised: #232220;
+  --edge: rgba(255, 255, 255, .07);
+  --border: #282725;
+  --border-strong: #363532;
+  --text-primary: #EEEDEB;
+  --text-secondary: #9C9893;
+  --text-tertiary: #64615C;
+  --accent: #7C85E0;
+  --on-accent: #0F0F0E;
+  --success: #4CC27A;
+  --warning: #E0A63A;
+  --danger: #EF6A62;
+  --st-progress: #E2B93B;
+  --st-blocked: #F08A3E;
+  --shadow-pop: 0 4px 16px rgba(0, 0, 0, .4);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, .6);
+  --scrim: rgba(0, 0, 0, .4);
+  --map-land: #1A1A19;
+  --map-park: #1A1F18;
+  --map-water: #131A20;
+}
+
+@media (prefers-contrast: more) {
+  :root { --edge: var(--border-strong); }
+}
+
+/* Stałe kolory osób (awatar, blok w planowaniu, trasa na mapie, pasek w raportach) — te same w obu motywach */
+:root {
+  --person-mz: #3B82D6;  /* Mateusz Zieliński */
+  --person-tl: #9B6BE0;  /* Tomasz Lewandowski */
+  --person-kn: #1FA7A5;  /* Kacper Nowak */
+  --person-pd: #E0702A;  /* Piotr Dąbrowski */
+  --person-office: #8A8F98; /* biuro (np. AW — Agnieszka Wiśniewska) */
+}
+
+/* Wykresy: paleta kategorialna (walidowana dla daltonistów), kolejność stała, nigdy cyklowana */
+:root {
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+}
+[data-theme="dark"] {
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+}
