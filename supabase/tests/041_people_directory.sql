@@ -1,0 +1,21 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+insert into auth.users(id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+select ('ab100000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'00000000-0000-0000-0000-000000000000','authenticated','authenticated','people-'||n||'@example.invalid','x',now(),now(),now() from generate_series(1,2) n;
+insert into public.staff_users(user_id,role) values('ab100000-0000-4000-8000-000000000001','office'),('ab100000-0000-4000-8000-000000000002','technician');
+insert into public.customers(id,name,type) values('cb100000-0000-4000-8000-000000000001','QQ Firma','company'),('cb100000-0000-4000-8000-000000000002','QQ Jan Prywatny','individual');
+insert into public.customer_contacts(id,customer_id,name,role,email,phone,last_payload) values('db100000-0000-4000-8000-000000000001','cb100000-0000-4000-8000-000000000001','QQ Ewa Kontakt','Kierownik','','','{}');
+set local role authenticated;
+select set_config('request.jwt.claim.sub','ab100000-0000-4000-8000-000000000001',true);
+select is((select count(*) from jsonb_array_elements(public.people_directory('QQ','all',1)->'items')),2::bigint,'Contacts and individual customers together');
+select is((select i->>'company' from jsonb_array_elements(public.people_directory('QQ Ewa','all',1)->'items') i),'QQ Firma','Contact shows the company');
+select is((select i->'categories' from jsonb_array_elements(public.people_directory('QQ Jan','all',1)->'items') i),'["individual"]'::jsonb,'Individual customer is Klient indywidualny');
+select is(public.set_contact_categories('db100000-0000-4000-8000-000000000001','{payer,decision}'),'{decision,payer}'::text[],'Office sets person categories');
+select is((select count(*) from jsonb_array_elements(public.people_directory('QQ','decision',1)->'items')),1::bigint,'Decyzyjne view');
+select is((select count(*) from jsonb_array_elements(public.people_directory('QQ','individual',1)->'items')),1::bigint,'Klienci indywidualni view');
+select throws_ok($$select public.set_contact_categories('db100000-0000-4000-8000-000000000001','{boss}')$$,'22023',null,'Unknown category refused');
+select set_config('request.jwt.claim.sub','ab100000-0000-4000-8000-000000000002',true);
+select throws_ok($$select public.set_contact_categories('db100000-0000-4000-8000-000000000001','{payer}')$$,'42501',null,'Technician cannot change categories');
+select * from finish();
+rollback;

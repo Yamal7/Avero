@@ -16,7 +16,7 @@ import { displayDateTime } from '@/lib/service/dates';
 import { catalogMoney } from '@/lib/catalog/format';
 import { maintenanceListSchema } from '@hvac/api-client';
 import { colorMap } from '@/lib/crm/category-colors';
-import { DI, PersonAvatar, ProgressGlyph, StatusIcon, TicketStatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
+import { DI, PersonAvatar, StatusIcon, TicketStatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
 import { CustomerCategories } from '@/components/customer-categories';
 const categories={all:'Wszystkie zdarzenia',customer:'Profil klienta',contact:'Osoby kontaktowe',offer:'Oferty',work:'Realizacje',handover:'Odbiory',correction:'Poprawki',service:'Serwis',maintenance:'Przeglądy',crm_note:'Notatki CRM',crm_task:'Zadania CRM',crm_owner:'Opiekun'};
 const statuses:Record<string,string>={draft:'Robocza',published:'Udostępniona',accepted:'Zaakceptowana',superseded:'Poprzednia wersja',withdrawn:'Wycofana',archived:'Archiwalna',planned:'Zaplanowana',in_progress:'W trakcie',completed:'Zakończona',cancelled:'Anulowana',new:'Nowe',waiting:'Oczekuje',closed:'Zamknięte'};
