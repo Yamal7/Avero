@@ -15,6 +15,7 @@ import { Icon } from '@/components/icon';
 import { displayDateTime } from '@/lib/service/dates';
 import { catalogMoney } from '@/lib/catalog/format';
 import { maintenanceListSchema } from '@hvac/api-client';
+import { colorMap } from '@/lib/crm/category-colors';
 import { DI, PersonAvatar, ProgressGlyph, StatusIcon, TicketStatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
 import { CustomerCategories } from '@/components/customer-categories';
 const categories={all:'Wszystkie zdarzenia',customer:'Profil klienta',contact:'Osoby kontaktowe',offer:'Oferty',work:'Realizacje',handover:'Odbiory',correction:'Poprawki',service:'Serwis',maintenance:'Przeglądy',crm_note:'Notatki CRM',crm_task:'Zadania CRM',crm_owner:'Opiekun'};
@@ -32,13 +33,14 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
  else if(tab==='notes'||tab==='tasks'){const r=await db.rpc('crm_records',{p_customer:id,p_kind:tab,p_filter:tab==='notes'?(archived?'archived':'open'):filter,p_page:page});if(r.error)throw new Error('Nie udało się pobrać notatek lub zadań.');if(tab==='notes'){const list=crmNotesSchema.parse(r.data);total=list.total;content=<CustomerCrmWork key={tab} customer={id} mode="notes" notes={list.items} summary={crm} editable={!customer.archivedAt} archived={archived} filter={filter}/>;}else{const list=crmTasksSchema.parse(r.data);total=list.total;content=<CustomerCrmWork key={tab} customer={id} mode="tasks" tasks={list.items} summary={crm} editable={!customer.archivedAt} archived={archived} filter={filter}/>;}}
  else if(tab==='assets'){const assets=await getCustomer(id);if(!assets)notFound();content=<CustomerAssets customer={assets} editable={editable}/>;}
  else if(tab!=='overview'){const r=await db.rpc('customer_related_rows',{p_customer:id,p_kind:tab,p_page:page});if(r.error)throw new Error('Nie udało się pobrać powiązanych danych.');const list=customerRelatedSchema.parse(r.data);total=list.total;const title=tab==='offers'?'Oferty klienta':tab==='work'?'Realizacje klienta':'Zgłoszenia serwisowe',prefix=tab==='offers'?'offers':tab==='work'?'work-orders':'service';content=<><div className="crm-section-heading"><div><h2>{title}</h2><p className="muted">{total} powiązanych rekordów</p></div>{tab==='offers'&&editable&&<OfferWizard initialCustomerId={id}/>}</div>{list.items.length?<div className="table-scroll"><table className="crm-record-table"><thead><tr><th>Rekord / zakres</th><th>Status</th><th>{tab==='offers'?'Zaktualizowano':'Dodano'}</th>{data.canManage&&tab!=='service'&&<th>Wartość brutto</th>}</tr></thead><tbody>{list.items.map(row=><tr key={row.id}><td><Link href={`/dashboard/${prefix}/${row.id}`}><strong>{row.number}</strong></Link><span className="list-record-subtitle">{row.title}</span><small className="muted">{tab==='offers'?offerWorkTypes[row.subtitle as keyof typeof offerWorkTypes]||row.subtitle:row.subtitle}</small></td><td data-label="Status"><span className={`badge crm-status-${row.state}`}>{statuses[row.state]||row.state}</span></td><td data-label={tab==='offers'?'Zaktualizowano':'Dodano'}><time dateTime={row.at}>{displayDateTime(row.at)}</time></td>{data.canManage&&tab!=='service'&&<td data-label="Wartość brutto">{row.amountCents===null?'—':catalogMoney(row.amountCents)}</td>}</tr>)}</tbody></table></div>:<div className="crm-empty"><Icon name={tab==='offers'?'file':'wrench'} size={30}/><h3>Brak powiązanych rekordów</h3><p className="muted">Dane pojawią się tutaj po utworzeniu {tab==='offers'?'oferty':tab==='work'?'realizacji z zaakceptowanej oferty':'zgłoszenia serwisowego'}.</p></div>}</>;}
- const [extraR,ticketsR,openTasksR,plansR,contactsR,cityR]=await Promise.all([
+ const [extraR,ticketsR,openTasksR,plansR,contactsR,cityR,catR]=await Promise.all([
   db.from('customers').select('tax_id,payment_terms,categories').eq('id',id).single(),
   db.from('service_tickets').select('id,ticket_number,subject,status,priority,assigned_to,created_at',{count:'exact'}).eq('customer_id',id).neq('status','closed').order('created_at').limit(6),
   db.rpc('crm_records',{p_customer:id,p_kind:'tasks',p_filter:'open',p_page:1}),
   db.rpc('maintenance_schedule'),
   db.rpc('customer_contact_list',{p_customer:id,p_archived:false,p_page:1}),
   db.from('locations').select('address,city,postal_code').eq('customer_id',id).order('created_at').limit(1),
+  db.rpc('customer_category_list',{p_kind:customer.type==='individual'?'individual':'company'}),
  ]);
  if(extraR.error||ticketsR.error||openTasksR.error||plansR.error||contactsR.error||cityR.error)throw new Error('Nie udało się pobrać karty klienta.');
  const extra=extraR.data as {tax_id:string|null;payment_terms:string|null;categories:string[]};
@@ -107,7 +109,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
         {!data.canManage&&<span>Widok ograniczony do Twoich przypisań</span>}
        </div>
       </div>
-      <CustomerCategories customer={id} initial={extra.categories} editable={editable}/>
+      <CustomerCategories customer={id} initial={extra.categories} editable={editable} colors={catR.error?undefined:colorMap(catR.data as {name:string;color:string}[])}/>
      </div>
      <div style={{display:'flex',alignItems:'center',gap:8,flex:'0 0 auto'}}>
       <Link href="/dashboard/service/new" className="sec" title="Nowe zgłoszenie" style={{height:32,display:'inline-flex',alignItems:'center',gap:6,padding:'0 12px 0 10px',border:0,borderRadius:10,background:'var(--bg-subtle)',fontWeight:500}}>{DI.plus14}Nowe zgłoszenie</Link>
