@@ -2,6 +2,13 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Obiekty)
+- **Obiekt = lokalizacja z backendu** (`locations`: klient, adres, miasto, kod). Hierarchia bez zmian: klient → obiekt → instalacja (`installations`, rodzaj, data montażu) → urządzenia (`devices`). Do dodania w `locations`: nazwa obiektu, rodzaj (hotel, handel, biuro, gastronomia, medyczny, dom…), współrzędne, opiekun (technik prowadzący), dostęp (wjazd, klucze, godziny, uwagi), osoby na miejscu. **Nie przechowujemy kodów do drzwi i alarmów** — tylko informację, gdzie je dostać.
+- **Lista obiektów sortowana po najpilniejszej kontroli F-gaz**; kolumny: obiekt i adres, klient, rodzaj, urządzenia i suma t CO₂e, kontrola F-gaz (po terminie — czerwony, do 30 dni — ostrzeżenie, < 5 t — „nie dotyczy”), umowa, otwarte sprawy, ostatnia wizyta. Widok Mapa (OSM).
+- **Rekord obiektu**: urządzenia pogrupowane w instalacje; ładunek parowników liczony na agregacie (jeden obieg); kontrola szczelności i gwarancja przy urządzeniu; ostatnie wizyty z dokumentami (ZG, RW, PR, KS); panel: dostęp, osoby na miejscu, propozycje Avero, finanse.
+- **Propozycje Avero na obiekcie**: modernizacja urządzeń z czynnikiem wycofywanym (R404A — regenerowany do końca 2029) → „Utwórz lead”; obiekt bez umowy z wieloma wizytami lub kontrolą po terminie → „Przygotuj ofertę umowy”. Nic nie powstaje bez kliknięcia.
+- Poprawka danych: kontrola UR-2304 (49,0 t) co 12 mies. (nie co 6); urządzenia z R404A w zakupach — Restauracja Przystań UR-3021 zamiast Piekarni Rogal (tam R452A).
+
 ## 2026-11-20 (Poczta Google bez bezpośredniego połączenia — decyzja właściciela)
 - **Rezygnujemy z bezpośredniego połączenia z Gmailem** (zakresy „restricted” wymagają przy sprzedaży innym firmom weryfikacji Google i corocznego audytu bezpieczeństwa). Zastępuje to wpis o Google Workspace z „poczta i SMS”.
 - **Gmail i każda inna poczta: przekierowanie + wysyłka z domeny firmy.** Odbiór: firma ustawia w Gmailu przekierowanie z serwis@ (i biuro@) na unikalny adres Avero swojej organizacji; Avero przyjmuje wiadomości do Skrzynki. Wysyłka: Avero wysyła odpowiedzi z adresu firmy po weryfikacji domeny (rekordy SPF i DKIM), z kopią UDW do skrzynki firmy, żeby odpowiedź była też w Gmailu. Avero nie ma dostępu do skrzynki Google.

@@ -87,9 +87,9 @@ a('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Ceny zakup
 a('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Stan')+
   '<div style="display:flex;flex-direction:column;gap:2px;padding:0 8px">'+kv('Magazyn główny','3,1 kg',tip='Półka C-2')+kv('Busy','0,0 kg',vc='var(--text-secondary)')+kv('Rezerwacje','0,0 kg',vc='var(--text-secondary)')+kv('Minimum','10,0 kg',tip='Ustawione w Magazynie')+kv('Po dostawie','14,0 kg',w=500,tip='3,1 + 10,9 kg')+'</div></section>')
 a('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Urządzenia z tym czynnikiem',CNT(3))+
-  prop(SNOW if 'SNOW' in dir() else BOX,'Hotel Oliwski · agregat UR-2304','12,5 kg · 49,0 t CO₂e · kontrola co 6 mies.')+
+  prop(SNOW if 'SNOW' in dir() else BOX,'Hotel Oliwski · agregat UR-2304','12,5 kg · 49,0 t CO₂e · kontrola co 12 mies. · po terminie od 15 lis')+
   prop(BOX,'Delikatesy Morskie · lodziarka UR-3107','5,4 kg · 21,2 t CO₂e · lead na wymianę na R290')+
-  prop(BOX,'Piekarnia Rogal · komora UR-2871','4,2 kg · 16,5 t CO₂e')+'</section>')
+  prop(BOX,'Restauracja Przystań · schładzacz UR-3021','2,1 kg · 8,2 t CO₂e')+'</section>')
 a('</aside></div></sc-if>')
 
 # =================== ZAMÓWIENIE ZK/2026/11/031

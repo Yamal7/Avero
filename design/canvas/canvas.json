@@ -794,6 +794,38 @@
       "title": "Nowa tabela · ciemny",
       "x": 4560,
       "y": 41060
+    },
+    "Obiekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekty · lista",
+      "x": 0,
+      "y": 42540
+    },
+    "Obiekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekty · ciemny",
+      "x": 1520,
+      "y": 42540
+    },
+    "Obiekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekt OB-0230 · Hotel Oliwski",
+      "x": 3040,
+      "y": 42540
+    },
+    "Obiekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekt OB-0230 · ciemny",
+      "x": 4560,
+      "y": 42540
     }
   },
   "createdOnFiles": {
@@ -1032,7 +1064,11 @@
     "Tabela-uprawnienia.dc.html",
     "Tabela-uprawnienia-ciemny.dc.html",
     "Tabela-nowa.dc.html",
-    "Tabela-nowa-ciemny.dc.html"
+    "Tabela-nowa-ciemny.dc.html",
+    "Obiekty.dc.html",
+    "Obiekty-ciemny.dc.html",
+    "Obiekt.dc.html",
+    "Obiekt-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",
