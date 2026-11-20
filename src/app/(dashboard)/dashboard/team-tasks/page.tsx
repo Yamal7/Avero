@@ -4,7 +4,7 @@ import { teamTasksQuerySchema,teamTasksSchema,type TeamTasksQuery } from '@hvac/
 import { requireSession } from '@/lib/auth';
 import { MyTasksBoard } from '@/components/my-tasks';
 const dateLabels={all:'Wszystkie terminy',today:'Dzisiaj',overdue:'Przed dzisiaj',upcoming:'Po dzisiaj'};
-const states={open:'Otwarte',todo:'Do wykonania',in_progress:'W trakcie',done:'Wykonane',cancelled:'Anulowane',all:'Wszystkie statusy'};
+const states={open:'Otwarte',backlog:'Backlog',todo:'Do zrobienia',in_progress:'W toku',review:'Do sprawdzenia',done:'Gotowe',cancelled:'Anulowane',all:'Wszystkie statusy'};
 export default async function TeamTasksPage({searchParams}:{searchParams:Promise<{date?:string;state?:string;assignee?:string;search?:string;page?:string}>}){
  const {db,user,access}=await requireSession();if(!['admin','office'].includes(access.role))redirect('/dashboard/tasks');
  const parsed=teamTasksQuerySchema.safeParse(await searchParams),q=parsed.success?parsed.data:teamTasksQuerySchema.parse({}),r=await db.rpc('team_crm_tasks',{p_date:q.date,p_state:q.state,p_assignee:q.assignee==='all'?null:q.assignee,p_search:q.search,p_page:q.page});if(r.error)throw new Error('Nie udało się pobrać zadań zespołu.');const data=teamTasksSchema.refine(v=>v.viewerId===user.id).parse(r.data);

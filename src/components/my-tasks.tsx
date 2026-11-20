@@ -8,7 +8,7 @@ import { TaskPlanningButton } from './task-planning';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
 
 type TaskRow = MyTask & { assigneeAvailable?: boolean };
-const states = { todo: 'Do wykonania', in_progress: 'W trakcie', done: 'Wykonane', cancelled: 'Anulowane' };
+const states = { backlog: 'Backlog', todo: 'Do zrobienia', in_progress: 'W toku', review: 'Do sprawdzenia', done: 'Gotowe', cancelled: 'Anulowane' };
 const zone = 'Europe/Warsaw';
 
 function displayDay(value: string) { return new Intl.DateTimeFormat('pl-PL', { timeZone: zone, dateStyle: 'medium' }).format(new Date(value + 'T12:00:00Z')); }
@@ -23,7 +23,7 @@ function relativeDay(value: string, today: string) {
   return new Intl.DateTimeFormat('pl-PL', { timeZone: zone, day: 'numeric', month: 'short' }).format(new Date(value + 'T12:00:00Z'));
 }
 function initials(label: string) { return label.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join('') || '?'; }
-const isOpen = (t: TaskRow) => t.state === 'todo' || t.state === 'in_progress';
+const isOpen = (t: TaskRow) => ['backlog', 'todo', 'in_progress', 'review'].includes(t.state);
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 
 export function MyTasksBoard({ data, team = false }: { data: MyTasks; team?: boolean }) {
@@ -139,7 +139,7 @@ export function MyTasksBoard({ data, team = false }: { data: MyTasks; team?: boo
                   ? <p className="tp-note">Zadanie jest anulowane. Wznowisz je w karcie klienta.</p>
                   : <form key={`${selected.id}-${selected.version}`} onSubmit={save} className="tp-form">
                       <fieldset disabled={busy || conflict}>
-                        <label>Status<select name="state" defaultValue={team && selected.assigneeAvailable === false ? 'done' : selected.state}>{!(team && selected.assigneeAvailable === false) && <><option value="todo">Do wykonania</option><option value="in_progress">W trakcie</option></>}<option value="done">Wykonane</option></select></label>
+                        <label>Status<select name="state" defaultValue={team && selected.assigneeAvailable === false ? 'done' : selected.state}>{!(team && selected.assigneeAvailable === false) && <><option value="backlog">Backlog</option><option value="todo">Do zrobienia</option><option value="in_progress">W toku</option><option value="review">Do sprawdzenia</option></>}<option value="done">Gotowe</option></select></label>
                         <label>Wynik / postęp<textarea name="result" maxLength={2000} rows={4} defaultValue={selected.result || ''} placeholder="Co zostało zrobione, co dalej" /></label>
                       </fieldset>
                       <p className="tp-hint-sm">Wynik widzi biuro i przypisana osoba.</p>

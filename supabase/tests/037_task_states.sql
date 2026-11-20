@@ -1,0 +1,20 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+insert into auth.users(id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+select ('a7000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'00000000-0000-0000-0000-000000000000','authenticated','authenticated','states-'||n||'@example.invalid','x',now(),now(),now() from generate_series(1,2) n;
+insert into public.staff_users(user_id,role) values('a7000000-0000-4000-8000-000000000001','office'),('a7000000-0000-4000-8000-000000000002','technician');
+insert into public.customers(id,name) values('c7000000-0000-4000-8000-000000000001','Klient Statusy');
+insert into public.staff_customer_assignments(user_id,customer_id) values('a7000000-0000-4000-8000-000000000002','c7000000-0000-4000-8000-000000000001');
+create function pg_temp.task(n integer,st text) returns jsonb language sql as $$select public.save_crm_record('c7000000-0000-4000-8000-000000000001','tasks',('d7000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,null,jsonb_build_object('title','Zadanie '||n,'description','','kind','general','dueOn',to_char((now() at time zone 'Europe/Warsaw')::date,'YYYY-MM-DD'),'assigneeId','a7000000-0000-4000-8000-000000000002','contactId',null,'state',st,'result',''))$$;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000001',true);
+select is(pg_temp.task(1,'backlog')->>'state','backlog','Office creates a backlog task');
+select is(pg_temp.task(2,'review')->>'state','review','Review state accepted');
+select throws_ok($$select pg_temp.task(3,'blocked')$$,'22023',null,'Unknown state refused');
+select is((public.customer_crm_summary('c7000000-0000-4000-8000-000000000001')->>'openTasks')::int,2,'Backlog and review count as open');
+select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000002',true);
+select is(public.crm_task_progress('c7000000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001',0,'review','Gotowe do odbioru')->>'state','review','Assignee moves task to review');
+select is((public.my_crm_tasks('open','',1)->>'total')::int,2,'Open agenda includes review and backlog');
+select * from finish();
+rollback;

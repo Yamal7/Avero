@@ -81,6 +81,17 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  const pinned=[top[0],allEntries.find(e=>e.href==='/dashboard/calendar')!];
  const recent=useRecentTabs(pathname,current,viewerKey(taskAlerts.viewerId),pinned.map(e=>e.href).join('|'));
  const currentTabHref=recent.find(t=>t.href===pathname)?.href??current?.href;
+ /* Tab shortcuts from the design: ⌘T new tab (palette), ⌘1–9 switch tabs. Browsers keep ⌘T and ⌘1–9 for their own tabs,
+    so ⌥T and ⌥1–9 do the same everywhere; ⌘ works where the browser passes it on (installed app window). */
+ const tabHrefs=[...pinned.map(e=>e.href),...recent.map(t=>t.href)];
+ const tabsRef=useRef(tabHrefs);tabsRef.current=tabHrefs;
+ useEffect(()=>{const key=(event:KeyboardEvent)=>{
+  if(!(event.metaKey||event.ctrlKey||event.altKey)||event.shiftKey)return;
+  const t=event.target as HTMLElement|null;if(event.altKey&&!event.metaKey&&!event.ctrlKey&&t&&(t.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t.tagName)))return;
+  const digit=/^Digit([1-9])$/.exec(event.code);
+  if(event.code==='KeyT'){event.preventDefault();trigger.current=document.activeElement as HTMLElement;setMobileOpen(false);setPalette(true);return;}
+  if(digit){const href=digit[1]==='9'?tabsRef.current[tabsRef.current.length-1]:tabsRef.current[Number(digit[1])-1];if(href){event.preventDefault();router.push(href);}}
+ };window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[router]);
  function item(entry:NavEntry){
   const active=current?.href===entry.href;
   return <Link key={entry.href} href={entry.href} className={`pui-nav${active?' is-active':''}`} aria-current={active?'page':undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:undefined} onClick={()=>setMobileOpen(false)}>
@@ -100,7 +111,7 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
    {pinned.map((entry,i)=>{const on=current?.href===entry.href;return <Link key={entry.href} role="tab" aria-selected={on} href={entry.href} className={`dtab${on?' act':''}`} aria-label={`${entry.label}, karta przypięta`} title={entry.label} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,color:on?'var(--text-primary)':i===0?'var(--text-tertiary)':'var(--text-secondary)',padding:0,marginRight:i===pinned.length-1?6:0}}><Icon name={entry.icon} size={14}/></Link>;})}
    {recent.map(tabEntry=>{const on=tabEntry.href===currentTabHref;return <Link key={tabEntry.href} role="tab" aria-selected={on} href={tabEntry.href} className={`dtab${on?' act':''}`} title={tabEntry.label} style={{flex:'0 1 auto',minWidth:0,maxWidth:200,display:'inline-flex',alignItems:'center',gap:6,height:28,padding:'0 10px',border:0,borderRadius:8,color:on?'var(--text-primary)':'var(--text-secondary)',fontSize:12,fontWeight:on?500:400}}><Icon name={tabEntry.icon} size={14}/><span className="ell">{tabEntry.label}</span></Link>;})}
   </div>
-  <button type="button" className="ib" aria-label="Nowa karta" title="Nowa karta  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,background:'transparent',color:'var(--text-tertiary)',padding:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+  <button type="button" className="ib" aria-label="Nowa karta" title="Nowa karta  ⌥T  ·  przełączanie kart ⌥1–9" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,background:'transparent',color:'var(--text-tertiary)',padding:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   <span className="pui-top-spacer" style={{flex:'1 1 auto'}}/>
   <div className="pui-top-right" style={{flex:'0 0 auto',display:'flex',alignItems:'center',gap:4}}>
    <span style={{position:'relative',display:'inline-flex'}}><button type="button" className="shellbtn" aria-label={`Powiadomienia${notificationUnread?` — nieprzeczytane: ${notificationUnread}`:totalAlerts?` — bieżące sprawy: ${totalAlerts}`:''}`} title="Powiadomienia  G I" onClick={event=>openPanel('alerts',event.currentTarget)} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.27 21a2 2 0 0 0 3.46 0"/><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33"/></svg></button>{badge>0&&<span className="num" aria-hidden="true" style={{position:'absolute',top:2,right:2,minWidth:14,height:14,padding:'0 3px',borderRadius:7,background:'var(--text-primary)',color:'var(--bg-shell)',fontSize:10,lineHeight:'14px',fontWeight:600,textAlign:'center',pointerEvents:'none'}}>{badge>99?'99+':badge}</span>}</span>
@@ -125,11 +136,18 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  </div></div>;
 }
 
+/* Collapsed sidebar groups are kept on the account (design: they follow the person between devices); localStorage only
+   makes the first paint match before the account answers. */
+let accountPrefs:Promise<Record<string,unknown>>|null=null;
+function loadPrefs(){accountPrefs??=fetch('/api/v1/me/preferences',{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({}));return accountPrefs;}
 function NavigationGroup({id,title,viewerId,children}:{id:string;title:string;viewerId:string;children:ReactNode}) {
  const [collapsed,setCollapsed]=useState(false);
- const storageKey='hvac.navigation.'+viewerId+'.'+id;
- useEffect(()=>{try{setCollapsed(localStorage.getItem(storageKey)==='collapsed');}catch{setCollapsed(false);}},[storageKey]);
- function toggle(){const next=!collapsed;setCollapsed(next);try{localStorage.setItem(storageKey,next?'collapsed':'expanded');}catch{/* Navigation remains usable when storage is unavailable. */}}
+ const storageKey='hvac.navigation.'+viewerId+'.'+id,prefKey='nav.'+id.toLowerCase().replace(/[^a-z0-9_.-]/g,'-');
+ useEffect(()=>{let live=true;try{setCollapsed(localStorage.getItem(storageKey)==='collapsed');}catch{setCollapsed(false);}
+  void loadPrefs().then(p=>{const v=p[prefKey];if(live&&typeof v==='boolean'){setCollapsed(v);try{localStorage.setItem(storageKey,v?'collapsed':'expanded');}catch{/* ignore */}}});
+  return()=>{live=false;};},[storageKey,prefKey]);
+ function toggle(){const next=!collapsed;setCollapsed(next);try{localStorage.setItem(storageKey,next?'collapsed':'expanded');}catch{/* Navigation remains usable when storage is unavailable. */}
+  accountPrefs=null;void fetch('/api/v1/me/preferences',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:prefKey,value:next})}).catch(()=>{});}
  return <section className="pui-nav-group"><button type="button" className="pui-group-h" aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={`pui-caret${collapsed?' is-closed':''}`} aria-hidden="true"><Icon name="down" size={12}/></span></button><div id={'nav-group-'+id} className="pui-nav-group" hidden={collapsed}>{children}</div></section>;
 }
 

@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { customerCategorySchema } from '@hvac/api-client';
 
-const palette = ['rgb(59, 130, 214)', 'rgb(31, 167, 165)', 'rgb(155, 107, 224)', 'rgb(224, 112, 42)', 'rgb(47, 158, 91)', 'rgb(201, 138, 18)'];
-export const categoryColor = (name: string) => { let h = 0; for (const ch of name.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return palette[h % palette.length]; };
+import { categoryTint } from '@/lib/crm/category-colors';
 
-export function CustomerCategories({ customer, initial, editable }: { customer: string; initial: string[]; editable: boolean }) {
+export function CustomerCategories({ customer, initial, editable, colors }: { customer: string; initial: string[]; editable: boolean; colors?: Record<string, string> }) {
   const router = useRouter();
   const [items, setItems] = useState(initial), [adding, setAdding] = useState(false), [draft, setDraft] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function save(next: string[]) {
@@ -29,7 +28,7 @@ export function CustomerCategories({ customer, initial, editable }: { customer: 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
       {items.map(cat => (
-        <span key={cat} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, height: 20, padding: editable ? '0 2px 0 6px' : '0 6px', borderRadius: 6, background: `color-mix(in srgb, ${categoryColor(cat)} 16%, transparent 84%)`, color: 'var(--text-primary)', fontSize: 12, lineHeight: '16px', whiteSpace: 'nowrap' }}>
+        <span key={cat} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, height: 20, padding: editable ? '0 2px 0 6px' : '0 6px', borderRadius: 6, background: categoryTint(cat, colors), color: 'var(--text-primary)', fontSize: 12, lineHeight: '16px', whiteSpace: 'nowrap' }}>
           {cat}
           {editable && <button type="button" aria-label={`Usuń kategorię ${cat}`} title="Usuń" disabled={busy} onClick={() => void save(items.filter(x => x !== cat))} style={{ width: 16, height: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, border: 0, borderRadius: 4, background: 'transparent', color: 'var(--text-tertiary)', minHeight: 0 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></button>}
         </span>

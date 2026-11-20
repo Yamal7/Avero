@@ -10,6 +10,7 @@ export const DI = {
   plus16: <svg {...sv}><path key="1" d="M5 12h14M12 5v14" /></svg>,
   plus14: <svg {...sv} width={14} height={14}><path key="1" d="M5 12h14M12 5v14" /></svg>,
   filter: <svg {...sv}><path key="1" d="M3 6h18M7 12h10M10 18h4" /></svg>,
+  sliders: <svg {...sv}><path key="1" d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4" /></svg>,
   list: <svg {...sv} width={14} height={14}><path key="1" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>,
   board: <svg {...sv} width={14} height={14}><path key="1" d="M6 5v11M12 5v6M18 5v14" /></svg>,
   panel: <svg {...sv}><rect key="1" x="3" y="3" width="18" height="18" rx="2" /><path key="2" d="M15 3v18" /></svg>,
@@ -21,11 +22,17 @@ export const DI = {
   calLate: <svg {...sv} width={14} height={14} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><rect key="1" x="3" y="4" width="18" height="18" rx="2" /><path key="2" d="M16 2v4M8 2v4M3 10h18M10 14l4 4M14 14l-4 4" /></svg>,
   noPrio: <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><path key="1" d="M1.5 7h2M6 7h2M10.5 7h2" fill="none" strokeWidth="1.5" strokeLinecap="round" style={{ stroke: 'var(--text-tertiary)' }} /></svg>,
 };
+/** Task status shape: Backlog dashed ring, Do zrobienia empty ring, W toku half pie, Do sprawdzenia full green pie, Gotowe check, Anulowane dashed grey. */
 export function StatusIcon({ state }: { state: State }) {
-  const color = state === 'in_progress' ? 'var(--st-progress)' : state === 'done' ? 'var(--accent)' : state === 'cancelled' ? 'var(--text-tertiary)' : 'var(--text-secondary)';
-  const fill = state === 'in_progress' ? 'M7 7L7 4A3 3 0 0 1 7.00 10.00Z' : 'M7 7Z', done = state === 'done' ? '1' : '0';
-  return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><circle cx="7" cy="7" r="5.75" fill="none" strokeWidth="1.5" strokeDasharray={state === 'cancelled' ? '2.2 2.31' : 'none'} style={{ stroke: color }} /><path d={fill} style={{ fill: color }} /><circle cx="7" cy="7" r="6.5" opacity={done} style={{ fill: color }} /><path d="M4.4 7.2 6.2 9 9.6 5.4" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={done} style={{ stroke: 'var(--bg-surface)' }} /></svg>;
+  if (state === 'backlog') return <ProgressGlyph color="var(--text-tertiary)" dashed />;
+  if (state === 'in_progress') return <ProgressGlyph color="var(--st-progress)" fraction={0.5} />;
+  if (state === 'review') return <ProgressGlyph color="var(--success)" fraction={1} />;
+  if (state === 'done') return <ProgressGlyph color="var(--accent)" done />;
+  if (state === 'cancelled') return <ProgressGlyph color="var(--text-tertiary)" dashed />;
+  return <ProgressGlyph color="var(--text-secondary)" />;
 }
+export const taskStateLabel: Record<State, string> = { backlog: 'Backlog', todo: 'Do zrobienia', in_progress: 'W toku', review: 'Do sprawdzenia', done: 'Gotowe', cancelled: 'Anulowane' };
+export const isOpenTask = (state: State) => state === 'backlog' || state === 'todo' || state === 'in_progress' || state === 'review';
 
 
 export type Priority = 'none' | 'low' | 'normal' | 'high' | 'urgent';
@@ -50,6 +57,14 @@ export function ProgressGlyph({ color, fraction = 0, done = false, alert = false
   const f = Math.max(0, Math.min(1, fraction)), a = f * 2 * Math.PI, x = (7 + 3 * Math.sin(a)).toFixed(2), y = (7 - 3 * Math.cos(a)).toFixed(2);
   const pie = f <= 0 ? 'M7 7Z' : f >= 1 ? 'M7 4a3 3 0 1 1 0 6a3 3 0 1 1 0-6Z' : `M7 7L7 4A3 3 0 ${f > 0.5 ? 1 : 0} 1 ${x} ${y}Z`;
   return <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: '0 0 auto' }}><circle cx="7" cy="7" r="5.75" fill="none" strokeWidth="1.5" strokeDasharray={dashed ? '2.2 2.31' : 'none'} style={{ stroke: color }} /><path d={alert ? 'M7 7Z' : pie} style={{ fill: color }} /><circle cx="7" cy="7" r="6.5" opacity={done ? 1 : 0} style={{ fill: color }} /><path d="M4.4 7.2 6.2 9 9.6 5.4" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={done ? 1 : 0} style={{ stroke: 'var(--bg-surface)' }} /><path d="M7 4.2v3.3M7 9.7v.01" fill="none" strokeWidth="1.5" strokeLinecap="round" opacity={alert ? 1 : 0} style={{ stroke: color }} /></svg>;
+}
+
+/** Ticket status shape from the design: Nowe = dashed ring, W realizacji = 2/3 pie, Czeka na części = orange ring with "!", Zamknięte = filled with a check. */
+export type TicketState = 'new' | 'in_progress' | 'waiting' | 'closed';
+export const ticketStateLabel: Record<TicketState, string> = { new: 'Nowe', in_progress: 'W realizacji', waiting: 'Czeka na części', closed: 'Zamknięte' };
+export function TicketStatusIcon({ status }: { status: string }) {
+  const g = status === 'closed' ? <ProgressGlyph color="var(--accent)" done /> : status === 'in_progress' ? <ProgressGlyph color="var(--st-progress)" fraction={2 / 3} /> : status === 'waiting' ? <ProgressGlyph color="var(--st-blocked)" alert /> : <ProgressGlyph color="var(--text-secondary)" dashed />;
+  return <span role="img" aria-label={ticketStateLabel[status as TicketState] ?? status} title={ticketStateLabel[status as TicketState] ?? status} style={{ display: 'inline-flex' }}>{g}</span>;
 }
 
 const personPalette = ['rgb(59, 130, 214)', 'rgb(155, 107, 224)', 'rgb(31, 167, 165)', 'rgb(224, 112, 42)', 'rgb(214, 69, 61)', 'rgb(47, 158, 91)'];

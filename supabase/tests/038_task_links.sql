@@ -1,0 +1,26 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+insert into auth.users(id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+select ('a8000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'00000000-0000-0000-0000-000000000000','authenticated','authenticated','links-'||n||'@example.invalid','x',now(),now(),now() from generate_series(1,2) n;
+insert into public.staff_users(user_id,role) values('a8000000-0000-4000-8000-000000000001','office'),('a8000000-0000-4000-8000-000000000002','technician');
+insert into public.customers(id,name) values('c8000000-0000-4000-8000-000000000001','Klient Powiązania'),('c8000000-0000-4000-8000-000000000002','Inny klient');
+insert into public.staff_customer_assignments(user_id,customer_id) values('a8000000-0000-4000-8000-000000000002','c8000000-0000-4000-8000-000000000001');
+insert into public.locations(id,customer_id,address,city) values('d8000000-0000-4000-8000-000000000001','c8000000-0000-4000-8000-000000000001','Polna 1','Rumia'),('d8000000-0000-4000-8000-000000000002','c8000000-0000-4000-8000-000000000002','Leśna 2','Reda');
+insert into public.installations(id,location_id,type) values('e8000000-0000-4000-8000-000000000001','d8000000-0000-4000-8000-000000000001','Split'),('e8000000-0000-4000-8000-000000000002','d8000000-0000-4000-8000-000000000002','Split');
+insert into public.service_tickets(id,installation_id,customer_id,subject,description,status) values('f8000000-0000-4000-8000-000000000001','e8000000-0000-4000-8000-000000000001','c8000000-0000-4000-8000-000000000001','Brak chłodzenia','Opis','new'),('f8000000-0000-4000-8000-000000000002','e8000000-0000-4000-8000-000000000002','c8000000-0000-4000-8000-000000000002','Cudze','Opis','new');
+set local role authenticated;
+select set_config('request.jwt.claim.sub','a8000000-0000-4000-8000-000000000001',true);
+select public.save_crm_record('c8000000-0000-4000-8000-000000000001','tasks','b8000000-0000-4000-8000-000000000001',null,jsonb_build_object('title','Zamów sprężarkę','description','','kind','general','dueOn',to_char((now() at time zone 'Europe/Warsaw')::date,'YYYY-MM-DD'),'assigneeId','a8000000-0000-4000-8000-000000000002','contactId',null,'state','todo','result',''));
+select is(public.save_crm_record('c8000000-0000-4000-8000-000000000001','tasks','b8000000-0000-4000-8000-000000000001',0,jsonb_build_object('title','Zamów sprężarkę','description','','kind','general','dueOn',to_char((now() at time zone 'Europe/Warsaw')::date,'YYYY-MM-DD'),'assigneeId','a8000000-0000-4000-8000-000000000002','contactId',null,'state','todo','result',''))->'link','null'::jsonb,'New task has no link');
+select set_config('request.jwt.claim.sub','a8000000-0000-4000-8000-000000000002',true);
+select is(jsonb_array_length(public.crm_task_link_options('c8000000-0000-4000-8000-000000000001')),1,'Technician sees the customer ticket');
+select alike(public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',0,'ticket','f8000000-0000-4000-8000-000000000001')->'link'->>'code','ZG-%','Assignee links the task to a ticket');
+select is(public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',0,'ticket','f8000000-0000-4000-8000-000000000001')->>'version','1','Retry is idempotent');
+select throws_ok($$select public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',1,'ticket','f8000000-0000-4000-8000-000000000002')$$,'22023',null,'Ticket of another customer refused');
+select throws_ok($$select public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',1,'offer','f8000000-0000-4000-8000-000000000001')$$,'42501',null,'Technician cannot link offers');
+select throws_ok($$select public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',0,null,null)$$,'40001',null,'Stale version refused');
+select is(public.set_crm_task_link('c8000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',1,null,null)->'link','null'::jsonb,'Link removed');
+select set_config('request.jwt.claim.sub','a8000000-0000-4000-8000-000000000001',true);
+select * from finish();
+rollback;
