@@ -2,6 +2,13 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Ustawienia — pozostałe zakładki)
+- **Numery ofert, zleceń i zgłoszeń nadaje baza** (kłódka w Ustawieniach); edytowalne są serie faktur, korekt, protokołów i dokumentów magazynowych — zmiana działa od nowego miesiąca.
+- **Progi marży per kategoria** (urządzenia 15 %, materiały 30 %, usługi 45 %, dojazd 0 %) obok progu całej oferty 22 %; domyślnie poniżej progu tylko ostrzeżenie.
+- **Uprawnienia techników (F-gaz, SEP, gaz) i wyposażenie busów** są danymi, z których korzysta podpowiadanie technika; wygasające uprawnienia ostrzegają z wyprzedzeniem.
+- **Koszt godziny technika widzi tylko administrator.**
+- Propozycje nowych funkcji (do decyzji właściciela): motyw „Jak system” i zapis motywu na koncie, cisza nocna i podsumowanie dnia, nowe kategorie powiadomień (Oferty, Płatności, Magazyn).
+
 ## 2026-11-20 (Ustawienia)
 - **Ustawienia jako druga kolumna nawigacji** w panelu głównym (panel boczny aplikacji zostaje). Sekcje: Firma, Zespół, Połączenia, Moje konto.
 - **Projekt Ustawień opiera się na istniejącym backendzie** (profil firmy z wersją i logo, role Administrator/Biuro/Technik/Klient, zaproszenia 7 dni, blokada przez RLS, audyt, poczta przez zmienne środowiskowe).
