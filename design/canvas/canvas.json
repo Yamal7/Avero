@@ -1,0 +1,698 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Mój dzień · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Mój dzień · jasny",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Paleta.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Paleta komend ⌘K",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Zadania.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Zadania · jasny",
+      "w": 1440,
+      "x": 0,
+      "y": 1600
+    },
+    "Zadania-opcje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zadania · opcje widoku",
+      "w": 1440,
+      "x": 1520,
+      "y": 1600
+    },
+    "Zadania-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zadania · ciemny",
+      "w": 1440,
+      "x": 3040,
+      "y": 1600
+    },
+    "Zadania-tablica.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zadania · tablica",
+      "x": 4560,
+      "y": 1600
+    },
+    "Magazyn.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Magazyn · jasny",
+      "x": 0,
+      "y": 3200,
+      "is_interactive": true
+    },
+    "Magazyn-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Magazyn · ciemny",
+      "x": 1520,
+      "y": 3200
+    },
+    "Magazyn-wydanie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Magazyn · wydanie na zlecenie (RW)",
+      "x": 3040,
+      "y": 3200
+    },
+    "Magazyn-samochody.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Magazyn · w samochodach",
+      "x": 4560,
+      "y": 3200
+    },
+    "Firmy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Firmy · tabela",
+      "x": 0,
+      "y": 4800,
+      "is_interactive": true
+    },
+    "Firmy-filtr.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Firmy · filtr kategorii",
+      "x": 1520,
+      "y": 4800
+    },
+    "Firmy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Firmy · ciemny",
+      "x": 3040,
+      "y": 4800
+    },
+    "Osoby.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Osoby · tabela",
+      "x": 4560,
+      "y": 4800
+    },
+    "Firma.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · Delikatesy Morskie",
+      "x": 0,
+      "y": 6400,
+      "is_interactive": true
+    },
+    "Firma-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · ciemny",
+      "x": 1520,
+      "y": 6400
+    },
+    "Firma-urzadzenia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · Urządzenia",
+      "x": 0,
+      "y": 7920
+    },
+    "Firma-urzadzenia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · Urządzenia · ciemny",
+      "x": 1520,
+      "y": 7920
+    },
+    "Szablony.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · szablony protokołów",
+      "x": 0,
+      "y": 9440
+    },
+    "Technik.dc.html": {
+      "h": 1800,
+      "w": 390,
+      "title": "Telefon · kontrola szczelności",
+      "x": 1520,
+      "y": 9440
+    },
+    "Technik-wyciek.dc.html": {
+      "h": 1800,
+      "w": 390,
+      "title": "Telefon · kontrola, nieszczelność",
+      "x": 1990,
+      "y": 9440
+    },
+    "Technik-wyciek-ciemny.dc.html": {
+      "h": 1800,
+      "w": 390,
+      "title": "Telefon · nieszczelność · ciemny",
+      "x": 2460,
+      "y": 9440
+    },
+    "Technik-montaz.dc.html": {
+      "h": 1800,
+      "w": 390,
+      "title": "Telefon · montaż split",
+      "x": 2930,
+      "y": 9440
+    },
+    "Planowanie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1920,
+      "title": "Planowanie · dzień",
+      "x": 0,
+      "y": 13240,
+      "is_interactive": true
+    },
+    "Planowanie-przeciaganie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1920,
+      "title": "Planowanie · przeciąganie ZG-0920 · ciemny",
+      "x": 2000,
+      "y": 13240
+    },
+    "Planowanie-mapa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1920,
+      "title": "Planowanie · mapa tras",
+      "x": 4000,
+      "y": 13240
+    },
+    "Planowanie-mapa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1920,
+      "title": "Planowanie · mapa tras · ciemny",
+      "x": 6000,
+      "y": 13240
+    },
+    "Zlecenie-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "w": 1440,
+      "title": "Zlecenie ZS-1047 · jasny",
+      "x": 0,
+      "y": 11440
+    },
+    "Zlecenie-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "w": 1440,
+      "title": "Zlecenie ZS-1047 · ciemny",
+      "x": 1520,
+      "y": 11440
+    },
+    "Urzadzenie-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta urządzenia · UR-3107",
+      "x": 3040,
+      "y": 7920
+    },
+    "Urzadzenie-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta urządzenia · ciemny",
+      "x": 4560,
+      "y": 7920
+    },
+    "Firma-fgaz-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · Historia F-gaz",
+      "x": 3040,
+      "y": 6400
+    },
+    "Firma-fgaz-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Karta firmy · Historia F-gaz · ciemny",
+      "x": 4560,
+      "y": 6400
+    },
+    "Zadania-tablica-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zadania · tablica · ciemny",
+      "x": 6080,
+      "y": 1600
+    },
+    "Magazyn-samochody-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Magazyn · w samochodach · ciemny",
+      "x": 6080,
+      "y": 3200
+    },
+    "Osoby-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Osoby · ciemny",
+      "x": 6080,
+      "y": 4800
+    },
+    "Oferta.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Oferta OF-2026-118 · kreator · jasny",
+      "x": 0,
+      "y": 14560
+    },
+    "Oferta-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Oferta OF-2026-118 · kreator · ciemny",
+      "x": 1520,
+      "y": 14560
+    },
+    "Oferta-warunki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Oferta · krok 4 Warunki",
+      "x": 3040,
+      "y": 14560
+    },
+    "Oferta-wysylka.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "w": 1440,
+      "title": "Oferta · krok 5 Wysyłka",
+      "x": 4560,
+      "y": 14560
+    },
+    "Klient-oferta.dc.html": {
+      "expand": "fill",
+      "h": 1960,
+      "w": 1440,
+      "title": "Oferta · widok klienta (link)",
+      "x": 6080,
+      "y": 14560
+    },
+    "Klient-oferta-telefon.dc.html": {
+      "expand": "fill",
+      "h": 2700,
+      "w": 390,
+      "title": "Oferta · widok klienta · telefon",
+      "x": 7600,
+      "y": 14560
+    },
+    "Oferta-zaakceptowana.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Oferta · po akceptacji (biuro)",
+      "x": 0,
+      "y": 17360
+    },
+    "Klient-akceptacja-podpis.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "w": 390,
+      "title": "Klient · akceptacja 1/3 · podpis",
+      "x": 1520,
+      "y": 17360
+    },
+    "Klient-akceptacja-platnosc.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "w": 390,
+      "title": "Klient · akceptacja 2/3 · zaliczka",
+      "x": 1990,
+      "y": 17360
+    },
+    "Klient-akceptacja-gotowe.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "w": 390,
+      "title": "Klient · akceptacja 3/3 · gotowe",
+      "x": 2460,
+      "y": 17360
+    },
+    "Zlecenie-montaz.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "w": 1440,
+      "title": "Zlecenie montażu ZS-1052 · jasny",
+      "x": 0,
+      "y": 18460
+    },
+    "Zlecenie-montaz-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "w": 1440,
+      "title": "Zlecenie montażu ZS-1052 · ciemny",
+      "x": 1520,
+      "y": 18460
+    },
+    "Technik-pompa.dc.html": {
+      "h": 2960,
+      "w": 390,
+      "title": "Telefon · uruchomienie pompy ciepła",
+      "x": 3040,
+      "y": 18460
+    },
+    "Faktura-koncowa.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "w": 1440,
+      "title": "Faktura końcowa FV/2026/12/003 · jasny",
+      "x": 0,
+      "y": 21620
+    },
+    "Faktura-koncowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "w": 1440,
+      "title": "Faktura końcowa · ciemny",
+      "x": 1520,
+      "y": 21620
+    },
+    "Klient-po-montazu.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "w": 390,
+      "title": "Klient · po montażu: dokumenty i dopłata",
+      "x": 3040,
+      "y": 21620
+    },
+    "Przeglady.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Przeglądy · najbliższe 60 dni",
+      "x": 0,
+      "y": 23100
+    },
+    "Przeglady-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Przeglądy · ciemny",
+      "x": 1520,
+      "y": 23100
+    },
+    "Umowa-serwisowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Umowa serwisowa UM-2026-031",
+      "x": 3040,
+      "y": 23100
+    },
+    "Klient-przeglad-termin.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "w": 390,
+      "title": "Klient · wybór terminu kontroli",
+      "x": 4560,
+      "y": 23100
+    },
+    "Raporty.dc.html": {
+      "expand": "fill",
+      "h": 1220,
+      "w": 1440,
+      "title": "Raporty · przegląd miesiąca",
+      "x": 0,
+      "y": 24420
+    },
+    "Raporty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1220,
+      "w": 1440,
+      "title": "Raporty · ciemny",
+      "x": 1520,
+      "y": 24420
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-14T07:40:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "intro": {
+      "fill": "gray",
+      "text": "PLT-01 Mój dzień, rola Biuro / dyspozytor. Wersja 2: rama aplikacji (górny pasek + panel boczny na jednym tle), główny panel osadzony z promieniem 12 px i odstępem 8 px od krawędzi.\nWidgety po prawej: zwijane pojedynczo, cały panel chowa przycisk w nagłówku. Grupy listy też się zwijają.\nZnak rozpoznawczy: ścieżka statusu. Tweaks: motyw i stan (dane / pusty / wczytywanie).",
+      "w": 560,
+      "x": 0,
+      "y": -420
+    },
+    "zadania-title": {
+      "kind": "title1",
+      "text": "Zadania · widok kolekcji",
+      "maxW": 7600,
+      "x": 0,
+      "y": 1320,
+      "w": 240
+    },
+    "zadania-intro": {
+      "fill": "gray",
+      "text": "PLT-02 Zadania. Wzorzec „Widok kolekcji”: zapisane widoki (pigułki), przełącznik Lista / Tablica, Opcje widoku (grupowanie, sortowanie, kolumny), rekord w panelu po prawej.\nStatus = kształt + kolor fazy. Grupa Gotowe domyślnie zwinięta. Wspólna rama z Mój dzień (Main.dc.html, tweak „ekran”).",
+      "w": 560,
+      "x": -640,
+      "y": 1600
+    },
+    "magazyn-title": {
+      "kind": "title1",
+      "text": "Magazyn · tabela",
+      "maxW": 7600,
+      "x": 0,
+      "y": 2920,
+      "w": 240
+    },
+    "magazyn-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 3200,
+      "text": "PLT-03 Magazyn. Ten sam widok kolekcji w układzie tabeli, grupy wg kategorii.\nStan, rezerwacje i dostępne są tylko do odczytu (kłódka): zmienia je wyłącznie dokument PZ / RW / WZ / MM, widoczny w ruchach. Edytowalne w miejscu: minimalny stan, półka, kategoria.\nPoniżej minimum = ikona ostrzeżenia + pogrubienie; brak przy rezerwacji = ikona błędu.\nWydanie RW: ilość z ważenia butli (masa przed − po), wpis od razu do karty urządzenia F-gaz z CO₂e; podgląd skutków przed zatwierdzeniem.\nW samochodach: macierz pozycja × bus, braki wobec minimum w busie, jedna akcja MM uzupełnia wszystkie."
+    },
+    "firmy-title": {
+      "kind": "title1",
+      "text": "Firmy i osoby · tabela z kategoriami",
+      "maxW": 7600,
+      "x": 0,
+      "y": 4520,
+      "w": 240
+    },
+    "firmy-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 4800,
+      "text": "PLT-04 Firmy i osoby (inspiracja: Attio, w stylu Precision UI).\nWiele kategorii na firmę, każda z własnym kolorem (tint 16%); widać 2, reszta jako +N z podpowiedzią.\nPasek sortowania i filtrów pod widokami; filtr kategorii: którakolwiek / wszystkie / żadna.\nKolumna Firma przypięta przy przewijaniu w bok, linie między wierszami (tabela edytowalna), podsumowanie na dole: liczba i suma przychodu."
+    },
+    "firma-title": {
+      "kind": "title1",
+      "text": "Karta firmy · pełna strona",
+      "maxW": 6080,
+      "x": 0,
+      "y": 6120,
+      "w": 240
+    },
+    "firma-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 6400,
+      "text": "PLT-05 Karta firmy (pełna strona, jak rekord w Attio).\nNagłówek: logo, nazwa, opis, wszystkie kategorie + „Kategoria”, akcje Nowe zgłoszenie / Nowe zlecenie. J / K = poprzednia / następna firma z listy.\nZakładki: Przegląd, Obiekty, Urządzenia, Zlecenia, Umowy, Historia F-gaz, Aktywność.\nPrzegląd: alert o wygasającej umowie, 4 fakty (bez kafelków KPI), otwarte sprawy, najbliższe kontrole szczelności z CO₂e i częstotliwością.\nPrawy panel: szczegóły edytowalne w miejscu + osoby kontaktowe.\nHistoria F-gaz: status (po terminie / w 30 dni / do wpisu w CRO), 4 fakty, urządzenia objęte kontrolą z częstotliwością wg (UE) 2024/573 (5/50/500 t CO₂e → 12/6/3 mies., z systemem wykrywania ×2), dziennik operacji z dokumentem i statusem wpisu w CRO. Bez prawego panelu, żeby tabele miały pełną szerokość."
+    },
+    "urz-title": {
+      "kind": "title1",
+      "text": "Urządzenia · lista i karta",
+      "maxW": 6080,
+      "x": 0,
+      "y": 7640,
+      "w": 240
+    },
+    "urz-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 7920,
+      "text": "Zakładka Urządzenia: wyszukiwanie po numerze / modelu / SN, filtry typu i czynnika, „Tylko z obowiązkiem F-gaz”. Lista pogrupowana wg obiektów (pozostałe zwinięte). Kolumna Kontrola F-gaz: częstotliwość + termin albo „nie dotyczy” (< 5 t CO₂e lub czynnik naturalny). Stan: Sprawne / Awaria / Wyłączone, kształt + kolor.\nPanel: karta urządzenia UR-3107. Czynnik, ładunek i częstotliwość kontroli zablokowane (zmienia je dokument), reszta edytowalna w miejscu. Ostatnie zdarzenia z numerami dokumentów, dokumenty PDF.\nKarta urządzenia (pełna strona): parametry pracy z dwóch wizyt z normą (przed / po naprawie, odchylenia oznaczone), historia serwisu z dokumentami, zdjęcia, najbliższe terminy, szczegóły z polami zablokowanymi, układ (co zasila)."
+    },
+    "proto-title": {
+      "kind": "title1",
+      "text": "Protokoły · szablony i aplikacja technika",
+      "maxW": 3320,
+      "x": 0,
+      "y": 9160,
+      "w": 240
+    },
+    "proto-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 9440,
+      "text": "PLT-06 Konfigurowalny protokół. Szablon = uporządkowana lista sekcji z biblioteki (Pomiary, Checklista, Wybór, Czynnik, Części z magazynu, Czas pracy, Zdjęcia, Tekst, Zalecenia, Podpis). Sekcja: wymagana / opcjonalna, warunek wyświetlenia (np. gdy Wynik = Nieszczelność), pola z normami z karty urządzenia.\nSzablon przypisany do typu zlecenia; zapisuje do F-gaz/CRO, magazynu, parametrów urządzenia i PDF.\nTelefon: 1 kolumna, pola 44 px, tekst 15 px, postęp i skoki do sekcji, offline, przycisk Zakończ aktywny dopiero po wymaganych sekcjach."
+    },
+    "zlec-title": {
+      "kind": "title1",
+      "text": "Zlecenie · pełna strona",
+      "maxW": 3040,
+      "x": 0,
+      "y": 11160,
+      "w": 240
+    },
+    "zlec-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 11440,
+      "text": "PLT-07 Strona zlecenia ZS-1047 (awaria lodziarki, Delikatesy Morskie), stan na 13 lis 09:14: technik w drodze.\nNagłówek: tytuł, miejsce, urządzenie, kapsułki właściwości (status, priorytet, technik, termin, etykieta), pasek statusu na żywo z czasem SLA z umowy.\nPrzegląd: zgłoszenie od klienta, wizyty (zakończone i planowane), pomiary z protokołu z telefonu z normą (kolumna „Po naprawie” wypełni się z dzisiejszego protokołu), materiały i czynnik z dokumentami MM/RW (ilości zablokowane), aktywność z komentarzem.\nPrawy panel: rozliczenie na żywo (robocizna ze stawki z umowy, materiały, dojazd w ryczałcie), klient, obiekt i kontakt, urządzenie, szczegóły; SLA zablokowane, bo pochodzą z umowy."
+    },
+    "plan-title": {
+      "kind": "title1",
+      "text": "Planowanie · oś dnia",
+      "maxW": 8000,
+      "x": 0,
+      "y": 12960,
+      "w": 240
+    },
+    "plan-intro": {
+      "fill": "gray",
+      "w": 560,
+      "x": -640,
+      "y": 13240,
+      "text": "PLT-08 Planowanie (tablica dyspozytora), plansza 1920 px: tak będzie używane na monitorze w biurze.\nLewa kolumna: Do zaplanowania, zgłoszenia i przeglądy z umów, kolejność wg czasu do terminu SLA, szacowany czas pracy.\nOś 07–17: technik w wierszu z obciążeniem dnia, wizyty jako bloki (status = kształt + kolor fazy), dojazdy jako linia przerywana z minutami, linia „teraz”. Krótkie bloki pokazują tylko godzinę i tytuł, pełna treść w podpowiedzi.\nPrzeciąganie: pod każdym technikiem jego dopasowanie (wolny, odległość, czynnik w busie); podgląd bloku i okienko z kontrolą: dostępność, czynnik, SLA, kolizja z kolejną wizytą + akcje Przydziel / Przesuń kolejną.\nDo sprawdzenia: brak R32 w busie na montaż (powiązanie z ZD-118) i brak części dla wizyty czekającej.\nMapa: każdy technik ma stały kolor (awatar, trasa, piny, znacznik busa). Linia ciągła = przejechane, przerywana = plan, romb = zgłoszenie bez technika, K = baza. Wybrany bus: trasa wyróżniona, pozostałe przygaszone, karta z prędkością, czasem przyjazdu i częściami na pokładzie. Lewa kolumna: busy ze stanem i kolorowymi ikonami (km, czynnik, braki) oraz zgłoszenia z proponowanym technikiem; propozycja liczy odległość, wolne okno, czynnik, części i SLA, decyzja zostaje u dyspozytora. W kodzie mapa z MapLibre + OpenStreetMap, styl przygaszony z tokenów map-land / map-park / map-water."
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Ciemny.dc.html",
+    "Paleta.dc.html",
+    "Zadania.dc.html",
+    "Zadania-opcje.dc.html",
+    "Zadania-ciemny.dc.html",
+    "Zadania-tablica.dc.html",
+    "Magazyn.dc.html",
+    "Magazyn-ciemny.dc.html",
+    "Magazyn-wydanie.dc.html",
+    "Magazyn-samochody.dc.html",
+    "Firmy.dc.html",
+    "Firmy-filtr.dc.html",
+    "Firmy-ciemny.dc.html",
+    "Osoby.dc.html",
+    "Firma.dc.html",
+    "Firma-ciemny.dc.html",
+    "Firma-urzadzenia.dc.html",
+    "Firma-urzadzenia-ciemny.dc.html",
+    "Szablony.dc.html",
+    "Technik.dc.html",
+    "Technik-wyciek.dc.html",
+    "Technik-wyciek-ciemny.dc.html",
+    "Technik-montaz.dc.html",
+    "Planowanie.dc.html",
+    "Planowanie-przeciaganie.dc.html",
+    "Planowanie-mapa.dc.html",
+    "Planowanie-mapa-ciemny.dc.html",
+    "Zlecenie-nowa.dc.html",
+    "Zlecenie-nowa-ciemny.dc.html",
+    "Urzadzenie-nowa.dc.html",
+    "Urzadzenie-nowa-ciemny.dc.html",
+    "Firma-fgaz-nowa.dc.html",
+    "Firma-fgaz-nowa-ciemny.dc.html",
+    "Zadania-tablica-nowa-ciemny.dc.html",
+    "Magazyn-samochody-ciemny.dc.html",
+    "Osoby-ciemny.dc.html",
+    "Oferta.dc.html",
+    "Oferta-ciemny.dc.html",
+    "Oferta-warunki.dc.html",
+    "Oferta-wysylka.dc.html",
+    "Klient-oferta.dc.html",
+    "Klient-oferta-telefon.dc.html",
+    "Klient-akceptacja-podpis.dc.html",
+    "Klient-akceptacja-platnosc.dc.html",
+    "Klient-akceptacja-gotowe.dc.html",
+    "Oferta-zaakceptowana.dc.html",
+    "Zlecenie-montaz.dc.html",
+    "Zlecenie-montaz-ciemny.dc.html",
+    "Technik-pompa.dc.html",
+    "Faktura-koncowa.dc.html",
+    "Faktura-koncowa-ciemny.dc.html",
+    "Klient-po-montazu.dc.html",
+    "Przeglady.dc.html",
+    "Przeglady-ciemny.dc.html",
+    "Umowa-serwisowa.dc.html",
+    "Klient-przeglad-termin.dc.html",
+    "Raporty.dc.html",
+    "Raporty-ciemny.dc.html"
+  ],
+  "pages": [],
+  "title": "Avero — Mój dzień (dashboard)",
+  "noteOrder": [
+    "intro",
+    "zadania-title",
+    "zadania-intro",
+    "magazyn-title",
+    "magazyn-intro",
+    "firmy-title",
+    "firmy-intro",
+    "firma-title",
+    "firma-intro",
+    "urz-title",
+    "urz-intro",
+    "proto-title",
+    "proto-intro",
+    "zlec-title",
+    "zlec-intro",
+    "plan-title",
+    "plan-intro"
+  ]
+}

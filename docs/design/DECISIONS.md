@@ -1,0 +1,40 @@
+# Dziennik decyzji projektowych
+
+Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
+
+## 2026-11-20
+- **Repozytorium `Yamal7/avero` jest wspólnym źródłem wiedzy** dla czatu projektowego i Claude Code. Projekt pisze w `docs/design/`, kod raportuje w `docs/STATUS.md`.
+
+## 2026-11-19
+- **Raporty bez kafelków KPI.** Przegląd miesiąca: 4 fakty w blokach `--bg-raised` z małym wykresem liniowym i zmianą m/m (zielona/czerwona wg tego, czy to dobrze, nie wg kierunku). Jeden wykres słupkowy skumulowany (przychód wg rodzaju prac, 12 mies.), etykiety bezpośrednie przy ostatnim słupku, legenda zawsze. Bez dwóch osi Y.
+- **Paleta wykresów** `--series-1…4` przeszła walidację dla daltonistów (CVD ΔE ≥ 8) w obu motywach; dwa kolory mają < 3:1 na jasnym tle, więc każdy wykres ma widok tabeli.
+- **„Avero zauważa”**: obserwacje z jedną akcją (np. „Zaktualizuj cennik”). To jedyne miejsce na pełne zdania w raporcie.
+- **Przeglądy**: status = kształt + kolor (przerywane kółko = do zaplanowania, ćwiartka żółta = klient wybiera termin, ¾ akcent = zaplanowane, czerwone z wykrzyknikiem = po terminie, przekreślone = bez umowy). Podstawa przeglądu jako kapsułka: F-gaz (tarcza, czerwona ikona), Umowa (numer), Gwarancja (medal).
+- **Daty zawsze z poprawnym dniem tygodnia** (2026: 30 lis pon., 1 gru wt., 9 gru śr.).
+
+## 2026-11-18
+- **Faktura końcowa pomniejsza netto i VAT o zaliczkę** (art. 106f ust. 3 ustawy o VAT) i podaje numer faktury zaliczkowej; nie wystarczy odjąć zaliczki w sekcji „Rozliczenie”.
+- **KSeF dla faktur B2C jest dobrowolny** — domyślnie „Poza KSeF” dla osób prywatnych, z podpowiedzią dlaczego; B2B → KSeF.
+- **CRO**: pompy ciepła typu split rejestruje się od 5 t CO₂e (monoblok hermetyczny od 10 t). R32: od 7,4 kg. Avero liczy to z ładunku × GWP i pokazuje „CRO: nie dotyczy” z wyjaśnieniem; przelicza ponownie po zmianie ładunku.
+- **Kontrola szczelności**: progi 5 / 50 / 500 t CO₂e → co 12 / 6 / 3 mies. (z systemem wykrywania wycieków ×2), wg (UE) 2024/573.
+- **Akceptacja oferty online**: podpis palcem na ekranie klienta (bez kodu SMS). Przy umowie zawartej na odległość, gdy montaż wypada w 14 dniach od akceptacji, wymagane osobne zaznaczenie „Proszę o montaż przed upływem 14 dni na odstąpienie” (pokazywane tylko wtedy). Treść zgody i OWU do sprawdzenia przez prawnika.
+- **Płatności**: jeden operator — Przelewy24 (BLIK, szybki przelew, karty Visa/Mastercard, Apple Pay, Google Pay). Przy każdej metodzie małe logo operatora (w makiecie zastępcze kafelki tekstowe — w kodzie oficjalne logotypy z brand kitów).
+- **Oferta**: warianty obok siebie (dobry / lepszy / najlepszy), polecany w środku z gwiazdką; pozycje opcjonalne zaznaczane przez klienta, polecane domyślnie zaznaczone; po wysłaniu oferta jest nieedytowalna — zmiana tworzy nową wersję. Klient nigdy nie widzi marży, dostępności, cen zakupu ani zdjęć wewnętrznych.
+- **Po akceptacji Avero samo**: tworzy zlecenie, rezerwuje magazyn, zamawia brakujące u dystrybutora, wstawia bloki do planowania, wystawia fakturę zaliczkową; otwarte kwestie pokazuje w „Do decyzji”.
+
+## 2026-11-17
+- **Zasada „ikona → kapsułka → karta podglądu”.** Informację pokazuj najkrócej: sama ikona (z podpowiedzią), kapsułka = ikona + 1–2 słowa lub liczba, pełne szczegóły w karcie po najechaniu. Pełne zdania tylko przy decyzjach. Etykiety nad polami → ikona w polu (etykieta zostaje dla czytników ekranu). Druga linia tekstu w wierszu → kapsułki po prawej.
+- **Małe, kolorowe ikony informacyjne na szarej bazie** (12–16 px). Kolor ikony niesie znaczenie (status, typ urządzenia, czynnik, osoba), nie dekoruje. Ikony „dla ozdoby” zabronione.
+- **Stałe kolory osób** w całym programie: MZ #3B82D6, TL #9B6BE0, KN #1FA7A5, PD #E0702A, biuro szare.
+- **Avero podpowiada technika** (odległość, wolne okno, czynnik w busie, części, SLA) — decyzja zostaje u dyspozytora.
+- **Planowanie na 1920 px** (monitor w biurze).
+- **Odświeżony ekran projektuje się obok starego**; stary usuwa właściciel po akceptacji.
+
+## 2026-11-16
+- **Większe zaokrąglenia, linie prawie niewidoczne lub brak.** Wypełnienie zamiast ramki; ramka tylko gdy niesie znaczenie. Promień wg wysokości elementu: 6 / 8 / 10 px, karty 12, popovery i okna 14. Telefon: pola 14, przyciski 16, karty 20–24. Kapsułki właściwości w pełni zaokrąglone (jedyny wyjątek od zakazu „pill buttons”).
+
+## Wcześniej (do 2026-11-15)
+- **Styl Precision UI** (wzór: Linear): treść przed chromem, niemal monochromatycznie, jeden akcent `#5E6AD2`, Geist + Geist Mono, baza 13 px, siatka 4 px, statusy jako kształt + kolor, klawiatura pierwszorzędna (⌘K, C, /, J/K, G+litera), motyw jasny i ciemny od pierwszego dnia.
+- **Wzorzec „Widok kolekcji”**: zapisane widoki jako pigułki, przełącznik Lista / Tablica, Opcje widoku, rekord w prawym panelu. Ten sam wzorzec w Zadaniach, Magazynie, Firmach, Przeglądach.
+- **Pola zablokowane (kłódka)**: stany magazynowe, ładunek czynnika, częstotliwość kontroli — zmienia je tylko dokument (PZ/RW/WZ/MM, protokół).
+- **Firmy w stylu Attio**: wiele kategorii z kolorem, kolumna Firma przypięta, podsumowanie na dole tabeli.
