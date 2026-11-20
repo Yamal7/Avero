@@ -8,6 +8,15 @@ Stos: Next.js 15 (App Router), React 19, TypeScript, Supabase (Postgres z RLS, d
 
 | Moduł / ekran | Stan | Data | Uwagi |
 |---|---|---|---|
+| Widok kolekcji (silnik) | działa w Zadaniach | 2026-11-20 | grupowanie, sortowanie, kolumny, filtry priorytetu i etykiety, zapisane widoki jako pigułki; ustawienia na koncie |
+| Rama aplikacji · skróty | działa | 2026-11-20 | ⌥T / ⌘T nowa karta, ⌥1–9 / ⌘1–9 przełączanie kart; zwinięte grupy menu zapisane na koncie |
+| Karta firmy · nawigacja | działa | 2026-11-20 | „2 z 4”, poprzednia / następna firma klawiszami K / J |
+| Osoby | działa na danych | 2026-11-20 | kontakty firm i klienci indywidualni razem; kategorie osób; widoki Decyzyjne, Klienci indywidualni, Bez kontaktu 30 dni |
+| Firmy · filtry i podsumowanie | działa na danych | 2026-11-20 | kolory kategorii z „Zarządzaj”, filtr którakolwiek / wszystkie / żadna, sortowanie po ostatnim kontakcie, widok „Bez kontaktu 30 dni”, wiersz podsumowania |
+| Magazyn · reguły z rozmowy | działa na danych | 2026-11-20 | WZ, numer butli, minimum na bus i „Uzupełnij braki (N)”, szkice dokumentów, rezerwacja na zadanie, jednostka blokowana po pierwszym ruchu, ⌘↵ |
+| Zadania · powiązania i panel | działa na danych | 2026-11-20 | powiązanie ze zgłoszeniem (ZG), zleceniem (ZS) lub ofertą (OF) z numerem przy tytule; osoba i termin zmieniane w panelu (biuro) |
+| Zadania · statusy i tablica | działa na danych | 2026-11-20 | statusy Backlog i Do sprawdzenia; tablica 5 kolumn 1:1 z makiety |
+| Statusy zgłoszeń | działa | 2026-11-20 | Nowe = przerywane kółko, Czeka na części = pomarańczowe z „!” |
 | Magazyn · tabela, panel pozycji, w samochodach, PZ / MM / RW | działa na danych | 2026-11-19 | RW z ważeniem butli trafia do materiałów zlecenia; rezerwacje pod zlecenie; stan nie może zejść poniżej zera |
 | Planowanie · dzień, przeciąganie, mapa | działa na danych | 2026-11-19 | geokodowanie OpenStreetMap (Nominatim, z pamięcią podręczną), czasy dojazdu, „Przydziel” |
 | Zlecenie serwisowe (ZS-…) | działa na danych | 2026-11-19 | pomiary, materiały, komentarze; zamknięte zlecenie blokuje zapis |
@@ -23,16 +32,8 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 
 - Karta urządzenia i historia F-gaz (CO₂e, częstotliwość kontroli wg (UE) 2024/573, CRO).
 - Telefon technika, zlecenie montażu, faktura końcowa, widoki klienta (oferta, podpis, płatność), przeglądy i umowy, raporty, ustawienia.
-- Poprawki zgodności z projektem:
-  - kształty statusów „Nowe” i „Czeka na części”;
-  - statusy zadań „Do sprawdzenia” i „Backlog”;
-  - powiązanie zadania ze zleceniem lub ofertą;
-  - minimum na bus i jedno MM na braki;
-  - dokument WZ, szkic RW i numer butli;
-  - kolory kategorii nadawane przez użytkownika;
-  - Osoby jako kontakty firm;
-  - przechodzenie K / J między firmami;
-  - silnik widoku kolekcji (filtry, sortowanie, grupowanie, kolumny, zapisane widoki).
+- Silnik widoku kolekcji w Magazynie, Firmach i Przeglądach (na razie tylko Zadania).
+- Wydanie czynnika (RW) ma zwiększać ładunek w karcie urządzenia — czeka na Kartę urządzenia.
 
 ## Odstępstwa od makiet
 
@@ -42,12 +43,20 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 - **Ikony:** własne SVG odwzorowane z makiet (`src/components/design-icons.tsx`) zamiast pakietu Phosphor. Nowa biblioteka wymaga zgody.
 - **Tokeny:** style w `src/app/precision.css`, skopiowane z kanwy przed powstaniem `docs/design/tokens.css`. Trzeba je porównać z `tokens.css` i ujednolicić.
 - **Motyw ciemny:** nowe ekrany nie są jeszcze sprawdzone w ciemnym motywie.
+- **Skróty kart:** przeglądarki zastrzegają ⌘T i ⌘1–9 dla własnych kart, więc w przeglądarce działają ⌥T i ⌥1–9; ⌘ działa tam, gdzie przeglądarka go przepuszcza (np. aplikacja zainstalowana jako okno).
+- **„Uzupełnij braki”:** dokument MM ma jedno miejsce docelowe, więc powstaje jedno MM na każdy bus z brakami (jedna akcja, kilka dokumentów).
+- **„+” w kolumnie tablicy zadań:** zadanie zawsze należy do firmy, więc „+” prowadzi do listy firm; zadanie dodaje się na karcie firmy.
+- **Minimum na bus:** ustawiane dwuklikiem w komórce macierzy „W samochodach” (makieta nie pokazuje, gdzie się je edytuje).
+- **Filtry widoku Zadań** działają na wczytanej stronie listy (20 zadań); grupowanie i sortowanie też.
 
 ## Pytania do projektu
 
-- (brak)
+- **J / K na karcie firmy:** `screens/04-klienci.md` mówi „J / K = poprzednia / następna”, a rozmowa projektowa „K / J”. Zrobiłem K = poprzednia, J = następna, tak jak J/K w listach (w dół = następny). Potwierdźcie.
+- **Ikona „Do sprawdzenia”:** w makiecie pełne zielone kółko bez ptaszka. Czy ma się odróżniać od „Gotowe” czymś więcej niż kolorem (dla daltonistów)?
+- **Gdzie edytuje się minimum na bus** i kategorie osób kontaktowych — makiety tego nie pokazują.
 
 ## Dziennik
 
+- 2026-11-20 — 9 poprawek zgodności z rozmową projektową (statusy, zadania, magazyn, firmy, osoby, karta firmy, skróty, silnik widoku).
 - 2026-11-20 — repozytorium projektu połączone z kodem (merge `Yamal7/avero` do gałęzi `redesign-precision-ui`); uzupełniono stan implementacji.
 - 2026-11-20 — utworzono plik (szablon z czatu projektowego).
