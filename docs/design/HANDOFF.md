@@ -60,3 +60,7 @@ Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 3. Claude Code po każdej zmianie dopisuje do `docs/STATUS.md`: co zaimplementowano, co świadomie odbiega od makiety (i dlaczego), pytania do projektu.
 4. Czat projektowy przed każdym nowym modułem czyta `docs/STATUS.md` i ostatnie commity.
 5. Odświeżony ekran projektuje się **obok** starego (do porównania); stary usuwa właściciel po akceptacji.
+
+## Kierunek produktu
+
+Avero ma być sprzedawany innym firmom: wspólny rdzeń + pakiety branżowe (HVACR pierwszy) + warstwa elastyczna (własne pola, konfigurowalny panel boczny, własne tabele). Szczegóły i konsekwencje dla kodu: `DECISIONS.md`, wpis „Kierunek produktu” z 20 lis 2026.

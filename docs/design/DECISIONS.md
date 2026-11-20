@@ -2,6 +2,14 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Kierunek produktu — decyzja właściciela)
+- **Avero będzie w przyszłości sprzedawany innym firmom.** Dziś backend jest jednofirmowy; PRODUCT_PLAN (tabela ryzyk, „Wiele niezależnych firm”) wymaga wtedy osobnego projektu izolacji danych, konfiguracji i rozliczeń. Zalecenie dla kodu: zaplanować to wcześnie — każda tabela należy do organizacji (identyfikator firmy + RLS), konfiguracja firmy (dane, numeracje, progi, integracje) per organizacja; im później, tym droższa migracja.
+- **Model produktu: wspólny rdzeń + pakiety branżowe + warstwa elastyczna** (wzór: Attio, HubSpot, Salesforce, Odoo Studio).
+  - Rdzeń dla każdej firmy: klienci i obiekty, zadania, Skrzynka, leady i szanse, oferty, zlecenia, faktury, katalog i magazyn, zakupy, raporty, ustawienia.
+  - Pakiet HVACR jako pierwszy: F-gaz i CRO, czynniki (świeży / regenerowany), protokoły kontroli i uruchomienia, przeglądy, busy techników. Inne branże — kolejne pakiety.
+  - Warstwa elastyczna (projekt w toku): 1) własne pola na istniejących obiektach i konfigurowalny panel boczny (sekcje, kolejność, warunki widoczności, układy per zespół); 2) własne tabele (np. „Przetargi”) z typami pól, powiązaniami z rdzeniem, widokami tabela / kanban / kalendarz i akcjami do rdzenia (np. przetarg → szansa).
+- Konsekwencje do uwzględnienia: przełącznik firmy w lewym górnym rogu ramy (dziś „Kranz HVACR ▾”) jest przełącznikiem organizacji; w rdzeniu unikamy słownictwa tylko z HVACR; integracja z Gmailem przy sprzedaży innym firmom wymaga weryfikacji Google i audytu bezpieczeństwa (CASA); Avero jako dostawca SaaS przetwarza dane klientów swoich klientów — umowa powierzenia (RODO) i regulamin; abonamenty, wdrożenie i import danych nowej firmy.
+
 ## 2026-11-20 (Katalog)
 - **Katalog zostaje zgodny z backendem** (`docs/CATALOG.md`): kategorie Urządzenia / Materiały / Usługi / Dojazd, kod, jednostka, koszt i cena netto, VAT pozycji (23 % domyślnie; 8 % dla budynku mieszkalnego ustawia oferta), producent, model, dostawca, archiwum zamiast kasowania. Marża = (cena − koszt) / cena, nie narzut.
 - **Próg marży firmy (22 %) widoczny w katalogu**: marża poniżej progu — ostrzeżenie (ikona + kolor), w ofercie wymaga zgody administratora.
