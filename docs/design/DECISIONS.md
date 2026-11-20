@@ -2,13 +2,28 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Poczta Google bez bezpośredniego połączenia — decyzja właściciela)
+- **Rezygnujemy z bezpośredniego połączenia z Gmailem** (zakresy „restricted” wymagają przy sprzedaży innym firmom weryfikacji Google i corocznego audytu bezpieczeństwa). Zastępuje to wpis o Google Workspace z „poczta i SMS”.
+- **Gmail i każda inna poczta: przekierowanie + wysyłka z domeny firmy.** Odbiór: firma ustawia w Gmailu przekierowanie z serwis@ (i biuro@) na unikalny adres Avero swojej organizacji; Avero przyjmuje wiadomości do Skrzynki. Wysyłka: Avero wysyła odpowiedzi z adresu firmy po weryfikacji domeny (rekordy SPF i DKIM), z kopią UDW do skrzynki firmy, żeby odpowiedź była też w Gmailu. Avero nie ma dostępu do skrzynki Google.
+- **Microsoft 365 zostaje z bezpośrednim połączeniem** (Microsoft Graph, zgoda administratora) — bez audytu.
+- W Integracjach: karta „Gmail i inne skrzynki” (przekierowanie, DNS: SPF i DKIM, „Skonfiguruj przekierowanie”) zamiast „Google Workspace”.
+
+## 2026-11-20 (Warstwa elastyczna: własne tabele)
+- **Własne tabele** tworzy administrator; pojawiają się w pasku bocznym w grupie „Własne tabele” (+ „Nowa tabela”). Przykład: **Przetargi**. Kapsułka „własna tabela” przy nazwie odróżnia je od modułów rdzenia.
+- **Typy pól**: tekst (krótki / długi), liczba, kwota, data i godzina, wybór, wybór · etapy (z etapami zamykającymi), wielokrotny wybór, osoba, powiązanie (z obiektami rdzenia: Firmy, Osoby, Obiekty, Szanse, Zlecenia — albo z inną własną tabelą), link, pliki, formuła, numer automatyczny. Atrybuty: wymagane, unikalne, domyślna. Typu nie zmienia się po zapisaniu danych.
+- **Widoki**: tabela / kanban (grupowanie po polu wyboru) / kalendarz (po polu daty); zapisane filtry jako kapsułki („+ Widok”); podsumowania z pól (suma kwoty, skuteczność z etapów).
+- **Panel boczny z sekcji** (wzór HubSpot / Attio / Salesforce): nagłówek i historia — systemowe; sekcje: pola, karta powiązanego rekordu, lista powiązanych, przycisk akcji, podsumowanie. Kolejność przeciąganiem, ukrywanie, **warunki widoczności** (np. „Nasza oferta” tylko od etapu Przygotowanie oferty), **układy per zespół**. Edytor z podglądem na prawdziwym rekordzie.
+- **Akcje do rdzenia**: np. „Utwórz szansę z przetargu” z mapowaniem pól (nazwa, zamawiający → klient, nasza cena → wartość, termin → decyzja) i warunkiem pokazania.
+- **Kolory opcji** wyłącznie z palety serii (tokens.css) + szarości i kolory statusów dla etapów końcowych; zawsze kropka + tekst.
+- Dla kodu: definicje tabel, pól, widoków i układów panelu w rejestrze per organizacja; wartości w jednej tabeli rekordów z walidacją według definicji; te same RLS i uprawnienia co rdzeń (Uprawnienia: kto widzi / edytuje tabelę i pola). Zakładki „Widoki”, „Akcje”, „Uprawnienia” — do zaprojektowania.
+
 ## 2026-11-20 (Kierunek produktu — decyzja właściciela)
 - **Avero będzie w przyszłości sprzedawany innym firmom.** Dziś backend jest jednofirmowy; PRODUCT_PLAN (tabela ryzyk, „Wiele niezależnych firm”) wymaga wtedy osobnego projektu izolacji danych, konfiguracji i rozliczeń. Zalecenie dla kodu: zaplanować to wcześnie — każda tabela należy do organizacji (identyfikator firmy + RLS), konfiguracja firmy (dane, numeracje, progi, integracje) per organizacja; im później, tym droższa migracja.
 - **Model produktu: wspólny rdzeń + pakiety branżowe + warstwa elastyczna** (wzór: Attio, HubSpot, Salesforce, Odoo Studio).
   - Rdzeń dla każdej firmy: klienci i obiekty, zadania, Skrzynka, leady i szanse, oferty, zlecenia, faktury, katalog i magazyn, zakupy, raporty, ustawienia.
   - Pakiet HVACR jako pierwszy: F-gaz i CRO, czynniki (świeży / regenerowany), protokoły kontroli i uruchomienia, przeglądy, busy techników. Inne branże — kolejne pakiety.
   - Warstwa elastyczna (projekt w toku): 1) własne pola na istniejących obiektach i konfigurowalny panel boczny (sekcje, kolejność, warunki widoczności, układy per zespół); 2) własne tabele (np. „Przetargi”) z typami pól, powiązaniami z rdzeniem, widokami tabela / kanban / kalendarz i akcjami do rdzenia (np. przetarg → szansa).
-- Konsekwencje do uwzględnienia: przełącznik firmy w lewym górnym rogu ramy (dziś „Kranz HVACR ▾”) jest przełącznikiem organizacji; w rdzeniu unikamy słownictwa tylko z HVACR; integracja z Gmailem przy sprzedaży innym firmom wymaga weryfikacji Google i audytu bezpieczeństwa (CASA); Avero jako dostawca SaaS przetwarza dane klientów swoich klientów — umowa powierzenia (RODO) i regulamin; abonamenty, wdrożenie i import danych nowej firmy.
+- Konsekwencje do uwzględnienia: przełącznik firmy w lewym górnym rogu ramy (dziś „Kranz HVACR ▾”) jest przełącznikiem organizacji; w rdzeniu unikamy słownictwa tylko z HVACR; Gmail obsługujemy przekierowaniem (bez audytu Google); Avero jako dostawca SaaS przetwarza dane klientów swoich klientów — umowa powierzenia (RODO) i regulamin; abonamenty, wdrożenie i import danych nowej firmy.
 
 ## 2026-11-20 (Katalog)
 - **Katalog zostaje zgodny z backendem** (`docs/CATALOG.md`): kategorie Urządzenia / Materiały / Usługi / Dojazd, kod, jednostka, koszt i cena netto, VAT pozycji (23 % domyślnie; 8 % dla budynku mieszkalnego ustawia oferta), producent, model, dostawca, archiwum zamiast kasowania. Marża = (cena − koszt) / cena, nie narzut.
@@ -43,7 +58,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - Tablica bez kafelków KPI: suma w lejku, wartość ważona i wygrane w miesiącu jako jedna linia faktów.
 
 ## 2026-11-20 (poczta i SMS — decyzje właściciela)
-- **Poczta w Skrzynce przez bezpośrednie połączenie z Microsoft 365 i Google Workspace** (OAuth, logowanie u dostawcy — hasło nigdy nie trafia do Avero). Dostęp tylko do wskazanych skrzynek firmowych (serwis@, biuro@), nie do skrzynek pracowników. Microsoft 365: Microsoft Graph, jednorazowa zgoda administratora. Google: aplikacja wewnętrzna domeny.
+- *(Google Workspace zmienione 20 lis — patrz „Poczta Google bez bezpośredniego połączenia”.)* **Poczta w Skrzynce przez bezpośrednie połączenie z Microsoft 365 i Google Workspace** (OAuth, logowanie u dostawcy — hasło nigdy nie trafia do Avero). Dostęp tylko do wskazanych skrzynek firmowych (serwis@, biuro@), nie do skrzynek pracowników. Microsoft 365: Microsoft Graph, jednorazowa zgoda administratora. Google: aplikacja wewnętrzna domeny.
 - **Uwaga na przyszłość (Google)**: zakresy Gmail do odczytu poczty są „restricted”. Dla aplikacji używanej tylko we własnej domenie nie ma audytu; jeśli Avero będzie sprzedawane innym firmom, wymagana weryfikacja Google i coroczny audyt bezpieczeństwa (CASA). Microsoft 365 nie ma takiego wymogu.
 - **SMS przygotowany teraz, dostawca po umowie**: kanał w Skrzynce, szablony, nadawca „Kranz HVACR” i miejsca użycia (akceptacja oferty, prośba o termin przeglądu, przypomnienie przed montażem) gotowe; w Integracjach stan „Czeka na dostawcę”. Do czasu podłączenia SMS-y nie wychodzą — kod ma być niezależny od dostawcy (adapter), klucz w zmiennej środowiskowej serwera.
 - Wysyłka automatyczna (powiadomienia przez Resend) zostaje osobno od skrzynek odbiorczych.

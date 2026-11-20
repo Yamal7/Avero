@@ -37,6 +37,6 @@ Makiety: ekrany `zgłoszenia` i `skrzynka` w `Main.dc.html` (plansze jasne i cie
 - Lista zgłoszeń bez wyników filtra: „Brak zgłoszeń dla tych filtrów” + „Wyczyść filtry”.
 
 ## Kanały (decyzja 20 lis)
-- E-mail: połączenie z **Microsoft 365** (Microsoft Graph, zgoda administratora) i **Google Workspace** (aplikacja wewnętrzna domeny), tylko skrzynki firmowe serwis@ i biuro@. Konfiguracja w Ustawienia → Integracje. Bez połączenia Skrzynka pokazuje portal i formularz.
+- E-mail: połączenie z **Microsoft 365** (Microsoft Graph, zgoda administratora) oraz Gmail i inne skrzynki przez **przekierowanie** na adres Avero i wysyłkę z domeny firmy (SPF, DKIM) — tylko skrzynki firmowe serwis@ i biuro@. Konfiguracja w Ustawienia → Integracje. Bez połączenia Skrzynka pokazuje portal i formularz.
 - SMS: kanał przygotowany (wątki, szablony, nadawca), dostawca podłączany po podpisaniu umowy; do tego czasu w filtrze kanałów SMS widoczny jako „po podłączeniu dostawcy”.
 - Szczegóły i ograniczenia (audyt Google przy sprzedaży innym firmom): `DECISIONS.md`.
