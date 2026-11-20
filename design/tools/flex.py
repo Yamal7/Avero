@@ -103,7 +103,7 @@ a('</aside></div></sc-if>')
 
 # =================== USTAWIENIA TABELI — wspólny nagłówek
 def thead(cur):
-    t=[('Pola','16'),('Widoki','3'),('Panel boczny','6'),('Akcje','1'),('Uprawnienia','')]
+    t=[('Pola','16'),('Widoki','3'),('Panel boczny','6'),('Akcje','3'),('Uprawnienia','')]
     return ('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 20px;min-width:0">'+ic(GAVEL,16,'var(--text-secondary)')+
             '<a href="#" class="flink" style="color:var(--text-secondary)">Przetargi</a>'+ic(CHEV,14,'var(--text-tertiary)')+'<h1 style="margin:0;font-size:13px;line-height:20px;font-weight:500">Ustawienia tabeli</h1><span style="width:8px"></span>'+tabs(t,cur)+SP+
             '<span style="font-size:12px;color:var(--text-tertiary)">Zmiany widzą wszyscy z dostępem do tabeli</span></div>')

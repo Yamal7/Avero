@@ -15,6 +15,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Panel boczny z sekcji** (wzór HubSpot / Attio / Salesforce): nagłówek i historia — systemowe; sekcje: pola, karta powiązanego rekordu, lista powiązanych, przycisk akcji, podsumowanie. Kolejność przeciąganiem, ukrywanie, **warunki widoczności** (np. „Nasza oferta” tylko od etapu Przygotowanie oferty), **układy per zespół**. Edytor z podglądem na prawdziwym rekordzie.
 - **Akcje do rdzenia**: np. „Utwórz szansę z przetargu” z mapowaniem pól (nazwa, zamawiający → klient, nasza cena → wartość, termin → decyzja) i warunkiem pokazania.
 - **Kolory opcji** wyłącznie z palety serii (tokens.css) + szarości i kolory statusów dla etapów końcowych; zawsze kropka + tekst.
+- **Etap 2 (20 lis)**: kreator nowej tabeli z szablonami i ostrzeżeniem, gdy szablon dubluje rdzeń lub pakiet; akcje (przyciski i automaty) z mapowaniem pól — działają z uprawnieniami klikającego, nie usuwają danych i nie piszą do klientów bez potwierdzenia; uprawnienia: role × operacje, technicy „tylko swoje”, wyjątki per pole (ukryte / odczyt) także dla eksportu i API, egzekwowane po stronie serwera. Ustawienia tabeli — tylko administrator.
 - Dla kodu: definicje tabel, pól, widoków i układów panelu w rejestrze per organizacja; wartości w jednej tabeli rekordów z walidacją według definicji; te same RLS i uprawnienia co rdzeń (Uprawnienia: kto widzi / edytuje tabelę i pola). Zakładki „Widoki”, „Akcje”, „Uprawnienia” — do zaprojektowania.
 
 ## 2026-11-20 (Kierunek produktu — decyzja właściciela)

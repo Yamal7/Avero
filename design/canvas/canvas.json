@@ -746,6 +746,54 @@
       "title": "Ustawienia tabeli · Panel boczny · ciemny",
       "x": 1520,
       "y": 39580
+    },
+    "Tabela-akcje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Akcje (Utwórz szansę)",
+      "x": 3040,
+      "y": 39580
+    },
+    "Tabela-akcje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Akcje · ciemny",
+      "x": 4560,
+      "y": 39580
+    },
+    "Tabela-uprawnienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Uprawnienia",
+      "x": 0,
+      "y": 41060
+    },
+    "Tabela-uprawnienia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Uprawnienia · ciemny",
+      "x": 1520,
+      "y": 41060
+    },
+    "Tabela-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Nowa tabela · szablon Reklamacje do producentów",
+      "x": 3040,
+      "y": 41060
+    },
+    "Tabela-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Nowa tabela · ciemny",
+      "x": 4560,
+      "y": 41060
     }
   },
   "createdOnFiles": {
@@ -978,7 +1026,13 @@
     "Tabela-pola.dc.html",
     "Tabela-pola-ciemny.dc.html",
     "Tabela-panel.dc.html",
-    "Tabela-panel-ciemny.dc.html"
+    "Tabela-panel-ciemny.dc.html",
+    "Tabela-akcje.dc.html",
+    "Tabela-akcje-ciemny.dc.html",
+    "Tabela-uprawnienia.dc.html",
+    "Tabela-uprawnienia-ciemny.dc.html",
+    "Tabela-nowa.dc.html",
+    "Tabela-nowa-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",

@@ -30,5 +30,26 @@ Makiety: ekrany `przetargi`, `tabela pola`, `tabela panel` w `Main.dc.html` (jas
 - Podgląd na żywo po prawej, na prawdziwym rekordzie; zaznaczona sekcja obrysowana akcentem; sekcje z niespełnionym warunkiem ukryte jak u użytkownika.
 - „Przywróć domyślny” i „Zapisz układ” (akcent, ⌘S).
 
+## Nowa tabela (ekran `tabela nowa`)
+- Okruszki Własne tabele › Nowa tabela; „Pola, widoki i panel zmienisz później”; Esc anuluje.
+- „Zacznij od”: karty szablonów (Pusta, Reklamacje do producentów, Przetargi, Rejestr floty, Szkolenia i uprawnienia, Rekrutacja) z liczbą pól. Zaznaczona karta obrysowana akcentem.
+- **Ochrona przed dublowaniem rdzenia**: szablon, który pokrywa się z modułem rdzenia lub pakietu, ma ostrzeżenie (np. Rejestr floty → „jest w Ustawieniach”, bo busy są w Technicy i busy; Szkolenia → „częściowo w rdzeniu”, certyfikaty F-gaz i SEP). Istniejąca tabela — „już masz”.
+- Tabela: nazwa, nazwa rekordu (do przycisku „Nowa …”), prefiks numeru, ikona (zestaw Phosphor), dostęp na start (administrator, biuro; technicy wyłączeni).
+- Panel: pola szablonu z typami, etapy statusu, „W zestawie” (akcje, przypomnienia). Szablon „Reklamacje do producentów” powiązany z Urządzeniami, Zgłoszeniami i Katalogiem.
+- „Utwórz tabelę” (akcent, ⌘↵) dodaje tabelę do paska bocznego.
+
+## Akcje (ekran `tabela akcje`)
+- Lista akcji z przełącznikiem włączenia: przycisk w panelu albo automat (zmiana pola, termin daty). Przykłady: Utwórz szansę z przetargu; Przypomnij o terminie (3 i 1 dzień przed, e-mail i w aplikacji); Wygrany → zadanie „Przygotuj umowę”.
+- Edytor akcji: „Kiedy” jako zdanie z kapsułek (pole, wartość, warunki), „Co przenieść” — mapowanie pól (źródło → cel, wymagane w celu, sposób: skopiuj, to samo powiązanie, data + N dni, stała wartość), „Potem” (powiązanie obu rekordów, historia, otwórz cel).
+- Zasady bezpieczeństwa (notatka): akcja działa z uprawnieniami klikającego; akcje nie usuwają danych ani nie wysyłają wiadomości do klientów bez potwierdzenia.
+- „Wypróbuj na PR-013” (podgląd bez zapisu), „Zapisz akcję” (akcent, ⌘S).
+
+## Uprawnienia (ekran `tabela uprawnienia`)
+- Macierz ról × Widzi / Dodaje / Edytuje / Archiwizuje / Ustawienia. Administrator zablokowany (pełne prawa); technicy „swoje” — tylko rekordy, w których są opiekunem; klient (portal) zawsze bez dostępu.
+- Wyjątki dla pól per rola: ukryte / tylko odczyt / edytuje, oraz eksport i API (np. „Nasza cena” — ukryta dla techników, w eksporcie tylko administrator).
+- Notatka: uprawnienia sprawdza serwer — ukryte pole nie trafia do przeglądarki, eksportu, aplikacji technika, API ani akcji.
+- „Podgląd jako technik”, „Zapisz uprawnienia” (akcent).
+- Ekrany ustawień tabeli są tylko dla administratora (rama pokazuje Pascala).
+
 ## Do zaprojektowania później
-Kreator nowej tabeli (nazwa, ikona, szablony startowe: Przetargi, Rejestr floty, Rekrutacja), zakładki Widoki, Akcje (mapowanie pól, warunki) i Uprawnienia, import CSV do własnej tabeli, raport z własnej tabeli.
+Zakładka Widoki (kolumny, sortowanie, grupowanie, widok kalendarza), import CSV do własnej tabeli, raport z własnej tabeli, dokładanie sekcji własnych pól do modułów rdzenia (np. pola firmy w panelu Zgłoszenia).
