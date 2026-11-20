@@ -2,6 +2,14 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Ustawienia)
+- **Ustawienia jako druga kolumna nawigacji** w panelu głównym (panel boczny aplikacji zostaje). Sekcje: Firma, Zespół, Połączenia, Moje konto.
+- **Projekt Ustawień opiera się na istniejącym backendzie** (profil firmy z wersją i logo, role Administrator/Biuro/Technik/Klient, zaproszenia 7 dni, blokada przez RLS, audyt, poczta przez zmienne środowiskowe).
+- **Sekrety nigdy w przeglądarce**: integracje pokazują stan, nazwę zmiennej środowiskowej i test połączenia — bez pól na klucze.
+- **Numer konta zamaskowany** w profilu firmy; odsłonięcie ikoną kłódki.
+- **Kolor osoby ustawia administrator** w panelu użytkownika (paleta 7 kolorów), a nie stała w kodzie.
+- Ryzykowne przełączenia (np. P24 na produkcję) jako zwykły przycisk, nie akcent.
+
 ## 2026-11-20
 - **Repozytorium `Yamal7/avero` jest wspólnym źródłem wiedzy** dla czatu projektowego i Claude Code. Projekt pisze w `docs/design/`, kod raportuje w `docs/STATUS.md`.
 

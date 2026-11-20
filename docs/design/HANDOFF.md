@@ -45,7 +45,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Faktura końcowa | `screens/10-faktura.md` | Faktura końcowa FV/2026/12/003; Klient · po montażu |
 | Przeglądy i umowy serwisowe | `screens/11-przeglady-umowy.md` | Przeglądy, Umowa serwisowa UM-2026-031, Klient · wybór terminu |
 | Raporty | `screens/12-raporty.md` | Raporty · przegląd miesiąca |
-| Ustawienia | — | **następny do zaprojektowania** |
+| Ustawienia (profil firmy, użytkownicy i role, integracje) | `screens/13-ustawienia.md` | Ustawienia · profil firmy / użytkownicy i role / integracje |
 
 Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 
