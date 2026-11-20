@@ -9,7 +9,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Historia kosztu** z dokumentem źródłowym (PZ, cennik) — zgodnie z PRODUCT_PLAN etap 5.
 - **Oferty zachowują kopię cen z dnia wyceny** (już w backendzie); zmiana w katalogu wpływa na nowe wyceny i szablony instalacji.
 - **Import cennika dostawcy z podglądem zmian** (**nowe**): dopasowanie po kodzie producenta; zakładki Podwyżki / Obniżki / Nowe / Do sprawdzenia / Bez zmian; zasada cen „marża poniżej 22 % → podnieś do 25 %, zaokrąglij do 10 zł” z wyborem per wiersz (Zachowaj / Podnieś); zatwierdzenie z datą ważności cennika (zaplanowane na 1 sty 2027). Każda zmiana w historii z plikiem i osobą.
-- Do decyzji właściciela: czy pozycja katalogu i indeks magazynowy to jeden rekord (dziś w backendzie są osobno: `catalog_items` i pozycje magazynu).
+- **Decyzja właściciela: pozycja katalogu i indeks magazynowy to jeden rekord.** Dziś w backendzie są osobno (`catalog_items` i pozycje magazynu) — do połączenia migracją: jeden kod, nazwa, jednostka, koszt i cena; pola magazynowe (czy prowadzimy stan, minimum magazynu i busów, lokalizacja, numer seryjny wymagany, czynnik świeży / regenerowany) na tym samym rekordzie. Usługi i dojazd nie mają stanu. Przyjęcie (PZ) aktualizuje historię kosztu tej samej pozycji; koszt katalogowy zmienia się dopiero po decyzji („Tylko koszt” / „Koszt i cena”). Kod pozycji musi pozostać unikalny także w archiwum.
 
 ## 2026-11-20 (Zakupy)
 - **Numeracja zamówień do dostawców: `ZK/RRRR/MM/NNN`** (jak PZ/RW/MM/WZ). Dotychczasowe `ZD-2026-131` i `ZD-2026-128` zmienione na `ZK/2026/11/031` i `ZK/2026/11/028`, bo `ZD-…` to zadania.

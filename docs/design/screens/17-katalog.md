@@ -6,7 +6,7 @@ Makiety: ekrany `katalog` i `import cennika` w `Main.dc.html` (jasne i ciemne). 
 - Nagłówek: kategorie w kapsułkach z licznikami (Wszystkie, Urządzenia, Materiały, Usługi, Dojazd); „Importuj cennik”; opcje widoku; „Nowa pozycja” (C).
 - Wyszukiwarka (/) po kodzie, nazwie, producencie, modelu; filtr producenta; status Aktywne / Archiwum.
 - Fakty: próg marży z Ustawień, liczba pozycji z nieaktualnym kosztem (ostrzeżenie).
-- Kolumny: pozycja (ikona rodzaju instalacji, nazwa, kod mono, kapsułka „koszt +X %”), producent (dostawca w podpowiedzi), jednostka, koszt netto, cena netto, marża (poniżej progu: ikona + kolor ostrzeżenia), stan (gdy jest indeks magazynowy), użycie (szablony, oferty, szanse — w podpowiedzi które).
+- Kolumny: pozycja (ikona rodzaju instalacji, nazwa, kod mono, kapsułka „koszt +X %”), producent (dostawca w podpowiedzi), jednostka, koszt netto, cena netto, marża (poniżej progu: ikona + kolor ostrzeżenia), stan (kreska, gdy pozycja nie jest prowadzona na stanie), użycie (szablony, oferty, szanse — w podpowiedzi które).
 - Stopka: liczba i strona (25 na stronę), przypomnienie o VAT.
 - Klient i technik nie widzą katalogu ani kosztów.
 
@@ -15,7 +15,8 @@ Makiety: ekrany `katalog` i `import cennika` w `Main.dc.html` (jasne i ciemne). 
 - Gdy koszt wzrósł: notatka z dokumentem źródłowym, nowa marża, propozycje „Tylko koszt” / „Koszt i cena X zł” (akcent, ⌘↵).
 - Cena: koszt, cena, brutto, marża (kwota w podpowiedzi).
 - Historia kosztu: data, źródło (PZ, cennik), kwota.
-- Powiązania: indeks magazynowy, szablony instalacji, informacja, że oferty mają własne kopie cen.
+- Powiązania: stan w magazynie (ta sama pozycja — katalog i magazyn to jeden rekord), szablony instalacji, informacja, że oferty mają własne kopie cen.
+- Formularz pozycji ma sekcję „Magazyn”: prowadź stan (tak / nie), minimum magazynu i busów, lokalizacja, numer seryjny wymagany, dla czynników: świeży / regenerowany.
 
 ## Import cennika (pełny ekran)
 - Okruszki Katalog › Import cennika; „Nic nie zmieni się przed zatwierdzeniem”; Esc anuluje.
