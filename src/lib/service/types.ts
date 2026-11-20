@@ -1,0 +1,24 @@
+import { z } from 'zod';
+import { newTicketSchema,prioritySchema,ticketStatusSchema } from '@hvac/api-client';
+export { newTicketSchema,prioritySchema,ticketStatusSchema };
+export const ticketLabels = { new: 'Nowe', in_progress: 'W obsłudze', waiting: 'Oczekuje', closed: 'Zamknięte' };
+export const priorityLabels = { low: 'Niski', normal: 'Normalny', high: 'Pilny' };
+export const visitLabels = { planned: 'Zaplanowana', en_route: 'W drodze', in_progress: 'W trakcie', completed: 'Zakończona', cancelled: 'Odwołana' };
+export const scheduleSchema = z.object({ ticketId: z.string().uuid(), visitId: z.string().uuid().nullable(), localStart: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/).refine(value => z.string().date().safeParse(value.slice(0,10)).success && Number(value.slice(11,13)) < 24 && Number(value.slice(14,16)) < 60), duration: z.number().int().min(15).max(480), notes: z.string().trim().max(4000) });
+export const protocolFieldsSchema = z.object({ diagnosis: z.string().trim().max(10000), work_performed: z.string().trim().max(10000), materials: z.string().trim().max(10000), measurements: z.string().trim().max(10000), recommendations: z.string().trim().max(10000) }).strict();
+export const protocolSchema = z.object({ visitId: z.string().uuid(), version: z.number().int().min(0), publish: z.boolean(), fields: protocolFieldsSchema }).superRefine((input, context) => {
+  if (input.publish && (!input.fields.diagnosis || !input.fields.work_performed)) context.addIssue({ code: 'custom', message: 'Przed zatwierdzeniem uzupełnij diagnozę i wykonane prace.' });
+});
+export type TicketStatus = z.infer<typeof ticketStatusSchema>;
+export type Priority = z.infer<typeof prioritySchema>;
+export type VisitStatus = keyof typeof visitLabels;
+export type ProtocolFields = z.infer<typeof protocolFieldsSchema>;
+export type ServiceResult = { error?: string; success?: string; id?: string };
+export type InstallationOption = { id: string; label: string };
+export type Technician = { id: string; email: string };
+export type Protocol = ProtocolFields & { id: string; protocol_number: number; status: 'draft' | 'published'; version: number; published_at: string | null; snapshot: ProtocolSnapshot | null };
+export type ProtocolSnapshot = { customer_name: string; address: string; city: string; postal_code: string | null; installation_type: string; ticket_number: number; subject: string; scheduled_at: string; completed_at: string; performer: string | null; devices: { manufacturer: string; model: string | null; serial_number: string | null }[] };
+export type Visit = { id: string; scheduled_at: string | null; completed_at: string | null; duration_minutes: number; status: VisitStatus; notes: string | null; service_protocols: Protocol | null };
+export type Ticket = { id: string; ticket_number: number; subject: string; description: string; status: TicketStatus; priority: Priority; assigned_to: string | null; created_at: string; customer_id: string; customers: { name: string }; installations: { id: string; type: string; locations: { address: string; city: string; postal_code: string | null } }; service_visits: Visit[] };
+export type TicketRow = Pick<Ticket, 'id' | 'ticket_number' | 'subject' | 'status' | 'priority' | 'created_at' | 'assigned_to'> & { customer_name: string; address: string; city: string };
+export type CalendarVisit = { id: string; ticket_id: string; ticket_number: number; subject: string; customer_name: string; address: string; city: string; assigned_to: string | null; scheduled_at: string; duration_minutes: number; status: VisitStatus };

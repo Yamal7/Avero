@@ -1,0 +1,14 @@
+import { z } from 'zod';
+import { offerDocumentSchema } from './offer-document';
+import { catalogUnitSchema } from './catalog';
+const cents=z.number().int().nonnegative();
+export const customerOfferSnapshotSchema=z.object({number:z.string(),title:z.string(),customer:z.object({name:z.string(),email:z.string().nullable(),phone:z.string().nullable(),address:z.string().nullable(),city:z.string().nullable(),postalCode:z.string().nullable()}).strict(),mainVariantId:z.string().uuid(),variants:z.array(z.object({id:z.string().uuid(),name:z.string(),note:z.string(),netCents:cents,vatCents:cents,grossCents:cents,lines:z.array(z.object({name:z.string(),description:z.string(),unit:catalogUnitSchema,quantityMills:z.number().int().positive(),vatBasisPoints:z.number().int().nonnegative(),netCents:cents,vatCents:cents,grossCents:cents}).strict()).min(1).max(30)}).strict()).min(1).max(5)}).strict();
+export const publicationStateSchema=z.enum(['published','superseded','withdrawn','accepted']);
+export const publicationLabels={published:'Udostępniona',superseded:'Zastąpiona nowszą wersją',withdrawn:'Wycofana',accepted:'Zaakceptowana'} as const;
+export const offerPublicationSchema=z.object({id:z.string().uuid(),offerId:z.string().uuid(),revision:z.number().int().positive(),offerVersion:z.number().int().nonnegative(),documentVersion:z.number().int().nonnegative(),snapshot:customerOfferSnapshotSchema,document:offerDocumentSchema,state:publicationStateSchema,publishedAt:z.string(),acceptedAt:z.string().nullable(),selectedVariantId:z.string().uuid().nullable(),expired:z.boolean()}).strict();
+export type OfferPublication=z.infer<typeof offerPublicationSchema>;
+export const staffPublicationsSchema=z.object({total:z.number().int().nonnegative(),items:z.array(offerPublicationSchema).max(20)}).strict();
+export const publishOfferSchema=z.object({requestId:z.string().uuid(),offerVersion:z.number().int().nonnegative(),documentVersion:z.number().int().nonnegative()}).strict();
+export const acceptOfferSchema=z.object({customerId:z.string().uuid(),variantId:z.string().uuid(),confirm:z.literal(true)}).strict();
+export const portalOffersSchema=z.object({total:z.number().int().nonnegative(),items:z.array(z.object({id:z.string().uuid(),offerId:z.string().uuid(),number:z.string(),title:z.string(),revision:z.number().int().positive(),state:publicationStateSchema,publishedAt:z.string(),acceptedAt:z.string().nullable(),selectedVariantId:z.string().uuid().nullable(),validUntil:z.string(),expired:z.boolean(),grossCents:cents}).strict()).max(20)}).strict();
+export const publicationSummariesSchema=z.array(z.object({offerId:z.string().uuid(),state:publicationStateSchema,revision:z.number().int().positive(),selectedVariantId:z.string().uuid().nullable(),selectedVariantName:z.string().nullable(),netCents:cents.nullable(),grossCents:cents.nullable()}).strict()).max(25);

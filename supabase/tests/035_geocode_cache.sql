@@ -1,0 +1,24 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+insert into auth.users(id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+select ('ad000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'00000000-0000-0000-0000-000000000000','authenticated','authenticated','geo-'||n||'@example.invalid','x',now(),now(),now() from generate_series(1,3) n;
+insert into public.staff_users(user_id,role) values('ad000000-0000-4000-8000-000000000001','office'),('ad000000-0000-4000-8000-000000000002','technician');
+select is(public.geocode_key('  ul. Testowa   5 ','Gdynia'),'ul. testowa 5, gdynia','Key is normalised');
+set local role authenticated;
+select set_config('request.jwt.claim.sub','ad000000-0000-4000-8000-000000000001',true);
+select lives_ok($$select public.save_geocode('ul. testowa 5, gdynia',54.5,18.5)$$,'Office stores coordinates');
+select lives_ok($$select public.save_geocode('nieznana 1, nigdzie',null,null)$$,'Office stores a miss');
+select throws_ok($$select public.save_geocode('Wielkie Litery',1,1)$$,'22023',null,'Key must be lower case');
+select throws_ok($$select public.save_geocode('x 1, y',95,1)$$,'22023',null,'Latitude range enforced');
+select set_config('request.jwt.claim.sub','ad000000-0000-4000-8000-000000000002',true);
+select is((public.geocode_lookup(array['ul. testowa 5, gdynia','nieznana 1, nigdzie'])->'ul. testowa 5, gdynia'->>'lat')::numeric,54.5,'Technician reads cached coordinates');
+select ok(not public.geocode_lookup(array['nieznana 1, nigdzie']) ? 'nieznana 1, nigdzie','Misses are not returned');
+select throws_ok($$select public.save_geocode('a 1, b',1,1)$$,'42501',null,'Technician cannot write');
+select throws_ok($$select public.geocode_pending(3)$$,'42501',null,'Technician cannot list pending');
+select set_config('request.jwt.claim.sub','ad000000-0000-4000-8000-000000000003',true);
+select throws_ok($$select public.geocode_lookup(array['ul. testowa 5, gdynia'])$$,'42501',null,'Non-staff cannot read');
+reset role;
+select ok(not has_table_privilege('authenticated','public.geocode_cache','select'),'No direct table access');
+select * from finish();
+rollback;

@@ -1,0 +1,3 @@
+import { catalogRowSchema } from '@hvac/api-client';
+export const catalogColumns='id,code,name,category,unit,cost_cents,sale_cents,vat_basis_points,manufacturer,model,supplier,description,archived,version,created_at,updated_at';
+export function catalogRecord(row:Record<string,unknown>){return catalogRowSchema.parse({id:row.id,code:row.code,name:row.name,category:row.category,unit:row.unit,costCents:row.cost_cents,saleCents:row.sale_cents,vatBasisPoints:row.vat_basis_points,manufacturer:row.manufacturer,model:row.model,supplier:row.supplier,description:row.description,archived:row.archived,version:row.version,createdAt:row.created_at,updatedAt:row.updated_at});}

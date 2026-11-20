@@ -1,0 +1,59 @@
+import { z } from 'zod';
+const text=(n:number)=>z.string().trim().max(n).refine(v=>!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(v)&&v.split('\n').length<=80);
+const title=text(160).refine(v=>v.length>0&&!v.includes('\n'));
+const day=z.string().date().refine(v=>v>='2000-01-01'&&v<='2100-12-31');
+export const crmNoteFieldsSchema=z.object({title,body:text(6000),kind:z.enum(['note','call','meeting']),occurredOn:day,contactId:z.string().uuid().nullable(),archived:z.boolean()}).strict();
+export const crmTaskFieldsSchema=z.object({title,description:text(4000),kind:z.enum(['general','follow_up']),dueOn:day,assigneeId:z.string().uuid(),contactId:z.string().uuid().nullable(),state:z.enum(['todo','in_progress','done','cancelled']),result:text(2000)}).strict();
+const version=z.number().int().nonnegative().nullable();
+export const crmNoteSaveSchema=z.object({id:z.string().uuid(),version,fields:crmNoteFieldsSchema}).strict();
+export const crmTaskSaveSchema=z.object({id:z.string().uuid(),version,fields:crmTaskFieldsSchema}).strict();
+export const crmOwnerSaveSchema=z.object({version,ownerId:z.string().uuid().nullable()}).strict();
+export const crmTaskProgressSchema=z.object({version:z.number().int().nonnegative(),state:z.enum(['todo','in_progress','done']),result:text(2000)}).strict();
+const record={id:z.string().uuid(),customerId:z.string().uuid(),version:z.number().int().nonnegative(),createdAt:z.string(),updatedAt:z.string(),contactLabel:z.string().nullable()};
+export const crmNoteSchema=crmNoteFieldsSchema.extend(record).strict();
+export const crmTaskPriorities=['none','low','normal','high','urgent'] as const;
+export const crmTaskLabels=['purchasing','offers','fgas','documents','customers','warranty','contracts','tools','internal'] as const;
+export const crmTaskSchema=crmTaskFieldsSchema.extend({...record,assigneeLabel:z.string(),completedAt:z.string().nullable(),number:z.number().int().positive(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable(),comments:z.number().int().nonnegative()}).strict();
+export const crmTaskMetaSchema=z.object({version:z.number().int().nonnegative(),priority:z.enum(crmTaskPriorities),label:z.enum(crmTaskLabels).nullable()}).strict();
+export const crmTaskCommentSchema=z.object({id:z.string().uuid(),taskId:z.string().uuid(),authorId:z.string().uuid(),authorLabel:z.string(),body:z.string(),createdAt:z.string()}).strict();
+export const crmTaskCommentsSchema=z.array(crmTaskCommentSchema).max(200);
+export const crmTaskCommentInputSchema=z.object({id:z.string().uuid(),body:text(2000).refine(v=>v.length>0)}).strict();
+export type CrmTaskComment=z.infer<typeof crmTaskCommentSchema>;
+export const crmNotesSchema=z.object({total:z.number().int().nonnegative(),items:z.array(crmNoteSchema)}).strict();
+export const crmTasksSchema=z.object({total:z.number().int().nonnegative(),items:z.array(crmTaskSchema)}).strict();
+const option=z.object({id:z.string().uuid(),label:z.string()}).strict();
+export const crmSummarySchema=z.object({canManage:z.boolean(),viewerId:z.string().uuid(),owner:z.object({version,ownerId:z.string().uuid().nullable(),label:z.string().nullable(),available:z.boolean()}).strict(),owners:z.array(option),assignees:z.array(option),contacts:z.array(option),nextContact:z.object({id:z.string().uuid(),title:z.string(),dueOn:day,assigneeLabel:z.string()}).strict().nullable(),openTasks:z.number().int().nonnegative(),overdueTasks:z.number().int().nonnegative(),notes:z.number().int().nonnegative().nullable()}).strict().refine(v=>v.canManage||(v.owners.length===0&&v.assignees.length===0&&v.contacts.length===0&&v.notes===null));
+export const crmNotesQuerySchema=z.object({page:z.coerce.number().int().min(1).max(100000).default(1),archived:z.enum(['true','false']).default('false')}).strict();
+export const crmTasksQuerySchema=z.object({page:z.coerce.number().int().min(1).max(100000).default(1),filter:z.enum(['open','overdue','closed','all']).default('open')}).strict();
+export type CrmSummary=z.infer<typeof crmSummarySchema>;
+export type CrmNote=z.infer<typeof crmNoteSchema>;
+export type CrmTask=z.infer<typeof crmTaskSchema>;
+
+export const myTaskFilters=['today','overdue','upcoming','open','closed'] as const;
+export const myTasksQuerySchema=z.object({filter:z.enum(myTaskFilters).default('today'),search:z.string().trim().max(160).refine(v=>!/[\u0000-\u001f\u007f]/.test(v)).default(''),page:z.coerce.number().int().min(1).max(100000).default(1)}).strict();
+export const myTaskSchema=crmTaskSchema.extend({customerName:z.string(),customerPage:z.number().int().positive()}).strict();
+const count=z.number().int().nonnegative();
+export const myTasksSchema=z.object({viewerId:z.string().uuid(),today:day,total:count,counts:z.object({today:count,overdue:count,upcoming:count,open:count,closed:count}).strict(),items:z.array(myTaskSchema).max(20)}).strict().refine(v=>v.items.every(t=>t.assigneeId===v.viewerId)&&v.counts.open===v.counts.today+v.counts.overdue+v.counts.upcoming);
+export type MyTasks=z.infer<typeof myTasksSchema>;
+export type MyTask=z.infer<typeof myTaskSchema>;
+export type MyTasksQuery=z.infer<typeof myTasksQuerySchema>;
+
+export const taskAlertItemSchema=z.object({id:z.string().uuid(),customerId:z.string().uuid(),customerName:z.string(),customerPage:z.number().int().positive(),title,dueOn:day,state:z.enum(['todo','in_progress']),number:z.number().int().positive()}).strict();
+export const taskAlertsSchema=z.object({viewerId:z.string().uuid(),today:day,counts:z.object({today:count,overdue:count}).strict(),items:z.array(taskAlertItemSchema).max(5)}).strict().refine(v=>{const total=v.counts.today+v.counts.overdue;return v.items.length===Math.min(5,total)&&v.items.filter(item=>item.dueOn<v.today).length===Math.min(5,v.counts.overdue)&&v.items.every((item,i)=>item.dueOn<=v.today&&(i===0||v.items[i-1].dueOn<=item.dueOn));});
+export type TaskAlerts=z.infer<typeof taskAlertsSchema>;
+
+export const teamTasksQuerySchema=z.object({date:z.enum(['all','today','overdue','upcoming']).default('all'),state:z.enum(['open','todo','in_progress','done','cancelled','all']).default('open'),assignee:z.union([z.literal('all'),z.string().uuid()]).default('all'),search:myTasksQuerySchema.shape.search,page:myTasksQuerySchema.shape.page}).strict();
+export const teamTaskSchema=myTaskSchema.extend({assigneeAvailable:z.boolean()}).strict();
+export const teamTasksSchema=z.object({viewerId:z.string().uuid(),canManage:z.literal(true),today:day,total:count,counts:z.object({today:count,overdue:count,upcoming:count,open:count,closed:count}).strict(),items:z.array(teamTaskSchema).max(20),assignees:z.array(option.extend({available:z.boolean()}).strict())}).strict().refine(v=>v.counts.open===v.counts.today+v.counts.overdue+v.counts.upcoming&&v.items.every(t=>v.assignees.some(a=>a.id===t.assigneeId)));
+export type TeamTasks=z.infer<typeof teamTasksSchema>;
+export type TeamTasksQuery=z.infer<typeof teamTasksQuerySchema>;
+
+export const taskPlanChangeSchema=z.object({version:z.number().int().nonnegative(),assigneeId:z.string().uuid(),dueOn:day}).strict();
+export const taskPlanContextSchema=z.object({task:crmTaskSchema.refine(t=>t.state==='todo'||t.state==='in_progress'),assignees:z.array(option)}).strict();
+export type TaskPlanContext=z.infer<typeof taskPlanContextSchema>;
+
+export const customerCategorySchema=z.string().trim().min(1).max(40).refine(v=>!/[\u0000-\u001f\u007f]/.test(v));
+export const customerCategoriesInputSchema=z.object({categories:z.array(customerCategorySchema).max(8)}).strict();
+export const customerDirectoryItemSchema=z.object({id:z.string().uuid(),name:z.string(),type:z.enum(['company','individual']),email:z.string().nullable(),phone:z.string().nullable(),categories:z.array(z.string()),city:z.string().nullable(),devices:count,lastContact:z.string().nullable(),ownerId:z.string().uuid().nullable(),ownerLabel:z.string().nullable(),revenueCents:z.number().int().nonnegative().nullable()}).strict();
+export const customerDirectorySchema=z.object({total:count,counts:z.object({company:count,individual:count}).strict(),items:z.array(customerDirectoryItemSchema).max(25)}).strict();
+export type CustomerDirectory=z.infer<typeof customerDirectorySchema>;

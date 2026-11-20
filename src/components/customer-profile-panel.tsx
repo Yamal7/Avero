@@ -1,0 +1,4 @@
+'use client';
+import { useState } from 'react';
+import { Icon } from './icon';
+export function CustomerProfilePanel({children,email,phone}:{children:React.ReactNode;email:string|null;phone:string|null}){const [expanded,setExpanded]=useState(false);return <aside className="crm-profile-panel"><button type="button" className="crm-profile-toggle secondary" aria-expanded={expanded} aria-controls="crm-profile-body" onClick={()=>setExpanded(v=>!v)}><span>Profil i powiązania</span><Icon name="chevron" size={17} style={{transform:expanded?'rotate(90deg)':'none'}}/></button><div className="crm-mobile-contact">{email&&<a href={`mailto:${email}`}>{email}</a>}{phone&&<a href={`tel:${phone}`}>{phone}</a>}</div><div id="crm-profile-body" className="crm-profile-body" data-expanded={expanded}>{children}</div></aside>;}

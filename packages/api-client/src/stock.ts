@@ -1,0 +1,22 @@
+import { z } from 'zod';
+/* Magazyn: stock items, levels per location (main warehouse, technician vans), reservations and documents PZ/RW/MM. */
+const qty=z.coerce.number();
+export const stockCategories={refrigerant:'Czynniki chłodnicze',parts:'Części zamienne',materials:'Materiały instalacyjne',other:'Inne'} as const;
+export const stockUnits=['kg','szt.','m','l','kpl'] as const;
+export const stockLocationSchema=z.object({id:z.string().uuid(),kind:z.enum(['warehouse','vehicle']),name:z.string(),technicianId:z.string().uuid().nullable(),technicianLabel:z.string().nullable(),plate:z.string()}).strict();
+export const stockItemSchema=z.object({id:z.string().uuid(),code:z.string(),name:z.string(),category:z.enum(['refrigerant','parts','materials','other']),unit:z.enum(stockUnits),minQuantity:qty,bin:z.string(),refrigerantClass:z.string(),gwp:z.number().int().nullable(),container:z.string(),levels:z.record(z.string().uuid(),qty),reserved:qty,reservations:z.array(z.object({id:z.string().uuid(),ticketId:z.string().uuid(),ticketNumber:z.number().int(),quantity:qty}).strict()),lastMove:z.object({at:z.string(),delta:qty}).strict().nullable()}).strict();
+export const stockOverviewSchema=z.object({canManage:z.boolean(),viewerId:z.string().uuid(),locations:z.array(stockLocationSchema),items:z.array(stockItemSchema)}).strict();
+export const stockMoveSchema=z.object({id:z.string().uuid(),documentId:z.string().uuid(),number:z.string(),kind:z.enum(['PZ','RW','MM']),delta:qty,locationId:z.string().uuid(),ticketId:z.string().uuid().nullable(),ticketNumber:z.number().int().nullable(),supplier:z.string(),authorId:z.string().uuid(),authorLabel:z.string().nullable(),at:z.string()}).strict();
+export const stockMovesSchema=z.array(stockMoveSchema);
+const text=(n:number)=>z.string().trim().max(n).refine(v=>!/[\u0000-\u001f\u007f]/.test(v));
+const amount=z.number().positive().max(100000).refine(v=>Math.round(v*1000)===v*1000,'Najwyżej 3 miejsca po przecinku.');
+export const stockItemInputSchema=z.object({id:z.string().uuid(),code:z.string().trim().toUpperCase().regex(/^[A-Z0-9][A-Z0-9-]{0,31}$/,'Indeks: litery, cyfry i myślnik.'),name:text(160).refine(v=>v.length>0,'Podaj nazwę.'),category:z.enum(['refrigerant','parts','materials','other']),unit:z.enum(stockUnits),minQuantity:z.number().min(0).max(100000),bin:text(20),refrigerantClass:text(20),gwp:z.number().int().min(0).max(30000).nullable(),container:text(40)}).strict();
+export const stockVehicleInputSchema=z.object({id:z.string().uuid(),technicianId:z.string().uuid(),name:text(80).refine(v=>v.length>0),plate:text(20)}).strict();
+export const stockLineInputSchema=z.object({itemId:z.string().uuid(),quantity:amount.optional(),massBefore:z.number().min(0).max(1000).optional(),massAfter:z.number().min(0).max(1000).optional(),operation:z.enum(['','fill','topup','other']).optional(),deviceId:z.string().uuid().optional()}).strict().refine(l=>l.quantity!==undefined||(l.massBefore!==undefined&&l.massAfter!==undefined&&l.massBefore>l.massAfter),'Podaj ilość albo masę przed i po.');
+export const stockDocumentInputSchema=z.object({id:z.string().uuid(),kind:z.enum(['PZ','RW','MM']),from:z.string().uuid().nullable(),to:z.string().uuid().nullable(),ticketId:z.string().uuid().nullable(),supplier:text(120),note:text(500),lines:z.array(stockLineInputSchema).min(1).max(40)}).strict();
+export const stockDocumentResultSchema=z.object({id:z.string().uuid(),number:z.string()}).strict();
+export const stockReservationInputSchema=z.object({id:z.string().uuid(),itemId:z.string().uuid(),ticketId:z.string().uuid(),quantity:amount}).strict();
+export type StockOverview=z.infer<typeof stockOverviewSchema>;
+export type StockItem=z.infer<typeof stockItemSchema>;
+export type StockLocation=z.infer<typeof stockLocationSchema>;
+export type StockMove=z.infer<typeof stockMoveSchema>;

@@ -1,0 +1,2 @@
+import { task,viewer } from './crm-work-fixture';
+export const taskAlertsFixture=()=>({viewerId:viewer,today:'2026-10-28',counts:{today:1,overdue:1},items:[{id:task.id,customerId:task.customerId,customerName:'Firma Alfa',customerPage:2,title:'Uzgodnić termin',dueOn:'2026-10-27',state:'todo' as const,number:101},{id:'d2000000-0000-4000-8000-000000000002',customerId:task.customerId,customerName:'Firma Alfa',customerPage:2,title:'Omówić ofertę',dueOn:'2026-10-28',state:'in_progress' as const,number:102}]});

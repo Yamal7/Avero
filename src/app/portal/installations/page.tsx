@@ -1,0 +1,14 @@
+import Link from 'next/link';
+import { requirePortalContext } from '@/lib/portal/context';
+import { portalHref } from '@/lib/portal/routes';
+import type { PortalInstallation } from '@/lib/portal/types';
+import { PortalContextPicker,PortalEmpty,PortalHeading,PortalNoScope,PortalPager } from '@/components/portal-ui';
+import { Icon } from '@/components/icon';
+export default async function PortalInstallations({searchParams}:{searchParams:Promise<{customer?:string;customerSearch?:string;q?:string;page?:string}>}) {
+ const params=await searchParams,{db,scope,choices}=await requirePortalContext(params.customer,params.customerSearch);const picker=<PortalContextPicker scope={scope} choices={choices} search={params.customerSearch} />;
+ if(!scope.customer)return <>{picker}<PortalNoScope preview={scope.preview} /></>;
+ const id=scope.customer.id,q=(params.q||'').trim().slice(0,200),page=Math.min(100000,Math.max(1,Number.parseInt(params.page||'1')||1));
+ const {data,error}=await db.rpc('portal_installations',{p_customer:id,p_search:q,p_page:page});if(error)throw new Error('Nie udało się pobrać instalacji.');const installations=data.installations as PortalInstallation[];
+ const statuses:Record<string,string>={active:'Aktywna',inactive:'Nieaktywna',archived:'Archiwalna'};
+ return <>{picker}<PortalHeading eyebrow="Twoje urządzenia" title="Moje instalacje"><p>Adresy, urządzenia, gwarancje i historia obsługi.</p></PortalHeading><form action="/portal/installations" className="portal-search"><input type="hidden" name="customer" value={id} /><label className="sr-only" htmlFor="installation-search">Szukaj instalacji</label><input id="installation-search" name="q" defaultValue={q} maxLength={200} placeholder="Adres, typ, model lub numer seryjny" /><button className="secondary">Szukaj</button></form>{installations.length?<div className="portal-grid">{installations.map(installation=><Link className="portal-card portal-record" key={installation.id} href={portalHref(`/portal/installations/${installation.id}`,id)}><div className="portal-record-top"><span className="portal-record-icon"><Icon name="device" /></span><span className="badge">{statuses[installation.status]}</span></div><h2>{installation.type}</h2><p>{installation.address}<br />{installation.postal_code} {installation.city}</p><div className="portal-installation-facts"><span>Urządzenia: <strong>{installation.device_count}</strong></span><span>Przegląd: <strong>{installation.next_due_on||'Nie ustalono'}</strong></span></div><div className="portal-record-footer"><span>Szczegóły i historia</span><Icon name="chevron" size={18} /></div></Link>)}</div>:<PortalEmpty icon="device" title="Brak instalacji w tym widoku"><p>Zmień wyszukiwanie lub poproś firmę o uzupełnienie danych Twojej instalacji.</p></PortalEmpty>}<PortalPager page={page} total={data.total} href={value=>portalHref('/portal/installations',id,{q,page:String(value)})} /></>;
+}

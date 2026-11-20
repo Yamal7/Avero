@@ -1,0 +1,12 @@
+import Link from 'next/link';
+import { requirePortalContext } from '@/lib/portal/context';
+import { portalHref } from '@/lib/portal/routes';
+import type { PortalTicket } from '@/lib/portal/types';
+import { PortalContextPicker,PortalEmpty,PortalHeading,PortalNoScope,PortalPager,PortalTicketCard } from '@/components/portal-ui';
+export default async function PortalServicePage({searchParams}:{searchParams:Promise<{customer?:string;customerSearch?:string;status?:string;page?:string}>}) {
+ const params=await searchParams,{db,scope,choices}=await requirePortalContext(params.customer,params.customerSearch);const picker=<PortalContextPicker scope={scope} choices={choices} search={params.customerSearch} />;
+ if(!scope.customer)return <>{picker}<PortalNoScope preview={scope.preview} /></>;
+ const id=scope.customer.id,status=['open','closed','all'].includes(params.status||'')?params.status!:'open',page=Math.min(100000,Math.max(1,Number.parseInt(params.page||'1')||1));
+ const {data,error}=await db.rpc('portal_tickets',{p_customer:id,p_status:status,p_page:page});if(error)throw new Error('Nie udało się pobrać zgłoszeń.');const tickets=data.tickets as PortalTicket[];
+ return <>{picker}<PortalHeading eyebrow="Kontakt z serwisem" title="Moje zgłoszenia"><p>Sprawdź status sprawy i ustalone wizyty.</p></PortalHeading><div className="portal-tabs"><Link aria-current="page" className="active" href={portalHref('/portal/service',id)}>Zgłoszenia</Link><Link href={portalHref('/portal/visits',id)}>Wizyty</Link></div>{!scope.customer.archived_at&&<Link className="button portal-primary-action" href={portalHref('/portal/service/new',id)}>+ Zgłoś problem</Link>}<form action="/portal/service" className="portal-search"><input type="hidden" name="customer" value={id} /><label>Status zgłoszenia<select name="status" defaultValue={status}><option value="open">Otwarte</option><option value="closed">Zakończone</option><option value="all">Wszystkie</option></select></label><button className="secondary">Pokaż</button></form>{tickets.length?<div className="portal-grid">{tickets.map(ticket=><PortalTicketCard key={ticket.id} ticket={ticket} customer={id} />)}</div>:<PortalEmpty icon="file" title="Brak zgłoszeń w tym widoku"><p>Jeżeli Twoja instalacja wymaga pomocy, możesz opisać problem serwisowi.</p></PortalEmpty>}<PortalPager page={page} total={data.total} href={value=>portalHref('/portal/service',id,{status,page:String(value)})} /></>;
+}

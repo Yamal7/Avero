@@ -1,0 +1,5 @@
+import type { CustomerContact,CustomerWorkspace,CustomerActivity } from '@hvac/api-client';
+export const workspaceId='c7000000-0000-4000-8000-000000000001';
+export function contactFixture():CustomerContact{return {id:'df000000-0000-4000-8000-000000000001',customerId:workspaceId,version:0,name:'Jan Przykładowy',role:'Administrator obiektu',email:'kontakt@example.invalid',phone:'',isPrimary:true,archived:false,createdAt:'2026-10-28T10:00:00Z',updatedAt:'2026-10-28T10:00:00Z'};}
+export function workspaceFixture():CustomerWorkspace{return {customer:{id:workspaceId,name:'Firma demonstracyjna',type:'company',email:'biuro@example.invalid',phone:null,createdAt:'2026-10-28T10:00:00Z',archivedAt:null},canManage:true,primaryContact:contactFixture(),counts:{contacts:1,locations:1,installations:1,devices:2,offers:2,work:1,service:1,openCorrections:0}};}
+export function activityFixture():CustomerActivity{return {id:'work:test',at:'2026-10-28T10:00:00Z',kind:'work',title:'Utworzono realizację',detail:'Montaż instalacji',entityId:'9a000000-0000-4000-8000-000000000001',round:null};}

@@ -1,0 +1,6 @@
+import { revalidatePath } from 'next/cache';
+import { serviceJobDeleteSchema,serviceJobSchema,serviceMaterialInputSchema } from '@hvac/api-client';
+import { authenticate,databaseError,endpoint,json,preflight,readBody,uuid } from '@/lib/api/http';
+export function POST(request:Request,{params}:{params:Promise<{id:string}>}){return endpoint(request,async()=>{const {db}=await authenticate(request);const id=uuid.parse((await params).id),m=serviceMaterialInputSchema.parse(await readBody(request)),r=await db.rpc('save_service_material',{p_ticket:id,p_id:m.id,p_name:m.name,p_quantity:m.quantity,p_unit:m.unit,p_document:m.document,p_source:m.source,p_net_cents:m.netCents});databaseError(r.error);revalidatePath(`/dashboard/service/${id}`);return json(request,serviceJobSchema,r.data);});}
+export function DELETE(request:Request,{params}:{params:Promise<{id:string}>}){return endpoint(request,async()=>{const {db}=await authenticate(request);const id=uuid.parse((await params).id),m=serviceJobDeleteSchema.parse(await readBody(request)),r=await db.rpc('delete_service_material',{p_ticket:id,p_id:m.id});databaseError(r.error);revalidatePath(`/dashboard/service/${id}`);return json(request,serviceJobSchema,r.data);});}
+export function OPTIONS(request:Request){return preflight(request,['POST','DELETE']);}
