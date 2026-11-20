@@ -6,7 +6,7 @@ import { getServiceTicket } from '@/lib/service/data';
 import { displayDateTime } from '@/lib/service/dates';
 import { priorityLabels,ticketLabels,visitLabels,type Technician } from '@/lib/service/types';
 import { serviceJobSchema } from '@hvac/api-client';
-import { DI, PersonAvatar, PriorityIcon, ProgressGlyph, personName, ticketCode } from '@/components/design-icons';
+import { DI, PersonAvatar, PriorityIcon, ProgressGlyph, TicketStatusIcon, personName, ticketCode } from '@/components/design-icons';
 import { ServiceJobSections, type JobEvent } from '@/components/service-job';
 import { AssignServiceTechnician,ScheduleVisit,TicketStatusForm,VisitActions } from '@/components/service-forms';
 export default async function TicketPage({params}:{params:Promise<{id:string}>}) {
@@ -33,7 +33,7 @@ export default async function TicketPage({params}:{params:Promise<{id:string}>})
  const dur=(m:number)=>m>=60?`${Math.floor(m/60)} h${m%60?` ${String(m%60).padStart(2,'0')}`:''}`:`${m} min`;
  const ageH=Math.floor((Date.now()-new Date(ticket.created_at).getTime())/3600000);
  const glyph=(st:string)=>st==='completed'?<ProgressGlyph color="var(--success)" done/>:st==='in_progress'?<ProgressGlyph color="var(--st-progress)" fraction={2/3}/>:st==='en_route'?<ProgressGlyph color="var(--st-progress)" fraction={1/3}/>:st==='cancelled'?<ProgressGlyph color="var(--text-tertiary)" dashed/>:<ProgressGlyph color="var(--text-secondary)"/>;
- const ticketGlyph=ticket.status==='closed'?<ProgressGlyph color="var(--accent)" done/>:ticket.status==='in_progress'?<ProgressGlyph color="var(--st-progress)" fraction={2/3}/>:ticket.status==='waiting'?<ProgressGlyph color="var(--warning)" fraction={1/3}/>:<ProgressGlyph color="var(--text-secondary)"/>;
+ const ticketGlyph=<TicketStatusIcon status={ticket.status}/>;
  const protocols=visits.filter(v=>v.service_protocols?.status==='published');
  const techLabel=technician?.email??(ticket.assigned_to?'Technik':null);
  const events:JobEvent[]=[{at:ticket.created_at,who:null,whoId:null,text:'Utworzono zgłoszenie',ref:ticketCode(ticket.ticket_number)},...visits.flatMap(v=>[{at:v.scheduled_at,who:null,whoId:null,text:`Wizyta ${visitLabels[v.status].toLowerCase()} · ${day(v.scheduled_at)} ${hm(v.scheduled_at)}`},...(v.service_protocols?.status==='published'&&v.service_protocols.published_at?[{at:v.service_protocols.published_at,who:null,whoId:null,text:'Zatwierdzono protokół',ref:`PS-${String(v.service_protocols.protocol_number).padStart(6,'0')}`}]:[])])];

@@ -15,7 +15,7 @@ import { Icon } from '@/components/icon';
 import { displayDateTime } from '@/lib/service/dates';
 import { catalogMoney } from '@/lib/catalog/format';
 import { maintenanceListSchema } from '@hvac/api-client';
-import { DI, PersonAvatar, ProgressGlyph, StatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
+import { DI, PersonAvatar, ProgressGlyph, StatusIcon, TicketStatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
 import { CustomerCategories } from '@/components/customer-categories';
 const categories={all:'Wszystkie zdarzenia',customer:'Profil klienta',contact:'Osoby kontaktowe',offer:'Oferty',work:'Realizacje',handover:'Odbiory',correction:'Poprawki',service:'Serwis',maintenance:'Przeglądy',crm_note:'Notatki CRM',crm_task:'Zadania CRM',crm_owner:'Opiekun'};
 const statuses:Record<string,string>={draft:'Robocza',published:'Udostępniona',accepted:'Zaakceptowana',superseded:'Poprzednia wersja',withdrawn:'Wycofana',archived:'Archiwalna',planned:'Zaplanowana',in_progress:'W trakcie',completed:'Zakończona',cancelled:'Anulowana',new:'Nowe',waiting:'Oczekuje',closed:'Zamknięte'};
@@ -58,7 +58,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
  const factStyle={display:'flex',flexDirection:'column' as const,gap:2};
  const dt=(icon:React.ReactNode,label:string)=><dt style={{display:'flex',alignItems:'center',gap:6,fontSize:12,lineHeight:'16px',color:'var(--text-secondary)'}}>{muted(icon)}{label}</dt>;
  const dd=(v:React.ReactNode)=><dd className="num" style={{margin:0,fontSize:18,lineHeight:'26px',fontWeight:600}}>{v}</dd>;
- const ticketGlyph=(st:string)=>st==='in_progress'?<ProgressGlyph color="var(--st-progress)" fraction={2/3}/>:st==='waiting'?<ProgressGlyph color="var(--warning)" fraction={1/3}/>:<ProgressGlyph color="var(--text-secondary)"/>;
+ const ticketGlyph=(st:string)=><TicketStatusIcon status={st}/>;
  const ticketLabel:Record<string,string>={new:'Nowe',in_progress:'W trakcie',waiting:'Oczekuje',closed:'Zamknięte'};
  const short=(d:string)=>new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw',day:'numeric',month:'short'}).format(new Date(d.length===10?d+'T12:00:00Z':d)).replace('.','');
 

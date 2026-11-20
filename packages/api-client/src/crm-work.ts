@@ -3,12 +3,12 @@ const text=(n:number)=>z.string().trim().max(n).refine(v=>!/[\u0000-\u0008\u000b
 const title=text(160).refine(v=>v.length>0&&!v.includes('\n'));
 const day=z.string().date().refine(v=>v>='2000-01-01'&&v<='2100-12-31');
 export const crmNoteFieldsSchema=z.object({title,body:text(6000),kind:z.enum(['note','call','meeting']),occurredOn:day,contactId:z.string().uuid().nullable(),archived:z.boolean()}).strict();
-export const crmTaskFieldsSchema=z.object({title,description:text(4000),kind:z.enum(['general','follow_up']),dueOn:day,assigneeId:z.string().uuid(),contactId:z.string().uuid().nullable(),state:z.enum(['todo','in_progress','done','cancelled']),result:text(2000)}).strict();
+export const crmTaskFieldsSchema=z.object({title,description:text(4000),kind:z.enum(['general','follow_up']),dueOn:day,assigneeId:z.string().uuid(),contactId:z.string().uuid().nullable(),state:z.enum(['backlog','todo','in_progress','review','done','cancelled']),result:text(2000)}).strict();
 const version=z.number().int().nonnegative().nullable();
 export const crmNoteSaveSchema=z.object({id:z.string().uuid(),version,fields:crmNoteFieldsSchema}).strict();
 export const crmTaskSaveSchema=z.object({id:z.string().uuid(),version,fields:crmTaskFieldsSchema}).strict();
 export const crmOwnerSaveSchema=z.object({version,ownerId:z.string().uuid().nullable()}).strict();
-export const crmTaskProgressSchema=z.object({version:z.number().int().nonnegative(),state:z.enum(['todo','in_progress','done']),result:text(2000)}).strict();
+export const crmTaskProgressSchema=z.object({version:z.number().int().nonnegative(),state:z.enum(['backlog','todo','in_progress','review','done']),result:text(2000)}).strict();
 const record={id:z.string().uuid(),customerId:z.string().uuid(),version:z.number().int().nonnegative(),createdAt:z.string(),updatedAt:z.string(),contactLabel:z.string().nullable()};
 export const crmNoteSchema=crmNoteFieldsSchema.extend(record).strict();
 export const crmTaskPriorities=['none','low','normal','high','urgent'] as const;
@@ -38,18 +38,18 @@ export type MyTasks=z.infer<typeof myTasksSchema>;
 export type MyTask=z.infer<typeof myTaskSchema>;
 export type MyTasksQuery=z.infer<typeof myTasksQuerySchema>;
 
-export const taskAlertItemSchema=z.object({id:z.string().uuid(),customerId:z.string().uuid(),customerName:z.string(),customerPage:z.number().int().positive(),title,dueOn:day,state:z.enum(['todo','in_progress']),number:z.number().int().positive()}).strict();
+export const taskAlertItemSchema=z.object({id:z.string().uuid(),customerId:z.string().uuid(),customerName:z.string(),customerPage:z.number().int().positive(),title,dueOn:day,state:z.enum(['backlog','todo','in_progress','review']),number:z.number().int().positive()}).strict();
 export const taskAlertsSchema=z.object({viewerId:z.string().uuid(),today:day,counts:z.object({today:count,overdue:count}).strict(),items:z.array(taskAlertItemSchema).max(5)}).strict().refine(v=>{const total=v.counts.today+v.counts.overdue;return v.items.length===Math.min(5,total)&&v.items.filter(item=>item.dueOn<v.today).length===Math.min(5,v.counts.overdue)&&v.items.every((item,i)=>item.dueOn<=v.today&&(i===0||v.items[i-1].dueOn<=item.dueOn));});
 export type TaskAlerts=z.infer<typeof taskAlertsSchema>;
 
-export const teamTasksQuerySchema=z.object({date:z.enum(['all','today','overdue','upcoming']).default('all'),state:z.enum(['open','todo','in_progress','done','cancelled','all']).default('open'),assignee:z.union([z.literal('all'),z.string().uuid()]).default('all'),search:myTasksQuerySchema.shape.search,page:myTasksQuerySchema.shape.page}).strict();
+export const teamTasksQuerySchema=z.object({date:z.enum(['all','today','overdue','upcoming']).default('all'),state:z.enum(['open','backlog','todo','in_progress','review','done','cancelled','all']).default('open'),assignee:z.union([z.literal('all'),z.string().uuid()]).default('all'),search:myTasksQuerySchema.shape.search,page:myTasksQuerySchema.shape.page}).strict();
 export const teamTaskSchema=myTaskSchema.extend({assigneeAvailable:z.boolean()}).strict();
 export const teamTasksSchema=z.object({viewerId:z.string().uuid(),canManage:z.literal(true),today:day,total:count,counts:z.object({today:count,overdue:count,upcoming:count,open:count,closed:count}).strict(),items:z.array(teamTaskSchema).max(20),assignees:z.array(option.extend({available:z.boolean()}).strict())}).strict().refine(v=>v.counts.open===v.counts.today+v.counts.overdue+v.counts.upcoming&&v.items.every(t=>v.assignees.some(a=>a.id===t.assigneeId)));
 export type TeamTasks=z.infer<typeof teamTasksSchema>;
 export type TeamTasksQuery=z.infer<typeof teamTasksQuerySchema>;
 
 export const taskPlanChangeSchema=z.object({version:z.number().int().nonnegative(),assigneeId:z.string().uuid(),dueOn:day}).strict();
-export const taskPlanContextSchema=z.object({task:crmTaskSchema.refine(t=>t.state==='todo'||t.state==='in_progress'),assignees:z.array(option)}).strict();
+export const taskPlanContextSchema=z.object({task:crmTaskSchema.refine(t=>['backlog','todo','in_progress','review'].includes(t.state)),assignees:z.array(option)}).strict();
 export type TaskPlanContext=z.infer<typeof taskPlanContextSchema>;
 
 export const customerCategorySchema=z.string().trim().min(1).max(40).refine(v=>!/[\u0000-\u001f\u007f]/.test(v));

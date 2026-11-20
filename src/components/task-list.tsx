@@ -5,13 +5,15 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { useRouter } from 'next/navigation';
 import { crmTaskCommentSchema, crmTaskCommentsSchema, crmTaskMetaSchema, crmTaskProgressSchema, crmTaskSchema, type CrmTaskComment, type MyTask, type MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
-import { DI, PriorityIcon, StatusIcon, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from './design-icons';
+import { DI, PriorityIcon, StatusIcon, isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from './design-icons';
 
 type Task = MyTask;
 type State = Task['state'];
 const zone = 'Europe/Warsaw';
-const stateLabel: Record<State, string> = { in_progress: 'W toku', todo: 'Do zrobienia', done: 'Gotowe', cancelled: 'Anulowane' };
-const groupOrder: State[] = ['in_progress', 'todo', 'done', 'cancelled'];
+const stateLabel = taskStateLabel;
+const groupOrder: State[] = ['in_progress', 'review', 'todo', 'backlog', 'done', 'cancelled'];
+type Progress = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
+const progressStates: Progress[] = ['backlog', 'todo', 'in_progress', 'review', 'done'];
 
 /* ── shared inline styles from the design ── */
 const ib = (size: number, color = 'var(--text-secondary)'): CSSProperties => ({ width: size, height: size, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color, padding: 0 });
@@ -25,7 +27,7 @@ const longDay = (day: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zo
 const stamp = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, dateStyle: 'long', timeStyle: 'short' }).format(new Date(v));
 const stampShort = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, day: 'numeric', month: 'short' }).format(new Date(v)).replace('.', '');
 const initials = (label: string) => label.split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join('') || '?';
-const open = (t: Task) => t.state === 'todo' || t.state === 'in_progress';
+const open = (t: Task) => isOpenTask(t.state);
 function dueLabel(t: Task, today: string) {
   if (open(t) && t.dueOn < today) return { text: short(t.dueOn), title: 'Po terminie', icon: DI.calLate, color: 'var(--danger)', weight: 500 };
   if (t.dueOn === today) return { text: 'Dziś', title: 'Termin dziś', icon: DI.calToday, color: 'var(--text-primary)', weight: 500 };
@@ -53,7 +55,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     return () => controller.abort();
   }, [selectedKey]);
   const selected = panelOn ? items.find(t => t.id === selectedId) ?? null : null;
-  const groups = groupOrder.map(state => ({ state, rows: items.filter(t => t.state === state) })).filter(g => g.rows.length || g.state === 'in_progress' || g.state === 'todo');
+  const groups = groupOrder.map(state => ({ state, rows: items.filter(t => t.state === state) })).filter(g => g.rows.length || g.state === 'in_progress' || g.state === 'review' || g.state === 'todo' || g.state === 'backlog');
   const visible = groups.flatMap(g => collapsed[g.state] ? [] : g.rows);
 
   useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
@@ -73,7 +75,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   });
 
-  async function saveState(state: 'todo' | 'in_progress' | 'done') {
+  async function saveState(state: Progress) {
     if (!selected) return;
     const input = crmTaskProgressSchema.safeParse({ version: selected.version, state, result: selected.result });
     if (!input.success) { setError('Nie udało się zmienić statusu.'); return; }
@@ -176,7 +178,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
               <p style={{ margin: 0, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>{selected.description || 'Brak dodatkowego opisu.'}</p>
             </div>
             <div aria-label="Właściwości zadania" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '0 20px 16px' }}>
-              <label className="capd" title="Status  S" style={{ ...capd, position: 'relative', cursor: selected.state === 'cancelled' ? 'default' : 'pointer' }}><StatusIcon state={selected.state} />{stateLabel[selected.state]}{selected.state !== 'cancelled' && <select aria-label="Status" value={selected.state} disabled={busy || conflict} onChange={e => void saveState(e.target.value as 'todo' | 'in_progress' | 'done')} style={pickerStyle}><option value="todo">Do zrobienia</option><option value="in_progress">W toku</option><option value="done">Gotowe</option></select>}</label>
+              <label className="capd" title="Status  S" style={{ ...capd, position: 'relative', cursor: selected.state === 'cancelled' ? 'default' : 'pointer' }}><StatusIcon state={selected.state} />{stateLabel[selected.state]}{selected.state !== 'cancelled' && <select aria-label="Status" value={selected.state} disabled={busy || conflict} onChange={e => void saveState(e.target.value as Progress)} style={pickerStyle}>{progressStates.map(k => <option key={k} value={k}>{stateLabel[k]}</option>)}</select>}</label>
               <label className="capd" title="Priorytet" style={{ ...capd, position: 'relative', cursor: 'pointer' }}><PriorityIcon priority={selected.priority} />{priorityLabel[selected.priority]}<select aria-label="Priorytet" value={selected.priority} disabled={busy} onChange={e => void saveMeta(e.target.value as Priority, selected.label)} style={pickerStyle}>{(Object.keys(priorityLabel) as Priority[]).map(k => <option key={k} value={k}>{priorityLabel[k]}</option>)}</select></label>
               <span className="capd" title="Osoba" style={{ ...capd, padding: '0 10px 0 4px' }}><span aria-hidden="true" style={{ ...avatar(20, 9), background: 'var(--bg-surface)' }}>{initials(selected.assigneeLabel)}</span>{selected.assigneeLabel}</span>
               {(() => { const d = dueLabel(selected, data.today); return <span className="capd" title={`Termin: ${longDay(selected.dueOn)}`} style={{ ...capd, fontWeight: 500, color: d.color }}>{d.icon}{d.text}</span>; })()}
