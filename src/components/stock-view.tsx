@@ -1,14 +1,16 @@
 'use client';
 /* Magazyn — ported 1:1 from the design artboards "Magazyn · jasny", "wydanie na zlecenie (RW)" and "w samochodach". */
 import Link from 'next/link';
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockUnits, type StockItem, type StockLocation, type StockMove, type StockOverview } from '@hvac/api-client';
-import { DI, PersonAvatar, personName, ticketCode } from './design-icons';
+import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockRefillResultSchema, stockUnits, type StockDraft, type StockItem, type StockLocation, type StockMove, type StockOverview } from '@hvac/api-client';
+import { DI, PersonAvatar, personName, taskNumber, ticketCode } from './design-icons';
 
 export type StockTicket = { id: string; number: number; subject: string; customer: string; devices: { id: string; label: string }[] };
+export type StockTask = { id: string; number: number; title: string; customerId: string; customer: string };
+type DocKind = 'PZ' | 'RW' | 'MM' | 'WZ';
 type View = 'all' | 'refrigerant' | 'below' | 'vehicles';
-type Dialog = { kind: 'PZ' | 'RW' | 'MM'; itemId?: string; from?: string; to?: string } | { kind: 'item'; item?: StockItem } | { kind: 'vehicle' } | null;
+type Dialog = { kind: DocKind; itemId?: string; from?: string; to?: string; draft?: StockDraft } | { kind: 'item'; item?: StockItem } | { kind: 'vehicle' } | null;
 
 const sv = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
 const I = {
@@ -27,6 +29,7 @@ const I = {
   folder: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></svg>,
   hash: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" /></svg>,
   min: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0" /></svg>,
+  draft: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8" /></svg>,
   truck: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></svg>,
 };
 const ib = (s: number): CSSProperties => ({ width: s, height: s, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-secondary)', padding: 0, minHeight: 0 });
@@ -42,7 +45,7 @@ const avail = (i: StockItem) => total(i) - i.reserved;
 const below = (i: StockItem) => i.minQuantity > 0 && avail(i) < i.minQuantity;
 const parseNum = (s: string) => { const n = Number(s.replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) ? n : NaN; };
 
-export function StockView({ data, view, tickets, technicians }: { data: StockOverview; view: View; tickets: StockTicket[]; technicians: { id: string; label: string }[] }) {
+export function StockView({ data, view, tickets, tasks = [], technicians }: { data: StockOverview; view: View; tickets: StockTicket[]; tasks?: StockTask[]; technicians: { id: string; label: string }[] }) {
   const router = useRouter();
   const items = data.items, manage = data.canManage;
   const main = data.locations.find(l => l.kind === 'warehouse'), vans = data.locations.filter(l => l.kind === 'vehicle'), myVan = vans.find(v => v.technicianId === data.viewerId);
@@ -70,13 +73,15 @@ export function StockView({ data, view, tickets, technicians }: { data: StockOve
         <span style={{ flex: '1 1 auto' }} />
         {view !== 'vehicles' && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} style={ib(28)}>{DI.panel}</button>}
         {manage && <button type="button" className="sec" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} style={{ ...sec, marginLeft: 4 }}>{DI.plus14}Pozycja</button>}
+        {data.drafts.map(d => <button key={d.id} type="button" className="sec" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} style={{ ...sec, fontWeight: 400, color: 'var(--text-secondary)' }}>{I.draft}Szkic {d.kind}</button>)}
         {manage && <button type="button" className="sec" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} style={sec}>{I.in}Przyjęcie</button>}
+        {manage && <button type="button" className="sec" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} style={sec}>{I.out}WZ</button>}
         <button type="button" className="pri" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} style={pri}><span style={{ display: 'inline-flex', transform: 'rotate(0deg)' }}>{I.out}</span>Wydanie</button>
       </div>
       {notice && <p role="status" style={{ margin: '0 20px 8px', fontSize: 12, color: 'var(--success)' }}>{notice}</p>}
 
       {view === 'vehicles'
-        ? <Vehicles items={items} main={main} vans={vans} manage={manage} onMM={(itemId, to) => setDialog({ kind: 'MM', itemId, from: main?.id, to })} onAddVan={() => setDialog({ kind: 'vehicle' })} />
+        ? <Vehicles items={items} main={main} vans={vans} manage={manage} onMM={(itemId, to) => setDialog({ kind: 'MM', itemId, from: main?.id, to })} onAddVan={() => setDialog({ kind: 'vehicle' })} onDone={done} onError={setNotice} />
         : (
           <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'stretch', minHeight: 0 }} className="plan-split">
             <div style={{ flex: '1 1 auto', minWidth: 0, padding: '0 12px 24px', overflowX: 'auto' }}>
@@ -112,23 +117,24 @@ export function StockView({ data, view, tickets, technicians }: { data: StockOve
                 </div>
               </div>
             </div>
-            {selected && <ItemPanel item={selected} locations={data.locations} manage={manage} canIssue={manage || !!myVan} onClose={() => setPanelOn(false)} onDoc={kind => setDialog({ kind, itemId: selected.id })} onEdit={() => setDialog({ kind: 'item', item: selected })} tickets={tickets} onReserved={() => { setNotice('Zarezerwowano.'); router.refresh(); }} />}
+            {selected && <ItemPanel item={selected} locations={data.locations} manage={manage} canIssue={manage || !!myVan} onClose={() => setPanelOn(false)} onDoc={kind => setDialog({ kind, itemId: selected.id })} onEdit={() => setDialog({ kind: 'item', item: selected })} tickets={tickets} tasks={tasks} onReserved={() => { setNotice('Zarezerwowano.'); router.refresh(); }} />}
           </div>
         )}
       {dialog && dialog.kind === 'item' && <ItemDialog item={dialog.item} onClose={() => setDialog(null)} onDone={done} />}
       {dialog && dialog.kind === 'vehicle' && <VehicleDialog technicians={technicians.filter(t => !vans.some(v => v.technicianId === t.id))} onClose={() => setDialog(null)} onDone={done} />}
-      {dialog && (dialog.kind === 'PZ' || dialog.kind === 'RW' || dialog.kind === 'MM') && <DocDialog kind={dialog.kind} items={items} locations={data.locations} manage={manage} myVan={myVan} tickets={tickets} initialItem={dialog.itemId} initialFrom={dialog.from} initialTo={dialog.to} onClose={() => setDialog(null)} onDone={done} />}
+      {dialog && (dialog.kind === 'PZ' || dialog.kind === 'RW' || dialog.kind === 'MM' || dialog.kind === 'WZ') && <DocDialog key={dialog.draft?.id ?? dialog.kind} draft={dialog.draft} kind={dialog.kind} items={items} locations={data.locations} manage={manage} myVan={myVan} tickets={tickets} initialItem={dialog.itemId} initialFrom={dialog.from} initialTo={dialog.to} onClose={() => setDialog(null)} onDone={done} />}
     </main>
   );
 }
 
-function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, tickets, onReserved }: { item: StockItem; locations: StockLocation[]; manage: boolean; canIssue: boolean; onClose: () => void; onDoc: (k: 'PZ' | 'RW' | 'MM') => void; onEdit: () => void; tickets: StockTicket[]; onReserved: () => void }) {
+function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, tickets, tasks, onReserved }: { item: StockItem; locations: StockLocation[]; manage: boolean; canIssue: boolean; onClose: () => void; onDoc: (k: DocKind) => void; onEdit: () => void; tickets: StockTicket[]; tasks: StockTask[]; onReserved: () => void }) {
   const [moves, setMoves] = useState<StockMove[] | null>(null), [reserve, setReserve] = useState(false), [rTicket, setRTicket] = useState(''), [rQty, setRQty] = useState(''), [err, setErr] = useState('');
   useEffect(() => { setMoves(null); const c = new AbortController(); fetch(`/api/v1/stock/items/${item.id}/moves`, { cache: 'no-store', signal: c.signal }).then(r => (r.ok ? r.json() : [])).then(b => { const p = stockMovesSchema.safeParse(b); if (p.success) setMoves(p.data); }).catch(() => {}); return () => c.abort(); }, [item.id, item.lastMove?.at]);
   const t = total(item), a = avail(item), low = below(item);
   async function doReserve() {
-    const q = parseNum(rQty); if (!rTicket || !(q > 0)) { setErr('Wybierz zgłoszenie i ilość.'); return; }
-    const r = await fetch('/api/v1/stock/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), itemId: item.id, ticketId: rTicket, quantity: q }) });
+    const q = parseNum(rQty); if (!rTicket || !(q > 0)) { setErr('Wybierz zgłoszenie albo zadanie i ilość.'); return; }
+    const [kind, target] = rTicket.split(':');
+    const r = await fetch('/api/v1/stock/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), itemId: item.id, ticketId: kind === 'ticket' ? target : null, taskId: kind === 'task' ? target : null, quantity: q }) });
     if (!r.ok) { setErr((await r.json()).error?.message || 'Nie udało się zarezerwować.'); return; }
     setReserve(false); setRQty(''); setErr(''); onReserved();
   }
@@ -148,7 +154,7 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
           {item.gwp !== null && <span title={`Współczynnik GWP ${item.gwp}`} style={chip}>{I.cloud}<span>GWP {item.gwp}</span></span>}
         </div>
       </div>
-      <section aria-label="Stan" title="Stan zmienia tylko dokument: PZ, RW, MM" style={{ margin: '0 20px 16px', padding: 12, display: 'flex', flexDirection: 'column', gap: 12, borderRadius: 12, background: 'var(--bg-raised)' }}>
+      <section aria-label="Stan" title="Stan zmienia tylko dokument: PZ, RW, WZ, MM" style={{ margin: '0 20px 16px', padding: 12, display: 'flex', flexDirection: 'column', gap: 12, borderRadius: 12, background: 'var(--bg-raised)' }}>
         <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0px, 1fr))', gap: 8 }}>
           {[['Stan', I.cube, fmt(t, item.unit), null], ['Rezerwacja', I.lock, fmt(item.reserved, item.unit), null], ['Dostępne', I.gauge, fmt(a, item.unit), a < 0 ? I.err : low ? I.warn : null]].map(([l, ic, v, w]) => (
             <div key={l as string}><dt style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}>{ic}{l}</dt><dd className="num" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, lineHeight: '22px', fontWeight: 600 }}>{w}{v}</dd></div>
@@ -156,22 +162,23 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
         </dl>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {item.minQuantity > 0 && <span title={low ? `Brakuje ${fmt(item.minQuantity - a, item.unit)}` : 'Minimalny stan'} style={{ ...chip, background: 'var(--bg-surface)' }}>{I.gauge}min {fmt(item.minQuantity, item.unit)}</span>}
-          {item.reservations.map(r => <Link key={r.id} href={`/dashboard/service/${r.ticketId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} style={{ ...chip, background: 'var(--bg-surface)' }}>{I.lock}{ticketCode(r.ticketNumber)}</Link>)}
+          {item.reservations.map(r => <Link key={r.id} href={r.ticketId ? `/dashboard/service/${r.ticketId}` : `/dashboard/customers/${r.taskCustomerId}?tab=tasks&filter=all#crm-${r.taskId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} style={{ ...chip, background: 'var(--bg-surface)' }}>{I.lock}{r.ticketNumber !== null ? ticketCode(r.ticketNumber) : r.taskNumber !== null ? taskNumber(r.taskNumber) : 'Rezerwacja'}</Link>)}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {manage && <button type="button" onClick={() => onDoc('PZ')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.in}PZ</button>}
           {canIssue && <button type="button" onClick={() => onDoc('RW')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.out}RW</button>}
           {manage && <button type="button" onClick={() => onDoc('MM')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.mm}MM</button>}
+          {manage && <button type="button" title="Wydanie zewnętrzne" onClick={() => onDoc('WZ')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.out}WZ</button>}
           {manage && <button type="button" onClick={() => setReserve(v => !v)} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.lock}Rezerwuj</button>}
         </div>
-        {reserve && <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}><select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} style={{ flex: '1 1 auto', minWidth: 0, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', font: 'inherit', fontSize: 12 }}><option value="">Zgłoszenie…</option>{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject}</option>)}</select><input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} style={{ width: 64, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', textAlign: 'right', font: 'inherit', fontSize: 12, padding: '0 6px' }} /><button type="button" className="pri" onClick={() => void doReserve()} style={{ ...pri, height: 28 }}>OK</button></div>}
+        {reserve && <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}><select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} style={{ flex: '1 1 auto', minWidth: 0, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', font: 'inherit', fontSize: 12 }}><option value="">Zgłoszenie lub zadanie…</option><optgroup label="Zgłoszenia">{tickets.map(t => <option key={t.id} value={`ticket:${t.id}`}>{ticketCode(t.number)} · {t.subject}</option>)}</optgroup>{tasks.length > 0 && <optgroup label="Zadania">{tasks.map(t => <option key={t.id} value={`task:${t.id}`}>{taskNumber(t.number)} · {t.title} · {t.customer}</option>)}</optgroup>}</select><input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} style={{ width: 64, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', textAlign: 'right', font: 'inherit', fontSize: 12, padding: '0 6px' }} /><button type="button" className="pri" onClick={() => void doReserve()} style={{ ...pri, height: 28 }}>OK</button></div>}
         {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
       </section>
       <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column' }}>
         {item.minQuantity > 0 && prop(I.min, `Minimum ${fmt(item.minQuantity, item.unit)}`, 'Minimalny stan')}
         {item.bin && prop(I.shelf, <span className="mono">{item.bin}</span>, 'Lokalizacja na półce')}
         {prop(I.folder, stockCategories[item.category], 'Kategoria')}
-        {prop(I.hash, item.unit, 'Jednostka')}
+        {prop(I.hash, <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{item.unit}{item.unitLocked && I.lock}</span>, item.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : 'Jednostka')}
         {Object.entries(item.levels).length > 0 && prop(I.truck, Object.entries(item.levels).map(([loc, q]) => `${locations.find(l => l.id === loc)?.name ?? 'Inne'}: ${fmt(q, item.unit)}`).join(' · '), 'Stan wg miejsc')}
       </div>
       <section style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '20px 20px 24px' }}>
@@ -182,7 +189,7 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
             <li key={m.id}><div className="row" title={`${m.authorLabel ?? ''} · ${locations.find(l => l.id === m.locationId)?.name ?? ''}`} style={{ display: 'grid', gridTemplateColumns: '16px 112px minmax(0px, 1fr) auto 16px 44px', columnGap: 8, alignItems: 'center', height: 36, padding: '0 8px', borderRadius: 10 }}>
               <span style={{ display: 'inline-flex' }}>{m.kind === 'MM' ? I.mm : m.delta > 0 ? I.in : I.out}</span>
               <span className="mono ell" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{m.number}</span>
-              <span className="ell">{m.ticketNumber ? <Link href={`/dashboard/service/${m.ticketId}`}>{ticketCode(m.ticketNumber)}</Link> : m.kind === 'PZ' ? (m.supplier || 'Dostawa') : locations.find(l => l.id === m.locationId)?.name}</span>
+              <span className="ell" title={m.cylinder ? `Butla ${m.cylinder}` : undefined}>{m.ticketNumber ? <Link href={`/dashboard/service/${m.ticketId}`}>{ticketCode(m.ticketNumber)}</Link> : m.kind === 'PZ' ? (m.supplier || 'Dostawa') : m.kind === 'WZ' ? (m.supplier || 'Wydanie zewnętrzne') : locations.find(l => l.id === m.locationId)?.name}{m.cylinder && <span className="mono" style={{ marginLeft: 6, fontSize: 11, color: 'var(--text-tertiary)' }}>{m.cylinder}</span>}</span>
               <span className="num" style={{ fontWeight: 500 }}>{m.delta > 0 ? '+' : '−'}{fmt(Math.abs(m.delta), item.unit)}</span>
               <PersonAvatar id={m.authorId} label={m.authorLabel ?? '?'} size={16} />
               <span className="num" title={full(m.at)} style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-tertiary)' }}>{day(m.at)}</span>
@@ -195,21 +202,40 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
   );
 }
 
-function Vehicles({ items, main, vans, manage, onMM, onAddVan }: { items: StockItem[]; main?: StockLocation; vans: StockLocation[]; manage: boolean; onMM: (itemId: string, to: string) => void; onAddVan: () => void }) {
-  const carried = items.filter(i => vans.some(v => (i.levels[v.id] ?? 0) !== 0) || (main && (i.levels[main.id] ?? 0) > 0));
-  const gap = (i: StockItem, v: StockLocation) => (i.levels[v.id] ?? 0) <= 0 && vans.some(o => o.id !== v.id && (i.levels[o.id] ?? 0) > 0) && (main ? (i.levels[main.id] ?? 0) > 0 : false);
-  const shortages = vans.map(v => carried.filter(i => gap(i, v)).length), totalShort = shortages.reduce((a, b) => a + b, 0);
-  const cols = `84px minmax(0px, 1fr) 96px ${vans.map(() => '100px').join(' ')} 92px`;
+function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }: { items: StockItem[]; main?: StockLocation; vans: StockLocation[]; manage: boolean; onMM: (itemId: string, to: string) => void; onAddVan: () => void; onDone: (t: string) => void; onError: (t: string) => void }) {
+  /* Each van has its own minimum per item; a van without a minimum for an item shows a grey dash when empty. */
+  const carried = items.filter(i => vans.some(v => (i.levels[v.id] ?? 0) !== 0 || (i.vehicleMins[v.id] ?? 0) > 0) || (main && (i.levels[main.id] ?? 0) > 0));
+  const short = (i: StockItem, v: StockLocation) => Math.max(0, (i.vehicleMins[v.id] ?? 0) - (i.levels[v.id] ?? 0));
+  const shortages = vans.map(v => carried.filter(i => short(i, v) > 0).length), totalShort = shortages.reduce((a, b) => a + b, 0);
+  const [editing, setEditing] = useState<string | null>(null), [draft, setDraft] = useState(''), [busy, setBusy] = useState(false), request = useRef<string | null>(null);
+  const cols = `84px minmax(0px, 1fr) 96px ${vans.map(() => '112px').join(' ')} 92px`;
   const groups = (Object.keys(stockCategories) as (keyof typeof stockCategories)[]).map(c => ({ c, rows: carried.filter(i => i.category === c) })).filter(g => g.rows.length);
+  async function saveMin(i: StockItem, v: StockLocation) {
+    const n = draft.trim() === '' ? 0 : parseNum(draft); setEditing(null);
+    if (!(n >= 0) || n === (i.vehicleMins[v.id] ?? 0)) return;
+    const r = await fetch('/api/v1/stock/minimums', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId: v.id, itemId: i.id, minQuantity: Math.round(n * 1000) / 1000 }) });
+    if (!r.ok) { onError((await r.json()).error?.message || 'Nie udało się zapisać minimum.'); return; }
+    onDone(n ? `Minimum ${i.code} w ${v.name}: ${fmt(n, i.unit)}.` : `Usunięto minimum ${i.code} w ${v.name}.`);
+  }
+  async function refill() {
+    setBusy(true); request.current ??= crypto.randomUUID();
+    try {
+      const r = await fetch('/api/v1/stock/refill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: request.current }) }), b = await r.json();
+      if (!r.ok) throw new Error(b.error?.message || 'Nie udało się uzupełnić braków.');
+      const docs = stockRefillResultSchema.parse(b); request.current = null;
+      onDone(docs.length ? `Zaksięgowano ${docs.map(d => d.number).join(', ')}.` : 'W bazie nie ma towaru na uzupełnienie braków.');
+    } catch (e) { onError(e instanceof Error ? e.message : 'Nie udało się uzupełnić braków.'); } finally { setBusy(false); }
+  }
   return (
     <div style={{ flex: '1 1 auto', minWidth: 0, padding: '0 12px 24px', overflowX: 'auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px 8px' }}>
-        {totalShort > 0 && <span title="Pozycje, których brakuje w samochodzie, a są w bazie i w innych samochodach" style={{ ...chip, padding: '0 8px 0 6px' }}>{I.warn}{totalShort} {totalShort === 1 ? 'brak' : totalShort < 5 ? 'braki' : 'braków'}</span>}
+        {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" style={{ ...chip, padding: '0 8px 0 6px' }}>{I.warn}{totalShort} {totalShort === 1 ? 'brak' : totalShort < 5 ? 'braki' : 'braków'}</span>}
         <span style={{ flex: '1 1 auto' }} />
         {manage && <button type="button" className="sec" onClick={onAddVan} style={sec}>{DI.plus14}Samochód</button>}
+        {manage && totalShort > 0 && <button type="button" className="pri" disabled={busy} title="Jedno przesunięcie MM z bazy do każdego samochodu z brakami" onClick={() => void refill()} style={{ ...pri, opacity: busy ? 0.6 : 1 }}>{I.mm}{busy ? 'Księgowanie…' : `Uzupełnij braki (${totalShort})`}</button>}
       </div>
       {!vans.length ? <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>{manage ? 'Nie ma jeszcze samochodów. Dodaj samochód technika, a potem przesuń do niego towar dokumentem MM.' : 'Biuro nie dodało jeszcze samochodów.'}</p> : (
-        <div style={{ minWidth: 480 + vans.length * 112, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minWidth: 480 + vans.length * 124, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 32, padding: '0 8px', fontSize: 12, color: 'var(--text-secondary)' }}>
             <span>Indeks</span><span>Nazwa</span><span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>{I.cube}Baza</span>
             {vans.map(v => <span key={v.id} title={`${v.name}${v.plate ? ` · ${v.plate}` : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>{I.truck}<PersonAvatar id={v.technicianId!} label={v.technicianLabel ?? v.name} /></span>)}
@@ -222,10 +248,16 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan }: { items: StockI
                 <div key={i.id} className="row" style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
                   <span className="mono ell" style={{ color: 'var(--text-tertiary)' }}>{i.code}</span><span className="ell" style={{ fontWeight: 500 }}>{i.name}</span>
                   <span className="num" style={{ textAlign: 'right', color: main && i.levels[main.id] ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{main && i.levels[main.id] ? fmt(i.levels[main.id], i.unit) : '—'}</span>
-                  {vans.map(v => { const q = i.levels[v.id] ?? 0, short = gap(i, v); return (
-                    <span key={v.id} className="num" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, color: q ? 'var(--text-primary)' : short ? 'var(--text-primary)' : 'var(--text-tertiary)', fontWeight: short ? 500 : 400 }}>
-                      {short ? (manage ? <button type="button" title={`Uzupełnij ${v.name} z bazy (MM)`} onClick={() => onMM(i.id, v.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: 0, border: 0, background: 'transparent', font: 'inherit', fontWeight: 500, color: 'inherit', minHeight: 0 }}>{I.warn}{fmt(0, i.unit)}</button> : <>{I.warn}{fmt(0, i.unit)}</>) : q ? fmt(q, i.unit) : '—'}
-                    </span>); })}
+                  {vans.map(v => {
+                    const q = i.levels[v.id] ?? 0, min = i.vehicleMins[v.id] ?? 0, miss = short(i, v), key = `${i.id}:${v.id}`;
+                    if (editing === key) return <span key={v.id} style={{ display: 'flex', justifyContent: 'flex-end' }}><input autoFocus aria-label={`Minimum ${i.code} w ${v.name}`} inputMode="decimal" value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => void saveMin(i, v)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(null); }} placeholder="min" style={{ width: 72, height: 28, minHeight: 0, padding: '0 8px', border: 0, borderRadius: 8, background: 'var(--bg-raised)', textAlign: 'right', font: 'inherit', fontSize: 12 }} /></span>;
+                    const title = `${v.name}: ${fmt(q, i.unit)}${min ? ` · minimum ${fmt(min, i.unit)}` : ' · bez minimum'}${miss ? ` · brakuje ${fmt(miss, i.unit)}` : ''}${manage ? ' · kliknij dwukrotnie, aby ustawić minimum' : ''}`;
+                    return (
+                      <span key={v.id} className="num" title={title} onDoubleClick={() => { if (manage) { setEditing(key); setDraft(min ? String(min).replace('.', ',') : ''); } }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, color: q || miss ? 'var(--text-primary)' : 'var(--text-tertiary)', fontWeight: miss ? 500 : 400, cursor: manage ? 'cell' : undefined }}>
+                        {miss ? (manage ? <button type="button" title={`Uzupełnij ${v.name} z bazy (MM)`} onClick={() => onMM(i.id, v.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: 0, border: 0, background: 'transparent', font: 'inherit', fontWeight: 500, color: 'inherit', minHeight: 0 }}>{I.warn}{fmt(q, i.unit)}</button> : <>{I.warn}{fmt(q, i.unit)}</>) : q ? fmt(q, i.unit) : '—'}
+                        {min > 0 && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-tertiary)' }}>/{min.toLocaleString('pl-PL', { maximumFractionDigits: 3 })}</span>}
+                      </span>);
+                  })}
                   <span className="num" style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>{fmt(total(i), i.unit)}</span>
                 </div>
               ))}
@@ -235,6 +267,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan }: { items: StockI
             <span /><span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{I.mm}Do uzupełnienia</span><span />
             {shortages.map((n, k) => <span key={vans[k].id} className="num" style={{ textAlign: 'right', color: n ? 'var(--text-primary)' : 'var(--text-tertiary)', fontWeight: n ? 500 : 400 }}>{n ? `${n} ${n === 1 ? 'brak' : n < 5 ? 'braki' : 'braków'}` : '—'}</span>)}<span />
           </div>
+          {manage && <p style={{ margin: '4px 8px 0', fontSize: 12, color: 'var(--text-tertiary)' }}>Minimum dla samochodu ustawisz, klikając dwukrotnie komórkę. Liczba po ukośniku to minimum.</p>}
         </div>
       )}
     </div>
@@ -255,31 +288,50 @@ function Modal({ title, sub, children, onClose }: { title: string; sub?: string;
 const field: CSSProperties = { width: '100%', height: 32, minHeight: 0, padding: '0 10px', border: 0, borderRadius: 10, background: 'var(--bg-raised)', font: 'inherit', color: 'var(--text-primary)', boxShadow: 'none' };
 const label: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--text-secondary)', margin: 0 };
 
-function DocDialog({ kind, items, locations, manage, myVan, tickets, initialItem, initialFrom, initialTo, onClose, onDone }: { kind: 'PZ' | 'RW' | 'MM'; items: StockItem[]; locations: StockLocation[]; manage: boolean; myVan?: StockLocation; tickets: StockTicket[]; initialItem?: string; initialFrom?: string; initialTo?: string; onClose: () => void; onDone: (t: string) => void }) {
+function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, initialItem, initialFrom, initialTo, onClose, onDone }: { kind: DocKind; draft?: StockDraft; items: StockItem[]; locations: StockLocation[]; manage: boolean; myVan?: StockLocation; tickets: StockTicket[]; initialItem?: string; initialFrom?: string; initialTo?: string; onClose: () => void; onDone: (t: string) => void }) {
   const main = locations.find(l => l.kind === 'warehouse');
-  const [itemId, setItemId] = useState(initialItem ?? items[0]?.id ?? ''), [ticketId, setTicketId] = useState(tickets[0]?.id ?? ''), [deviceId, setDeviceId] = useState('');
-  const [from, setFrom] = useState(initialFrom ?? (kind === 'RW' ? (manage ? main?.id : myVan?.id) ?? '' : main?.id ?? '')), [to, setTo] = useState(initialTo ?? (kind === 'PZ' ? main?.id ?? '' : locations.find(l => l.kind === 'vehicle')?.id ?? ''));
-  const [qty, setQty] = useState(''), [before, setBefore] = useState(''), [after, setAfter] = useState(''), [weigh, setWeigh] = useState(true), [op, setOp] = useState<'fill' | 'topup' | 'other'>('topup'), [supplier, setSupplier] = useState(''), [note, setNote] = useState(''), [busy, setBusy] = useState(false), [err, setErr] = useState('');
+  const d = (k: string) => (typeof draft?.payload[k] === 'string' ? draft.payload[k] as string : undefined);
+  const docId = useRef(draft?.id ?? crypto.randomUUID());
+  const [itemId, setItemId] = useState(d('itemId') ?? initialItem ?? items[0]?.id ?? ''), [ticketId, setTicketId] = useState(d('ticketId') ?? tickets[0]?.id ?? ''), [deviceId, setDeviceId] = useState(d('deviceId') ?? '');
+  const [from, setFrom] = useState(d('from') ?? initialFrom ?? (kind === 'RW' ? (manage ? main?.id : myVan?.id) ?? '' : main?.id ?? '')), [to, setTo] = useState(d('to') ?? initialTo ?? (kind === 'PZ' ? main?.id ?? '' : locations.find(l => l.kind === 'vehicle')?.id ?? ''));
+  const [qty, setQty] = useState(d('qty') ?? ''), [before, setBefore] = useState(d('before') ?? ''), [after, setAfter] = useState(d('after') ?? ''), [weigh, setWeigh] = useState(d('weigh') !== 'no'), [op, setOp] = useState<'fill' | 'topup' | 'other'>((d('op') as 'fill' | 'topup' | 'other') ?? 'topup'), [supplier, setSupplier] = useState(d('supplier') ?? ''), [note, setNote] = useState(d('note') ?? ''), [cylinder, setCylinder] = useState(d('cylinder') ?? ''), [busy, setBusy] = useState(false), [err, setErr] = useState('');
   const item = items.find(i => i.id === itemId), ticket = tickets.find(t => t.id === ticketId);
   const isGas = item?.category === 'refrigerant' && item.unit === 'kg', useWeigh = kind === 'RW' && isGas && weigh;
-  const amount = useWeigh ? parseNum(before) - parseNum(after) : parseNum(qty);
-  const valid = !!item && amount > 0 && (kind !== 'RW' || !!ticketId) && (kind === 'PZ' ? !!to : !!from) && (kind !== 'MM' || (!!to && to !== from));
+  const filled = (v: string) => v.trim() !== '';
+  const amount = useWeigh ? (filled(before) && filled(after) ? parseNum(before) - parseNum(after) : NaN) : filled(qty) ? parseNum(qty) : NaN;
+  const valid = !!item && amount > 0 && (kind !== 'RW' || !!ticketId) && (kind !== 'WZ' || supplier.trim().length > 0) && (kind === 'PZ' ? !!to : !!from) && (kind !== 'MM' || (!!to && to !== from));
   const fromLevel = item && from ? item.levels[from] ?? 0 : 0, toLevel = item && to ? item.levels[to] ?? 0 : 0;
   const fromOptions = kind === 'RW' && !manage ? locations.filter(l => l.id === myVan?.id) : locations;
-  useEffect(() => { setDeviceId(''); }, [ticketId]);
-  async function submit() {
-    if (!valid || !item) return; setBusy(true); setErr('');
-    const line: Record<string, unknown> = { itemId: item.id, ...(useWeigh ? { massBefore: parseNum(before), massAfter: parseNum(after) } : { quantity: Math.round(amount * 1000) / 1000 }), ...(kind === 'RW' && isGas ? { operation: op } : {}), ...(kind === 'RW' && deviceId ? { deviceId } : {}) };
+  const firstTicket = useRef(true);
+  useEffect(() => { if (firstTicket.current) { firstTicket.current = false; return; } setDeviceId(''); }, [ticketId]);
+  useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); } }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); });
+  async function saveDraft() {
+    setBusy(true); setErr('');
     try {
-      const r = await fetch('/api/v1/stock/documents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), kind, from: kind === 'PZ' ? null : from, to: kind === 'RW' ? null : to, ticketId: kind === 'RW' ? ticketId : null, supplier: kind === 'PZ' ? supplier.trim() : '', note: note.trim(), lines: [line] }) }), body = await r.json();
+      const payload = { itemId, ticketId, deviceId, from, to, qty, before, after, weigh: weigh ? 'yes' : 'no', op, supplier, note, cylinder };
+      const r = await fetch('/api/v1/stock/drafts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, payload }) });
+      if (!r.ok) throw new Error((await r.json()).error?.message || 'Nie udało się zapisać szkicu.');
+      onDone(`Zapisano szkic ${kind}. Znajdziesz go na pasku nad tabelą.`);
+    } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zapisać szkicu.'); } finally { setBusy(false); }
+  }
+  async function dropDraft() {
+    if (!draft) return; setBusy(true);
+    const r = await fetch('/api/v1/stock/drafts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: draft.id }) });
+    setBusy(false); if (r.ok) onDone('Usunięto szkic.'); else setErr('Nie udało się usunąć szkicu.');
+  }
+  async function submit() {
+    if (!valid || !item || busy) return; setBusy(true); setErr('');
+    const line: Record<string, unknown> = { itemId: item.id, ...(useWeigh ? { massBefore: parseNum(before), massAfter: parseNum(after) } : { quantity: Math.round(amount * 1000) / 1000 }), ...(kind === 'RW' && isGas ? { operation: op } : {}), ...(kind === 'RW' && deviceId ? { deviceId } : {}), ...(isGas && cylinder.trim() ? { cylinder: cylinder.trim() } : {}) };
+    try {
+      const r = await fetch('/api/v1/stock/documents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, from: kind === 'PZ' ? null : from, to: kind === 'RW' || kind === 'WZ' ? null : to, ticketId: kind === 'RW' ? ticketId : null, supplier: kind === 'PZ' || kind === 'WZ' ? supplier.trim() : '', note: note.trim(), lines: [line] }) }), body = await r.json();
       if (!r.ok) throw new Error(body.error?.message || 'Nie udało się zaksięgować dokumentu.');
       onDone(`Zaksięgowano ${stockDocumentResultSchema.parse(body).number}.`);
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zaksięgować.'); } finally { setBusy(false); }
   }
-  const title = kind === 'PZ' ? 'Przyjęcie do magazynu' : kind === 'RW' ? 'Wydanie na zlecenie' : 'Przesunięcie między magazynami';
+  const title = kind === 'PZ' ? 'Przyjęcie do magazynu' : kind === 'RW' ? 'Wydanie na zlecenie' : kind === 'WZ' ? 'Wydanie zewnętrzne' : 'Przesunięcie między magazynami';
   const locSelect = (value: string, set: (v: string) => void, opts: StockLocation[], aria: string) => <select aria-label={aria} value={value} onChange={e => set(e.target.value)} style={field}>{opts.map(l => <option key={l.id} value={l.id}>{l.name}{item ? ` · ${fmt(item.levels[l.id] ?? 0, item.unit)}` : ''}</option>)}</select>;
   return (
-    <Modal title={title} sub={kind === 'PZ' ? 'PZ' : kind === 'RW' ? 'RW' : 'MM'} onClose={onClose}>
+    <Modal title={title} sub={draft ? `${kind} · szkic` : kind} onClose={onClose}>
       {kind === 'RW' && <select aria-label="Zlecenie" value={ticketId} onChange={e => setTicketId(e.target.value)} style={field}>{!tickets.length && <option value="">Brak otwartych zgłoszeń</option>}{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject} · {t.customer}</option>)}</select>}
       {kind === 'RW' && ticket && ticket.devices.length > 0 && <select aria-label="Urządzenie" value={deviceId} onChange={e => setDeviceId(e.target.value)} style={field}><option value="">Urządzenie (opcjonalnie)</option>{ticket.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}</select>}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -302,12 +354,14 @@ function DocDialog({ kind, items, locations, manage, myVan, tickets, initialItem
       ) : (
         <label style={label}>Ilość ({item?.unit ?? ''}){kind === 'RW' && isGas && <button type="button" onClick={() => setWeigh(true)} style={{ alignSelf: 'flex-start', padding: 0, border: 0, background: 'transparent', fontSize: 12, color: 'var(--text-secondary)', minHeight: 0 }}>Ważenie butli</button>}<input inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" style={{ ...field, textAlign: 'right' }} /></label>
       )}
+      {isGas && <label style={label}>Numer butli<input value={cylinder} maxLength={40} onChange={e => setCylinder(e.target.value)} placeholder="np. B-0417" style={{ ...field, fontFamily: 'var(--font-mono)' }} /></label>}
+      {kind === 'WZ' && <label style={label}>Odbiorca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="Firma lub osoba, nr dokumentu sprzedaży" style={field} /></label>}
       {kind === 'PZ' && <label style={label}>Dostawca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="np. hurtownia, nr faktury" style={field} /></label>}
       {item && amount > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Po zatwierdzeniu</span>
           {kind !== 'PZ' && from && <Row l={locations.find(l => l.id === from)?.name ?? ''} v={`${fmt(fromLevel, item.unit)} → ${fmt(Math.round((fromLevel - amount) * 1000) / 1000, item.unit)}`} warn={fromLevel - amount < 0} />}
-          {kind !== 'RW' && to && <Row l={locations.find(l => l.id === to)?.name ?? ''} v={`${fmt(toLevel, item.unit)} → ${fmt(Math.round((toLevel + amount) * 1000) / 1000, item.unit)}`} />}
+          {kind !== 'RW' && kind !== 'WZ' && to && <Row l={locations.find(l => l.id === to)?.name ?? ''} v={`${fmt(toLevel, item.unit)} → ${fmt(Math.round((toLevel + amount) * 1000) / 1000, item.unit)}`} />}
           {kind === 'RW' && item.reservations.some(r => r.ticketId === ticketId) && <Row l={`Rezerwacja ${ticket ? ticketCode(ticket.number) : ''}`} v="zamknięta" />}
           {kind === 'RW' && <Row l="Materiały zlecenia" v="dopisane z numerem RW" />}
           {kind === 'RW' && item.gwp !== null && <Row l="CO₂e" v={`+${(Math.round(amount * item.gwp) / 1000).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} t`} />}
@@ -315,7 +369,7 @@ function DocDialog({ kind, items, locations, manage, myVan, tickets, initialItem
       )}
       <textarea aria-label="Uwagi" rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="Uwagi" style={{ ...field, height: 'auto', padding: '8px 10px', resize: 'none' }} />
       {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}><button type="button" className="sec" onClick={onClose} style={{ ...sec, height: 32, padding: '0 12px' }}>Anuluj</button><button type="button" className="pri" disabled={!valid || busy} onClick={() => void submit()} style={{ ...pri, height: 32, padding: '0 12px', opacity: !valid || busy ? 0.6 : 1 }}>{busy ? 'Księgowanie…' : kind === 'RW' ? `Wydaj${item && amount > 0 ? ` ${fmt(Math.round(amount * 1000) / 1000, item.unit)}` : ''}` : kind === 'PZ' ? 'Przyjmij' : 'Przesuń'}</button></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{draft && <button type="button" className="ghost" disabled={busy} onClick={() => void dropDraft()} style={{ height: 32, padding: '0 10px', border: 0, borderRadius: 10, background: 'transparent', color: 'var(--text-secondary)', minHeight: 0 }}>Usuń szkic</button>}<span style={{ flex: '1 1 auto' }} /><button type="button" className="sec" title="Anuluj  Esc" onClick={onClose} style={{ ...sec, height: 32, padding: '0 12px' }}>Anuluj</button><button type="button" className="sec" disabled={busy} title="Zapisz bez księgowania" onClick={() => void saveDraft()} style={{ ...sec, height: 32, padding: '0 12px' }}>Zapisz szkic</button><button type="button" className="pri" title="Zatwierdź  ⌘↵" disabled={!valid || busy} onClick={() => void submit()} style={{ ...pri, height: 32, padding: '0 12px', opacity: !valid || busy ? 0.6 : 1 }}>{busy ? 'Księgowanie…' : kind === 'RW' || kind === 'WZ' ? `Wydaj${item && amount > 0 ? ` ${fmt(Math.round(amount * 1000) / 1000, item.unit)}` : ''}` : kind === 'PZ' ? 'Przyjmij' : 'Przesuń'}</button></div>
     </Modal>
   );
 }
@@ -341,7 +395,7 @@ function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () =
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 100px', gap: 8 }}>
         <label style={label}>Kategoria<select value={f.category} onChange={set('category')} style={field}>{Object.entries(stockCategories).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-        <label style={label}>Jednostka<select value={f.unit} onChange={set('unit')} style={field}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
+        <label style={label} title={item?.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : undefined}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>Jednostka{item?.unitLocked && I.lock}</span><select value={f.unit} disabled={item?.unitLocked} onChange={set('unit')} style={{ ...field, opacity: item?.unitLocked ? 0.7 : 1 }}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
         <label style={label}>Minimum<input inputMode="decimal" value={f.min} onChange={set('min')} style={{ ...field, textAlign: 'right' }} /></label>
         <label style={label}>Półka<input value={f.bin} maxLength={20} onChange={set('bin')} placeholder="C-01" style={field} /></label>
       </div>
