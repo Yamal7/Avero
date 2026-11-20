@@ -2,6 +2,15 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Katalog)
+- **Katalog zostaje zgodny z backendem** (`docs/CATALOG.md`): kategorie Urządzenia / Materiały / Usługi / Dojazd, kod, jednostka, koszt i cena netto, VAT pozycji (23 % domyślnie; 8 % dla budynku mieszkalnego ustawia oferta), producent, model, dostawca, archiwum zamiast kasowania. Marża = (cena − koszt) / cena, nie narzut.
+- **Próg marży firmy (22 %) widoczny w katalogu**: marża poniżej progu — ostrzeżenie (ikona + kolor), w ofercie wymaga zgody administratora.
+- **Koszt katalogowy a ostatni zakup**: gdy przyjęcie (PZ) lub oferta dostawcy ma wyższy koszt, pozycja dostaje kapsułkę „koszt +X %”, a podgląd proponuje „Tylko koszt” albo „Koszt i cena” dla marży docelowej 25 %. Nic nie zmienia się samo.
+- **Historia kosztu** z dokumentem źródłowym (PZ, cennik) — zgodnie z PRODUCT_PLAN etap 5.
+- **Oferty zachowują kopię cen z dnia wyceny** (już w backendzie); zmiana w katalogu wpływa na nowe wyceny i szablony instalacji.
+- **Import cennika dostawcy z podglądem zmian** (**nowe**): dopasowanie po kodzie producenta; zakładki Podwyżki / Obniżki / Nowe / Do sprawdzenia / Bez zmian; zasada cen „marża poniżej 22 % → podnieś do 25 %, zaokrąglij do 10 zł” z wyborem per wiersz (Zachowaj / Podnieś); zatwierdzenie z datą ważności cennika (zaplanowane na 1 sty 2027). Każda zmiana w historii z plikiem i osobą.
+- Do decyzji właściciela: czy pozycja katalogu i indeks magazynowy to jeden rekord (dziś w backendzie są osobno: `catalog_items` i pozycje magazynu).
+
 ## 2026-11-20 (Zakupy)
 - **Numeracja zamówień do dostawców: `ZK/RRRR/MM/NNN`** (jak PZ/RW/MM/WZ). Dotychczasowe `ZD-2026-131` i `ZD-2026-128` zmienione na `ZK/2026/11/031` i `ZK/2026/11/028`, bo `ZD-…` to zadania.
 - **Zapotrzebowanie liczone, nie wpisywane**: potrzeby zleceń/zgłoszeń + minima magazynu i busów − dostępne (stan − rezerwacje) − w drodze. Rezerwacje i zamówienia w drodze nie liczą się podwójnie (PRODUCT_PLAN, etap 5). Każda pozycja pokazuje źródło potrzeby (ZS-, ZG-, minimum).
