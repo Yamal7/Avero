@@ -1,0 +1,58 @@
+# Avero — przekazanie projektu interfejsu
+
+Avero to program FSM / CRM / ERP dla firmy HVACR (serwis, montaż chłodnictwa, klimatyzacji i pomp ciepła). Właściciel: Pascal Kranz. Interfejs projektowany jest w osobnym czacie Claude (makiety), kod pisze Claude Code w tym repozytorium.
+
+**To repozytorium jest wspólnym źródłem wiedzy dla obu stron.** Projekt zapisuje tu opisy ekranów i decyzje; Claude Code zapisuje postęp w `docs/STATUS.md`.
+
+## Gdzie co jest
+
+| Ścieżka | Zawartość |
+|---|---|
+| `docs/design/HANDOFF.md` | ten plik: stan projektu, mapa modułów, sposób pracy |
+| `docs/design/DECISIONS.md` | dziennik decyzji z datami — czytaj przed każdą zmianą UI |
+| `docs/design/tokens.css` | tokeny (kolory, promienie, odstępy, typografia, kolory osób, paleta wykresów) |
+| `docs/design/data-scenario.md` | spójne dane przykładowe (klienci, urządzenia, dokumenty, kwoty) |
+| `docs/design/screens/*.md` | opis każdego modułu: układ, stany, dane, interakcje |
+| `.claude/skills/precision-ui/SKILL.md` | zasady stylu Precision UI (styl Linear) — ładuj przy każdym zadaniu UI |
+| `design/canvas/*.dc.html` | makiety HTML (kopia kanwy projektowej); otwierają się w przeglądarce z `support.js` kanwy, ale da się je czytać jako kod |
+| `design/tools/` | skrypty, które generują makiety (patrz `design/README.md`) |
+| `docs/STATUS.md` | prowadzi Claude Code: co zaimplementowano, odstępstwa, pytania do projektu |
+
+Kanwa projektowa (claude.ai, prywatna, wymaga zalogowania): https://claude.ai/artifact/Y4pGZr32HdJb4kp36kZx4C
+Dokument wytycznych Precision UI (claude.ai, prywatny): https://claude.ai/artifact/7cnC7v2WG1evNbVnS23ost
+Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w tym repozytorium.
+
+## Rama aplikacji (wspólna dla wszystkich ekranów desktop)
+
+- Górny pasek 44 px na tle `--bg-shell`: przełącznik firmy, szukaj (⌘K), nowy, skrzynka, kalendarz, **karty otwartych rekordów** (jak w przeglądarce: Mój dzień, Zadania, Magazyn, Firmy, ZS-1047…), stan synchronizacji, powiadomienia, awatar.
+- Panel boczny 232 px na tym samym tle, zwijany. Sekcje (zwijane): Skrzynka, Mój dzień · **Sprzedaż**: Leady, Szanse, Oferty · **Klienci**: Firmy i osoby, Obiekty, Urządzenia, Umowy · **Serwis**: Zgłoszenia, Zlecenia, Planowanie, Przeglądy · **Projekty**: Projekty, Zadania · **Finanse i magazyn**: Faktury, Katalog, Magazyn, Zakupy · na dole Raporty, Ustawienia.
+- Panel główny osadzony w ramie: odstęp 8 px, promień 12 px, tło `--bg-surface`.
+- Ekran rekordu: pasek 44 px (okruszki, ID mono, akcje ikonowe) → tytuł 18 px + linia meta z ikonami → kapsułki właściwości → treść (max ~960 px) + prawy panel szczegółów 340 px z cienką linią `--edge`.
+
+## Moduły — stan projektu (20 lis 2026)
+
+| Moduł | Plik opisu | Plansze na kanwie |
+|---|---|---|
+| Mój dzień (pulpit biura) | `screens/01-moj-dzien.md` | Mój dzień · jasny / ciemny, Paleta ⌘K |
+| Zadania (widok kolekcji) | `screens/02-zadania.md` | Zadania · lista / tablica / opcje widoku |
+| Magazyn | `screens/03-magazyn.md` | Magazyn · tabela / wydanie RW / w samochodach |
+| Firmy i osoby, karta firmy, urządzenia, F-gaz | `screens/04-klienci.md` | Firmy, Osoby, Karta firmy, Urządzenia, Historia F-gaz |
+| Protokoły i telefon technika | `screens/05-protokoly.md` | Szablony, Telefon · kontrola / montaż / uruchomienie pompy |
+| Zlecenie serwisowe | `screens/06-zlecenie.md` | Zlecenie ZS-1047 |
+| Planowanie i mapa | `screens/07-planowanie.md` | Planowanie · dzień / przeciąganie / mapa (1920 px) |
+| Oferty (kreator + widok klienta + akceptacja) | `screens/08-oferty.md` | Oferta · pozycje / warunki / wysyłka / po akceptacji; Klient · oferta, podpis, zaliczka, gotowe |
+| Zlecenie montażu | `screens/09-zlecenie-montazu.md` | Zlecenie montażu ZS-1052 |
+| Faktura końcowa | `screens/10-faktura.md` | Faktura końcowa FV/2026/12/003; Klient · po montażu |
+| Przeglądy i umowy serwisowe | `screens/11-przeglady-umowy.md` | Przeglądy, Umowa serwisowa UM-2026-031, Klient · wybór terminu |
+| Raporty | `screens/12-raporty.md` | Raporty · przegląd miesiąca |
+| Ustawienia | — | **następny do zaprojektowania** |
+
+Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
+
+## Sposób pracy między czatem projektowym a Claude Code
+
+1. Czat projektowy po każdym zaakceptowanym ekranie: aktualizuje `screens/*.md`, dopisuje decyzje do `DECISIONS.md`, odświeża `design/canvas/` — na gałęzi `design/*`, przez pull request.
+2. Claude Code przed pracą nad UI czyta `HANDOFF.md`, `DECISIONS.md` i opis modułu; ładuje skill `precision-ui`; używa wyłącznie tokenów z `tokens.css`.
+3. Claude Code po każdej zmianie dopisuje do `docs/STATUS.md`: co zaimplementowano, co świadomie odbiega od makiety (i dlaczego), pytania do projektu.
+4. Czat projektowy przed każdym nowym modułem czyta `docs/STATUS.md` i ostatnie commity.
+5. Odświeżony ekran projektuje się **obok** starego (do porównania); stary usuwa właściciel po akceptacji.
