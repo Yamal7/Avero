@@ -24,7 +24,7 @@ Nie zmieniaj plików w `docs/design/` ani `design/` — to obszar czatu projekto
 
 ## Stos technologiczny
 
-Do uzupełnienia przy pierwszym commicie kodu. Zalecenia ze skilla Precision UI: React + TypeScript, Tailwind (wyłącznie z tokenami, zmapowanymi w `theme.extend`), Radix UI lub React Aria, cmdk (⌘K), Motion, Sonner, ikony Phosphor (Regular), fonty Geist i Geist Mono. Mapa: MapLibre + OpenStreetMap. Nową bibliotekę dodawaj dopiero po zgodzie właściciela.
+Do uzupełnienia przy pierwszym commicie kodu. Zalecenia ze skilla Precision UI: React + TypeScript, Tailwind (wyłącznie z tokenami, zmapowanymi w `theme.extend`), Radix UI lub React Aria, cmdk (⌘K), Motion, Sonner, ikony Phosphor (Regular), fonty Geist i Geist Mono. Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS). Nową bibliotekę dodawaj dopiero po zgodzie właściciela.
 
 ## Zasady, o których łatwo zapomnieć
 

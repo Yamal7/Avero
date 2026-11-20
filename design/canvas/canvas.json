@@ -554,6 +554,38 @@
       "title": "Ustawienia · wygląd",
       "x": 3040,
       "y": 28800
+    },
+    "Zgloszenia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zgłoszenia · lista i podgląd ZG-0920",
+      "x": 0,
+      "y": 30340
+    },
+    "Zgloszenia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zgłoszenia · ciemny",
+      "x": 1520,
+      "y": 30340
+    },
+    "Skrzynka.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · wątek Hotel Oliwski",
+      "x": 3040,
+      "y": 30340
+    },
+    "Skrzynka-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · ciemny",
+      "x": 4560,
+      "y": 30340
     }
   },
   "createdOnFiles": {
@@ -762,7 +794,11 @@
     "Ustawienia-technicy.dc.html",
     "Ustawienia-moj-profil.dc.html",
     "Ustawienia-powiadomienia.dc.html",
-    "Ustawienia-wyglad.dc.html"
+    "Ustawienia-wyglad.dc.html",
+    "Zgloszenia.dc.html",
+    "Zgloszenia-ciemny.dc.html",
+    "Skrzynka.dc.html",
+    "Skrzynka-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",

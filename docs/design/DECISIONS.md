@@ -2,6 +2,16 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-20 (Zgłoszenia i Skrzynka)
+- **Zgłoszenia projektowane pod istniejący backend** (`docs/SERVICE_WORKFLOW.md`): statusy Nowe / W obsłudze / Oczekuje / Zamknięte i priorytety Niski / Normalny / Pilny z kodu. Status i priorytet zawsze kształtem + kolorem, nigdy samym kolorem.
+- **Lista grupowana po statusie**, kolumna „Reakcja”: przy umowie z SLA odliczanie do terminu reakcji (czerwone), bez umowy — czas od zgłoszenia.
+- **Ścieżka statusu w podglądzie** (Przyjęte → Technik → Wizyta → Protokół → Zamknięte) — ten sam znak rozpoznawczy co w Mój dzień.
+- **Propozycja technika uwzględnia przypisanie do klienta** (biuro może wybrać tylko technika z dostępem do klienta — reguła z backendu), odległość i wolne okno. Akcja jedną kontrolką: przydziel + zaplanuj + potwierdzenie do klienta.
+- **Skrzynka = jedno miejsce na korespondencję** (e-mail serwis/biuro, portal klienta, formularz na stronie). Każdy wątek ma przypięcie: zgłoszenie, lead lub kategoria nie-serwisowa. Dopasowanie po nadawcy, obiekcie i numerze dokumentu (np. ZD-2026-128 → ZG-0905).
+- **Odpowiedź do klienta i notatka wewnętrzna w jednym polu z przełącznikiem** (R / N); notatka zawsze oznaczona kłódką. Klient nigdy nie widzi notatek (zgodnie z PRODUCT_PLAN, etap 2 pkt 4).
+- **Propozycje Avero nic nie zmieniają bez kliknięcia**; szkic odpowiedzi tworzony z propozycji jest edytowalny.
+- Do decyzji właściciela: sposób odbioru poczty (przekierowanie na adres przychodzący, IMAP czy Microsoft 365 / Google), SMS jako kanał w Skrzynce.
+
 ## 2026-11-20 (decyzje właściciela: ikony i mapa)
 - **Phosphor zatwierdzony** — własne ikony SVG w kodzie zastąpić biblioteką `@phosphor-icons/react` (wariant Regular, 16/20 px, kolor z tokenów tekstu). Nazwy ikon z makiet odpowiadają nazwom Phosphor.
 - **MapLibre odłożone** — na razie zostaje mapa na kafelkach OpenStreetMap z nakładką SVG. MapLibre wdrażamy dopiero, gdy pojawi się realna potrzeba (np. dużo pinezek, warstwy tras, mapa w trybie ciemnym z własnym stylem).

@@ -9,7 +9,9 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 
 ## Scenariusz serwisowy (piątek 13 lis 2026, 09:14)
 - **ZS-1047** — lodziarka nie chłodzi, Delikatesy Morskie, Starowiejska 12, Gdynia. KN w drodze, przyjazd 09:40. Części: MM/2026/11/052, protokół PR/2026/11/041. SLA 29 h, rozliczenie 520,17 zł.
-- **ZG-0920** — zgłoszenie alarmowe (0:52 do reakcji), proponowany PD na 09:30, 6 km.
+- **ZG-0920** — zgłoszenie alarmowe (0:52 do reakcji), proponowany PD na 09:30, 6 km. Przychodnia Zdrowie (Morska 105, Gdynia), centrala wentylacyjna UR-2650 — alarm zamrożenia wymiennika; e-mail Roberta Kamińskiego 6:06; umowa **UM-2025-022** (reakcja 4 h całodobowo → do 10:06, kara 200 zł/rozpoczęta h).
+- Pozostałe otwarte zgłoszenia (13 lis): ZG-0923 Biuro Bilans — klimatyzator kapie (portal, 8:41, 2 zdjęcia); ZG-0924 Piekarnia Rogal — oszroniony parownik (telefon, 8:55); ZG-0915 → ZS-1047 (KN); ZG-0912 Hotel Oliwski — agregat Bitzer UR-2304 często się załącza (PD, dziś 13:00); ZG-0909 Galeria Bałtycka — VRV jednostka 3 głośna (TL, pon 16 lis 8:00); ZG-0907 Kancelaria Wit — filtry (MZ, wt 17 lis 15:00); ZG-0905 Kancelaria Wit — wentylator skraplacza, czeka na część ZD-2026-128 (Klimatech, dostawa 17 lis); ZG-0898 Restauracja Przystań (Bulwar Nadmorski 2) — schładzacz, klient wybiera termin.
+- Skrzynka (13 lis): Ewa Malinowska (Hotel Oliwski, szefowa kuchni) 9:02 — agregat znów stanął, komora 9 °C, dostawa 11:00 → propozycja: dołącz do ZG-0912, priorytet Pilny, przesuń PD na 10:45 (po Przychodni, 4 km). Joanna Krawczyk — formularz www, wycena klimatyzacji 3 pokoje 64 m² w Redłowie → lead.
 - **ZS-1045** — montaż wstrzymany: brak R32 w busie (zadanie ZD-118).
 - Urządzenie **UR-3107** lodziarka, R404A 5,4 kg = 21,2 t CO₂e → kontrola co 12 mies.
 
