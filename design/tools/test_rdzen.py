@@ -31,8 +31,13 @@ d(review('Volt-Serwis (elektryka, 4 techników) — bez pakietu branżowego. Str
 d('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:14px;padding:4px 16px 24px">')
 def sec(t,n,k,rows): return f'<section style="display:flex;flex-direction:column;gap:2px">'+h3l(t,k,CNT(n))+''.join(rows)+'</section>'
 def r(left,title,sub,right,tip='',col='var(--text-secondary)'):
-    return (f'<div class="row" title="{tip}" style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px">'
-            f'<span class="num" style="font-size:12px;color:{col}">{left}</span><span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{title}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></span>'
+    pp=sub.split(' · '); ref=pp[0] if pp and (pp[0][:2].isalpha() and '-' in pp[0]) else ''
+    rest=pp[1:] if ref else pp
+    f=rest[0] if rest else ''; city=rest[1] if len(rest)>1 else ''
+    lg=u_logo(f) if f else '<span></span>'
+    return (f'<div class="row row1" title="{tip}" style="display:grid;grid-template-columns:52px 76px minmax(0,1fr) 20px minmax(0,0.45fr) auto;column-gap:12px;align-items:center;padding:0 10px;border-radius:10px">'
+            f'<span class="num" style="font-size:12px;color:{col}">{left}</span><span class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{ref}</span><span class="ell" style="font-weight:500">{title}</span>{lg}'
+            f'<span style="display:flex;align-items:center;gap:4px;min-width:0;font-size:12px;color:var(--text-tertiary)">{u_ci("pin","red",12) if city else ""}<span class="ell">{city}</span></span>'
             f'<span style="display:flex;align-items:center;gap:8px">{right}</span></div>')
 d(sec('Zagrożone SLA',1,'R',[r('1:10','Brak zasilania w strefie B — wybija różnicówka','ZG-0412 · Hala Portowa Logistyka · Gdynia, Hutnicza 8','<span style="font-size:12px;color:var(--warning)">reakcja do 8:50</span>'+cav('DK',C1),'Umowa UM-0031 · reakcja 4 h od zgłoszenia 4:50','var(--warning)')]))
 d(sec('Wizyty',4,'R',[

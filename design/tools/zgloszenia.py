@@ -4,6 +4,7 @@ SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
 s=open(P).read()
+exec(open('design/tools/ui1.py').read())
 TL='#9B6BE0'; MZC='#3B82D6'; KN='#1FA7A5'; PD='#E0702A'; AWC='#8A8F98'
 CHECK='<path d="M20 6 9 17l-5-5"></path>'
 INBOX='<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>'
@@ -52,18 +53,20 @@ def prio(k):
 PRN={'high':'Pilny','normal':'Normalny','low':'Niski'}
 SRC={'mail':(MAIL,'E-mail'),'portal':(PORTAL,'Portal klienta'),'tel':(PHONE,'Telefon'),'tech':(TECHI,'Zgłosił technik'),'prz':(CYC,'Z przeglądu'),'www':(GLOBE,'Formularz na stronie')}
 def src(k,tip=''):
-    i,t=SRC[k]; return f'<span title="{t}{(" · "+tip) if tip else ""}" style="display:inline-flex;justify-content:center">{ic(i,14,"var(--text-tertiary)")}</span>'
+    i,t=SRC[k]; return f'<span title="{t}{(" · "+tip) if tip else ""}" style="display:inline-flex;justify-content:center">{ic(i,14,SRCC2[k])}</span>'
+SRCC2={'mail':'var(--ic-blue)','portal':'var(--ic-violet)','tel':'var(--ic-teal)','tech':'var(--ic-orange)','prz':'var(--ic-green)','www':'var(--ic-indigo)'}
 
 # =================== ZGŁOSZENIA (lista)
-COLS='16px 16px 60px minmax(0,1.7fr) minmax(0,0.9fr) 16px 112px 48px 24px'
+COLS='16px 16px 60px minmax(0,1.7fr) 20px minmax(0,0.9fr) 16px 112px 48px 24px'
 def row(pr,stt,num,subj,subjtip,cli,clitip,sk,sktip,visit,visittip,age,agetip,who,sel=False,sub='',agecol='var(--text-tertiary)'):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:40px;padding:0 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{bg}">'
             f'<span role="cell" title="Priorytet: {PRN[pr]}" style="display:inline-flex">{prio(pr)}</span>'
             f'<span role="cell" title="{TSTN[stt]}" style="display:inline-flex">{tst(stt)}</span>'
             f'<span role="cell" class="mono" style="color:var(--text-tertiary)">{num}</span>'
             f'<span role="cell" title="{subjtip}" style="display:flex;align-items:center;gap:8px;min-width:0"><span class="ell">{subj}</span>{sub}</span>'
-            f'<span role="cell" class="ell" title="{clitip}" style="color:var(--text-secondary)">{cli}</span>'
+            f'<span role="cell" style="display:flex">{u_logo(cli)}</span>'
+            f'<span role="cell" title="{cli} · {clitip}" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("pin","red",12)}<span class="ell">{clitip}</span></span>'
             f'<span role="cell">{src(sk,sktip)}</span>'
             f'<span role="cell" class="ell num" title="{visittip}" style="font-size:12px;color:var(--text-secondary)">{visit}</span>'
             f'<span role="cell" class="num" title="{agetip}" style="text-align:right;font-size:12px;color:{agecol}">{age}</span>'
@@ -85,7 +88,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'+
   '<button type="button" class="capd" title="Dodaj filtr  F" style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 10px;border:0;border-radius:14px;color:var(--text-secondary)">'+ic(PLUS,14)+'Filtr</button>'+SP+
   f'<span style="display:flex;align-items:center;gap:14px;font-size:12px;color:var(--text-secondary)"><span style="display:inline-flex;align-items:center;gap:5px" title="Pilne">{prio("high")}2</span><span style="display:inline-flex;align-items:center;gap:5px" title="Nowe">{tst("new")}3</span><span style="display:inline-flex;align-items:center;gap:5px" title="W obsłudze">{tst("prog")}4</span><span style="display:inline-flex;align-items:center;gap:5px" title="Oczekuje">{tst("wait")}2</span></span></div>')
 a('<div role="table" aria-label="Zgłoszenia" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span></span><span></span><span>Numer</span><span>Temat</span><span>Klient · obiekt</span><span></span><span>Wizyta</span><span style="text-align:right" title="Czas do reakcji z umowy albo czas od zgłoszenia">Reakcja</span><span></span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span></span><span></span>'+u_th('Numer','hash')+u_th('Temat','alert','red')+u_th('','bld','indigo',tip='Klient')+u_th('Obiekt','pin','red')+'<span></span>'+u_th('Wizyta','cal','blue')+'<span style="text-align:right" title="Czas do reakcji z umowy albo czas od zgłoszenia">Reakcja</span><span></span></div>')
 a(grp('Nowe',3,'<span style="font-size:12px;color:var(--text-secondary)">czekają na technika</span>',icon=tst('new')))
 a(row('high','new','ZG-0920','Centrala stoi — alarm zamrożenia','Zgłoszone e-mailem o 6:06 przez Roberta Kamińskiego','Przychodnia Zdrowie','Morska 105, Gdynia · UR-2650','mail','r.kaminski@przychodnia-zdrowie.pl','brak','Proponowany: Piotr, 9:30',sla('0:52','Reakcja do 10:06 · UM-2025-022: 4 h całodobowo'),'',sugg('PD',PD,'Proponowany: Piotr — 6 km, wolny do 11:00'),sel=True,sub=obj('UM','Umowa serwisowa UM-2025-022')))
 a(row('normal','new','ZG-0923','Klimatyzator kapie wodą na biurko','Zgłoszenie z portalu klienta · 2 zdjęcia','Biuro Rachunkowe Bilans','Świętojańska 9, Gdynia · split UR-3302','portal','Hanna Bilska, 8:41','brak','Bez terminu','35 min','Zgłoszone 8:41',nobody,sub=sch(ic(IMG,12,'var(--text-tertiary)')+'2','2 zdjęcia od klienta')))

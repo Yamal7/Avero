@@ -1,6 +1,7 @@
 # Warstwa elastyczna: własna tabela „Przetargi” (lista + konfigurowalny panel), ustawienia tabeli: pola i edytor panelu bocznego.
 # Scenariusz: piątek 20 lis 2026, 18:00. Tabelę utworzył Pascal (administrator).
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -45,13 +46,14 @@ nobody='<span title="Bez opiekuna" style="width:20px;height:20px;border-radius:5
 own=sch(ic(TABLEI,12,'var(--text-tertiary)')+'własna tabela','Utworzona przez Pascala 20 lis · 16 pól · widoczna dla administratora i biura')
 
 # =================== PRZETARGI — lista
-COLS='52px minmax(0,1.8fr) minmax(0,1fr) 104px 120px 156px 24px'
+COLS='52px minmax(0,1.8fr) 20px minmax(0,1fr) 104px 120px 156px 24px'
 def row(no,name,org,brs,val,valtip,term,termtip,stat,who,sel=False,termcol='var(--text-secondary)'):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
             f'<span role="cell" class="mono" style="font-size:12px;color:var(--text-tertiary)">{no}</span>'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">{org}</span></span>'
-            f'<span role="cell" style="display:flex;flex-wrap:wrap;gap:4px;min-width:0">{brs}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0">{u_ci("gavel","violet")}<span class="ell" style="font-weight:500">{name}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(org)}</span>'
+            f'<span role="cell" style="display:flex;flex-wrap:nowrap;gap:4px;min-width:0;overflow:hidden">{brs}</span>'
             f'<span role="cell" class="num" title="{valtip}" style="text-align:right">{val}</span>'
             f'<span role="cell" class="num" title="{termtip}" style="text-align:right;font-size:12px;color:{termcol};white-space:nowrap">{term}</span>'
             f'<span role="cell" style="font-size:12px">{st(stat)}</span>'
@@ -72,7 +74,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'+
   '<span title="Suma pola „Wartość szacunkowa” w tym widoku">Wartość <span class="num" style="color:var(--text-primary);font-weight:500">1 304 000 zł</span></span>'
   '<span title="Wygrane / złożone oferty w 2026 r. — z pola Status">Skuteczność 2026 <span class="num" style="color:var(--text-primary);font-weight:500">3 z 8</span></span></span></div>')
 a('<div role="table" aria-label="Przetargi" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Nr</span><span>Zamówienie · zamawiający</span><span>Branża</span><span style="text-align:right">Wartość szac.</span><span style="text-align:right">Składanie ofert</span><span>Status</span><span></span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Nr','hash')+u_th('Zamówienie','gavel','violet')+u_th('','bld','indigo',tip='Zamawiający')+u_th('Branża','tag','pink')+u_th('Wartość szac.','coin','yellow','right')+u_th('Składanie ofert','cal','blue','right')+u_th('Status','flag','green')+'<span></span></div>')
 a(row('PR-013','Serwis urządzeń chłodniczych i klimatyzacji 2027–2028','Centrum Medyczne Kaszuby · Wejherowo',br('Chłodnictwo','Klimatyzacja'),'186 000','Netto, z ogłoszenia','pt 27 lis · 7 dni','Piątek 27 listopada 2026, 9:00 · pole „Dni do terminu” (formuła)','Przygotowanie oferty',cav('TL',TL),sel=True,termcol='var(--warning)'))
 a(row('PR-014','Klimatyzacja sal w budynku urzędu','Gmina Miejska Rumia',br('Klimatyzacja'),'420 000','Netto, z ogłoszenia','pt 4 gru · 14 dni','Piątek 4 grudnia 2026, 10:00','Analiza',cav('PK',PKC)))
 a(row('PR-015','Pompy ciepła w 3 świetlicach wiejskich','Gmina Kosakowo',br('Pompy ciepła'),'640 000','Netto, z ogłoszenia','pt 11 gru · 21 dni','Piątek 11 grudnia 2026, 10:00','Nowy',nobody))

@@ -61,9 +61,12 @@ k('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div
 k('<div style="display:flex;align-items:center;gap:8px;padding:0 4px 4px"><span style="font-size:12px;color:var(--text-secondary)">3 akcje · 2 automatyczne</span>'+SP+btn('Dodaj','Dodaj akcję: przycisk albo automat',PLUS)+'</div>')
 def act(icon,title,trig,sub,sel=False,on=True):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div class="row" style="display:flex;gap:10px;padding:10px 12px;border-radius:12px;{bg}">{ic(icon,16,"var(--text-secondary)")}'
-            f'<div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="ell" style="font-weight:500">{title}</span><span style="font-size:12px;line-height:16px;color:var(--text-secondary)">{trig}</span><span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></div>'
-            f'<span title="{"Włączona" if on else "Wyłączona"}" style="width:28px;height:16px;flex:0 0 auto;border-radius:8px;background:{"var(--accent)" if on else "var(--border-strong)"};position:relative;margin-top:2px"><span style="position:absolute;top:2px;{"right:2px" if on else "left:2px"};width:12px;height:12px;border-radius:50%;background:#fff"></span></span></div>')
+    auto=trig.startswith('Automat')
+    tc=('<span title="'+trig+' · '+sub+'" style="display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;font-size:12px;color:var(--text-secondary)">'+(u_ci('zap','yellow',12)+'automat' if auto else u_ci('play','blue',12)+'przycisk')+'</span>')
+    col='var(--ic-orange)' if auto else 'var(--ic-violet)'
+    return (f'<div class="row row1" style="display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:10px;{bg}">{ic(icon,16,col)}'
+            f'<span class="ell" title="{sub}" style="flex:1 1 auto;min-width:0;font-weight:500">{title}</span>{tc}'
+            f'<span title="{"Włączona" if on else "Wyłączona"}" style="width:28px;height:16px;flex:0 0 auto;border-radius:8px;background:{"var(--accent)" if on else "var(--border-strong)"};position:relative"><span style="position:absolute;top:2px;{"right:2px" if on else "left:2px"};width:12px;height:12px;border-radius:50%;background:#fff"></span></span></div>')
 k(act(TARGET,'Utwórz szansę z przetargu','Przycisk w panelu','Użyta 3 razy · ostatnio PR-010, 2 lis',True))
 k(act(BELL,'Przypomnij o terminie składania','Automat · 3 dni i 1 dzień przed terminem','Powiadomienie do opiekuna · e-mail i w aplikacji'))
 k(act(CHK,'Wygrany → zadanie „Przygotuj umowę”','Automat · gdy Status zmieni się na Wygrany','Zadanie dla opiekuna, termin +3 dni robocze'))
@@ -91,16 +94,17 @@ U=[];u=U.append
 u('<sc-if value="{{isTbU}}" hint-placeholder-val="{{false}}">')
 u(thead(4))
 u('<div style="flex:1 1 auto;display:flex;flex-direction:column;gap:20px;padding:8px 24px 24px;min-height:0">')
-RC='minmax(0,1.2fr) repeat(5,112px)'
+RC='minmax(0,0.8fr) minmax(0,1fr) repeat(5,104px)'
 def yes(): return ic(CHECK,16,'var(--success)')
 def no(): return '<span style="color:var(--text-tertiary)">—</span>'
 def part(t,tip): return sch(t,tip)
 def rr(role,sub,cells,lock=False):
-    return (f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px">'
-            f'<span style="display:flex;flex-direction:column"><span style="display:flex;align-items:center;gap:6px;font-weight:500">{role}{ic(LOCK,12,"var(--text-tertiary)") if lock else ""}</span><span style="font-size:12px;line-height:16px;color:var(--text-secondary)">{sub}</span></span>'
+    return (f'<div role="row" class="row1" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px">'
+            f'<span style="display:flex;align-items:center;gap:6px;font-weight:500;min-width:0">{u_ci("users","indigo")}<span class="ell">{role}</span>{ic(LOCK,12,"var(--text-tertiary)") if lock else ""}</span>'
+            f'<span class="ell" title="{sub}" style="font-size:12px;color:var(--text-secondary)">{sub}</span>'
             +''.join(f'<span style="display:flex;justify-content:center">{c}</span>' for c in cells)+'</div>')
 u('<section style="display:flex;flex-direction:column;gap:2px;max-width:1000px">'+h3('Role')+
-  f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span></span>'+''.join(f'<span style="text-align:center">{t}</span>' for t in ['Widzi','Dodaje','Edytuje','Archiwizuje','Ustawienia'])+'</div>'+
+  f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Rola','users','indigo')+'</span><span>'+u_th('Kto','user','pink')+'</span>'+''.join(f'<span style="text-align:center">{t}</span>' for t in ['Widzi','Dodaje','Edytuje','Archiwizuje','Ustawienia'])+'</div>'+
   rr('Administrator','Pascal Kranz',[yes(),yes(),yes(),yes(),yes()],True)+
   rr('Biuro','Agnieszka Wiśniewska',[yes(),yes(),yes(),yes(),no()])+
   rr('Technicy','4 osoby',[part('swoje','Tylko przetargi, w których są opiekunem'),no(),part('swoje','Tylko swoje — bez pól ukrytych niżej'),no(),no()])+

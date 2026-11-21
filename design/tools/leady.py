@@ -1,5 +1,6 @@
 # Leady (lista + podgląd) i Szanse (tablica etapów). Scenariusz: piątek 13 lis 2026, 9:14 (jak Zgłoszenia i Skrzynka).
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -38,21 +39,29 @@ def tabs(items):
     return ''.join(f'<a href="#" class="sec" style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:14px;{"background:var(--bg-subtle);color:var(--text-primary);font-weight:500" if i==0 else "color:var(--text-secondary)"}">{t}<span class="num" style="color:var(--text-tertiary)">{n}</span></a>' for i,(t,n) in enumerate(items))
 SRC={'www':(GLOBE,'Formularz na stronie'),'tel':(PHONE,'Telefon'),'mail':(MAIL,'E-mail'),'tech':(TECHI,'Od technika'),'ref':(REF,'Polecenie')}
 def src(k,tip=''):
-    i,t=SRC[k]; return f'<span title="{t}{(" · "+tip) if tip else ""}" style="display:inline-flex;justify-content:center">{ic(i,14,"var(--text-tertiary)")}</span>'
+    i,t=SRC[k]; return f'<span title="{t}{(" · "+tip) if tip else ""}" style="display:inline-flex;justify-content:center">{ic(i,14,SRCC.get(k,"var(--text-tertiary)"))}</span>'
+SRCC={'mail':'var(--ic-blue)','tel':'var(--ic-teal)','www':'var(--ic-indigo)','ref':'var(--ic-pink)','tech':'var(--ic-orange)','portal':'var(--ic-violet)','prz':'var(--ic-green)'}
 TYP={'kl':(WIND,'#2BB3B1','Klimatyzacja'),'pc':(FLAME,'#E0702A','Pompa ciepła'),'chl':(SNOW,'#3B82D6','Chłodnictwo'),'went':(FAN,'#C98A12','Wentylacja')}
 def typ(k,extra=''):
     i,c,t=TYP[k]; return sch(ic(i,12,c)+t+extra,t)
 nobody='<span title="Bez opiekuna" style="width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--border-strong);display:inline-block"></span>'
 
 # =================== LEADY
-COLS='16px minmax(0,1.3fr) 128px minmax(0,0.9fr) 72px 136px 24px'
+COLS='16px minmax(0,1.2fr) minmax(0,0.8fr) 120px minmax(0,0.6fr) 76px 112px 20px'
 def lrow(sk,sktip,name,sub,t,loc,loctip,val,valtip,ct,cttip,who,sel=False,ctcol='var(--text-secondary)'):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:44px;padding:0 10px;border-radius:10px;{bg}">'
+    per,tel=(sub.split(' · ')+[''])[:2]
+    priv=per=='osoba prywatna'
+    perc=(f'<span style="display:inline-flex;align-items:center;gap:6px;min-width:0;color:var(--text-tertiary)">{u_ci("user","pink",12)}<span class="ell">prywatnie</span></span>' if priv else
+          f'<span style="display:inline-flex;align-items:center;gap:6px;min-width:0">{u_ci("users" if "KL-" in tel else "user","indigo",12)}<span class="ell">{per}</span></span>')
+    telc=(f'<span style="display:inline-flex;align-items:center;gap:6px;min-width:0">{u_ci("phone","teal",12)}<span class="ell num">{tel}</span></span>' if tel.startswith('+') else
+          f'<span style="display:inline-flex;align-items:center;gap:6px;min-width:0">{u_ci("hash","slate",12)}<span class="mono ell" style="font-size:11px">{tel}</span></span>' if tel else '')
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
             f'<span role="cell">{src(sk,sktip)}</span>'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></span>'
+            f'<span role="cell" title="{tel}" style="display:flex;min-width:0">{u_logo(name,label=True)}</span>'
+            f'<span role="cell" style="display:flex;min-width:0;font-size:12px;color:var(--text-secondary)">{perc}</span>'
             f'<span role="cell" style="display:flex">{typ(t)}</span>'
-            f'<span role="cell" class="ell" title="{loctip}" style="color:var(--text-secondary)">{loc}</span>'
+            f'<span role="cell" class="ell" title="{loc} · {loctip}" style="font-size:12px;color:var(--text-secondary)">{loc}</span>'
             f'<span role="cell" class="num" title="{valtip}" style="text-align:right;color:var(--text-secondary)">{val}</span>'
             f'<span role="cell" class="num" title="{cttip}" style="text-align:right;font-size:12px;color:{ctcol};display:flex;justify-content:flex-end;align-items:center;gap:3px">{ct}</span>'
             f'<span role="cell" style="display:flex;justify-content:flex-end">{who}</span></div>')
@@ -66,7 +75,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'+
   '<button type="button" class="capd" title="Dodaj filtr  F" style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 10px;border:0;border-radius:14px;color:var(--text-secondary)">'+ic(PLUS,14)+'Filtr</button>'+SP+
   '<span title="Średni czas do pierwszego kontaktu w listopadzie · cel: 2 h w godzinach pracy" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">'+ic(CLOCK,14,'var(--text-tertiary)')+'Pierwszy kontakt w listopadzie: <span class="num" style="color:var(--text-primary);font-weight:500">1 h 25 min</span> · cel 2 h</span></div>')
 a('<div role="table" aria-label="Leady" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span></span><span>Kontakt</span><span>Zainteresowanie</span><span>Miejsce</span><span style="text-align:right" title="Szacunek z szablonów instalacji">Szacunek</span><span style="text-align:right" title="Termin pierwszego kontaktu: 2 h od wpłynięcia, w godzinach pracy">Kontakt do</span><span></span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span></span>'+u_th('Kontakt','bld','indigo')+u_th('Osoba','user','pink')+u_th('Zainteresowanie','tag','violet')+u_th('Miejsce','pin','red')+u_th('Szacunek','coin','yellow','right',tip='Szacunek z szablonów instalacji')+u_th('Kontakt do','clock','orange','right',tip='Termin pierwszego kontaktu: 2 h od wpłynięcia, w godzinach pracy')+'<span></span></div>')
 a(grp('Do pierwszego kontaktu',3,'<span style="font-size:12px;color:var(--text-secondary)">cel: 2 h od wpłynięcia</span>'))
 a(lrow('ref','Poleciła Przychodnia Zdrowie · e-mail 7:50','Gabinet DentSopot','dr Karolina Mazur · +48 601 330 214','kl','Sopot, Monte Cassino 41','Lokal usługowy na parterze','~22 tys.','2 gabinety + recepcja · szacunek z szablonu „Split 3 pom.”',clk('9:50','var(--warning)'),'Zostało 36 min · wpłynął 7:50',nobody))
 a(lrow('www','Formularz na stronie · 8:20','Joanna Krawczyk','osoba prywatna · +48 698 115 402','kl','Gdynia Redłowo','Blok, 4. piętro, 64 m²','~15 tys.','Multi-split 3 jednostki 2,5 kW · szablon „Mieszkanie 3 pok.”',clk('10:20','var(--text-secondary)'),'Zostało 1 h 06 min · wpłynął 8:20',nobody,sel=True))

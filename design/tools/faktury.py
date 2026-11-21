@@ -2,6 +2,7 @@
 # Scenariusz: czwartek 19 lis 2026, 16:00 (jak Raporty).
 SRCZ=open('design/tools/zakupy.py').read()
 exec(SRCZ.split("# =================== ZAPOTRZEBOWANIE")[0])
+exec(open('design/tools/ui1.py').read())
 P='design/canvas/Main.dc.html'; s=open(P).read()
 KNC='#1FA7A5'; TLC='#9B6BE0'; PKC='#5E6AD2'; PDC='#E0702A'; AWC='#C98A12'
 WALLET='<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 17.5v-11"></path>'
@@ -19,16 +20,21 @@ AGE=[('Przed terminem',274572,'var(--text-tertiary)',.45),('1–30 dni',14820,'v
 TOT=sum(a[1] for a in AGE); assert TOT==298052
 fmt=lambda v: f'{v:,}'.replace(',',' ')
 # =================== NALEŻNOŚCI
-NC='minmax(0,1.3fr) 128px 104px 96px minmax(0,1fr)'
+NC='minmax(0,1.2fr) 104px 128px 96px 84px minmax(0,1.1fr)'
+FLAG={'usługi wstrzymane':('alert','red','Usługi wstrzymane poza awariami'),'umowa serwisowa':('contract','green','Umowa serwisowa'),'2 faktury':None}
 def nrow(cli,no,notip,amount,term,termtip,late,latecol,step,steptip,sel=False,muted=False,sub=''):
     bg='background:var(--bg-subtle);' if sel else ''
     op='opacity:.6;' if muted else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{NC};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px;{bg}{op}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{cli}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></span>'
+    parts=sub.split(' · '); city=parts[0]; fl=''.join(f'<span title="{FLAG[x][2]}" style="display:inline-flex">{u_ci(FLAG[x][0],FLAG[x][1])}</span>' for x in parts[1:] if FLAG.get(x))
+    sk='mail' if 'przypomn' in step else ('phone' if 'obietnica' in step else ('alert' if 'wezwanie' in step else 'bank'))
+    skc={'mail':'blue','phone':'teal','alert':'red','bank':'violet'}[sk]
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{NC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0">{u_logo(cli,label=True,open_=sel)}{fl}</span>'
+            f'<span role="cell" class="ell" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("pin","red",12)}<span class="ell">{city}</span></span>'
             f'<span role="cell" class="mono ell" title="{notip}" style="font-size:11px;color:var(--text-secondary)">{no}</span>'
             f'<span role="cell" class="num" style="text-align:right;font-weight:500">{amount}</span>'
-            f'<span role="cell" class="num" title="{termtip}" style="text-align:right;font-size:12px;color:{latecol}">{late}</span>'
-            f'<span role="cell" class="ell" title="{steptip}" style="font-size:12px;color:var(--text-secondary);padding-left:8px">{step}</span></div>')
+            f'<span role="cell" class="num" title="{termtip}" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:12px;color:{latecol}">{u_ci("clock",latecol,12)}{late}</span>'
+            f'<span role="cell" title="{steptip}" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary);padding-left:8px">{u_ci(sk,skc)}<span class="ell">{step}</span></span></div>')
 N=[];n=N.append
 n('<sc-if value="{{isFk}}" hint-placeholder-val="{{false}}">')
 n(head(0,ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'<span style="width:4px"></span>'+btn('Nowa faktura','Nowa faktura — ze zlecenia, oferty albo pusta  C',PLUS)))
@@ -49,7 +55,7 @@ n('<div role="note" style="display:flex;align-items:center;gap:10px;margin:0 20p
   btn('Inna faktura…','Wybierz fakturę ręcznie')+btn('Dopasuj do FV/2026/11/006','Oznacz fakturę jako zapłaconą 19 lis',CHECK)+'</div>')
 n('<div style="display:flex;align-items:center;gap:6px;padding:0 20px 6px">'+capd('Po terminie','8 faktur · 23 480 zł')+capd('Wszyscy opiekunowie','PK, AW')+'</div>')
 n('<div role="table" aria-label="Należności po terminie" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-n(f'<div role="row" style="display:grid;grid-template-columns:{NC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Klient</span><span>Faktura</span><span style="text-align:right">Brutto</span><span style="text-align:right">Po terminie</span><span style="padding-left:8px">Ostatni krok</span></div>')
+n(f'<div role="row" style="display:grid;grid-template-columns:{NC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Klient','bld','indigo')+u_th('Miasto','pin','red')+u_th('Faktura','receipt','green')+u_th('Brutto','coin','yellow','right')+u_th('Po terminie','clock','orange','right')+'<span style="padding-left:8px">'+u_th('Ostatni krok','send','blue')+'</span></div>')
 n(nrow('Restauracja Port','FV/2026/09/018','Wystawiona 22 sie · termin 5 wrz','2 420,00','5 wrz','Termin piątek 5 września','74 dni','var(--danger)','wezwanie 30 paź · bez odpowiedzi','Wezwanie do zapłaty wysłane 30 paź · usługi wstrzymane poza awariami',sub='Gdynia · usługi wstrzymane'))
 n(nrow('Biuro Bilans','FV/2026/10/055','Termin 15 paź','1 080,00','15 paź','Termin czwartek 15 października','35 dni','#E0702A','przypomnienie 22 paź · otwarte','E-mail z linkiem do płatności, otwarty 2×',sub='Gdynia'))
 n(nrow('Hotel Oliwski','FV/2026/10/061 +1','2 faktury: FV/2026/10/061 5 160,00 (termin 19 paź) i FV/2026/11/012 4 700,00 (termin 5 lis)','9 860,00','19 paź','Najstarsza: termin poniedziałek 19 października','31 dni','#E0702A','obietnica zapłaty 13 lis — niedotrzymana','Telefon 9 lis, Paweł Grabowski',sel=True,sub='Gdańsk Oliwa · 2 faktury'))
@@ -89,12 +95,20 @@ n('<div style="display:flex;flex-direction:column;gap:6px;margin-top:auto;paddin
 n('</aside></div></sc-if>')
 
 # =================== DO WYSTAWIENIA
-WC='minmax(0,1.6fr) minmax(0,1fr) 104px 150px'
+WC='84px minmax(0,2fr) 20px 64px minmax(0,1fr) 92px 132px'
+TEC={'KN':'#1FA7A5','PD':'#E0702A','TL':'#9B6BE0','MZ':'#3B82D6'}
 def wrow(title,no,cli,what,amount,amtip,st,sttip,sel=False,muted=False):
     bg='background:var(--bg-subtle);' if sel else ''
     op='opacity:.6;' if muted else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{WC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}{op}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{title}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="mono" style="font-size:11px;white-space:nowrap">{no}</span><span class="ell">{cli}</span></span></span>'
+    parts=cli.split(' · '); f=parts[0]; rest=parts[1] if len(parts)>1 else ''
+    who=''; when=rest
+    if rest[:2] in TEC: who=cav(rest[:2],TEC[rest[:2]]); when=rest[3:]
+    k='chł' if any(x in title for x in ('Lodziarka','parowniku','Presostat')) else ('went' if 'wentylacji' in title else ('vrf' if 'wizyty' in title else 'klima'))
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{WC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{no}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0">{u_kind(k)}<span class="ell" style="font-weight:500">{title}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(f)}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{who}<span class="ell num">{when}</span></span>'
             f'<span role="cell" class="ell" style="font-size:12px;color:var(--text-secondary)">{what}</span>'
             f'<span role="cell" class="num" title="{amtip}" style="text-align:right">{amount}</span>'
             f'<span role="cell" title="{sttip}" style="display:flex;justify-content:flex-start;font-size:12px;padding-left:12px">{st}</span></div>')
@@ -109,7 +123,7 @@ w('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+c
   '<span title="Wstrzymane: brak numeru PO">Wstrzymane <span class="num" style="color:var(--text-primary);font-weight:500">1 420 zł</span></span>'
   '<span title="Najdłużej czeka zlecenie zakończone 13 lis">najdłużej 6 dni</span></span></div>')
 w('<div role="table" aria-label="Do wystawienia" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-w(f'<div role="row" style="display:grid;grid-template-columns:{WC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Zlecenie</span><span>Rozliczenie</span><span style="text-align:right">Netto</span><span style="padding-left:12px">Stan</span></div>')
+w(f'<div role="row" style="display:grid;grid-template-columns:{WC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Nr','hash')+u_th('Zlecenie','wrench','orange')+u_th('','bld','indigo',tip='Klient')+u_th('Wykonano','cal','blue')+u_th('Rozliczenie','list','violet')+u_th('Netto','coin','yellow','right')+'<span style="padding-left:12px">'+u_th('Stan','flag','green')+'</span></div>')
 w(wrow('Lodziarka — wymiana wentylatora skraplacza','ZS-1047','Delikatesy Morskie · KN 13 lis','robocizna 2 h, część, dojazd','1 260,00','Z protokołu PR/2026/11/038 i wydania RW/2026/11/041',ws(CHECK,'var(--success)','Gotowe'),'Protokół podpisany 13 lis 15:40',sel=True))
 w(wrow('Szron na parowniku — odszranianie i czyszczenie','ZS-1062','Piekarnia Rogal · PD 18 lis','robocizna 1 h, dojazd','780,00','Z protokołu PR/2026/11/044',ws(CHECK,'var(--success)','Gotowe'),'Protokół podpisany 18 lis 12:10'))
 w(wrow('Presostat HP i doładowanie czynnika','ZS-1060','Hotel Oliwski · PD 13 lis','część, 1,2 kg R404A, robocizna','1 420,00','RW/2026/11/044 · czynnik regenerowany 142,00 zł/kg',ws(WARN,'var(--warning)','Brak numeru PO','var(--warning)'),'Pole własne firmy „Numer PO na fakturze” — Hotel Oliwski wymaga PO. Bez niego Avero nie wystawi faktury.'))

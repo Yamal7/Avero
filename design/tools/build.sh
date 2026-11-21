@@ -4,6 +4,7 @@
 set -euo pipefail
 cp design/tools/base/Main.base.html design/canvas/Main.dc.html
 python3 design/tools/mojdzien2.py   # porządki: Mój dzień, spójne osoby i firmy w bazie
+python3 design/tools/jedna_linia.py # tabele w jednej linii: tokeny ikon, logo firm, karta podglądu
 python3 design/tools/oferta.py      # oferta: pozycje, warunki, wysyłka, po akceptacji
 python3 design/tools/zm.py          # zlecenie montażu ZS-1052
 python3 design/tools/faktura.py     # faktura końcowa

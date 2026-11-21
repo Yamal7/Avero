@@ -1,4 +1,5 @@
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -99,12 +100,13 @@ prof=(head('Profil firmy','Dane sprzedawcy na ofertach, fakturach, protokołach 
 # =========== UŻYTKOWNICY I ROLE
 ROLEC={'Administrator':('#5E6AD2',LOCKI),'Biuro':('#2BB3B1',BLD),'Technik':('#E0702A','<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>'),'Klient':('#8A8F98',HOME if 'HOME' in globals() else USER)}
 def role(r): c,i=ROLEC[r]; return sch(ic(i,12,c)+r,{'Administrator':'Cały program + konta, role, blokady i historia dostępu','Biuro':'Cały CRM, dodawanie i edycja, import; bez zarządzania dostępem','Technik':'Przypisani klienci i instalacje, własne wizyty i protokoły','Klient':'Portal: własne instalacje i udostępnione dokumenty'}[r])
-UC='minmax(0,1fr) 112px 132px 52px'
+UC='minmax(0,1fr) minmax(0,1fr) 104px 116px 44px'
 def urow(av,name,mail,r,scope,state,last,sel=False):
     stc={'act':('var(--success)','Aktywne'),'inv':('var(--warning)','Zaproszenie'),'blk':('var(--danger)','Zablokowane')}[state[0]]
     st=sch(dot(stc[0])+(state[1] or stc[1]),state[2])
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{UC};column-gap:12px;align-items:center;min-height:48px;padding:0 10px;border-radius:10px;{"background:var(--bg-subtle);" if sel else ""}">'
-            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{av}<span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{mail}{scope}</span></span></span>'
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{UC};column-gap:12px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{"background:var(--bg-subtle);" if sel else ""}">'
+            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{av}<span class="ell" style="font-weight:500">{name}</span></span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("mail","blue",12) if mail else ""}<span class="ell" title="{mail}{scope}">{mail}</span></span>'
             f'<span role="cell">{role(r)}</span><span role="cell">{st}</span>'
             f'<span role="cell" class="num" style="text-align:right;font-size:12px;color:var(--text-tertiary)">{last}</span></div>')
 mail_av=lambda: f'<span style="width:24px;height:24px;border-radius:50%;background:var(--bg-subtle);display:inline-flex;align-items:center;justify-content:center">{ic(MAIL,12,"var(--text-tertiary)")}</span>'
@@ -114,7 +116,7 @@ users=(head('Użytkownicy i role','Kto ma dostęp do Avero i do czego. Uprawnien
    '<button type="button" class="pri" title="Zaproś użytkownika  I" style="height:32px;display:inline-flex;align-items:center;gap:6px;padding:0 12px 0 10px;border:0;border-radius:10px;background:var(--accent);color:var(--on-accent);font-weight:500">'+ic(PLUS,14)+'Zaproś</button>')+
   '<div style="display:flex;align-items:center;gap:6px;margin-top:-8px">'+''.join(f'<a href="#" class="sec" style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:14px;{"background:var(--bg-subtle);color:var(--text-primary);font-weight:500" if i==0 else "color:var(--text-secondary)"}">{t}<span class="num" style="color:var(--text-tertiary)">{n}</span></a>' for i,(t,n) in enumerate([('Pracownicy','7'),('Klienci','12'),('Zaproszenia','2')]))+'</div>'
   '<div role="table" aria-label="Użytkownicy" style="display:flex;flex-direction:column">'
-  f'<div role="row" style="display:grid;grid-template-columns:{UC};column-gap:12px;height:24px;align-items:center;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Osoba</span><span>Rola</span><span>Dostęp</span><span style="text-align:right">Ostatnio</span></div>'+
+  f'<div role="row" style="display:grid;grid-template-columns:{UC};column-gap:12px;height:24px;align-items:center;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Osoba','user','indigo')+u_th('E-mail','mail','blue')+u_th('Rola','key','violet')+u_th('Dostęp','shield','green')+u_th('Ostatnio','clock','slate','right')+'</div>'+
   urow(cav24('PK','#1B1A19'),'Pascal Kranz','pascal@kranz-hvacr.pl','Administrator',allc(),('act','','Jedyny administrator — nie można go zablokować ani zmienić roli'),'teraz')+
   urow(cav24('AW',AWC),'Agnieszka Wiśniewska','biuro@kranz-hvacr.pl','Biuro',allc(),('act','','Aktywne'),'8 min')+
   urow(cav24('TL',TL),'Tomasz Lewandowski','t.lewandowski@kranz-hvacr.pl','Technik',' · 14 klientów',('act','','Aktywne'),'1 h')+

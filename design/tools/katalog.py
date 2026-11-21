@@ -1,5 +1,7 @@
 # Katalog (lista + podgląd pozycji) i import cennika dostawcy z podglądem zmian. Scenariusz: piątek 20 lis 2026, 16:00.
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
+import re
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -32,12 +34,13 @@ def mg(v,low=False,tip=''):
     return f'<span title="{tip}" class="num" style="color:var(--text-secondary)">{v}</span>'
 
 # =================== KATALOG
-COLS='minmax(0,2.2fr) minmax(0,0.9fr) 36px 84px 84px 68px 40px 76px'
+COLS='96px minmax(0,2.2fr) 20px 36px 84px 84px 68px 40px 76px'
 def row(icon,col,name,code,sub,unit,cost,sale,marg,stock,stocktip,use,usetip,sel=False,chip=''):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{ic(icon,14,col)}<span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span style="display:flex;align-items:center;gap:6px;min-width:0"><span class="mono ell" style="font-size:11px;line-height:16px;color:var(--text-tertiary)">{code}</span>{chip}</span></span></span>'
-            f'<span role="cell" class="ell" style="color:var(--text-secondary)">{sub}</span>'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{code}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{ic(icon,14,col)}<span class="ell" style="font-weight:500">{name}</span>{('<span title="'+re.search(r'title="([^"]*)"',chip).group(1)+'" style="display:inline-flex;flex:0 0 auto">'+u_ci('trend','orange')+'</span>') if chip else ''}</span>'
+            f'<span role="cell" style="display:flex;min-width:0;color:var(--text-secondary)">{u_logo(sub) if sub not in ("—","") else sub}</span>'
             f'<span role="cell" style="color:var(--text-secondary)">{unit}</span>'
             f'<span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{cost}</span>'
             f'<span role="cell" class="num" style="text-align:right;font-weight:500">{sale}</span>'
@@ -57,7 +60,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'
   '<span title="Próg marży firmy z Ustawień → Katalog i marże" style="display:inline-flex;align-items:center;gap:4px">Próg marży <span class="num" style="color:var(--text-primary);font-weight:500">22 %</span></span>'
   '<span title="Pozycje, których koszt w katalogu jest niższy niż ostatni zakup — marża w katalogu jest zawyżona" style="display:inline-flex;align-items:center;gap:4px;color:var(--warning)">'+ic(TREND,12,'var(--warning)')+'4 z nieaktualnym kosztem</span></span></div>')
 a('<div role="table" aria-label="Katalog · urządzenia" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Pozycja</span><span>Producent</span><span>Jedn.</span><span style="text-align:right">Koszt netto</span><span style="text-align:right">Cena netto</span><span style="text-align:right" title="(cena − koszt) / cena — to nie narzut">Marża</span><span style="text-align:right" title="Stan w magazynie głównym i busach — kreska, gdy pozycja nie jest prowadzona na stanie">Stan</span><span style="text-align:right" title="Szablony instalacji i otwarte oferty">Użycie</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Indeks','hash')+'</span><span>'+u_th('Pozycja','box','orange')+'</span><span>'+u_th('','bld','indigo',tip='Producent')+'</span><span>Jedn.</span><span style="text-align:right">Koszt netto</span><span style="text-align:right">Cena netto</span><span style="text-align:right" title="(cena − koszt) / cena — to nie narzut">Marża</span><span style="text-align:right" title="Stan w magazynie głównym i busach — kreska, gdy pozycja nie jest prowadzona na stanie">Stan</span><span style="text-align:right" title="Szablony instalacji i otwarte oferty">Użycie</span></div>')
 up=lambda t,tip: sch(ic(TREND,12,'var(--warning)')+t,tip,col='var(--warning)')
 a(row(FLAME,'#E0702A','Daikin Altherma 3 R · jedn. zewnętrzna 8 kW','ERGA08EV','Daikin','szt.','14 920,00','19 900,00',mg('25,0 %'),'1','1 szt. zarezerwowana dla ZS-1052','1 szablon','Szablon „Dom do 200 m²” · otwartych ofert: 0',sel=True,chip=up('koszt +3,8 %','Ostatni zakup 15 480,00 zł (PZ/2026/11/019, dziś) — w katalogu 14 920,00 zł')))
 a(row(FLAME,'#E0702A','Daikin Altherma 3 R · hydrobox z zasobnikiem 230 l','EHVH08S23E6V','Daikin','szt.','9 840,00','13 350,00',mg('26,3 %'),'1','Magazyn główny · zarezerwowany ZS-1052','1 szablon','Szablon „Dom do 200 m²”'))
@@ -101,12 +104,12 @@ k('<div style="display:flex;flex-direction:column;gap:12px;padding:12px 24px 16p
   '<div style="display:flex;flex-wrap:wrap;gap:6px">'+capd(ic(CHECK,14,'var(--success)')+'187 dopasowanych','Po kodzie producenta · 151 bez zmian')+capd(ic(TREND,14,'var(--warning)')+'33 podwyżki','Średnio +5,1 %')+capd('3 obniżki','Średnio −4,0 %')+capd(ic(PLUS,14,'var(--text-tertiary)')+'18 nowych','Nie ma ich w katalogu — dodasz wybrane')+capd(ic(WARN,14,'var(--danger)')+'9 do sprawdzenia','Nierozpoznany kod albo jednostka')+'</div></div>')
 k('<div style="display:flex;align-items:center;gap:8px;padding:0 24px 12px">'+tabs([('Podwyżki','33'),('Obniżki','3'),('Nowe','18'),('Do sprawdzenia','9'),('Bez zmian','151')])+'</div>')
 k('<div style="display:flex;align-items:center;gap:8px;padding:0 24px 12px"><span style="font-size:12px;color:var(--text-secondary)">Zasada cen:</span>'+capd('Marża poniżej 22 % → podnieś do 25 %','Ceny sprzedaży z marżą ≥ 22 % zostają bez zmian. Pozostałe podnosimy do marży 25 %, zaokrąglone do 10 zł.')+'</div>')
-IC='minmax(0,1fr) 128px 56px 150px 112px 136px'
+IC='88px minmax(0,1fr) 128px 56px 150px 112px 136px'
 def irow(name,code,c0,c1,d,p0,p1,m0,m1,act,low=False):
     pr=(f'<span class="num" style="color:var(--text-tertiary)">{p0}</span>{ic(ARROW,12,"var(--text-tertiary)")}<span class="num" style="font-weight:500">{p1}</span>') if p1 else f'<span class="num" style="color:var(--text-secondary)">{p0}</span><span style="font-size:12px;color:var(--text-tertiary)">bez zmian</span>'
     mm=(f'<span class="num" style="color:{"var(--warning)" if low else "var(--text-tertiary)"}">{m0}</span>{ic(ARROW,12,"var(--text-tertiary)")}<span class="num" style="font-weight:500">{m1}</span>')
-    return (f'<div role="row" class="row" style="display:grid;grid-template-columns:{IC};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="mono ell" style="font-size:11px;line-height:16px;color:var(--text-tertiary)">{code}</span></span>'
+    return (f'<div role="row" class="row row1" style="display:grid;grid-template-columns:{IC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px">'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{code}</span><span role="cell" class="ell" style="font-weight:500">{name}</span>'
             f'<span role="cell" style="display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap"><span class="num" style="color:var(--text-tertiary)">{c0}</span>{ic(ARROW,12,"var(--text-tertiary)")}<span class="num">{c1}</span></span>'
             f'<span role="cell" class="num" style="text-align:right;color:var(--warning)">{d}</span>'
             f'<span role="cell" style="display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap">{pr}</span>'
@@ -116,7 +119,7 @@ def seg(on):
     o=lambda t,a: f'<span role="radio" aria-checked="{str(a).lower()}" style="height:24px;display:inline-flex;align-items:center;padding:0 8px;border-radius:8px;font-size:12px;{"background:var(--bg-surface);font-weight:500;color:var(--text-primary)" if a else "color:var(--text-secondary)"}">{t}</span>'
     return f'<span role="radiogroup" aria-label="Cena sprzedaży" style="display:inline-flex;gap:2px;padding:2px;border-radius:10px;background:var(--bg-subtle)">{o("Zachowaj",on=="keep")}{o("Podnieś",on=="up")}</span>'
 k('<div role="table" aria-label="Podwyżki" style="display:flex;flex-direction:column;padding:0 16px 16px">')
-k(f'<div role="row" style="display:grid;grid-template-columns:{IC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Pozycja</span><span style="text-align:right">Koszt netto</span><span style="text-align:right">Zmiana</span><span style="text-align:right">Cena sprzedaży</span><span style="text-align:right">Marża</span><span style="text-align:right">Cena</span></div>')
+k(f'<div role="row" style="display:grid;grid-template-columns:{IC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Indeks','hash')+'</span><span>'+u_th('Pozycja','box','orange')+'</span><span style="text-align:right">Koszt netto</span><span style="text-align:right">Zmiana</span><span style="text-align:right">Cena sprzedaży</span><span style="text-align:right">Marża</span><span style="text-align:right">Cena</span></div>')
 k(irow('Altherma 3 H HT · 14 kW','EPRA14DV','21 600','22 900','+6,0 %','28 900','30 530','20,8 %','25,0 %',seg('up'),True))
 k(irow('Altherma 3 R · jedn. zewn. 8 kW','ERGA08EV','14 920','15 940','+6,8 %','19 900','21 250','19,9 %','25,0 %',seg('up'),True))
 k(irow('Altherma 3 R · hydrobox 230 l','EHVH08S23E6V','9 840','10 380','+5,5 %','13 350','','22,2 %','22,2 %',seg('keep')))

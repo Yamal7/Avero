@@ -1,5 +1,6 @@
 # Zakupy: zapotrzebowanie (pogrupowane po dostawcy) i zamówienie ZK/2026/11/031 z przyjęciem dostawy. Scenariusz: piątek 20 lis 2026, 8:40.
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -31,12 +32,13 @@ def qty(v,tip): return f'<span title="{tip}" class="num" style="height:28px;min-
 TAB_Z=[('Zapotrzebowanie','6'),('Zamówienia','4'),('Dostawcy','7'),('Cenniki','')]
 
 # =================== ZAPOTRZEBOWANIE
-COLS='minmax(0,1.5fr) minmax(0,1fr) 88px 84px 88px 92px 88px'
+COLS='104px minmax(0,1.4fr) minmax(0,1fr) 88px 84px 88px 92px 88px'
 def ln(code,name,srcs,need,needtip,avail,availtip,q,qtip,price,pricetip,val,sel=False,warn=''):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span style="display:flex;align-items:center;gap:6px;min-width:0"><span class="mono ell" style="font-size:11px;line-height:16px;color:var(--text-tertiary)">{code}</span>{warn}</span></span>'
-            f'<span role="cell" style="display:flex;flex-wrap:wrap;gap:4px;min-width:0">{srcs}</span>'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{code}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0">{u_ci("drop","blue") if code.startswith("CZ-") else u_ci("box","orange")}<span class="ell" style="font-weight:500">{name}</span>{warn}</span>'
+            f'<span role="cell" style="display:flex;flex-wrap:nowrap;gap:4px;min-width:0;overflow:hidden">{srcs}</span>'
             f'<span role="cell" class="num" title="{needtip}" style="font-size:12px;color:var(--text-secondary)">{need}</span>'
             f'<span role="cell" class="num" title="{availtip}" style="text-align:right;font-size:12px;color:var(--text-secondary)">{avail}</span>'
             f'<span role="cell" style="display:flex;justify-content:flex-end">{qty(q,qtip)}</span>'
@@ -60,7 +62,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+c
   '<span title="Przyjęte w listopadzie (PZ) · w październiku 21 760 zł">Zakupy w lis. <span class="num" style="color:var(--text-primary);font-weight:500">38 940 zł</span></span></span></div>')
 a('<p style="margin:0;padding:0 20px 8px;font-size:12px;line-height:16px;color:var(--text-tertiary)">Do zamówienia = potrzeby zleceń i minima − dostępne − w drodze. Rezerwacje i zamówienia w drodze nie liczą się podwójnie.</p>')
 a('<div role="table" aria-label="Zapotrzebowanie" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Pozycja</span><span>Skąd potrzeba</span><span>Potrzebne do</span><span style="text-align:right" title="Stan − rezerwacje + w drodze">Dostępne</span><span style="text-align:right">Zamówić</span><span style="text-align:right">Cena netto</span><span style="text-align:right">Wartość</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Indeks','hash')+'</span><span>'+u_th('Pozycja','box','orange')+'</span><span>'+u_th('Skąd potrzeba','flag','violet')+'</span><span>'+u_th('Potrzebne do','cal','blue')+'</span><span style="text-align:right" title="Stan − rezerwacje + w drodze">Dostępne</span><span style="text-align:right">Zamówić</span><span style="text-align:right">Cena netto</span><span style="text-align:right">Wartość</span></div>')
 a(sup('Chłodpol Gdynia',3,'· dostawa pon 23 lis','Zamówienie do 14:00 — dostawa w poniedziałek 23 lis · przelew 14 dni','2 255,80 zł'))
 a(ln('CZ-R404A-R','R404A regenerowany · 10,9 kg',mins('min. 10 kg','Minimum magazynu głównego: 10 kg'),'—','Uzupełnienie minimum','3,1 kg','Stan 3,1 kg · rezerwacje 0 · w drodze 0','1 butla','10,9 kg','142,00 zł/kg','Najniższa z 2 cen · Klimatech 149,00 zł/kg','1 547,80 zł',sel=True,
    warn=sch(ic(SHIELD,12,'var(--warning)')+'tylko regenerowany','Od 2026 świeży R404A nie może służyć do serwisu instalacji chłodniczych')))
@@ -108,18 +110,19 @@ def ph(t,tm,k):
     return f'<span style="flex:1 1 0;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="display:flex;align-items:center;gap:6px;height:14px">{d}{line}</span><span style="font-size:12px;line-height:16px;color:{"var(--text-tertiary)" if k=="todo" else "var(--text-primary)"};font-weight:{500 if k=="cur" else 400}">{t}</span><span class="num" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{tm}</span></span>'
 k('<div aria-label="Status zamówienia" style="display:flex;gap:6px;margin:0 24px 20px;padding:12px 16px;border-radius:12px;background:var(--bg-raised)">'+
   ph('Szkic','18 lis 14:52','done')+ph('Wysłane','18 lis 15:10','done')+ph('Potwierdzone','19 lis 8:05','done')+ph('Przyjęcie','dziś 8:20','cur')+ph('Faktura','z KSeF','todo')+ph('Rozliczone','płatność 14 dni','todo')+'</div>')
-RC='minmax(0,1.6fr) 72px 88px 88px 96px 132px'
+RC='112px minmax(0,1.6fr) 72px 88px 88px 96px 132px'
 def rrow(name,code,ordq,conf,got,price,stat,extra=''):
-    return (f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;min-height:48px;padding:6px 10px;border-radius:10px">'
-            f'<span role="cell" style="display:flex;flex-direction:column;gap:4px;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="mono ell" style="font-size:11px;line-height:16px;color:var(--text-tertiary)">{code}</span>{extra}</span>'
+    return (f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px">'
+            f'<span role="cell" class="mono ell" title="{code}" style="font-size:11px;color:var(--text-tertiary)">{code.split(" · ")[0]}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0"><span class="ell" style="font-weight:500">{name}</span>{extra}</span>'
             f'<span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{ordq}</span><span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{conf}</span>'
             f'<span role="cell" style="display:flex;justify-content:flex-end">{got}</span><span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{price}</span>'
             f'<span role="cell" style="display:flex;justify-content:flex-end">{stat}</span></div>')
 ok_=lambda t='zgodne': sch(ic(CHECK,12,'var(--success)')+t,'Ilość przyjęta = zamówiona')
 k('<section aria-label="Przyjęcie dostawy" style="display:flex;flex-direction:column;gap:6px;padding:0 16px 24px">')
 k('<div style="display:flex;align-items:center;gap:8px;padding:0 8px;height:28px">'+h3('Przyjęcie dostawy')+'<span style="font-size:12px;color:var(--text-tertiary)">WZ dostawcy 4471/11 · kurier 8:20</span>'+SP+ib('Zdjęcie dokumentu dostawy','Dołącz zdjęcie WZ dostawcy',CAM if 'CAM' in dir() else FILE,24)+'</div>')
-k(f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Pozycja</span><span style="text-align:right">Zamówiono</span><span style="text-align:right">Potwierdzono</span><span style="text-align:right">Przyjmuję</span><span style="text-align:right">Cena netto</span><span style="text-align:right">Stan</span></div>')
-sn=('<span style="display:flex;align-items:center;gap:6px;padding-top:2px"><span style="font-size:12px;color:var(--text-secondary)">Nr seryjny</span>'
+k(f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Indeks','hash')+'</span><span>'+u_th('Pozycja','box','orange')+'</span><span style="text-align:right">Zamówiono</span><span style="text-align:right">Potwierdzono</span><span style="text-align:right">Przyjmuję</span><span style="text-align:right">Cena netto</span><span style="text-align:right">Stan</span></div>')
+sn=('<span style="display:flex;align-items:center;gap:6px;flex:0 0 auto">'+u_ci('hash','violet',12)+''
     '<span class="mono" title="Wymagany — trafi na kartę urządzenia i do gwarancji" style="height:24px;display:inline-flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--bg-surface);box-shadow:inset 0 0 0 1px var(--border-strong);font-size:12px">E8 2611 04573</span>'+ic(CHECK,12,'var(--success)')+'</span>')
 k(rrow('Daikin Altherma 3 R · jednostka zewnętrzna 8 kW','ERGA08EV · R32 1,5 kg','1 szt.','1 szt.',qty('1 szt.','Przyjęto całość'),'15 480,00 zł',ok_(),sn))
 k(rrow('Fundament betonowy 1000 mm','FUND-1000','1 szt.','1 szt.',qty('1 szt.','Przyjęto całość'),'420,00 zł',ok_()))

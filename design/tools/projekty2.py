@@ -32,9 +32,9 @@ CHEVD='<path d="m6 9 6 6 6-6"></path>'; CHEVR='<path d="m9 18 6-6-6-6"></path>'
 def prow(no,icon,col,name,cli,who,pct,end,bars,open_=False,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
     car=ic(CHEVD if open_ else CHEVR,14,'var(--text-tertiary)')
-    return (f'<div role="row" class="row" aria-expanded="{str(open_).lower()}" style="display:grid;grid-template-columns:{LW} minmax(0,1fr);align-items:stretch;min-height:44px;padding:0 20px;{bg}">'
+    return (f'<div role="row" class="row" aria-expanded="{str(open_).lower()}" style="display:grid;grid-template-columns:{LW} minmax(0,1fr);align-items:stretch;min-height:36px;padding:0 20px;{bg}">'
             f'<div style="display:flex;align-items:center;gap:8px;min-width:0;padding:4px 12px 4px 4px">{car}<span style="width:24px;height:24px;border-radius:8px;background:var(--bg-subtle);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto">{ic(icon,14,col)}</span>'
-            f'<span style="display:flex;flex-direction:column;min-width:0;flex:1 1 auto"><span class="ell" style="font-weight:500">{name}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="mono" style="font-size:11px;white-space:nowrap">{no}</span><span class="ell">{cli}</span></span></span>'
+            f'<span class="ell" title="{no} · {cli}" style="font-weight:500;flex:1 1 auto;min-width:0">{name}</span>{u_logo(cli.split(" · ")[0])}'
             f'<span class="num" style="font-size:12px;color:var(--text-secondary);white-space:nowrap">{pct} %</span>{who}</div>'
             f'<div style="position:relative">{grid()}{bars}{today_line()}</div></div>')
 def stage(name,a,b,state,pct=0,tip=''):
