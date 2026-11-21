@@ -25,7 +25,46 @@ Nie zmieniaj plików w `docs/design/` ani `design/` — to obszar czatu projekto
 
 ## Stos technologiczny
 
-Do uzupełnienia przy pierwszym commicie kodu. Zalecenia ze skilla Precision UI: React + TypeScript, Tailwind (wyłącznie z tokenami, zmapowanymi w `theme.extend`), Radix UI lub React Aria, cmdk (⌘K), Motion, Sonner, ikony Phosphor (Regular), fonty Geist i Geist Mono. Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS). Nową bibliotekę dodawaj dopiero po zgodzie właściciela.
+- **Next.js 15** (App Router) + **React 19** + **TypeScript** (`strict`). Menedżer pakietów: **pnpm** (nigdy npm/yarn).
+- **Supabase**: Postgres z RLS; aplikacja korzysta z tabel **wyłącznie przez funkcje RPC**. Klienci: `src/lib/supabase/browser.ts` i `server.ts`.
+- **Zod** — schematy i klient API w `packages/api-client` (alias `@hvac/api-client`), walidacja w `src/lib/validation`.
+- **Style**: zwykły CSS na zmiennych-tokenach (`src/app/precision.css`, warstwa Precision UI ładowana po `globals.css`). Tailwinda nie ma — nie dodawaj go.
+- **Testy**: Vitest (`tests/*.test.ts`), testy SQL pgTAP (`supabase/tests/`).
+- Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS).
+- Docelowe biblioteki UI ze skilla Precision UI (Radix/React Aria, cmdk, Motion, Sonner, Phosphor, Geist) — **każdą nową zależność dodawaj dopiero po zgodzie właściciela**.
+
+## Komendy
+
+```bash
+pnpm dev            # serwer deweloperski
+pnpm lint           # ESLint
+pnpm typecheck      # tsc --noEmit
+pnpm test           # Vitest (całość); pojedynczy plik: pnpm vitest run tests/x.test.ts
+pnpm db:reset       # lokalna baza od zera + migracje
+pnpm db:lint        # lint SQL
+pnpm db:test        # testy pgTAP
+```
+
+## Sposób pracy
+
+1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania i plan do akceptacji.
+2. **Logika najpierw testem.** Reguły biznesowe (magazyn, F-gaz, terminy kontroli, oferty) → najpierw test w `tests/` lub `supabase/tests/`, potem kod.
+3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi roboczej; nie pracuj na `main`, nie rób `git push --force`.
+4. **Sprawdź, zanim powiesz „gotowe”.** `pnpm lint && pnpm typecheck && pnpm test`; przy zmianach w SQL także `pnpm db:lint && pnpm db:test`. Ekran UI — otwórz go i sprawdź w obu motywach.
+
+## Baza danych i bezpieczeństwo
+
+- Każda zmiana schematu = **nowy plik** w `supabase/migrations/` w formacie `RRRRMMDDNNNN_opis.sql`. Istniejących migracji **nigdy nie edytuj**.
+- Każda nowa tabela: RLS włączone, polityki od razu, dostęp przez funkcję RPC, test pgTAP sprawdzający, że inna firma / klient portalu **nie widzi** danych.
+- Klucz service role tylko po stronie serwera (worker, `src/lib/email`), nigdy w komponentach klienckich ani w `NEXT_PUBLIC_*`.
+- Wejście każdej server action i endpointu `src/app/api` waliduj schematem Zod.
+- Nie czytaj i nie wypisuj plików `.env*` (poza `.env.example`); nowe zmienne dopisuj do `.env.example`.
+
+## Definicja ukończenia
+
+Lint, typy i testy przechodzą · stany komponentu z listy poniżej są obsłużone · obie wersje motywu działają · `docs/STATUS.md` zaktualizowany.
+
+Hooki w `.claude/settings.json` pilnują części tych zasad automatycznie (blokada plików projektu i migracji, ESLint po edycji, typy + testy + STATUS.md przed zakończeniem). Do przeglądu przed commitem użyj agenta `reviewer`.
 
 ## Zasady, o których łatwo zapomnieć
 
