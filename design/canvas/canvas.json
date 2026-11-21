@@ -890,6 +890,38 @@
       "title": "Zakupy · cenniki · ciemny",
       "x": 4560,
       "y": 45500
+    },
+    "Tabela-widoki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · widoki",
+      "x": 0,
+      "y": 46980
+    },
+    "Tabela-widoki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · widoki · ciemny",
+      "x": 1520,
+      "y": 46980
+    },
+    "Tabela-import.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import z pliku · Przetargi",
+      "x": 3040,
+      "y": 46980
+    },
+    "Tabela-import-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import z pliku · Przetargi · ciemny",
+      "x": 4560,
+      "y": 46980
     }
   },
   "createdOnFiles": {

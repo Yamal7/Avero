@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Własne tabele: widoki i import)
+- **Widoki wspólne i osobiste**: wspólny tworzy i zmienia administrator, osobisty każdy (tylko dla siebie). Widok nie zmienia danych ani uprawnień — kolumna pola ukrytego dla roli po prostu znika.
+- **Filtry dat względne** („w ciągu 14 dni od dziś”) przeliczane codziennie.
+- **Import z pliku** tylko dla administratora; dopasowanie po polu unikalnym; domyślnie uzupełnia tylko puste pola; brakujące firmy tworzy z etykietą „z importu” (rodzaj „Zamawiający publiczny”, bez osób). Import nie uruchamia akcji tabeli, nie wysyła wiadomości i można go cofnąć przez 7 dni.
+- Numery nadawane przy imporcie kolejno (PR-016 – PR-056), niezależnie od dat z pliku.
+
 ## 2026-11-21 (Dostawcy i cenniki)
 - **Dostawcy i Cenniki to zakładki Zakupów**, nie osobne pozycje paska bocznego (pasek zostaje krótki; ⌘K i G Z prowadzą do Zakupów).
 - **Dostawca `DS-NNN`** z warunkami: płatność, dostawa, próg darmowej dostawy, rabat od cennika producenta, limit kupiecki. Limit = otwarte zamówienia + niezapłacone faktury zakupowe.
