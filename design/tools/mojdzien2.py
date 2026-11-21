@@ -4,6 +4,7 @@
 import re
 P='design/canvas/Main.dc.html'
 s=open(P).read()
+s=s.replace('Galeria Bałtycka','Galeria Portowa').replace('galeriabaltycka','galeriaportowa').replace('Grunwaldzka 141','Grunwaldzka 212')   # bez prawdziwych marek
 def rep(x,y,n=1):
     global s
     c=s.count(x); assert c==n,(c,x[:70]); s=s.replace(x,y)
@@ -72,7 +73,7 @@ def block(start,end):
 i,j=block("    const visits = [","\n    ];")
 s=s[:i]+"""    const visits = [
       visit('07:30', 'ZS-1038', 'Przegląd 4 kasetonów', 'Hotel Nadmorski', 4, ['MZ']),
-      visit('08:00', 'ZS-1042', 'Przegląd 6 jednostek VRV', 'Galeria Bałtycka', 3, ['MZ', 'TL']),
+      visit('08:00', 'ZS-1042', 'Przegląd 6 jednostek VRV', 'Galeria Portowa', 3, ['MZ', 'TL']),
       visit('09:30', 'ZS-1047', 'Brak chłodzenia w lodziarce', 'Delikatesy Morskie', 2, ['KN'], { sel: true }),
       visit('12:30', 'ZS-1045', 'Montaż split Daikin Perfera 3,5 kW', 'Krzysztof Lis · Reda', 1, ['TL'], { exc: 'w', label: 'Brak R32 w busie' }),
       visit('13:00', 'ZS-1039', 'Agregat często się załącza, Bitzer R404A', 'Hotel Oliwski', 1, ['PD']),

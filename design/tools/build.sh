@@ -22,5 +22,6 @@ python3 design/tools/flex2.py       # warstwa elastyczna: kreator tabeli, akcje,
 python3 design/tools/flex3.py       # warstwa elastyczna: widoki, import z pliku
 python3 design/tools/obiekty.py     # obiekty: lista i rekord Hotel Oliwski
 python3 design/tools/projekty.py    # projekty: lista i rekord PJ-2026-011
+python3 design/tools/projekty2.py   # projekty: oś czasu i zespół
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 echo "Gotowe: design/canvas/Main.dc.html"

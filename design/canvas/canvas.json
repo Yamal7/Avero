@@ -922,6 +922,22 @@
       "title": "Import z pliku · Przetargi · ciemny",
       "x": 4560,
       "y": 46980
+    },
+    "Projekty-os.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · oś czasu",
+      "x": 0,
+      "y": 48460
+    },
+    "Projekty-os-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · oś czasu · ciemny",
+      "x": 1520,
+      "y": 48460
     }
   },
   "createdOnFiles": {

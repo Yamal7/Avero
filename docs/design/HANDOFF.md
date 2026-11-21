@@ -45,7 +45,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Faktura końcowa | `screens/10-faktura.md` | Faktura końcowa FV/2026/12/003; Klient · po montażu |
 | Przeglądy i umowy serwisowe | `screens/11-przeglady-umowy.md` | Przeglądy, Umowa serwisowa UM-2026-031, Klient · wybór terminu |
 | Raporty | `screens/12-raporty.md` | Raporty · przegląd miesiąca |
-| Projekty | `screens/20-projekty.md` | Projekty · lista, Projekt PJ-2026-011 · Hotel Bryza (jasny / ciemny) |
+| Projekty | `screens/20-projekty.md` | Projekty · lista, Projekty · oś czasu, Projekt PJ-2026-011 · Hotel Bryza (jasny / ciemny) |
 | Obiekty | `screens/19-obiekty.md` | Obiekty · lista, Obiekt OB-0230 · Hotel Oliwski (jasny / ciemny) |
 | Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Widoki / Panel boczny / Akcje / Uprawnienia, Import z pliku, Nowa tabela (jasny / ciemny) |
 | Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |

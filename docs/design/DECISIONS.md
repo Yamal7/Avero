@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Projekty: oś czasu)
+- **Oś czasu to drugi widok listy projektów** (⇧G), nie osobny moduł. Pokazuje projekty i — pod nimi — obciążenie ludzi w projektach; konflikt = ta sama osoba w dwóch etapach w tym samym czasie.
+- Konflikty Avero tylko wskazuje i proponuje rozwiązanie; zmiany robi się w Planowaniu albo przeciągając etap.
+- Postęp w paskach kolorem serii `#2a78d6`, etapy gotowe zielone (jak w rekordzie projektu); przerwy kreskowaniem.
+- **Bez prawdziwych marek**: Galeria Bałtycka → Galeria Portowa (Grunwaldzka 212, Gdańsk) w całej makiecie.
+
 ## 2026-11-21 (Własne tabele: widoki i import)
 - **Widoki wspólne i osobiste**: wspólny tworzy i zmienia administrator, osobisty każdy (tylko dla siebie). Widok nie zmienia danych ani uprawnień — kolumna pola ukrytego dla roli po prostu znika.
 - **Filtry dat względne** („w ciągu 14 dni od dziś”) przeliczane codziennie.

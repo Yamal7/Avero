@@ -58,9 +58,9 @@ a(bus('KN','GD 2N551',stchip('drodze','09:40','W drodze do ZS-1047, przyjazd 09:
       chip(CLOCK,'var(--text-tertiary)','14:00 Rumia','Następnie: 14:00 ZS-1049, Ewa Nowak, Rumia')+chip(ROUTE,'var(--text-tertiary)','38 km','Dziś 38 km, 2 przystanki')+chip(BOX,'var(--success)','','Części do ZS-1047 na pokładzie (MM/2026/11/052)'),sel=True))
 a(bus('PD','GD 9P330',stchip('plan','Wolny','Wolny do 11:00 · Gdynia Redłowo'),
       chip(CLOCK,'var(--text-tertiary)','11:00 Kartuska','Następnie: 11:00 ZS-1039, Chłodnia Kartuska')+chip(DROP,'var(--success)','4,2 kg','R404A w busie: 4,2 kg (z ważenia)')+chip(ROUTE,'var(--text-tertiary)','41 km','Plan na dziś: 41 km')))
-a(bus('MZ','GD 4H217',stchip('real','Na miejscu','Na miejscu: ZS-1042, Galeria Bałtycka, od 08:30'),
+a(bus('MZ','GD 4H217',stchip('real','Na miejscu','Na miejscu: ZS-1042, Galeria Portowa, od 08:30'),
       chip(CLOCK,'var(--text-tertiary)','14:00','Następnie: 14:00 ZS-1050, Kancelaria Rybicki')+chip(ROUTE,'var(--text-tertiary)','22 km','Plan na dziś: 22 km')))
-a(bus('TL','GD 7K904',stchip('real','Na miejscu','Na miejscu: ZS-1042, Galeria Bałtycka, od 08:00'),
+a(bus('TL','GD 7K904',stchip('real','Na miejscu','Na miejscu: ZS-1042, Galeria Portowa, od 08:00'),
       chip(CLOCK,'var(--text-tertiary)','12:30 Sopot','Następnie: 12:30 ZS-1045, montaż split, Jan Kowalski')+chip(WARN,'var(--warning)','R32','Brak R32 w busie: montaż o 12:30 wymaga ok. 1 kg')+chip(ROUTE,'var(--text-tertiary)','19 km','Plan na dziś: 19 km')))
 a('<div style="display:flex;align-items:center;gap:8px;height:28px;padding:12px 4px 0;box-sizing:content-box"><h2 style="flex:1 1 auto;margin:0;font-size:13px;line-height:20px;font-weight:500">Bez technika</h2>'+CNT(4)+'</div>')
 def sug(id_,title,dist,sla,slaC,ini,prop,crit=False,tip=''):
