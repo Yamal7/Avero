@@ -4,7 +4,7 @@
   "boards": {
     "Ciemny.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1400,
       "title": "Mój dzień · ciemny",
       "w": 1440,
       "x": 1520,
@@ -12,7 +12,7 @@
     },
     "Main.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1400,
       "is_interactive": true,
       "title": "Mój dzień · jasny",
       "w": 1440,

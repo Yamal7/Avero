@@ -187,7 +187,7 @@ rep("const nS = navv(isSz);","const isUst = ekran === 'ustawienia'; const ustV =
 rep("actS: nS.act,","actS: nS.act, isUst, isUstP: isUst && ustV === 'profil firmy', isUstU: isUst && ustV === 'użytkownicy', isUstI: isUst && ustV === 'integracje',")
 rep('"raporty", "planowanie"]','"raporty", "ustawienia", "planowanie"]')
 rep(', "krok": {',', "ust": {"editor": "enum", "options": ["profil firmy", "użytkownicy", "integracje"], "default": "profil firmy", "section": "Widok"}, "krok": {')
-a0='title="Anna Wiśniewska · Biuro" style="width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;padding:0"><span style="width:24px;height:24px;border-radius:50%;background:var(--bg-surface);border:0;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text-secondary)">AW</span>'
-rep(a0,a0.replace('Anna Wiśniewska · Biuro','{{meTitle}}').replace('>AW</span>','>{{meIni}}</span>'))
+a0='title="Agnieszka Wiśniewska · Biuro" style="width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;padding:0"><span style="width:24px;height:24px;border-radius:50%;background:var(--bg-surface);border:0;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text-secondary)">AW</span>'
+rep(a0,a0.replace('Agnieszka Wiśniewska · Biuro','{{meTitle}}').replace('>AW</span>','>{{meIni}}</span>'))
 rep("actS: nS.act, isUst,","actS: nS.act, meIni: isUst ? 'PK' : 'AW', meTitle: isUst ? 'Pascal Kranz · Administrator' : 'Agnieszka Wiśniewska · Biuro', isUst,")
 open(P,'w').write(s); print('ok',len(s))
