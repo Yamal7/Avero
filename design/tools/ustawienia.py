@@ -51,7 +51,7 @@ def sep(): return '<div style="height:1px;background:var(--edge)"></div>'
 
 # ---------- settings secondary nav
 def snav(cur):
-    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów')]),
+    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów'),('pola','<rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path>','Pola własne')]),
        ('Zespół',[('uz',USERS,'Użytkownicy i role'),('bus',TRUCK,'Technicy i busy')]),
        ('Połączenia',[('int',PLUG,'Integracje')]),
        ('Moje konto',[('ja',USER,'Profil'),('pow',BELL,'Powiadomienia'),('wyg',SUN,'Wygląd')])]
@@ -121,7 +121,7 @@ users=(head('Użytkownicy i role','Kto ma dostęp do Avero i do czego. Uprawnien
   urow(cav24('MZ',MZC),'Mateusz Zieliński','m.zielinski@kranz-hvacr.pl','Technik',' · 11 klientów',('act','','Aktywne'),'22 min')+
   urow(cav24('KN',KN),'Kacper Nowak','k.nowak@kranz-hvacr.pl','Technik',' · 9 klientów',('act','','Aktywne'),'dziś')+
   urow(cav24('PD',PD),'Piotr Dąbrowski','p.dabrowski@kranz-hvacr.pl','Technik',' · 8 klientów',('act','','Aktywne'),'dziś',sel=True)+
-  urow(mail_av(),'j.kowalczyk@galeriabaltycka.pl','zaproszenie od Agnieszki, 18 lis','Klient',' · Galeria Bałtycka',('inv','wygasa za 5 dni','Zaproszenie ważne 7 dni · e-mail przekazany do poczty 18 lis 9:12'),'—')+
+  urow(mail_av(),'j.kowalczyk@galeriaportowa.pl','zaproszenie od Agnieszki, 18 lis','Klient',' · Galeria Portowa',('inv','wygasa za 5 dni','Zaproszenie ważne 7 dni · e-mail przekazany do poczty 18 lis 9:12'),'—')+
   urow(cav24('SM','#8A8F98'),'Sebastian Malinowski','s.malinowski@kranz-hvacr.pl','Technik',' · 6 klientów',('blk','','Zablokowane 2 paź przez Pascala Kranza · traci dostęp także w otwartej sesji'),'2 paź')+
   '</div>'+
   section('Uprawnienia ról',

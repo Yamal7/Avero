@@ -51,5 +51,30 @@ Makiety: ekrany `przetargi`, `tabela pola`, `tabela panel` w `Main.dc.html` (jas
 - „Podgląd jako technik”, „Zapisz uprawnienia” (akcent).
 - Ekrany ustawień tabeli są tylko dla administratora (rama pokazuje Pascala).
 
-## Do zaprojektowania później
-Zakładka Widoki (kolumny, sortowanie, grupowanie, widok kalendarza), import CSV do własnej tabeli, raport z własnej tabeli, dokładanie sekcji własnych pól do modułów rdzenia (np. pola firmy w panelu Zgłoszenia).
+## Widoki (ekran `tabela widoki`)
+- Lista widoków (272 px): **Wspólne** (widzi każdy z dostępem; kolejność = kolejność kapsułek nad listą rekordów) i **Osobiste** (tylko autor). Każdy: ikona rodzaju, nazwa, opis (rodzaj, sortowanie lub „domyślny”), liczba rekordów. „Nowy widok” (⇧N) z obecnych ustawień.
+- Zasada pod listą: widok zapisuje filtry, kolumny, sortowanie i grupowanie — nie zmienia danych ani uprawnień.
+- Edytor: nazwa; rodzaj Tabela / Kanban / Kalendarz (Kanban grupuje po polu Wybór, Kalendarz po polu daty); kto widzi (Wszyscy z dostępem / Tylko ja — osobisty widok może utworzyć każdy, wspólny tylko administrator).
+- Filtry jako zdanie z kapsułek („Gdzie Status jest jednym z … i Termin składania ofert jest w ciągu 14 dni od dziś”); daty względne aktualizują się codziennie.
+- Sortowanie (do 3 poziomów), grupowanie (pole Wybór, Osoba, Powiązanie), podsumowania pod tabelą (suma, średnia, liczba).
+- Kolumny: widoczne z uchwytem i szerokością, druga linia komórki z innego pola („+ Zamawiający pod spodem”), ukryte przygaszone z okiem. Pole ukryte uprawnieniami ma kapsułkę z kłódką („technicy nie widzą”).
+- Podgląd na żywo (320 px): rekordy z dziś, podsumowanie, co wypada z widoku i dlaczego, oraz zdanie „jak to zobaczy technik”.
+- „Usuń widok…” (tylko ustawienia, z potwierdzeniem), „Zapisz jako nowy”, „Zapisz widok” (akcent, ⌘S).
+
+## Import z pliku (ekran `tabela import`)
+- Wejście: lista tabeli › Więcej › Importuj z pliku (⇧I), XLSX lub CSV. Tylko administrator (zakłada pola i firmy).
+- Okruszki tabela › Import z pliku; „Nic nie zapisze się przed zatwierdzeniem · Esc anuluje”.
+- Tytuł = nazwa pliku; meta: arkusz, liczba wierszy, kto i kiedy. Kapsułki wyniku: nowe, do uzupełnienia (dopasowane po polu unikalnym), pominięte (brak pola wymaganego), do sprawdzenia.
+- Tabela mapowania: kolumna w pliku, przykład z wiersza 2, pole w tabeli (z typem), stan. Dopasowanie wartości do opcji pól Wybór (np. „wygrany” → Wygrany), separator wielokrotnego wyboru, inicjały → osoby, liczby z przecinkiem. Kolumna bez pola: „nowe pole” albo „Pomiń”.
+- Panel: zamawiający bez rekordu w Firmach (utwórz firmy z etykietą „z importu” / zostaw puste), istniejące rekordy (uzupełnij tylko puste / nadpisz — każda zmiana w historii), podsumowanie po zatwierdzeniu, „Importuj N wierszy” (akcent, ⌘↵), „Pobierz pominięte wiersze” (CSV).
+- Bezpieczeństwo: import nie uruchamia akcji tabeli i nie wysyła wiadomości; można go cofnąć przez 7 dni (nowe rekordy do archiwum, uzupełnione pola wracają).
+
+## Raport z własnej tabeli (ekran `raport tabela`)
+- W module Raporty jako kolejna zakładka z ikoną tabeli („Przetargi”); „+ Raport” tworzy raport z modułu albo z własnej tabeli.
+- Nad wykresami: źródło (kapsułka „z własnej tabeli Przetargi”, widok i liczba rekordów w podpowiedzi), autor i kto widzi; jedno zdanie podsumowania z liczbami zamiast rzędu kafelków.
+- Wykresy jako karty `--bg-raised` z „Pokaż tabelę”: słupki skumulowane wg kwartału (wygrane kolorem serii, reszta neutralna, etykieta „wygrane/złożone” nad słupkiem, legenda), poziome słupki skuteczności wg pola Wybór, poziome słupki powodów (pole „Powód” przy etapie zamykającym) z jednym zdaniem wniosku.
+- Panel wykresu (320 px): dane (tabela i widok, miara: liczba / suma / średnia pola liczbowego, warunki, oś daty z grupowaniem, podział — najwyżej 4 grupy), wygląd (Słupki / Skumulowane / Linia / Tabela; kolory nadaje Avero w stałej kolejności), kto widzi. „+ Wykres” (N), „Zapisz raport” (⌘S). Zaznaczony wykres obwiedziony akcentem.
+- Raport działa z uprawnieniami oglądającego: wykres oparty na polu ukrytym dla roli nie pokazuje się tej roli.
+
+## Pola własne w modułach rdzenia
+Opis w `13-ustawienia.md` (Ustawienia › Pola własne).

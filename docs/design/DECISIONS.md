@@ -2,6 +2,43 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Reklamacje i gwarancje)
+- **Reklamacje to moduł rdzenia** w grupie Serwis (po Przeglądach). Szablon własnej tabeli „Reklamacje do producentów” zostaje tylko dla firm, które nie chcą modułu — dane nie są wspólne.
+- Reklamacja zawsze dotyczy urządzenia; numer `RK-RRRR-NNN`. Podstawy: gwarancja montażu, gwarancja producenta, rękojmia (konsument), gwarancja naprawy. Etapy: Zgłoszona → Diagnoza → Decyzja → Naprawa → Rozliczenie → Zamknięta / Odrzucona.
+- **Konsument**: termin odpowiedzi 14 dni od zgłoszenia liczony automatycznie i pokazywany jako ostrzeżenie; po terminie bez odpowiedzi — reklamacja uznana.
+- **Zgłoszenie urządzenia na gwarancji** trafia „do decyzji” (reklamacja albo zwykłe płatne zgłoszenie) — wybiera człowiek.
+- **Roszczenie do dostawcy** w reklamacji: numer zgłoszenia u dostawcy, uznane części i ryczałty, obowiązek odesłania części z terminem. Część z roszczenia przyjmowana PZ za 0 zł z oznaczeniem reklamacji.
+- Odpowiedź do klienta i nota dla dostawcy powstają jako szkice; wysyłka po zatwierdzeniu. Odrzucenie wymaga uzasadnienia i protokołu.
+- Wynik reklamacji = zwroty − robocizna (koszt godziny) − dojazdy − części bez zwrotu; suma w faktach listy i w raportach.
+- Ikona stanu „w toku” w listach reklamacji neutralna (nie akcent) — akcent tylko dla akcji.
+
+## 2026-11-21 (Raport z własnej tabeli, pola własne w rdzeniu)
+- **Raporty z własnych tabel** są w module Raporty (zakładka z ikoną tabeli), nie w ustawieniach tabeli. Miary: liczba, suma, średnia; podział najwyżej 4 grupy; kolory serii w stałej kolejności. Raport respektuje uprawnienia pól oglądającego.
+- Zamiast rzędu kafelków KPI — jedno zdanie podsumowania z liczbami.
+- **Pola własne w rdzeniu** (Ustawienia › Pola własne, tylko administrator): dokładane do istniejących sekcji modułu, pod polami systemowymi; nie zmieniają pól systemowych ani obliczeń. Pole może mieć regułę (np. wymagany numer PO blokuje wystawienie faktury) — reguły sprawdza serwer.
+- Pola wewnętrzne nigdy w portalu klienta; do portalu tylko pole oznaczone „dla klienta”.
+
+## 2026-11-21 (Projekty: oś czasu)
+- **Oś czasu to drugi widok listy projektów** (⇧G), nie osobny moduł. Pokazuje projekty i — pod nimi — obciążenie ludzi w projektach; konflikt = ta sama osoba w dwóch etapach w tym samym czasie.
+- Konflikty Avero tylko wskazuje i proponuje rozwiązanie; zmiany robi się w Planowaniu albo przeciągając etap.
+- Postęp w paskach kolorem serii `#2a78d6`, etapy gotowe zielone (jak w rekordzie projektu); przerwy kreskowaniem.
+- **Bez prawdziwych marek**: Galeria Bałtycka → Galeria Portowa (Grunwaldzka 212, Gdańsk) w całej makiecie.
+
+## 2026-11-21 (Własne tabele: widoki i import)
+- **Widoki wspólne i osobiste**: wspólny tworzy i zmienia administrator, osobisty każdy (tylko dla siebie). Widok nie zmienia danych ani uprawnień — kolumna pola ukrytego dla roli po prostu znika.
+- **Filtry dat względne** („w ciągu 14 dni od dziś”) przeliczane codziennie.
+- **Import z pliku** tylko dla administratora; dopasowanie po polu unikalnym; domyślnie uzupełnia tylko puste pola; brakujące firmy tworzy z etykietą „z importu” (rodzaj „Zamawiający publiczny”, bez osób). Import nie uruchamia akcji tabeli, nie wysyła wiadomości i można go cofnąć przez 7 dni.
+- Numery nadawane przy imporcie kolejno (PR-016 – PR-056), niezależnie od dat z pliku.
+
+## 2026-11-21 (Dostawcy i cenniki)
+- **Dostawcy i Cenniki to zakładki Zakupów**, nie osobne pozycje paska bocznego (pasek zostaje krótki; ⌘K i G Z prowadzą do Zakupów).
+- **Dostawca `DS-NNN`** z warunkami: płatność, dostawa, próg darmowej dostawy, rabat od cennika producenta, limit kupiecki. Limit = otwarte zamówienia + niezapłacone faktury zakupowe.
+- **Rodzaje źródeł ceny**: cennik (plik, ręcznie lub automatycznie z e-maila dostawcy — zawsze z zatwierdzeniem), oferta handlowca (z datą ważności), ostatnia faktura. Dostawca bez cennika jest dozwolony.
+- **Stany cennika**: aktywny, zaplanowany (data wejścia), oferta, wygasa (30 dni przed końcem), wygasły (archiwum). Po wygaśnięciu oferty pokazują koszt z ostatniej faktury i ostrzeżenie; szablony i wysłane oferty się nie zmieniają.
+- **„Poproś o cennik…” tworzy szkic e-maila** — wysyłka tylko po sprawdzeniu przez użytkownika.
+- **Terminowość dostaw** liczona z potwierdzonego terminu, nie z daty zamówienia.
+- Wykresy w panelach: jedna seria, kolor serii `#2a78d6` (jak w Raportach), bez legendy, wartości w podpowiedziach.
+
 ## 2026-11-21 (Mój dzień — porządki)
 - **Mój dzień zbiera wszystkie moduły**: nowe sekcje Skrzynka i Leady do kontaktu oraz widżet Sprzedaż; kolejność od Zagrożonego SLA w dół; licznik „Sprawy” zamiast „Zadania”.
 - **Jeden zespół w całej makiecie**: Mateusz Zieliński (MZ), Tomasz Lewandowski (TL), Kacper Nowak (KN), Piotr Dąbrowski (PD), biuro Agnieszka Wiśniewska (AW). Usunięte stare imiona z bazy (Marek jako technik, Kamil, Patryk, Anna).

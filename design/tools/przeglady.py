@@ -86,7 +86,7 @@ a(row('late','chl','Lodziarka','UR-3107 · R404A 5,4 kg · 21,2 t CO₂e','Delik
 a(row('late','chl','Agregat Bitzer','UR-2304 · R404A 12,5 kg · 49,0 t CO₂e','Hotel Oliwski','Kuchnia · Gdańsk Oliwa','fgaz','12 mies.','Kontrola szczelności — 49,0 t CO₂e','15 lis','4 dni po terminie',sugg('PD',PD,'Proponowany: Piotr — w pobliżu w czwartek')))
 a(row('late','kl','Serwerownia','UR-1988 · klimatyzacja R410A 3,2 kg · 6,7 t CO₂e','Kancelaria Wit','Arkońska 6, Gdańsk','fgaz','12 mies.','Kontrola szczelności — 6,7 t CO₂e','17 lis','2 dni po terminie',sugg('MZ',MZC,'Proponowany: Mateusz')))
 a(grp('Grudzień',11,sch('2 bez odpowiedzi klienta','Klienci otworzyli SMS, ale nie wybrali terminu')))
-a(row('plan','kl','VRV · 6 jednostek','R410A 24 kg · maszynownia na dachu','Galeria Bałtycka','Grunwaldzka 141, Gdańsk','um','UM-2026-031','Przegląd półroczny z umowy + kontrola szczelności','2 gru','Środa, 2 grudnia · 8:00',avs(('TL',TL),('MZ',MZC))))
+a(row('plan','kl','VRV · 6 jednostek','R410A 24 kg · maszynownia na dachu','Galeria Portowa','Grunwaldzka 212, Gdańsk','um','UM-2026-031','Przegląd półroczny z umowy + kontrola szczelności','2 gru','Środa, 2 grudnia · 8:00',avs(('TL',TL),('MZ',MZC))))
 a(row('asked','chl','Komora mroźnicza','UR-2871 · R452A 8 kg · 17,1 t CO₂e','Piekarnia Rogal','Chylońska 70, Gdynia','fgaz','12 mies.','Kontrola szczelności — 17,1 t CO₂e','9 gru','Środa, 9 grudnia',sugg('KN',KN,'Proponowany: Kacper'),sel=True))
 a(row('todo','chl','Witryny chłodnicze 3×','UR-3110…3112 · R290, czynnik naturalny','Delikatesy Morskie','Starowiejska 12, Gdynia — 2 km od Piekarni Rogal','um','UM-2025-014','Przegląd półroczny z umowy · F-gaz nie dotyczy','10 gru','Czwartek, 10 grudnia',sugg('KN',KN,'Proponowany: Kacper'),sel=True))
 a(row('todo','kl','Split 4×','UR-3301…3304 · R32','Biuro Bilans','Biuro Rachunkowe Bilans · Świętojańska 9, Gdynia','um','UM-2026-008','Przegląd z umowy · raz w roku','11 gru','Piątek, 11 grudnia',sugg('MZ',MZC,'Proponowany: Mateusz')))
@@ -125,8 +125,8 @@ u('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12p
 u('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
 act='<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.5" style="fill:var(--success)"></circle><path d="m4.3 7.2 1.8 1.8 3.6-3.8" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>'
 u('<div style="display:flex;align-items:flex-start;gap:16px;padding:12px 24px 16px"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:12px">'
-  '<div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-size:18px;line-height:26px;font-weight:600;letter-spacing:-0.015em">Umowa serwisowa · Galeria Bałtycka</h2>'
-  '<div style="display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;line-height:16px;color:var(--text-secondary)">'+meta(BLD,'Galeria Bałtycka sp. z o.o.','KL-0142 · NIP 584-025-19-87')+meta(PIN,'Grunwaldzka 141, Gdańsk','2 obiekty: maszynownia na dachu, rozdzielnia')+meta(BOX,'14 urządzeń','VRV, wytwornica wody lodowej, centrale wentylacyjne')+'</div></div>'
+  '<div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-size:18px;line-height:26px;font-weight:600;letter-spacing:-0.015em">Umowa serwisowa · Galeria Portowa</h2>'
+  '<div style="display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;line-height:16px;color:var(--text-secondary)">'+meta(BLD,'Galeria Portowa sp. z o.o.','KL-0142 · NIP 584-025-19-87')+meta(PIN,'Grunwaldzka 212, Gdańsk','2 obiekty: maszynownia na dachu, rozdzielnia')+meta(BOX,'14 urządzeń','VRV, wytwornica wody lodowej, centrale wentylacyjne')+'</div></div>'
   '<div style="display:flex;flex-wrap:wrap;gap:6px">'+capd(act+'Aktywna','Status')+capd(ic(CAL,14,'var(--text-tertiary)')+'1 lut 2026 – 31 sty 2027','Okres obowiązywania')+
   capd(ic(WALLET if 'WALLET' in globals() else CAL,14,'var(--text-tertiary)')+'2 400 zł / mies.','Ryczałt netto: przeglądy, dojazdy, reakcja')+capd(ic(CLOCK,14,'var(--text-tertiary)')+'Reakcja 4 h','SLA: reakcja na awarię w 4 h, 7:00–20:00, 7 dni')+capd(cav('AW','#8A8F98')+'Agnieszka','Opiekun umowy: Agnieszka Wiśniewska','0 10px 0 4px')+'</div></div></div>')
 u('<div style="display:flex;flex-direction:column;gap:28px;padding:0 24px 32px;max-width:980px">')
@@ -174,7 +174,7 @@ u('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Warunki')+
   prop(BOX,'Części −10 %','Rabat od cennika katalogowego')+
   prop(CYC,'Waloryzacja raz w roku','Przy odnowieniu, nie więcej niż 6 %')+'</section>')
 u('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Klient')+
-  prop(BLD,'Galeria Bałtycka sp. z o.o.','KL-0142')+prop(PHONE,'Jan Kowalczyk · kierownik techniczny','+48 501 222 314',ib('Zadzwoń','Zadzwoń',PHONE,24),plain=True)+'</section>')
+  prop(BLD,'Galeria Portowa sp. z o.o.','KL-0142')+prop(PHONE,'Jan Kowalczyk · kierownik techniczny','+48 501 222 314',ib('Zadzwoń','Zadzwoń',PHONE,24),plain=True)+'</section>')
 u('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Dokumenty',CNT(3))+'<div style="display:flex;flex-wrap:wrap;gap:4px;padding:0 8px">'+
   sch(ic(FILE,12,'var(--text-tertiary)')+'Umowa','UM-2026-031 · podpisana 20 sty 2026')+sch(ic(FILE,12,'var(--text-tertiary)')+'Załącznik 1','Wykaz urządzeń')+sch(ic(FILE,12,'var(--text-tertiary)')+'Cennik','Cennik części 2026')+'</div></section>')
 u('</aside></div></sc-if>')
@@ -195,6 +195,6 @@ def navpatch(label,k):
     s=s[:a0]+seg+s[e:]
 navpatch('Przeglądy','Prz'); navpatch('Umowy','Um')
 zt=s.index('<button type="button" role="tab" aria-selected="{{selZl}}"'); zte=s.index('</button>',zt)+9
-tab=('\n<sc-if value="{{isUm}}" hint-placeholder-val="{{false}}"><button type="button" role="tab" aria-selected="{{selUm}}" class="dtab {{actUm}}" title="UM-2026-031 · Galeria Bałtycka" style="flex:0 1 auto;min-width:0;max-width:200px;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:0;border-radius:8px;color:{{colUm}};font-size:12px;font-weight:{{wUm}}">'+ic(CONTRACT,14)+'<span class="ell">UM-2026-031</span></button></sc-if>')
+tab=('\n<sc-if value="{{isUm}}" hint-placeholder-val="{{false}}"><button type="button" role="tab" aria-selected="{{selUm}}" class="dtab {{actUm}}" title="UM-2026-031 · Galeria Portowa" style="flex:0 1 auto;min-width:0;max-width:200px;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:0;border-radius:8px;color:{{colUm}};font-size:12px;font-weight:{{wUm}}">'+ic(CONTRACT,14)+'<span class="ell">UM-2026-031</span></button></sc-if>')
 s=s[:zte]+tab+s[zte:]
 open(P,'w').write(s); print('ok',len(s))
