@@ -50,7 +50,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Widoki / Panel boczny / Akcje / Uprawnienia, Import z pliku, Nowa tabela (jasny / ciemny) |
 | Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |
 | Dostawcy i Cenniki (zakładki Zakupów) | `screens/21-dostawcy-cenniki.md` | Zakupy · dostawcy (panel Termo-Bud), Zakupy · cenniki (panel Chłodpol, historia R404A) (jasny / ciemny) |
-| Reklamacje i gwarancje | `screens/22-reklamacje.md` | Reklamacje · lista (panel RK-2026-011), Reklamacja RK-2026-017 (jasny / ciemny) |
+| Reklamacje i gwarancje | `screens/22-reklamacje.md` | Reklamacje · od klientów (panel RK-2026-011), do dostawców (panel Klimatech), gwarancje kończą się (panel UR-2655), Reklamacja RK-2026-017 (jasny / ciemny) |
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
 | Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
 | Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |

@@ -1002,6 +1002,38 @@
       "title": "Reklamacja RK-2026-017 · ciemny",
       "x": 4560,
       "y": 51420
+    },
+    "Reklamacje-dostawcy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · do dostawców",
+      "x": 0,
+      "y": 52900
+    },
+    "Reklamacje-dostawcy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · do dostawców · ciemny",
+      "x": 1520,
+      "y": 52900
+    },
+    "Reklamacje-gwarancje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · gwarancje kończą się",
+      "x": 3040,
+      "y": 52900
+    },
+    "Reklamacje-gwarancje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · gwarancje kończą się · ciemny",
+      "x": 4560,
+      "y": 52900
     }
   },
   "createdOnFiles": {
@@ -1285,7 +1317,11 @@
     "Reklamacje.dc.html",
     "Reklamacje-ciemny.dc.html",
     "Reklamacja.dc.html",
-    "Reklamacja-ciemny.dc.html"
+    "Reklamacja-ciemny.dc.html",
+    "Reklamacje-dostawcy.dc.html",
+    "Reklamacje-dostawcy-ciemny.dc.html",
+    "Reklamacje-gwarancje.dc.html",
+    "Reklamacje-gwarancje-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

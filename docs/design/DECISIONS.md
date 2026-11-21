@@ -2,6 +2,11 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Reklamacje: dostawcy i kończące się gwarancje)
+- **Roszczenia do dostawców** mają własną zakładkę; źródłem jest reklamacja klienta albo przyjęcie towaru (PZ). Szkic powstaje z diagnozy i wychodzi dopiero po uznaniu reklamacji klienta. Termin odpowiedzi liczony wg warunków handlowych dostawcy (pole w rejestrze dostawców).
+- Części do reklamacji: osobna półka z etykietą roszczenia, poza wydaniami i inwentaryzacją.
+- **Kończące się gwarancje**: propozycja przeglądu przed końcem i umowy 60 i 30 dni przed końcem; pomijamy klientów z umową; przy należności po terminie propozycja wstrzymana do decyzji właściciela. Wysyłka zawsze po zatwierdzeniu.
+
 ## 2026-11-21 (Reklamacje i gwarancje)
 - **Reklamacje to moduł rdzenia** w grupie Serwis (po Przeglądach). Szablon własnej tabeli „Reklamacje do producentów” zostaje tylko dla firm, które nie chcą modułu — dane nie są wspólne.
 - Reklamacja zawsze dotyczy urządzenia; numer `RK-RRRR-NNN`. Podstawy: gwarancja montażu, gwarancja producenta, rękojmia (konsument), gwarancja naprawy. Etapy: Zgłoszona → Diagnoza → Decyzja → Naprawa → Rozliczenie → Zamknięta / Odrzucona.

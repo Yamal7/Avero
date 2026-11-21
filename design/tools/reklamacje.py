@@ -41,7 +41,7 @@ def rrow(st,no,title,cli,dev,devtip,bas,term,termtip,termcol,who,sel=False,muted
             f'<span role="cell" style="display:flex;justify-content:flex-end">{who}</span></div>')
 H=[];a=H.append
 a('<sc-if value="{{isRek}}" hint-placeholder-val="{{false}}">')
-a(head('Reklamacje',tabs([('Od klientów','4'),('Do dostawców','3'),('Gwarancje kończą się','6')],0),
+a(head('Reklamacje',tabs([('Od klientów','4'),('Do dostawców','4'),('Gwarancje kończą się','6')],0),
        ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'<span style="width:4px"></span>'+btn('Nowa reklamacja','Nowa reklamacja — ze zgłoszenia, zlecenia albo urządzenia  C',PLUS)))
 a('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
 a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+capd('Otwarte i z ostatnich 30 dni','4 otwarte · 1 zamknięta w listopadzie')+capd(ic(BADGE,14,'var(--text-tertiary)')+'Każda podstawa','Gwarancja montażu, gwarancja producenta, rękojmia, gwarancja naprawy')+SP+
@@ -150,13 +150,131 @@ r('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Historia u
 r('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Inne reklamacje klienta')+
   '<span style="padding:0 8px;font-size:12px;line-height:16px;color:var(--text-tertiary)">Brak — pierwsza reklamacja Kancelarii Wit.</span></section>')
 r('</aside></div></sc-if>')
-block='\n'.join(H)+'\n'+'\n'.join(R)+'\n'
+
+# =================== DO DOSTAWCÓW
+DC='112px minmax(0,1.5fr) minmax(0,1fr) 92px minmax(0,1fr)'
+def drow(st,what,sup_,ref,src,srctip,req,val,valtip,nxt,nxttip,nxtcol='var(--text-secondary)',sel=False,muted=False):
+    bg='background:var(--bg-subtle);' if sel else ''
+    op='opacity:.6;' if muted else ''
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" style="font-size:12px">{st}</span>'
+            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{what}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="ell">{sup_}</span><span class="mono" style="font-size:11px;white-space:nowrap">{ref}</span></span></span>'
+            f'<span role="cell" title="{srctip}" style="display:flex;flex-direction:column;min-width:0;font-size:12px;line-height:16px"><span class="mono ell" style="font-size:11px">{src}</span><span class="ell" style="color:var(--text-tertiary)">{req}</span></span>'
+            f'<span role="cell" class="num" title="{valtip}" style="text-align:right">{val}</span>'
+            f'<span role="cell" class="ell" title="{nxttip}" style="font-size:12px;color:{nxtcol}">{nxt}</span></div>')
+def dst(t,kind):
+    icn={'draft':ic(PEN if 'PEN' in globals() else FILE,14,'var(--text-tertiary)'),'sent':ic(SEND,14,'var(--text-secondary)'),'ok':ic(CHECK,14,'var(--success)'),'done':ic(CHECK,14,'var(--text-tertiary)')}[kind]
+    return f'<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap">{icn}<span>{t}</span></span>'
+D=[];d=D.append
+d('<sc-if value="{{isRekD}}" hint-placeholder-val="{{false}}">')
+d(head('Reklamacje',tabs([('Od klientów','4'),('Do dostawców','4'),('Gwarancje kończą się','6')],1),
+       ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'<span style="width:4px"></span>'+btn('Nowe roszczenie','Roszczenie do dostawcy — z reklamacji albo z przyjęcia towaru (PZ)  C',PLUS)))
+d('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
+d('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+capd('Otwarte i z ostatnich 30 dni','3 otwarte · 1 szkic · 1 zamknięte w listopadzie')+capd(ic(BLD,14,'var(--text-tertiary)')+'Wszyscy dostawcy','Termo-Bud, Klimatech, Frigo-Serwis, Chłodpol')+SP+
+  '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)">'
+  '<span title="Uznane albo wysłane roszczenia, jeszcze nierozliczone: ryczałt Termo-Bud 350 + pompka Klimatech 240 + korekta Frigo-Serwis 182">Do odzyskania <span class="num" style="color:var(--text-primary);font-weight:500">772 zł</span></span>'
+  '<span title="Stary silnik do Termo-Bud do 7 gru · pompka Klimatech czeka na decyzję dostawcy">Do odesłania <span class="num" style="color:var(--text-primary);font-weight:500">1 część/span></span></span></div>')
+d('<div role="table" aria-label="Roszczenia do dostawców" style="display:flex;flex-direction:column;padding:0 16px 24px">')
+d(f'<div role="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Stan</span><span>Towar i dostawca</span><span>Źródło i żądanie</span><span style="text-align:right">Wartość</span><span>Dalej</span></div>')
+d(drow(dst('Wysłane','sent'),'Pompka skroplin 12 l/h','Klimatech Gdańsk','e-mail 10 lis','RK-2026-016','Restauracja Przystań · pompka z ZK/2026/06/012, przyjęta PZ/2026/06/018',
+       'zwrot kosztu albo nowa pompka','240 zł','Cena zakupu netto z PZ/2026/06/018','odpowiedź do wt 24 lis','14 dni wg warunków Klimatech · zostały 3 dni','var(--warning)',sel=True))
+d(drow(dst('Uznane','ok'),'Silnik wentylatora jedn. zewn.','Termo-Bud Pomorze','TB-RMA-0412','RK-2026-017','Kancelaria Wit · Daikin Perfera 5 kW UR-1990',
+       'część + ryczałt robocizny','350 zł','Ryczałt za robociznę po protokole naprawy · część 0 zł (PZ/2026/11/024)','odesłać stary silnik do 7 gru','Po naprawie pon 23 lis · etykieta zwrotna od dystrybutora'))
+d(drow(dst('Uznane','ok'),'Presostat HP 28 bar — wada fabryczna','Frigo-Serwis Gdańsk','RF-2026-118','PZ/2026/10/031','Przyjęcie z ZK/2026/10/019 · nie trzymał nastawy przy próbie',
+       'korekta faktury','182 zł','Uznane 12 lis · korekta faktury FZ 3315/10/2026','czeka na korektę','Korekta obiecana do 27 lis · wada wykryta przed montażem'))
+d(drow(dst('Szkic','draft'),'Siłownik zaworu 3-drogowego','Termo-Bud Pomorze','—','RK-2026-011','Ewa Sobczak · Panasonic Aquarea 9 kW UR-3540',
+       'część na gwarancji producenta','690 zł','Cena zakupu netto wg cennika Panasonic 2026','wyślij po uznaniu RK-2026-011','Formularz dystrybutora wypełniony z diagnozy ZS-1066 — wysyłka po decyzji w reklamacji','var(--text-tertiary)'))
+d(drow(dst('Zamknięte','done'),'Butla R32 9 kg — nieszczelny zawór','Chłodpol Gdynia','e-mail 3 lis','PZ/2026/11/004','Butla zwrotna wymieniona przy dostawie 4 lis',
+       'wymiana butli','0 zł','Wymieniona bez kosztów','wymieniona 4 lis','Zamknięte 4 listopada','var(--text-tertiary)',muted=True))
+d('<div style="display:flex;align-items:center;gap:8px;padding:12px 10px 0;font-size:12px;color:var(--text-tertiary)">'+ic(BOX,14,'var(--text-tertiary)')+
+  '<span>Części do reklamacji leżą w magazynie na półce R-2 z etykietą roszczenia — nie trafiają do wydań ani inwentaryzacji.</span></div>')
+d('</div></div>')
+# panel Klimatech
+d('<aside aria-label="Roszczenie do Klimatech" style="flex:0 0 360px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;gap:16px;padding:14px 12px 24px">')
+d('<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span style="font-size:12px;color:var(--text-tertiary)">Klimatech Gdańsk · DS-003</span>'
+  '<h2 style="margin:0;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-0.01em">Pompka skroplin 12 l/h</h2>'
+  '<span style="font-size:12px;color:var(--text-secondary)">Z reklamacji RK-2026-016 · Restauracja Przystań</span></div>')
+d('<div role="note" style="display:flex;gap:10px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+ic(CLOCK,16,'var(--warning)')+
+  '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">Odpowiedź do wt 24 lis — zostały 3 dni</span>'
+  '<span style="font-size:12px;line-height:16px;color:var(--text-secondary)">Warunki handlowe Klimatech: 14 dni na rozpatrzenie od zgłoszenia. Po terminie Avero przygotuje przypomnienie.</span></div></div>')
+d('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Towar')+
+  '<div style="display:flex;flex-direction:column;gap:2px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+
+  kv('Zamówienie','ZK/2026/06/012',vc='var(--text-secondary)')+kv('Przyjęcie','PZ/2026/06/018 · 3 cze',vc='var(--text-secondary)')+
+  kv('Zamontowana','9 cze · UR-3033',vc='var(--text-secondary)',tip='Daikin Perfera 3,5 kW, sala restauracji')+kv('Awaria','po 5 mies. pracy',vc='var(--text-secondary)',tip='Pływak zablokowany, silnik nie startuje')+kv('Gwarancja dostawcy','24 mies.',vc='var(--text-secondary)')+'</div></section>')
+d('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Zgłoszenie do dostawcy')+
+  '<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span style="line-height:20px">E-mail do działu reklamacji z numerem PZ, opisem awarii i 3 zdjęciami.</span>'
+  '<span style="display:flex;gap:6px;flex-wrap:wrap">'+sch(ic(MAIL,12,'var(--text-tertiary)')+'wysłany 10 lis 15:20','Wysłała Agnieszka po sprawdzeniu szkicu')+sch(ic(CAM,12,'var(--text-tertiary)')+'3 zdjęcia','Zdjęcia wewnętrzne')+'</span></div></section>')
+d('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Żądanie')+
+  '<div style="display:flex;flex-direction:column;gap:2px;padding:0 8px">'+
+  kv('Zwrot kosztu albo nowa pompka','240 zł',w=500)+kv('Robocizna','bez zwrotu',vc='var(--text-secondary)',tip='Klimatech nie pokrywa robocizny — koszt w RK-2026-016')+
+  kv('Uszkodzona pompka','R-2, do dyspozycji',vc='var(--text-secondary)',tip='Odeślemy, jeśli dostawca poprosi')+'</div></section>')
+d('<div style="display:flex;flex-direction:column;gap:6px;margin-top:auto;padding:0 4px">'+
+  btn('Zapisz odpowiedź dostawcy','Uznane / odrzucone, kwota i co odesłać  ⌘↵',CHECK,pri=True,h=32)+
+  btn('Przygotuj przypomnienie','Szkic e-maila do Klimatech — wyślesz po sprawdzeniu',MAIL,h=32)+'</div>')
+d('</aside></div></sc-if>')
+
+# =================== GWARANCJE KOŃCZĄ SIĘ
+GC='minmax(0,1.15fr) minmax(0,1.1fr) 116px minmax(0,1.65fr) 24px'
+def grow_(dev,code,cli,clitip,kind,end,endtip,endcol,nxt,nxttip,who,sel=False,muted=False):
+    bg='background:var(--bg-subtle);' if sel else ''
+    op='opacity:.6;' if muted else ''
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{GC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{dev}</span><span class="mono ell" style="font-size:11px;line-height:16px;color:var(--text-tertiary)">{code}</span></span>'
+            f'<span role="cell" title="{clitip}" style="display:flex;flex-direction:column;min-width:0;font-size:12px;line-height:16px"><span class="ell">{cli}</span><span class="ell" style="color:var(--text-tertiary)">{kind}</span></span>'
+            f'<span role="cell" class="num" title="{endtip}" style="font-size:12px;color:{endcol}">{end}</span>'
+            f'<span role="cell" class="ell" title="{nxttip}" style="font-size:12px;color:var(--text-secondary)">{nxt}</span>'
+            f'<span role="cell" style="display:flex;justify-content:flex-end">{who}</span></div>')
+G=[];g=G.append
+g('<sc-if value="{{isRekG}}" hint-placeholder-val="{{false}}">')
+g(head('Reklamacje',tabs([('Od klientów','4'),('Do dostawców','4'),('Gwarancje kończą się','6')],2),
+       ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)))
+g('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
+g('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+capd(ic(CAL,14,'var(--text-tertiary)')+'W ciągu 60 dni','Do 20 stycznia 2027 · 6 urządzeń u 5 klientów')+capd(ic(BADGE,14,'var(--text-tertiary)')+'Montaż i producent','Gwarancja montażu (nasza) i producenta')+SP+
+  '<span style="font-size:12px;color:var(--text-secondary)" title="Klienci bez umowy, którym zaproponowano przegląd lub umowę">Bez umowy <span class="num" style="color:var(--text-primary);font-weight:500">4</span></span></div>')
+g('<div role="table" aria-label="Gwarancje kończące się w 60 dni" style="display:flex;flex-direction:column;padding:0 16px 24px">')
+g(f'<div role="row" style="display:grid;grid-template-columns:{GC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Urządzenie</span><span>Klient i gwarancja</span><span>Koniec</span><span>Dalej</span><span></span></div>')
+g(grow_('2 × Daikin Perfera 2,5 kW','UR-2742, UR-2743','Przychodnia Zdrowie · Gdynia','Bez umowy serwisowej','gwarancja montażu, 24 mies.','pt 28 lis · 7 dni','Piątek 28 listopada 2026','var(--warning)',
+        ic(CHECK,12,'var(--success)')+' przegląd umówiony wt 24 lis','ZS-1081 · Piotr · usterki zgłoszone do 28 lis naprawimy w ramach gwarancji',cav('PD',PDC)))
+g(grow_('Panasonic Aquarea 7 kW','UR-2655','Jolanta Mazur · Reda · konsument','Osoba prywatna, bez umowy','gwarancja producenta, 36 mies.','śr 9 gru · 18 dni','Środa 9 grudnia 2026','var(--text-primary)',
+        'e-mail 16 lis nieotwarty — zadzwoń','Propozycja: przegląd przed końcem gwarancji 380 zł i umowa 590 zł/rok',cav('TL',TLC),sel=True))
+g(grow_('Witryna chłodnicza 1,25 m','UR-2588','Restauracja Port · Gdynia','Należność po terminie 2 420 zł (74 dni)','gwarancja montażu, 24 mies.','wt 15 gru · 24 dni','Wtorek 15 grudnia 2026','var(--text-primary)',
+        ic(WARN,12,'var(--warning)')+' wstrzymane — należność po terminie','Propozycja czeka do spłaty FV/2026/09/018 — decyzja Pascala',cav('PK',PKC)))
+g(grow_('Daikin split 5 kW · serwerownia','UR-2611','Biuro Rachunkowe Saldo · Gdynia','Umowa serwisowa UW-2025-011 do 31 sty 2028','gwarancja producenta, 36 mies.','pon 11 sty 2027','Poniedziałek 11 stycznia 2027','var(--text-secondary)',
+        'umowa obejmuje — nic do zrobienia','Przegląd roczny w umowie, ostatni 8 paź 2026',cav('PD',PDC),muted=True))
+g(grow_('Daikin Sensira 3,5 kW','UR-2634','Apteka Pod Lipami · Rumia','Bez umowy','gwarancja montażu, 24 mies.','pon 18 sty 2027','Poniedziałek 18 stycznia 2027','var(--text-secondary)',
+        'przypomnienie 19 gru (30 dni przed)','Avero przygotuje propozycję umowy ok. 690 zł/rok — wysyłka po zatwierdzeniu',cav('KN',KNC)))
+g('<div style="display:flex;align-items:center;gap:8px;padding:12px 10px 0;font-size:12px;color:var(--text-tertiary)">'+ic(CLOCK,14,'var(--text-tertiary)')+
+  '<span>Avero przygotowuje propozycję 60 i 30 dni przed końcem gwarancji. Wysyłka zawsze po zatwierdzeniu; klient z umową i klient z należnością po terminie są pomijani.</span></div>')
+g('</div></div>')
+# panel Jolanta Mazur
+g('<aside aria-label="Gwarancja UR-2655" style="flex:0 0 360px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;gap:16px;padding:14px 12px 24px">')
+g('<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span class="mono" style="font-size:11px;color:var(--text-tertiary)">UR-2655</span>'
+  '<h2 style="margin:0;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-0.01em">Panasonic Aquarea 7 kW</h2>'
+  '<span style="font-size:12px;color:var(--text-secondary)">Jolanta Mazur · Reda, Gdańska 41 · montaż 9 gru 2023 (ZS-0412)</span></div>')
+g('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Gwarancje')+
+  '<div style="display:flex;flex-direction:column;gap:2px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+
+  kv('Producent','do śr 9 gru',w=500,tip='36 mies. od montażu · Panasonic przez Termo-Bud')+
+  '<span style="display:flex;align-items:center;gap:6px;padding:0 0 4px;font-size:12px;color:var(--text-secondary)">'+ic(CHECK,12,'var(--success)')+'warunek: przegląd co 12 mies. — ostatni 2 gru 2025</span>'+
+  kv('Montaż','wygasła 9 gru 2025',vc='var(--text-tertiary)',tip='24 mies. od odbioru')+kv('Reklamacje','brak',vc='var(--text-secondary)')+'</div></section>')
+g('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Propozycja')+
+  '<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span style="line-height:20px">Przegląd przed końcem gwarancji: usterki wykryte do 9 gru naprawimy na koszt producenta. Potem umowa serwisowa z przeglądem w cenie.</span></div>'
+  '<div style="display:flex;flex-direction:column;gap:2px;padding:0 8px">'+
+  kv('Przegląd gwarancyjny','380 zł brutto',tip='Szablon „Przegląd pompy ciepła” · ok. 1,5 h')+kv('Umowa serwisowa','590 zł netto / rok',vc='var(--text-secondary)',tip='Przegląd roczny, czas reakcji 48 h, −10 % na części')+'</div></section>')
+g('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Kontakt',CNT(1))+
+  prop(MAIL,'E-mail 16 lis — nieotwarty','Wysłany po zatwierdzeniu przez Tomasza')+
+  '<div style="display:flex;align-items:center;gap:8px;min-height:32px;padding:0 8px;font-size:12px;color:var(--text-tertiary)">'+ic(INFO if 'INFO' in globals() else CLOCK,14,'var(--text-tertiary)')+'<span>SMS niedostępny — kanał czeka na dostawcę (Ustawienia › Integracje).</span></div></section>')
+g('<div style="display:flex;flex-direction:column;gap:6px;margin-top:auto;padding:0 4px">'+
+  btn('Zadzwoń i umów przegląd','+48 601 334 270 · po rozmowie wybierz termin w Planowaniu',PHONE,pri=True,h=32)+
+  btn('Nie proponuj więcej','Klientka odmówiła — wpis w historii, bez kolejnych przypomnień',h=32)+'</div>')
+g('</aside></div></sc-if>')
+
+block='\n'.join(H)+'\n'+'\n'.join(R)+'\n'+'\n'.join(D)+'\n'+'\n'.join(G)+'\n'
 k=s.index('<sc-if value="{{isZlecV2}}"'); s=s[:k]+block+s[k:]
 def rep(x_,y_):
     global s; assert s.count(x_)==1,x_[:60]; s=s.replace(x_,y_)
-rep("const isFV = ekran === 'faktura';","const isFV = ekran === 'faktura'; const isRek = ekran === 'reklamacje'; const isRekR = ekran === 'reklamacja'; const nRek = navv(isRek || isRekR);")
-rep("isFV, actFV:","isRek, isRekR, actRek: nRek.act, colRek: nRek.col, wRek: nRek.w, isFV, actFV:")
-rep('"planowanie"]','"reklamacje", "reklamacja", "planowanie"]')
+rep("const isFV = ekran === 'faktura';","const isFV = ekran === 'faktura'; const isRek = ekran === 'reklamacje'; const isRekR = ekran === 'reklamacja'; const isRekD = ekran === 'reklamacje dostawcy'; const isRekG = ekran === 'reklamacje gwarancje'; const nRek = navv(isRek || isRekR || isRekD || isRekG);")
+rep("isFV, actFV:","isRek, isRekR, isRekD, isRekG, actRek: nRek.act, colRek: nRek.col, wRek: nRek.w, isFV, actFV:")
+rep('"planowanie"]','"reklamacje", "reklamacje dostawcy", "reklamacje gwarancje", "reklamacja", "planowanie"]')
 # pozycja w pasku: Serwis › po Przeglądach
 NAVI=('<a href="#" class="nav {{actRek}}" style="display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:8px;color:{{colRek}}">'
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 auto">'+RET+'</svg>'
