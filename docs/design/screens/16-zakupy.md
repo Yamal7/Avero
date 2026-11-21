@@ -31,5 +31,5 @@ Makiety: ekrany `zakupy` (zapotrzebowanie) i `zamówienie zakupowe` w `Main.dc.h
 - Pozycja bez ceny u żadnego dostawcy: grupa „Bez dostawcy” z akcją „Przypisz dostawcę”.
 - Szkielety wierszy przy ładowaniu; błąd wysyłki e-maila do dostawcy: zamówienie zostaje „Szkic” + komunikat z „Spróbuj ponownie”.
 
-## Do zrobienia później
-Zakładki Dostawcy (rejestr, warunki, handlowcy) i Cenniki (import z podglądem zmian cen, historia).
+## Dostawcy i Cenniki
+Opisane w `21-dostawcy-cenniki.md`.

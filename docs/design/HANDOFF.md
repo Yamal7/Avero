@@ -49,6 +49,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Obiekty | `screens/19-obiekty.md` | Obiekty · lista, Obiekt OB-0230 · Hotel Oliwski (jasny / ciemny) |
 | Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Panel boczny / Akcje / Uprawnienia, Nowa tabela (jasny / ciemny) |
 | Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |
+| Dostawcy i Cenniki (zakładki Zakupów) | `screens/21-dostawcy-cenniki.md` | Zakupy · dostawcy (panel Termo-Bud), Zakupy · cenniki (panel Chłodpol, historia R404A) (jasny / ciemny) |
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
 | Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
 | Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |

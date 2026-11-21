@@ -2,6 +2,15 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Dostawcy i cenniki)
+- **Dostawcy i Cenniki to zakładki Zakupów**, nie osobne pozycje paska bocznego (pasek zostaje krótki; ⌘K i G Z prowadzą do Zakupów).
+- **Dostawca `DS-NNN`** z warunkami: płatność, dostawa, próg darmowej dostawy, rabat od cennika producenta, limit kupiecki. Limit = otwarte zamówienia + niezapłacone faktury zakupowe.
+- **Rodzaje źródeł ceny**: cennik (plik, ręcznie lub automatycznie z e-maila dostawcy — zawsze z zatwierdzeniem), oferta handlowca (z datą ważności), ostatnia faktura. Dostawca bez cennika jest dozwolony.
+- **Stany cennika**: aktywny, zaplanowany (data wejścia), oferta, wygasa (30 dni przed końcem), wygasły (archiwum). Po wygaśnięciu oferty pokazują koszt z ostatniej faktury i ostrzeżenie; szablony i wysłane oferty się nie zmieniają.
+- **„Poproś o cennik…” tworzy szkic e-maila** — wysyłka tylko po sprawdzeniu przez użytkownika.
+- **Terminowość dostaw** liczona z potwierdzonego terminu, nie z daty zamówienia.
+- Wykresy w panelach: jedna seria, kolor serii `#2a78d6` (jak w Raportach), bez legendy, wartości w podpowiedziach.
+
 ## 2026-11-21 (Mój dzień — porządki)
 - **Mój dzień zbiera wszystkie moduły**: nowe sekcje Skrzynka i Leady do kontaktu oraz widżet Sprzedaż; kolejność od Zagrożonego SLA w dół; licznik „Sprawy” zamiast „Zadania”.
 - **Jeden zespół w całej makiecie**: Mateusz Zieliński (MZ), Tomasz Lewandowski (TL), Kacper Nowak (KN), Piotr Dąbrowski (PD), biuro Agnieszka Wiśniewska (AW). Usunięte stare imiona z bazy (Marek jako technik, Kamil, Patryk, Anna).
