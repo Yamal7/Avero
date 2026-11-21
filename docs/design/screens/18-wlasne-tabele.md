@@ -69,5 +69,12 @@ Makiety: ekrany `przetargi`, `tabela pola`, `tabela panel` w `Main.dc.html` (jas
 - Panel: zamawiający bez rekordu w Firmach (utwórz firmy z etykietą „z importu” / zostaw puste), istniejące rekordy (uzupełnij tylko puste / nadpisz — każda zmiana w historii), podsumowanie po zatwierdzeniu, „Importuj N wierszy” (akcent, ⌘↵), „Pobierz pominięte wiersze” (CSV).
 - Bezpieczeństwo: import nie uruchamia akcji tabeli i nie wysyła wiadomości; można go cofnąć przez 7 dni (nowe rekordy do archiwum, uzupełnione pola wracają).
 
-## Do zaprojektowania później
-Raport z własnej tabeli, dokładanie sekcji własnych pól do modułów rdzenia (np. pola firmy w panelu Zgłoszenia).
+## Raport z własnej tabeli (ekran `raport tabela`)
+- W module Raporty jako kolejna zakładka z ikoną tabeli („Przetargi”); „+ Raport” tworzy raport z modułu albo z własnej tabeli.
+- Nad wykresami: źródło (kapsułka „z własnej tabeli Przetargi”, widok i liczba rekordów w podpowiedzi), autor i kto widzi; jedno zdanie podsumowania z liczbami zamiast rzędu kafelków.
+- Wykresy jako karty `--bg-raised` z „Pokaż tabelę”: słupki skumulowane wg kwartału (wygrane kolorem serii, reszta neutralna, etykieta „wygrane/złożone” nad słupkiem, legenda), poziome słupki skuteczności wg pola Wybór, poziome słupki powodów (pole „Powód” przy etapie zamykającym) z jednym zdaniem wniosku.
+- Panel wykresu (320 px): dane (tabela i widok, miara: liczba / suma / średnia pola liczbowego, warunki, oś daty z grupowaniem, podział — najwyżej 4 grupy), wygląd (Słupki / Skumulowane / Linia / Tabela; kolory nadaje Avero w stałej kolejności), kto widzi. „+ Wykres” (N), „Zapisz raport” (⌘S). Zaznaczony wykres obwiedziony akcentem.
+- Raport działa z uprawnieniami oglądającego: wykres oparty na polu ukrytym dla roli nie pokazuje się tej roli.
+
+## Pola własne w modułach rdzenia
+Opis w `13-ustawienia.md` (Ustawienia › Pola własne).

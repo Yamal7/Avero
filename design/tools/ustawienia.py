@@ -51,7 +51,7 @@ def sep(): return '<div style="height:1px;background:var(--edge)"></div>'
 
 # ---------- settings secondary nav
 def snav(cur):
-    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów')]),
+    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów'),('pola','<rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path>','Pola własne')]),
        ('Zespół',[('uz',USERS,'Użytkownicy i role'),('bus',TRUCK,'Technicy i busy')]),
        ('Połączenia',[('int',PLUG,'Integracje')]),
        ('Moje konto',[('ja',USER,'Profil'),('pow',BELL,'Powiadomienia'),('wyg',SUN,'Wygląd')])]

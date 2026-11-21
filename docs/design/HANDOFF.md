@@ -44,7 +44,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Zlecenie montażu | `screens/09-zlecenie-montazu.md` | Zlecenie montażu ZS-1052 |
 | Faktura końcowa | `screens/10-faktura.md` | Faktura końcowa FV/2026/12/003; Klient · po montażu |
 | Przeglądy i umowy serwisowe | `screens/11-przeglady-umowy.md` | Przeglądy, Umowa serwisowa UM-2026-031, Klient · wybór terminu |
-| Raporty | `screens/12-raporty.md` | Raporty · przegląd miesiąca |
+| Raporty | `screens/12-raporty.md`, `screens/18-wlasne-tabele.md` | Raporty · przegląd miesiąca, Raporty · z własnej tabeli Przetargi |
 | Projekty | `screens/20-projekty.md` | Projekty · lista, Projekty · oś czasu, Projekt PJ-2026-011 · Hotel Bryza (jasny / ciemny) |
 | Obiekty | `screens/19-obiekty.md` | Obiekty · lista, Obiekt OB-0230 · Hotel Oliwski (jasny / ciemny) |
 | Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Widoki / Panel boczny / Akcje / Uprawnienia, Import z pliku, Nowa tabela (jasny / ciemny) |
@@ -53,7 +53,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
 | Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
 | Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |
-| Ustawienia (9 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
+| Ustawienia (10 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, pola własne, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
 
 Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 

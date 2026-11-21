@@ -66,3 +66,13 @@ Projekt oparty na tym, co już działa w kodzie: `docs/COMPANY_PROFILE.md`, `doc
 - Wydruki i PDF zawsze jasne.
 
 Elementy oznaczone „nowe” nie istnieją jeszcze w kodzie — do wyceny i decyzji właściciela.
+
+
+## Pola własne (Firma › Pola własne, ekran `ustawienia`, `ust="pola własne"`)
+- Tylko administrator. Nagłówek z zasadą: pola systemowe i to, co Avero liczy samo (stany, F-gaz, ceny), zostają bez zmian. „Dodaj pole” (N).
+- Moduły jako kapsułki z licznikami: Firmy, Obiekty, Urządzenia, Zlecenia, Zgłoszenia, Oferty.
+- Lista pól modułu: uchwyt, ikona typu, nazwa, typ (te same typy co we własnych tabelach), gdzie widać (kapsułki miejsc), kto zmienia.
+- Wybrane pole — „Gdzie pokazać”: przełączniki miejsc (karta rekordu, panel zgłoszenia i zlecenia, telefon technika, lista jako kolumna i filtr, portal klienta) z warunkiem („tylko gdy tak”) i regułą (np. faktura: bez numeru PO nie da się wystawić — działa też w API i przy fakturach z umów).
+- Portal klienta: pola wewnętrzne nigdy; włączyć można tylko pole oznaczone „dla klienta”.
+- Podgląd (340 px): prawdziwy panel (ZG-0912 Hotel Oliwski) z polami własnymi w istniejących sekcjach, pod polami systemowymi; edytowane pole obwiedzione akcentem.
+- Pola obiektu (godziny dostępu, parking) widzi technik; kodów do drzwi i alarmów Avero nie przechowuje.

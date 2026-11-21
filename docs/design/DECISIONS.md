@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Raport z własnej tabeli, pola własne w rdzeniu)
+- **Raporty z własnych tabel** są w module Raporty (zakładka z ikoną tabeli), nie w ustawieniach tabeli. Miary: liczba, suma, średnia; podział najwyżej 4 grupy; kolory serii w stałej kolejności. Raport respektuje uprawnienia pól oglądającego.
+- Zamiast rzędu kafelków KPI — jedno zdanie podsumowania z liczbami.
+- **Pola własne w rdzeniu** (Ustawienia › Pola własne, tylko administrator): dokładane do istniejących sekcji modułu, pod polami systemowymi; nie zmieniają pól systemowych ani obliczeń. Pole może mieć regułę (np. wymagany numer PO blokuje wystawienie faktury) — reguły sprawdza serwer.
+- Pola wewnętrzne nigdy w portalu klienta; do portalu tylko pole oznaczone „dla klienta”.
+
 ## 2026-11-21 (Projekty: oś czasu)
 - **Oś czasu to drugi widok listy projektów** (⇧G), nie osobny moduł. Pokazuje projekty i — pod nimi — obciążenie ludzi w projektach; konflikt = ta sama osoba w dwóch etapach w tym samym czasie.
 - Konflikty Avero tylko wskazuje i proponuje rozwiązanie; zmiany robi się w Planowaniu albo przeciągając etap.
