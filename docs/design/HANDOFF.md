@@ -45,7 +45,14 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Faktura końcowa | `screens/10-faktura.md` | Faktura końcowa FV/2026/12/003; Klient · po montażu |
 | Przeglądy i umowy serwisowe | `screens/11-przeglady-umowy.md` | Przeglądy, Umowa serwisowa UM-2026-031, Klient · wybór terminu |
 | Raporty | `screens/12-raporty.md` | Raporty · przegląd miesiąca |
-| Ustawienia (profil firmy, użytkownicy i role, integracje) | `screens/13-ustawienia.md` | Ustawienia · profil firmy / użytkownicy i role / integracje |
+| Projekty | `screens/20-projekty.md` | Projekty · lista, Projekt PJ-2026-011 · Hotel Bryza (jasny / ciemny) |
+| Obiekty | `screens/19-obiekty.md` | Obiekty · lista, Obiekt OB-0230 · Hotel Oliwski (jasny / ciemny) |
+| Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Panel boczny / Akcje / Uprawnienia, Nowa tabela (jasny / ciemny) |
+| Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |
+| Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
+| Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
+| Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |
+| Ustawienia (9 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
 
 Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 
@@ -56,3 +63,7 @@ Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 3. Claude Code po każdej zmianie dopisuje do `docs/STATUS.md`: co zaimplementowano, co świadomie odbiega od makiety (i dlaczego), pytania do projektu.
 4. Czat projektowy przed każdym nowym modułem czyta `docs/STATUS.md` i ostatnie commity.
 5. Odświeżony ekran projektuje się **obok** starego (do porównania); stary usuwa właściciel po akceptacji.
+
+## Kierunek produktu
+
+Avero ma być sprzedawany innym firmom: wspólny rdzeń + pakiety branżowe (HVACR pierwszy) + warstwa elastyczna (własne pola, konfigurowalny panel boczny, własne tabele). Szczegóły i konsekwencje dla kodu: `DECISIONS.md`, wpis „Kierunek produktu” z 20 lis 2026.

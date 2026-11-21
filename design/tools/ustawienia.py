@@ -36,7 +36,7 @@ def tog(on,label):
             f'<span aria-hidden="true" style="position:absolute;top:2px;left:{12 if on else 2}px;width:12px;height:12px;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></button>')
 def inp(val,label,w='100%',icon=None,mono=False,suffix='',ph=''):
     ic_=ic(icon,14,'var(--text-tertiary)') if icon else ''
-    sf=f'<span style="color:var(--text-tertiary)">{suffix}</span>' if suffix else ''
+    sf=f'<span style="color:var(--text-tertiary);white-space:nowrap">{suffix}</span>' if suffix else ''
     return (f'<label style="height:32px;width:{w};display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:10px;background:var(--bg-subtle)">{ic_}'
             f'<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">{label}</span>'
             f'<input value="{val}" placeholder="{ph}" class="{"mono" if mono else ""} num" style="flex:1 1 auto;min-width:0;height:30px;border:0;background:transparent;font:inherit;{"font-family:var(--font-mono,Geist Mono),monospace;font-size:12px;" if mono else ""}color:var(--text-primary);outline:none">{sf}</label>')
@@ -147,14 +147,14 @@ uaside=('<aside aria-label="Piotr Dąbrowski" style="flex:0 0 300px;min-width:0;
 
 # =========== INTEGRACJE
 def integ(icon,col,name,desc,state,stip,meta,act):
-    sc={'ok':('var(--success)','Połączono'),'test':('var(--warning)','Tryb testowy'),'cfg':('var(--text-tertiary)','Wymaga konfiguracji'),'off':('var(--text-tertiary)','Wyłączone')}[state]
+    sc={'prep':('var(--warning)','Czeka na dostawcę'),'ok':('var(--success)','Połączono'),'test':('var(--warning)','Tryb testowy'),'cfg':('var(--text-tertiary)','Wymaga konfiguracji'),'off':('var(--text-tertiary)','Wyłączone')}[state]
     return (f'<div style="display:flex;align-items:center;gap:14px;min-height:72px;padding:12px 16px;border-radius:12px;background:var(--bg-raised)">'
             f'<span style="width:40px;height:40px;flex:0 0 auto;border-radius:12px;background:var(--bg-surface);display:inline-flex;align-items:center;justify-content:center">{ic(icon,20,col)}</span>'
             f'<span style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px"><span style="display:flex;align-items:center;gap:8px"><span style="font-weight:600">{name}</span>{sch(dot(sc[0])+sc[1],stip,"var(--bg-surface)")}</span>'
             f'<span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">{desc}</span><span style="display:flex;gap:4px;flex-wrap:wrap">{meta}</span></span>{act}</div>')
 btn=lambda t,tip,pri=False: f'<button type="button" class="{"pri" if pri else "sec"}" title="{tip}" style="height:32px;padding:0 12px;border:0;border-radius:10px;background:{"var(--accent)" if pri else "var(--bg-surface)"};{"color:var(--on-accent);" if pri else ""}font-weight:500;white-space:nowrap">{t}</button>'
 envc=lambda t: sch(ic(SERVER,12,'var(--text-tertiary)')+t,'Klucz trzymany wyłącznie na serwerze (zmienna środowiskowa) — nie da się go odczytać w przeglądarce','var(--bg-surface)')
-integ_c=(head('Integracje','Płatności, faktury, poczta i mapa. Klucze dostępu są przechowywane tylko na serwerze — tu widać stan i test połączenia.')+
+integ_c=(head('Integracje','Płatności, faktury, poczta, SMS i mapa. Klucze dostępu są przechowywane tylko na serwerze — tu widać stan i test połączenia.')+
   '<div style="display:flex;flex-direction:column;gap:8px">'
   '<span style="font-size:12px;color:var(--text-tertiary)">Płatności i dokumenty</span>'+
   integ(CARD,'#2F9E5B','Przelewy24','Zaliczki i dopłaty z linku: BLIK, szybki przelew, karty, Apple Pay, Google Pay.','test','Sandbox — płatności nie są prawdziwe',
@@ -162,10 +162,14 @@ integ_c=(head('Integracje','Płatności, faktury, poczta i mapa. Klucze dostępu
   integ(CLOUD,'#5E6AD2','KSeF','Faktury dla firm (B2B) wysyłane do Krajowego Systemu e-Faktur.','cfg','Brak tokenu lub certyfikatu KSeF',
         sch(ic(INFO,12,'var(--text-tertiary)')+'B2C poza KSeF','Faktury dla konsumentów domyślnie poza KSeF','var(--bg-surface)')+sch('środowisko testowe najpierw','Najpierw połączenie z bramką testową KSeF','var(--bg-surface)'),btn('Skonfiguruj','Token z Aplikacji Podatnika KSeF lub certyfikat'))+
   '<span style="font-size:12px;color:var(--text-tertiary);padding-top:8px">Komunikacja</span>'+
-  integ(MAIL,'#3B82D6','Poczta e-mail','Przypomnienia dla pracowników, oferty i faktury do klientów.','test','Tryb lokalny: wiadomości trafiają do testowej skrzynki Mailpit, nie do Internetu',
+  integ(MAIL,'#3B82D6','Microsoft 365','Skrzynki serwis@ i biuro@: odbiór do Skrzynki, odpowiedzi z adresu firmy.','cfg','Nie połączono — Skrzynka pokazuje tylko portal i formularz',
+        sch('zgoda administratora M365','Jednorazowa zgoda administratora firmy na dostęp aplikacji do wybranych skrzynek (Microsoft Graph)','var(--bg-surface)')+sch('tylko wybrane skrzynki','Dostęp ograniczony do serwis@ i biuro@, nie do skrzynek pracowników','var(--bg-surface)'),btn('Połącz z Microsoft 365','Logowanie kontem administratora Microsoft 365 — hasło wpisujesz u Microsoftu, nie w Avero'))+
+  integ(MAIL,'#D6453D','Gmail i inne skrzynki','Przekierowanie z serwis@ na adres Avero; odpowiedzi wychodzą z domeny firmy.','cfg','Nie skonfigurowano — bez dostępu Avero do skrzynki Google',
+        sch('przekierowanie','W Gmailu: Ustawienia → Przekierowanie na adres Avero tej firmy (unikalny, z panelu)','var(--bg-surface)')+sch('DNS: SPF i DKIM','Wysyłka z adresu firmy po weryfikacji domeny — kopia do skrzynki przez UDW','var(--bg-surface)'),btn('Skonfiguruj przekierowanie','Pokaż adres przekierowania i rekordy DNS do weryfikacji domeny'))+
+  integ(SEND,'var(--text-secondary)','Wysyłka automatyczna','Przypomnienia dla pracowników, oferty i faktury do klientów.','test','Tryb lokalny: wiadomości trafiają do testowej skrzynki Mailpit, nie do Internetu',
         envc('NOTIFICATION_MAIL_MODE=local')+sch('nadawca: nie zweryfikowany','Przed produkcją: zweryfikuj domenę nadawcy u dostawcy (Resend)','var(--bg-surface)'),btn('Wyślij test','Wyślij wiadomość testową na swój adres'))+
-  integ(MSG,'#E0702A','SMS','Prośby o termin przeglądu, link do oferty, przypomnienie przed montażem.','cfg','Brak dostawcy SMS — przypomnienia SMS są wstrzymane',
-        sch(ic(WARN,12,'var(--warning)')+'3 funkcje czekają','Akceptacja oferty (SMS z linkiem), prośba o termin przeglądu, SMS przed montażem','var(--bg-surface)'),btn('Wybierz dostawcę','Np. SMSAPI lub SerwerSMS — wymaga zgody właściciela na nową usługę'))+
+  integ(MSG,'#E0702A','SMS','Gotowy kanał: wysyłka, odpowiedzi w Skrzynce, szablony. Czeka na umowę z dostawcą.','prep','Gotowe po stronie Avero — SMS-y nie wychodzą do czasu podłączenia dostawcy',
+        sch(ic(WARN,12,'var(--warning)')+'3 funkcje czekają','Akceptacja oferty (SMS z linkiem), prośba o termin przeglądu, SMS przed montażem','var(--bg-surface)')+sch('nadawca: Kranz HVACR','Nazwa nadawcy z profilu firmy — rejestrowana u dostawcy','var(--bg-surface)')+envc('SMS_*'),btn('Podłącz dostawcę','Po podpisaniu umowy: wybór dostawcy, klucz w zmiennej środowiskowej serwera, SMS testowy na Twój numer'))+
   '<span style="font-size:12px;color:var(--text-tertiary);padding-top:8px">Mapa i dane</span>'+
   integ(MAPI,'#2BB3B1','Mapa i geokodowanie','OpenStreetMap: adresy klientów na mapie, czasy dojazdu w planowaniu.','ok','Nominatim z pamięcią podręczną adresów',
         sch(ic(CHECK,12,'var(--success)')+'312 adresów','Zgeokodowane adresy w pamięci podręcznej','var(--bg-surface)')+sch('limit 1 zapytanie / s','Zasady publicznego Nominatim — przy większym ruchu własny serwer lub płatny dostawca','var(--bg-surface)'),btn('Szczegóły','Pokaż nierozpoznane adresy'))+
@@ -183,4 +187,7 @@ rep("const nS = navv(isSz);","const isUst = ekran === 'ustawienia'; const ustV =
 rep("actS: nS.act,","actS: nS.act, isUst, isUstP: isUst && ustV === 'profil firmy', isUstU: isUst && ustV === 'użytkownicy', isUstI: isUst && ustV === 'integracje',")
 rep('"raporty", "planowanie"]','"raporty", "ustawienia", "planowanie"]')
 rep(', "krok": {',', "ust": {"editor": "enum", "options": ["profil firmy", "użytkownicy", "integracje"], "default": "profil firmy", "section": "Widok"}, "krok": {')
+a0='title="Agnieszka Wiśniewska · Biuro" style="width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;padding:0"><span style="width:24px;height:24px;border-radius:50%;background:var(--bg-surface);border:0;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text-secondary)">AW</span>'
+rep(a0,a0.replace('Agnieszka Wiśniewska · Biuro','{{meTitle}}').replace('>AW</span>','>{{meIni}}</span>'))
+rep("actS: nS.act, isUst,","actS: nS.act, meIni: isUst ? 'PK' : 'AW', meTitle: isUst ? 'Pascal Kranz · Administrator' : 'Agnieszka Wiśniewska · Biuro', isUst,")
 open(P,'w').write(s); print('ok',len(s))

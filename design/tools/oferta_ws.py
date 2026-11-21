@@ -126,7 +126,7 @@ a('<div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-r
 a('<section style="display:flex;flex-direction:column;gap:4px">'+h3('Avero wykonał',CNT(6))+
   card(done(WRENCH,'#9B6BE0','Utworzono zlecenie montażu',obj('ZS-1052','Montaż pompy ciepła · Dębogórska 31, Rumia'),'Zakres i pozycje z wariantu B','14:51')+
        done(BOX,'#3B82D6','Zarezerwowano w magazynie',sch('3 pozycje','Moduł EHVH08S23E6V, sterownik Madoka, bufor 50 l · magazyn główny','var(--bg-surface)'),'Rezerwacja do dnia montażu','14:51')+
-       done(TRUCK,'#E0702A','Zamówiono u dystrybutora',obj('ZD-2026-131','Jednostka ERGA08EV + fundament · dostawa 20 lis')+sch(ic(CAL,12,'var(--text-tertiary)')+'20 lis','Potwierdzona data dostawy','var(--bg-surface)'),'Zamówienie wysłane do dystrybutora','14:52')+
+       done(TRUCK,'#E0702A','Zamówiono u dystrybutora',obj('ZK/2026/11/031','Jednostka ERGA08EV + fundament · dostawa 20 lis')+sch(ic(CAL,12,'var(--text-tertiary)')+'20 lis','Potwierdzona data dostawy','var(--bg-surface)'),'Zamówienie wysłane do dystrybutora','14:52')+
        done(CAL,'#2BB3B1','Zaplanowano montaż',f'<span style="display:inline-flex">{cav("TL",TL)}<span style="margin-left:-4px;display:inline-flex">{cav("MZ","#3B82D6")}</span></span>'+sch('30 lis – 1 gru','2 dni w planowaniu','var(--bg-surface)'),'Bloki w planowaniu Tomasza i Mateusza','14:52')+
        done(WALLET,'#2F9E5B','Wystawiono fakturę zaliczkową',obj('FZ/2026/11/014','14 262,48 zł brutto · opłacona · wysłana klientowi'),'Faktura zaliczkowa do opłaconej zaliczki','14:52')+
        done(LAYERS,'var(--text-tertiary)','Warianty A i C zamknięte',sch('Odrzucone','Klient wybrał wariant B','var(--bg-surface)'),'Zostają w historii oferty','14:51'))+'</section>')

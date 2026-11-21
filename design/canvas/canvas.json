@@ -4,7 +4,7 @@
   "boards": {
     "Ciemny.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1400,
       "title": "Mój dzień · ciemny",
       "w": 1440,
       "x": 1520,
@@ -12,7 +12,7 @@
     },
     "Main.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1400,
       "is_interactive": true,
       "title": "Mój dzień · jasny",
       "w": 1440,
@@ -506,6 +506,358 @@
       "title": "Ustawienia · użytkownicy · ciemny",
       "x": 4560,
       "y": 25840
+    },
+    "Ustawienia-dokumenty.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "w": 1440,
+      "title": "Ustawienia · dokumenty i numeracja",
+      "x": 0,
+      "y": 27260
+    },
+    "Ustawienia-katalog.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · katalog i marże",
+      "x": 1520,
+      "y": 27260
+    },
+    "Ustawienia-technicy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · technicy i busy",
+      "x": 3040,
+      "y": 27260
+    },
+    "Ustawienia-moj-profil.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · mój profil",
+      "x": 0,
+      "y": 28800
+    },
+    "Ustawienia-powiadomienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · powiadomienia",
+      "x": 1520,
+      "y": 28800
+    },
+    "Ustawienia-wyglad.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · wygląd",
+      "x": 3040,
+      "y": 28800
+    },
+    "Zgloszenia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zgłoszenia · lista i podgląd ZG-0920",
+      "x": 0,
+      "y": 30340
+    },
+    "Zgloszenia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zgłoszenia · ciemny",
+      "x": 1520,
+      "y": 30340
+    },
+    "Skrzynka.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · wątek Hotel Oliwski",
+      "x": 3040,
+      "y": 30340
+    },
+    "Skrzynka-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · ciemny",
+      "x": 4560,
+      "y": 30340
+    },
+    "Leady.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Leady · lista i podgląd (Joanna Krawczyk)",
+      "x": 0,
+      "y": 31820
+    },
+    "Leady-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Leady · ciemny",
+      "x": 1520,
+      "y": 31820
+    },
+    "Szanse.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Szanse · tablica etapów",
+      "x": 3040,
+      "y": 31820
+    },
+    "Szanse-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Szanse · ciemny",
+      "x": 4560,
+      "y": 31820
+    },
+    "Szansa.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "w": 1440,
+      "title": "Szansa SZ-0179 · Marek Zieliński (wygrana)",
+      "x": 0,
+      "y": 33300
+    },
+    "Szansa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "w": 1440,
+      "title": "Szansa SZ-0179 · ciemny",
+      "x": 1520,
+      "y": 33300
+    },
+    "Zakupy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · zapotrzebowanie",
+      "x": 0,
+      "y": 35140
+    },
+    "Zakupy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · ciemny",
+      "x": 1520,
+      "y": 35140
+    },
+    "Zamowienie-zakupowe.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zamówienie ZK/2026/11/031 · przyjęcie dostawy",
+      "x": 3040,
+      "y": 35140
+    },
+    "Zamowienie-zakupowe-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zamówienie ZK · ciemny",
+      "x": 4560,
+      "y": 35140
+    },
+    "Katalog.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Katalog · urządzenia i pozycja ERGA08EV",
+      "x": 0,
+      "y": 36620
+    },
+    "Katalog-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Katalog · ciemny",
+      "x": 1520,
+      "y": 36620
+    },
+    "Import-cennika.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import cennika · Termo-Bud Daikin 2027",
+      "x": 3040,
+      "y": 36620
+    },
+    "Import-cennika-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import cennika · ciemny",
+      "x": 4560,
+      "y": 36620
+    },
+    "Przetargi.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Własna tabela · Przetargi (lista i panel)",
+      "x": 0,
+      "y": 38100
+    },
+    "Przetargi-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Przetargi · ciemny",
+      "x": 1520,
+      "y": 38100
+    },
+    "Tabela-pola.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Pola (Status)",
+      "x": 3040,
+      "y": 38100
+    },
+    "Tabela-pola-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Pola · ciemny",
+      "x": 4560,
+      "y": 38100
+    },
+    "Tabela-panel.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Panel boczny (edytor + podgląd)",
+      "x": 0,
+      "y": 39580
+    },
+    "Tabela-panel-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Panel boczny · ciemny",
+      "x": 1520,
+      "y": 39580
+    },
+    "Tabela-akcje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Akcje (Utwórz szansę)",
+      "x": 3040,
+      "y": 39580
+    },
+    "Tabela-akcje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Akcje · ciemny",
+      "x": 4560,
+      "y": 39580
+    },
+    "Tabela-uprawnienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Uprawnienia",
+      "x": 0,
+      "y": 41060
+    },
+    "Tabela-uprawnienia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · Uprawnienia · ciemny",
+      "x": 1520,
+      "y": 41060
+    },
+    "Tabela-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Nowa tabela · szablon Reklamacje do producentów",
+      "x": 3040,
+      "y": 41060
+    },
+    "Tabela-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Nowa tabela · ciemny",
+      "x": 4560,
+      "y": 41060
+    },
+    "Obiekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekty · lista",
+      "x": 0,
+      "y": 42540
+    },
+    "Obiekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekty · ciemny",
+      "x": 1520,
+      "y": 42540
+    },
+    "Obiekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekt OB-0230 · Hotel Oliwski",
+      "x": 3040,
+      "y": 42540
+    },
+    "Obiekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Obiekt OB-0230 · ciemny",
+      "x": 4560,
+      "y": 42540
+    },
+    "Projekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · lista",
+      "x": 0,
+      "y": 44020
+    },
+    "Projekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · ciemny",
+      "x": 1520,
+      "y": 44020
+    },
+    "Projekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekt PJ-2026-011 · Hotel Bryza",
+      "x": 3040,
+      "y": 44020
+    },
+    "Projekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekt PJ-2026-011 · ciemny",
+      "x": 4560,
+      "y": 44020
     }
   },
   "createdOnFiles": {
@@ -708,7 +1060,51 @@
     "Ustawienia-profil.dc.html",
     "Ustawienia-uzytkownicy.dc.html",
     "Ustawienia-integracje.dc.html",
-    "Ustawienia-uzytkownicy-ciemny.dc.html"
+    "Ustawienia-uzytkownicy-ciemny.dc.html",
+    "Ustawienia-dokumenty.dc.html",
+    "Ustawienia-katalog.dc.html",
+    "Ustawienia-technicy.dc.html",
+    "Ustawienia-moj-profil.dc.html",
+    "Ustawienia-powiadomienia.dc.html",
+    "Ustawienia-wyglad.dc.html",
+    "Zgloszenia.dc.html",
+    "Zgloszenia-ciemny.dc.html",
+    "Skrzynka.dc.html",
+    "Skrzynka-ciemny.dc.html",
+    "Leady.dc.html",
+    "Leady-ciemny.dc.html",
+    "Szanse.dc.html",
+    "Szanse-ciemny.dc.html",
+    "Szansa.dc.html",
+    "Szansa-ciemny.dc.html",
+    "Zakupy.dc.html",
+    "Zakupy-ciemny.dc.html",
+    "Zamowienie-zakupowe.dc.html",
+    "Zamowienie-zakupowe-ciemny.dc.html",
+    "Katalog.dc.html",
+    "Katalog-ciemny.dc.html",
+    "Import-cennika.dc.html",
+    "Import-cennika-ciemny.dc.html",
+    "Przetargi.dc.html",
+    "Przetargi-ciemny.dc.html",
+    "Tabela-pola.dc.html",
+    "Tabela-pola-ciemny.dc.html",
+    "Tabela-panel.dc.html",
+    "Tabela-panel-ciemny.dc.html",
+    "Tabela-akcje.dc.html",
+    "Tabela-akcje-ciemny.dc.html",
+    "Tabela-uprawnienia.dc.html",
+    "Tabela-uprawnienia-ciemny.dc.html",
+    "Tabela-nowa.dc.html",
+    "Tabela-nowa-ciemny.dc.html",
+    "Obiekty.dc.html",
+    "Obiekty-ciemny.dc.html",
+    "Obiekt.dc.html",
+    "Obiekt-ciemny.dc.html",
+    "Projekty.dc.html",
+    "Projekty-ciemny.dc.html",
+    "Projekt.dc.html",
+    "Projekt-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",
