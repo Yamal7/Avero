@@ -2,6 +2,16 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Reklamacje i gwarancje)
+- **Reklamacje to moduł rdzenia** w grupie Serwis (po Przeglądach). Szablon własnej tabeli „Reklamacje do producentów” zostaje tylko dla firm, które nie chcą modułu — dane nie są wspólne.
+- Reklamacja zawsze dotyczy urządzenia; numer `RK-RRRR-NNN`. Podstawy: gwarancja montażu, gwarancja producenta, rękojmia (konsument), gwarancja naprawy. Etapy: Zgłoszona → Diagnoza → Decyzja → Naprawa → Rozliczenie → Zamknięta / Odrzucona.
+- **Konsument**: termin odpowiedzi 14 dni od zgłoszenia liczony automatycznie i pokazywany jako ostrzeżenie; po terminie bez odpowiedzi — reklamacja uznana.
+- **Zgłoszenie urządzenia na gwarancji** trafia „do decyzji” (reklamacja albo zwykłe płatne zgłoszenie) — wybiera człowiek.
+- **Roszczenie do dostawcy** w reklamacji: numer zgłoszenia u dostawcy, uznane części i ryczałty, obowiązek odesłania części z terminem. Część z roszczenia przyjmowana PZ za 0 zł z oznaczeniem reklamacji.
+- Odpowiedź do klienta i nota dla dostawcy powstają jako szkice; wysyłka po zatwierdzeniu. Odrzucenie wymaga uzasadnienia i protokołu.
+- Wynik reklamacji = zwroty − robocizna (koszt godziny) − dojazdy − części bez zwrotu; suma w faktach listy i w raportach.
+- Ikona stanu „w toku” w listach reklamacji neutralna (nie akcent) — akcent tylko dla akcji.
+
 ## 2026-11-21 (Raport z własnej tabeli, pola własne w rdzeniu)
 - **Raporty z własnych tabel** są w module Raporty (zakładka z ikoną tabeli), nie w ustawieniach tabeli. Miary: liczba, suma, średnia; podział najwyżej 4 grupy; kolory serii w stałej kolejności. Raport respektuje uprawnienia pól oglądającego.
 - Zamiast rzędu kafelków KPI — jedno zdanie podsumowania z liczbami.

@@ -970,6 +970,38 @@
       "title": "Ustawienia · pola własne · ciemny",
       "x": 4560,
       "y": 49940
+    },
+    "Reklamacje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · lista",
+      "x": 0,
+      "y": 51420
+    },
+    "Reklamacje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · lista · ciemny",
+      "x": 1520,
+      "y": 51420
+    },
+    "Reklamacja.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacja RK-2026-017",
+      "x": 3040,
+      "y": 51420
+    },
+    "Reklamacja-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacja RK-2026-017 · ciemny",
+      "x": 4560,
+      "y": 51420
     }
   },
   "createdOnFiles": {

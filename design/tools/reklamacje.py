@@ -1,0 +1,167 @@
+# Serwis › Reklamacje: lista (od klientów / do dostawców / kończące się gwarancje) z panelem RK-2026-011
+# i rekord RK-2026-017 (naprawa gwarancyjna z roszczeniem do dystrybutora). Scenariusz: sobota 21 lis 2026.
+SRCZ=open('design/tools/zakupy.py').read()
+exec(SRCZ.split("# =================== ZAPOTRZEBOWANIE")[0])
+P='design/canvas/Main.dc.html'; s=open(P).read()
+KNC='#1FA7A5'; TLC='#9B6BE0'; PKC='#5E6AD2'; PDC='#E0702A'
+RET='<path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path>'
+BADGE='<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path>'
+SCALE='<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1ZM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>'
+XC='<circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path>'
+DOTI='<circle cx="12" cy="12" r="10"></circle>'
+SEARCH='<circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>'
+ARR='<path d="M5 12h14M12 5l7 7-7 7"></path>'
+dot=lambda c: f'<span aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:{c};flex:0 0 auto"></span>'
+STEPS=['Zgłoszona','Diagnoza','Decyzja','Naprawa','Rozliczenie','Zamknięta']
+def stico(i,cur,rej=False):
+    if rej: return ic(XC,14,'var(--text-tertiary)')
+    if i<cur: return ic(CHECK,14,'var(--success)')
+    if i==cur: return f'<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--text-primary)" stroke-width="2"></circle><path d="M12 3a9 9 0 0 1 9 9h-9z" fill="var(--text-primary)"></path></svg>'
+    return ic(DOTI,14,'var(--text-tertiary)')
+def status(cur,rej=False,label=None):
+    t=label or STEPS[cur]
+    return f'<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap">{stico(cur,cur,rej)}<span>{t}</span></span>'
+def basis(t,tip): return sch(ic(BADGE,12,'var(--text-tertiary)')+t,tip)
+def cav(ini,c,size=20): return f'<span title="{ini}" style="width:{size}px;height:{size}px;border-radius:50%;background:{c};color:#fff;font-size:9px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto">{ini}</span>'
+def head(title,tabsh,right):
+    return ('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 20px;min-width:0">'+ic(RET,16,'var(--text-secondary)')+
+            f'<h1 style="margin:0;font-size:13px;line-height:20px;font-weight:500">{title}</h1><span style="width:8px"></span>'+tabsh+SP+right+'</div>')
+
+# =================== LISTA
+RC='100px minmax(0,1.5fr) minmax(0,1fr) 148px 104px 20px'
+def rrow(st,no,title,cli,dev,devtip,bas,term,termtip,termcol,who,sel=False,muted=False):
+    bg='background:var(--bg-subtle);' if sel else ''
+    op='opacity:.6;' if muted else ''
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" style="font-size:12px">{st}</span>'
+            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{title}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="mono" style="font-size:11px;white-space:nowrap">{no}</span><span class="ell">{cli}</span></span></span>'
+            f'<span role="cell" title="{devtip}" style="display:flex;flex-direction:column;min-width:0;font-size:12px;line-height:16px"><span class="ell">{dev[0]}</span><span class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{dev[1]}</span></span>'
+            f'<span role="cell" style="display:flex;min-width:0">{bas}</span>'
+            f'<span role="cell" class="num" title="{termtip}" style="font-size:12px;color:{termcol}">{term}</span>'
+            f'<span role="cell" style="display:flex;justify-content:flex-end">{who}</span></div>')
+H=[];a=H.append
+a('<sc-if value="{{isRek}}" hint-placeholder-val="{{false}}">')
+a(head('Reklamacje',tabs([('Od klientów','4'),('Do dostawców','3'),('Gwarancje kończą się','6')],0),
+       ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'<span style="width:4px"></span>'+btn('Nowa reklamacja','Nowa reklamacja — ze zgłoszenia, zlecenia albo urządzenia  C',PLUS)))
+a('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
+a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+capd('Otwarte i z ostatnich 30 dni','4 otwarte · 1 zamknięta w listopadzie')+capd(ic(BADGE,14,'var(--text-tertiary)')+'Każda podstawa','Gwarancja montażu, gwarancja producenta, rękojmia, gwarancja naprawy')+SP+
+  '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)">'
+  '<span title="Koszt firmy z zamkniętych reklamacji od 1 stycznia: robocizna, dojazdy i części bez zwrotu">Koszt 2026 <span class="num" style="color:var(--text-primary);font-weight:500">6 840 zł</span></span>'
+  '<span title="Zwroty od dostawców i producentów od 1 stycznia">Zwroty <span class="num" style="color:var(--text-primary);font-weight:500">3 920 zł</span></span></span></div>')
+# do decyzji
+a('<div role="note" style="display:flex;align-items:center;gap:10px;margin:0 20px 8px;padding:8px 12px;border-radius:12px;background:var(--bg-raised)">'+ic(BADGE,16,'var(--text-secondary)')+
+  '<span style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column"><span style="font-weight:500">ZG-0923 Biuro Bilans — klimatyzator na gwarancji montażu</span>'
+  '<span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">UR-2961 Daikin Perfera, montaż 4 kwi 2025 (ZS-0742), gwarancja do 4 kwi 2027. Zgłoszenie z portalu: „kapie wodą na biurko”.</span></span>'+
+  btn('Zwykłe zgłoszenie','Obsłuż jako płatne zgłoszenie')+btn('Utwórz reklamację','Reklamacja RK-2026-018 powiązana z ZG-0923 i UR-2961',PLUS)+'</div>')
+a('<div role="table" aria-label="Reklamacje od klientów" style="display:flex;flex-direction:column;padding:0 16px 24px">')
+a(f'<div role="row" style="display:grid;grid-template-columns:{RC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Stan</span><span>Reklamacja</span><span>Urządzenie</span><span>Podstawa</span><span>Termin</span><span></span></div>')
+a(rrow(status(2),'RK-2026-011','Pompa ciepła nie grzeje wody użytkowej','Ewa Sobczak · Rumia · konsument',('Panasonic Aquarea 9 kW','UR-3540'),'Montaż 22 maj 2025 · ZS-0688',
+       basis('rękojmia','Konsument — odpowiedź w 14 dni, inaczej reklamacja uznana'),'odp. do czw 26 lis','Odpowiedź do czwartku 26 listopada · zgłoszona 12 lis · 5 dni na odpowiedź','var(--warning)',cav('TL',TLC),sel=True))
+a(rrow(status(3),'RK-2026-017','Błąd E7 jednostki zewnętrznej','Kancelaria Wit · Gdańsk',('Daikin Perfera 5 kW','UR-1990'),'Montaż 14 mar 2025 · ZS-0711',
+       basis('gwarancja producenta','Daikin przez Termo-Bud, do 14 mar 2028'),'naprawa pon 23 lis','Poniedziałek 23 listopada, 9:00 · ZS-1078 · części dostarczone 18 lis','var(--text-secondary)',cav('KN',KNC)))
+a(rrow(status(1),'RK-2026-015','Hałas jednostki zewnętrznej w nocy','Osiedle Leśne Zacisze · dom 2',('Daikin Altherma 3 R 8 kW','UR-4102'),'PJ-2026-008 · uruchomiona 23 paź',
+       basis('gwarancja montażu','24 mies. od odbioru, do 23 paź 2028'),'pomiar śr 25 lis','Pomiar hałasu nocą, 22:00 · TL','var(--text-secondary)',cav('TL',TLC)))
+a(rrow(status(4),'RK-2026-016','Wyciek skroplin z klimatyzatora sali','Restauracja Przystań · Gdynia',('Daikin Perfera 3,5 kW','UR-3033'),'Montaż 9 cze 2026 · ZS-0905',
+       basis('gwarancja montażu','24 mies., do 9 cze 2028'),'zwrot od Klimatech','Pompka skroplin wymieniona 10 lis · roszczenie do Klimatech wysłane 10 lis, odpowiedź do 24 lis','var(--text-secondary)',cav('KN',KNC)))
+a(rrow(status(2,rej=True,label='Odrzucona'),'RK-2026-012','Szron na parowniku po naprawie','Piekarnia Rogal · Gdynia',('Parownik komory mroźniczej','UR-2873'),'Naprawa ZS-0998, 2 paź',
+       basis('gwarancja naprawy','3 mies. od naprawy, do 2 sty 2027'),'zamknięta 6 lis','Przyczyna: wlot powietrza zastawiony skrzynkami · protokół z 4 zdjęciami · wizyta płatna 220 zł','var(--text-tertiary)',cav('PD',PDC),muted=True))
+a('</div></div>')
+# panel RK-2026-011
+def step_row(items):
+    o='<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'
+    for i,(t,state) in enumerate(items):
+        col={'done':'var(--text-secondary)','cur':'var(--text-primary)','todo':'var(--text-tertiary)'}[state]
+        o+=f'<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:{col};{"font-weight:500" if state=="cur" else ""}">{stico(0 if state=="done" else (1 if state=="cur" else 2),1)}{t}</span>'
+        if i<len(items)-1: o+=ic(ARR,12,'var(--text-tertiary)')
+    return o+'</div>'
+a('<aside aria-label="Reklamacja RK-2026-011" style="flex:0 0 360px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;gap:16px;padding:14px 12px 24px">')
+a('<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span class="mono" style="font-size:11px;color:var(--text-tertiary)">RK-2026-011</span>'
+  '<h2 style="margin:0;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-0.01em">Pompa ciepła nie grzeje wody użytkowej</h2>'
+  '<span style="font-size:12px;color:var(--text-secondary)">Ewa Sobczak · Rumia · zgłoszona e-mailem czw 12 lis</span>'+
+  step_row([('Zgłoszona','done'),('Diagnoza','done'),('Decyzja','cur')])+'</div>')
+a('<div role="note" style="display:flex;gap:10px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+ic(SCALE,16,'var(--warning)')+
+  '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">Odpowiedź do czw 26 lis — zostało 5 dni</span>'
+  '<span style="font-size:12px;line-height:16px;color:var(--text-secondary)">Klientka jest konsumentem. Brak odpowiedzi w 14 dni oznacza uznanie reklamacji (ustawa o prawach konsumenta). Termin liczy się od 12 lis.</span></div></div>')
+a('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Diagnoza')+
+  '<div style="display:flex;flex-direction:column;gap:6px;padding:0 8px"><span style="line-height:20px">Siłownik zaworu 3-drogowego nie przełącza na zasobnik. Ogrzewanie działa, woda podgrzewana tylko grzałką.</span>'
+  '<span style="display:flex;gap:6px;flex-wrap:wrap">'+obj('ZS-1066','Wizyta diagnostyczna wt 17 lis · Tomasz · 1 h')+sch(ic(CAM,12,'var(--text-tertiary)')+'3 zdjęcia','Zdjęcia wewnętrzne — klient ich nie widzi')+sch('kod H23 w historii','Odczyt ze sterownika')+'</span></div></section>')
+a('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Gwarancje UR-3540')+
+  '<div style="display:flex;flex-direction:column;gap:2px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+
+  kv('Rękojmia','do 22 maj 2027',tip='2 lata od wydania — wobec konsumenta odpowiada Kranz HVACR')+
+  kv('Gwarancja montażu','do 22 maj 2027',vc='var(--text-secondary)',tip='24 mies. od protokołu odbioru PR/2025/05/021')+
+  kv('Gwarancja producenta','do 22 maj 2028',vc='var(--text-secondary)',tip='Panasonic przez Termo-Bud · warunek: przegląd co 12 mies. — wykonany 20 maj 2026')+'</div></section>')
+a('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Propozycja')+
+  '<div style="display:flex;flex-direction:column;gap:2px;padding:0 8px">'+
+  kv('Klientka płaci','0 zł',w=500)+kv('Siłownik','roszczenie do Termo-Bud',vc='var(--text-secondary)',tip='Wymiana na gwarancji producenta · dostawa 2–3 dni robocze')+
+  kv('Koszt firmy','ok. 380 zł',vc='var(--text-secondary)',tip='Robocizna 2 h (diagnoza i wymiana) i 2 dojazdy — bez zwrotu')+kv('Naprawa','do pt 4 gru',vc='var(--text-secondary)')+'</div></section>')
+a('<div style="display:flex;flex-direction:column;gap:6px;margin-top:auto;padding:0 4px">'+
+  btn('Uznaj i przygotuj odpowiedź','Szkic odpowiedzi do klientki z terminem naprawy — wyślesz po sprawdzeniu  ⌘↵',CHECK,pri=True,h=32)+
+  btn('Odrzuć…','Wymaga uzasadnienia i protokołu; odpowiedź z pouczeniem — wyślesz po sprawdzeniu',h=32)+'</div>')
+a('</aside></div></sc-if>')
+
+# =================== REKORD RK-2026-017
+R=[];r=R.append
+r('<sc-if value="{{isRekR}}" hint-placeholder-val="{{false}}">')
+r('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 20px;min-width:0">'+ic(RET,16,'var(--text-secondary)')+'<a href="#" class="flink" style="color:var(--text-secondary)">Reklamacje</a>'+ic(CHEV,14,'var(--text-tertiary)')+
+  '<h1 class="num" style="margin:0;font-size:13px;line-height:20px;font-weight:500">RK-2026-017</h1>'+SP+ib('Więcej','Więcej  ⋯',DOTS)+'</div>')
+r('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:20px;padding:8px 32px 32px">')
+r('<div style="display:flex;flex-direction:column;gap:8px"><h2 style="margin:0;font-size:22px;line-height:30px;font-weight:600;letter-spacing:-0.02em">Błąd E7 jednostki zewnętrznej</h2>'
+  '<div style="display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--text-secondary)">'+meta(BLD,'Kancelaria Wit · Gdańsk','Klient z umową serwisową do 28 lut 2027')+meta(USER,'Krzysztof Lis','Kierownik biura · zgłosił telefonicznie')+
+  meta(CAL,'zgłoszona czw 12 lis','12 listopada 2026, 9:20 · ZG-0918')+'</div>'
+  '<div style="display:flex;align-items:center;gap:4px;padding-top:6px;flex-wrap:wrap">'+
+  ''.join(f'<span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:14px;{"background:var(--bg-subtle);font-weight:500" if i==3 else ""};font-size:12px;color:{"var(--text-primary)" if i<=3 else "var(--text-tertiary)"}">{stico(i,3)}{t}</span>'+(ic(ARR,12,'var(--text-tertiary)') if i<5 else '') for i,t in enumerate(STEPS))+'</div></div>')
+def ev(icon,col,date_,tip,title,body,chips=''):
+    return (f'<div style="display:grid;grid-template-columns:24px 92px minmax(0,1fr);column-gap:10px;padding:8px 0">'
+            f'<span style="display:inline-flex;padding-top:2px">{ic(icon,16,col)}</span><span class="num" title="{tip}" style="font-size:12px;line-height:20px;color:var(--text-tertiary)">{date_}</span>'
+            f'<div style="display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-weight:500">{title}</span><span style="font-size:12px;line-height:18px;color:var(--text-secondary)">{body}</span>{"<span style=\"display:flex;gap:6px;flex-wrap:wrap\">"+chips+"</span>" if chips else ""}</div></div>')
+r('<div style="display:flex;gap:24px;align-items:flex-start">')
+r('<section style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">'+ah3('Przebieg')+'<div style="display:flex;flex-direction:column;padding:0 8px">'+
+  ev(PHONE,'var(--text-secondary)','czw 12 lis','12 listopada 2026, 9:20','Zgłoszenie','Klimatyzator w pokoju zarządu nie chłodzi, na jednostce zewnętrznej kod E7.',obj('ZG-0918','Zgłoszenie telefoniczne, przyjęła Agnieszka'))+
+  ev(WRENCH,'var(--text-secondary)','pt 13 lis','13 listopada 2026, 10:40','Diagnoza — Kacper','Silnik wentylatora jednostki zewnętrznej zablokowany (łożysko). Instalacja szczelna, ciśnienia w normie. Urządzenie zabezpieczone, pokój chłodzi przenośny klimatyzator klienta.',obj('ZS-1064','1 h · dojazd 80 zł')+sch(ic(CAM,12,'var(--text-tertiary)')+'4 zdjęcia','Zdjęcia wewnętrzne'))+
+  ev(CHECK,'var(--success)','pt 13 lis','13 listopada 2026, 12:05','Uznana — gwarancja producenta','Odpowiedź do klienta wysłana e-mailem: naprawa bezpłatna, termin po dostawie części.',sch(ic(MAIL,12,'var(--text-tertiary)')+'e-mail do K. Lisa','Wysłane 13 lis 12:05 po zatwierdzeniu przez Agnieszkę'))+
+  ev(SEND,'var(--text-secondary)','pt 13 lis','13 listopada 2026, 12:30','Roszczenie do Termo-Bud','Formularz dystrybutora z numerem seryjnym, kodem błędu i zdjęciami. Numer zgłoszenia u dystrybutora: TB-RMA-0412.')+
+  ev(CHECK,'var(--success)','pon 16 lis','16 listopada 2026, 14:10','Dystrybutor uznał roszczenie','Silnik wysłany bezpłatnie; ryczałt za robociznę 350 zł po przesłaniu protokołu naprawy. Stary silnik do odesłania w 14 dni od naprawy.')+
+  ev(BOX,'var(--text-secondary)','śr 18 lis','18 listopada 2026, 11:00','Części dostarczone','Silnik wentylatora przyjęty na magazyn z oznaczeniem „do reklamacji RK-2026-017”.',obj('PZ/2026/11/024','Przyjęcie zewnętrzne · 0,00 zł'))+
+  ev(CAL,'var(--accent)','pon 23 lis','23 listopada 2026, 9:00–11:00','Naprawa zaplanowana — Kacper','Wymiana silnika, test pracy, protokół naprawy gwarancyjnej do podpisu klienta.',obj('ZS-1078','pon 23 lis 9:00 · 2 h'))+
+  '</div></section>')
+# karta rozliczenia
+r('<section style="flex:0 0 300px;display:flex;flex-direction:column;gap:6px">'+ah3('Rozliczenie')+
+  '<div style="display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+
+  kv('Klient płaci','0 zł',w=500)+kv('Zwrot od Termo-Bud','+350 zł',vc='var(--text-secondary)',tip='Ryczałt za robociznę · nota po naprawie')+
+  kv('Robocizna','−285 zł',vc='var(--text-secondary)',tip='Diagnoza 1 h + naprawa 2 h × 95 zł koszt godziny')+kv('Dojazdy','−160 zł',vc='var(--text-secondary)',tip='2 × 80 zł')+
+  '<div style="height:1px;background:var(--edge);margin:6px 0"></div>'+kv('Wynik reklamacji','−95 zł',w=500,tip='Koszt firmy po zwrocie od dystrybutora')+'</div>'
+  '<div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'
+  '<span style="font-size:12px;font-weight:500;color:var(--text-secondary)">Po naprawie</span>'+
+  ''.join(f'<span style="display:flex;gap:8px;font-size:12px;line-height:16px">{ic(DOTI,14,"var(--text-tertiary)")}<span>{t}</span></span>' for t in ['Protokół naprawy do Termo-Bud (z TB-RMA-0412)','Stary silnik do odesłania do pon 7 gru','Nota na 350 zł dla Termo-Bud — szkic do sprawdzenia'])+
+  '</div></section></div>')
+r('</div>')
+# panel urządzenia
+r('<aside aria-label="Urządzenie UR-1990" style="flex:0 0 320px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;gap:16px;padding:14px 12px 24px">')
+r('<div style="display:flex;flex-direction:column;gap:4px;padding:0 8px"><span class="mono" style="font-size:11px;color:var(--text-tertiary)">UR-1990</span><span style="font-size:15px;line-height:22px;font-weight:600">Daikin Perfera 5 kW</span>'
+  '<span style="font-size:12px;color:var(--text-secondary)">Pokój zarządu · R32 1,15 kg · 0,78 t CO₂e</span></div>')
+r('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Gwarancje')+
+  '<div style="display:flex;flex-direction:column;gap:2px;margin:0 4px;padding:10px 12px;border-radius:12px;background:var(--bg-raised)">'+
+  kv('Producent','do 14 mar 2028',tip='Daikin przez Termo-Bud · 36 mies. od montażu')+
+  '<span style="display:flex;align-items:center;gap:6px;padding:0 0 4px;font-size:12px;color:var(--text-secondary)">'+ic(CHECK,12,'var(--success)')+'warunek: przegląd co 12 mies. — 11 mar 2026</span>'+
+  kv('Montaż','do 14 mar 2027',vc='var(--text-secondary)',tip='24 mies. od protokołu odbioru PR/2025/03/009')+'</div></section>')
+r('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Historia urządzenia',CNT(4))+
+  ''.join(f'<div title="{tip}" style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;column-gap:8px;align-items:center;min-height:30px;padding:0 8px;font-size:12px"><span class="num" style="color:var(--text-tertiary)">{d}</span><span class="ell">{t}</span><span class="mono" style="font-size:11px;color:var(--text-tertiary)">{c}</span></div>'
+          for d,t,c,tip in [('13 lis','Diagnoza E7','ZS-1064','Kacper'),('11 mar','Przegląd roczny, umowa','ZS-0874','Piotr · w ramach UW-2025-006'),('14 mar 25','Montaż i uruchomienie','ZS-0711','Tomasz i Mateusz'),('14 mar 25','Protokół odbioru','PR/2025/03/009','Podpisał K. Lis')])+'</section>')
+r('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Inne reklamacje klienta')+
+  '<span style="padding:0 8px;font-size:12px;line-height:16px;color:var(--text-tertiary)">Brak — pierwsza reklamacja Kancelarii Wit.</span></section>')
+r('</aside></div></sc-if>')
+block='\n'.join(H)+'\n'+'\n'.join(R)+'\n'
+k=s.index('<sc-if value="{{isZlecV2}}"'); s=s[:k]+block+s[k:]
+def rep(x_,y_):
+    global s; assert s.count(x_)==1,x_[:60]; s=s.replace(x_,y_)
+rep("const isFV = ekran === 'faktura';","const isFV = ekran === 'faktura'; const isRek = ekran === 'reklamacje'; const isRekR = ekran === 'reklamacja'; const nRek = navv(isRek || isRekR);")
+rep("isFV, actFV:","isRek, isRekR, actRek: nRek.act, colRek: nRek.col, wRek: nRek.w, isFV, actFV:")
+rep('"planowanie"]','"reklamacje", "reklamacja", "planowanie"]')
+# pozycja w pasku: Serwis › po Przeglądach
+NAVI=('<a href="#" class="nav {{actRek}}" style="display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:8px;color:{{colRek}}">'
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 auto">'+RET+'</svg>'
+      '<span class="ell" style="flex:1 1 auto;font-weight:{{wRek}}">Reklamacje</span><span class="num" style="font-size:12px;color:var(--text-tertiary)">4</span></a>')
+x_='Przeglądy</span></a>'
+i=s.find(x_); assert i>0 and s.count(x_)==1
+s=s[:i+len(x_)]+NAVI+s[i+len(x_):]
+open(P,'w').write(s); print('ok reklamacje',len(s))
