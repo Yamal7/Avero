@@ -2,6 +2,22 @@
   "v": 3,
   "attachments": {},
   "boards": {
+    "Cenniki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zakupy · cenniki · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 45500
+    },
+    "Cenniki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zakupy · cenniki",
+      "w": 1440,
+      "x": 3040,
+      "y": 45500
+    },
     "Ciemny.dc.html": {
       "expand": "fill",
       "h": 1400,
@@ -9,6 +25,257 @@
       "w": 1440,
       "x": 1520,
       "y": 0
+    },
+    "Dostawcy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zakupy · dostawcy · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 45500
+    },
+    "Dostawcy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zakupy · dostawcy",
+      "w": 1440,
+      "x": 0,
+      "y": 45500
+    },
+    "Faktura-koncowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "title": "Faktura końcowa · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 21620
+    },
+    "Faktura-koncowa.dc.html": {
+      "expand": "fill",
+      "h": 1280,
+      "title": "Faktura końcowa FV/2026/12/003 · jasny",
+      "w": 1440,
+      "x": 0,
+      "y": 21620
+    },
+    "Firma-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta firmy · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 6400
+    },
+    "Firma-fgaz-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta firmy · Historia F-gaz · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 6400
+    },
+    "Firma-fgaz-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta firmy · Historia F-gaz",
+      "w": 1440,
+      "x": 3040,
+      "y": 6400
+    },
+    "Firma-urzadzenia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta firmy · Urządzenia · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 7920
+    },
+    "Firma-urzadzenia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta firmy · Urządzenia",
+      "w": 1440,
+      "x": 0,
+      "y": 7920
+    },
+    "Firma.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Karta firmy · Delikatesy Morskie",
+      "w": 1440,
+      "x": 0,
+      "y": 6400
+    },
+    "Firmy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Firmy · ciemny",
+      "w": 1440,
+      "x": 3040,
+      "y": 4800
+    },
+    "Firmy-filtr.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Firmy · filtr kategorii",
+      "w": 1440,
+      "x": 1520,
+      "y": 4800
+    },
+    "Firmy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Firmy · tabela",
+      "w": 1440,
+      "x": 0,
+      "y": 4800
+    },
+    "Import-cennika-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Import cennika · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 36620
+    },
+    "Import-cennika.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Import cennika · Termo-Bud Daikin 2027",
+      "w": 1440,
+      "x": 3040,
+      "y": 36620
+    },
+    "Katalog-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Katalog · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 36620
+    },
+    "Katalog.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Katalog · urządzenia i pozycja ERGA08EV",
+      "w": 1440,
+      "x": 0,
+      "y": 36620
+    },
+    "Klient-akceptacja-gotowe.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Klient · akceptacja 3/3 · gotowe",
+      "w": 390,
+      "x": 2460,
+      "y": 17360
+    },
+    "Klient-akceptacja-platnosc.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Klient · akceptacja 2/3 · zaliczka",
+      "w": 390,
+      "x": 1990,
+      "y": 17360
+    },
+    "Klient-akceptacja-podpis.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Klient · akceptacja 1/3 · podpis",
+      "w": 390,
+      "x": 1520,
+      "y": 17360
+    },
+    "Klient-oferta-telefon.dc.html": {
+      "expand": "fill",
+      "h": 2700,
+      "title": "Oferta · widok klienta · telefon",
+      "w": 390,
+      "x": 7600,
+      "y": 14560
+    },
+    "Klient-oferta.dc.html": {
+      "expand": "fill",
+      "h": 1960,
+      "title": "Oferta · widok klienta (link)",
+      "w": 1440,
+      "x": 6080,
+      "y": 14560
+    },
+    "Klient-po-montazu.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "title": "Klient · po montażu: dokumenty i dopłata",
+      "w": 390,
+      "x": 3040,
+      "y": 21620
+    },
+    "Klient-przeglad-termin.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "title": "Klient · wybór terminu kontroli",
+      "w": 390,
+      "x": 4560,
+      "y": 23100
+    },
+    "Leady-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Leady · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 31820
+    },
+    "Leady.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Leady · lista i podgląd (Joanna Krawczyk)",
+      "w": 1440,
+      "x": 0,
+      "y": 31820
+    },
+    "Magazyn-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Magazyn · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 3200
+    },
+    "Magazyn-samochody-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Magazyn · w samochodach · ciemny",
+      "w": 1440,
+      "x": 6080,
+      "y": 3200
+    },
+    "Magazyn-samochody.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Magazyn · w samochodach",
+      "w": 1440,
+      "x": 4560,
+      "y": 3200
+    },
+    "Magazyn-wydanie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Magazyn · wydanie na zlecenie (RW)",
+      "w": 1440,
+      "x": 3040,
+      "y": 3200
+    },
+    "Magazyn.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Magazyn · jasny",
+      "w": 1440,
+      "x": 0,
+      "y": 3200
     },
     "Main.dc.html": {
       "expand": "fill",
@@ -19,6 +286,94 @@
       "x": 0,
       "y": 0
     },
+    "Obiekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Obiekt OB-0230 · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 42540
+    },
+    "Obiekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Obiekt OB-0230 · Hotel Oliwski",
+      "w": 1440,
+      "x": 3040,
+      "y": 42540
+    },
+    "Obiekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Obiekty · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 42540
+    },
+    "Obiekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Obiekty · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 42540
+    },
+    "Oferta-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Oferta OF-2026-118 · kreator · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 14560
+    },
+    "Oferta-warunki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Oferta · krok 4 Warunki",
+      "w": 1440,
+      "x": 3040,
+      "y": 14560
+    },
+    "Oferta-wysylka.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Oferta · krok 5 Wysyłka",
+      "w": 1440,
+      "x": 4560,
+      "y": 14560
+    },
+    "Oferta-zaakceptowana.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Oferta · po akceptacji (biuro)",
+      "w": 1440,
+      "x": 0,
+      "y": 17360
+    },
+    "Oferta.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Oferta OF-2026-118 · kreator · jasny",
+      "w": 1440,
+      "x": 0,
+      "y": 14560
+    },
+    "Osoby-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Osoby · ciemny",
+      "w": 1440,
+      "x": 6080,
+      "y": 4800
+    },
+    "Osoby.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Osoby · tabela",
+      "w": 1440,
+      "x": 4560,
+      "y": 4800
+    },
     "Paleta.dc.html": {
       "expand": "fill",
       "h": 1120,
@@ -27,13 +382,480 @@
       "x": 3040,
       "y": 0
     },
-    "Zadania.dc.html": {
+    "Planowanie-mapa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Planowanie · mapa tras · ciemny",
+      "w": 1920,
+      "x": 6000,
+      "y": 13240
+    },
+    "Planowanie-mapa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Planowanie · mapa tras",
+      "w": 1920,
+      "x": 4000,
+      "y": 13240
+    },
+    "Planowanie-przeciaganie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Planowanie · przeciąganie ZG-0920 · ciemny",
+      "w": 1920,
+      "x": 2000,
+      "y": 13240
+    },
+    "Planowanie.dc.html": {
       "expand": "fill",
       "h": 1120,
       "is_interactive": true,
-      "title": "Zadania · jasny",
+      "title": "Planowanie · dzień",
+      "w": 1920,
+      "x": 0,
+      "y": 13240
+    },
+    "Projekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekt PJ-2026-011 · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 44020
+    },
+    "Projekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekt PJ-2026-011 · Hotel Bryza",
+      "w": 1440,
+      "x": 3040,
+      "y": 44020
+    },
+    "Projekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekty · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 44020
+    },
+    "Projekty-os-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekty · oś czasu · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 48460
+    },
+    "Projekty-os.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekty · oś czasu",
       "w": 1440,
       "x": 0,
+      "y": 48460
+    },
+    "Projekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Projekty · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 44020
+    },
+    "Przeglady-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Przeglądy · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 23100
+    },
+    "Przeglady.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Przeglądy · najbliższe 60 dni",
+      "w": 1440,
+      "x": 0,
+      "y": 23100
+    },
+    "Przetargi-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Przetargi · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 38100
+    },
+    "Przetargi.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Własna tabela · Przetargi (lista i panel)",
+      "w": 1440,
+      "x": 0,
+      "y": 38100
+    },
+    "Raport-przetargi-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Raporty · z własnej tabeli Przetargi · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 49940
+    },
+    "Raport-przetargi.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Raporty · z własnej tabeli Przetargi",
+      "w": 1440,
+      "x": 0,
+      "y": 49940
+    },
+    "Raporty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1220,
+      "title": "Raporty · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 24420
+    },
+    "Raporty.dc.html": {
+      "expand": "fill",
+      "h": 1220,
+      "title": "Raporty · przegląd miesiąca",
+      "w": 1440,
+      "x": 0,
+      "y": 24420
+    },
+    "Skrzynka-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Skrzynka · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 30340
+    },
+    "Skrzynka.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Skrzynka · wątek Hotel Oliwski",
+      "w": 1440,
+      "x": 3040,
+      "y": 30340
+    },
+    "Szablony.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · szablony protokołów",
+      "w": 1440,
+      "x": 0,
+      "y": 9440
+    },
+    "Szansa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "title": "Szansa SZ-0179 · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 33300
+    },
+    "Szansa.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "title": "Szansa SZ-0179 · Marek Zieliński (wygrana)",
+      "w": 1440,
+      "x": 0,
+      "y": 33300
+    },
+    "Szanse-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Szanse · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 31820
+    },
+    "Szanse.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Szanse · tablica etapów",
+      "w": 1440,
+      "x": 3040,
+      "y": 31820
+    },
+    "Tabela-akcje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Akcje · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 39580
+    },
+    "Tabela-akcje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Akcje (Utwórz szansę)",
+      "w": 1440,
+      "x": 3040,
+      "y": 39580
+    },
+    "Tabela-import-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Import z pliku · Przetargi · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 46980
+    },
+    "Tabela-import.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Import z pliku · Przetargi",
+      "w": 1440,
+      "x": 3040,
+      "y": 46980
+    },
+    "Tabela-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Nowa tabela · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 41060
+    },
+    "Tabela-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Nowa tabela · szablon Reklamacje do producentów",
+      "w": 1440,
+      "x": 3040,
+      "y": 41060
+    },
+    "Tabela-panel-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Panel boczny · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 39580
+    },
+    "Tabela-panel.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Panel boczny (edytor + podgląd)",
+      "w": 1440,
+      "x": 0,
+      "y": 39580
+    },
+    "Tabela-pola-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Pola · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 38100
+    },
+    "Tabela-pola.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Pola (Status)",
+      "w": 1440,
+      "x": 3040,
+      "y": 38100
+    },
+    "Tabela-uprawnienia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Uprawnienia · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 41060
+    },
+    "Tabela-uprawnienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · Uprawnienia",
+      "w": 1440,
+      "x": 0,
+      "y": 41060
+    },
+    "Tabela-widoki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · widoki · ciemny",
+      "w": 1440,
+      "x": 1520,
+      "y": 46980
+    },
+    "Tabela-widoki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia tabeli · widoki",
+      "w": 1440,
+      "x": 0,
+      "y": 46980
+    },
+    "Technik-montaz.dc.html": {
+      "h": 1800,
+      "title": "Telefon · montaż split",
+      "w": 390,
+      "x": 2930,
+      "y": 9440
+    },
+    "Technik-pompa.dc.html": {
+      "h": 2960,
+      "title": "Telefon · uruchomienie pompy ciepła",
+      "w": 390,
+      "x": 3040,
+      "y": 18460
+    },
+    "Technik-wyciek-ciemny.dc.html": {
+      "h": 1800,
+      "title": "Telefon · nieszczelność · ciemny",
+      "w": 390,
+      "x": 2460,
+      "y": 9440
+    },
+    "Technik-wyciek.dc.html": {
+      "h": 1800,
+      "title": "Telefon · kontrola, nieszczelność",
+      "w": 390,
+      "x": 1990,
+      "y": 9440
+    },
+    "Technik.dc.html": {
+      "h": 1800,
+      "title": "Telefon · kontrola szczelności",
+      "w": 390,
+      "x": 1520,
+      "y": 9440
+    },
+    "Umowa-serwisowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Umowa serwisowa UM-2026-031",
+      "w": 1440,
+      "x": 3040,
+      "y": 23100
+    },
+    "Urzadzenie-nowa-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta urządzenia · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 7920
+    },
+    "Urzadzenie-nowa.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Karta urządzenia · UR-3107",
+      "w": 1440,
+      "x": 3040,
+      "y": 7920
+    },
+    "Ustawienia-dokumenty.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "title": "Ustawienia · dokumenty i numeracja",
+      "w": 1440,
+      "x": 0,
+      "y": 27260
+    },
+    "Ustawienia-integracje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · integracje",
+      "w": 1440,
+      "x": 3040,
+      "y": 25840
+    },
+    "Ustawienia-katalog.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · katalog i marże",
+      "w": 1440,
+      "x": 1520,
+      "y": 27260
+    },
+    "Ustawienia-moj-profil.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · mój profil",
+      "w": 1440,
+      "x": 0,
+      "y": 28800
+    },
+    "Ustawienia-pola-wlasne-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · pola własne · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 49940
+    },
+    "Ustawienia-pola-wlasne.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · pola własne",
+      "w": 1440,
+      "x": 3040,
+      "y": 49940
+    },
+    "Ustawienia-powiadomienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · powiadomienia",
+      "w": 1440,
+      "x": 1520,
+      "y": 28800
+    },
+    "Ustawienia-profil.dc.html": {
+      "expand": "fill",
+      "h": 1220,
+      "title": "Ustawienia · profil firmy",
+      "w": 1440,
+      "x": 0,
+      "y": 25840
+    },
+    "Ustawienia-technicy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · technicy i busy",
+      "w": 1440,
+      "x": 3040,
+      "y": 27260
+    },
+    "Ustawienia-uzytkownicy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · użytkownicy · ciemny",
+      "w": 1440,
+      "x": 4560,
+      "y": 25840
+    },
+    "Ustawienia-uzytkownicy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · użytkownicy i role",
+      "w": 1440,
+      "x": 1520,
+      "y": 25840
+    },
+    "Ustawienia-wyglad.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Ustawienia · wygląd",
+      "w": 1440,
+      "x": 3040,
+      "y": 28800
+    },
+    "Zadania-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "title": "Zadania · ciemny",
+      "w": 1440,
+      "x": 3040,
       "y": 1600
     },
     "Zadania-opcje.dc.html": {
@@ -44,932 +866,110 @@
       "x": 1520,
       "y": 1600
     },
-    "Zadania-ciemny.dc.html": {
+    "Zadania-tablica-nowa-ciemny.dc.html": {
       "expand": "fill",
       "h": 1120,
-      "title": "Zadania · ciemny",
+      "title": "Zadania · tablica · ciemny",
       "w": 1440,
-      "x": 3040,
+      "x": 6080,
       "y": 1600
     },
     "Zadania-tablica.dc.html": {
       "expand": "fill",
       "h": 1120,
-      "w": 1440,
       "title": "Zadania · tablica",
+      "w": 1440,
       "x": 4560,
       "y": 1600
     },
-    "Magazyn.dc.html": {
+    "Zadania.dc.html": {
       "expand": "fill",
       "h": 1120,
+      "is_interactive": true,
+      "title": "Zadania · jasny",
       "w": 1440,
-      "title": "Magazyn · jasny",
       "x": 0,
-      "y": 3200,
-      "is_interactive": true
-    },
-    "Magazyn-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Magazyn · ciemny",
-      "x": 1520,
-      "y": 3200
-    },
-    "Magazyn-wydanie.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Magazyn · wydanie na zlecenie (RW)",
-      "x": 3040,
-      "y": 3200
-    },
-    "Magazyn-samochody.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Magazyn · w samochodach",
-      "x": 4560,
-      "y": 3200
-    },
-    "Firmy.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Firmy · tabela",
-      "x": 0,
-      "y": 4800,
-      "is_interactive": true
-    },
-    "Firmy-filtr.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Firmy · filtr kategorii",
-      "x": 1520,
-      "y": 4800
-    },
-    "Firmy-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Firmy · ciemny",
-      "x": 3040,
-      "y": 4800
-    },
-    "Osoby.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Osoby · tabela",
-      "x": 4560,
-      "y": 4800
-    },
-    "Firma.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · Delikatesy Morskie",
-      "x": 0,
-      "y": 6400,
-      "is_interactive": true
-    },
-    "Firma-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · ciemny",
-      "x": 1520,
-      "y": 6400
-    },
-    "Firma-urzadzenia.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · Urządzenia",
-      "x": 0,
-      "y": 7920
-    },
-    "Firma-urzadzenia-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · Urządzenia · ciemny",
-      "x": 1520,
-      "y": 7920
-    },
-    "Szablony.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · szablony protokołów",
-      "x": 0,
-      "y": 9440
-    },
-    "Technik.dc.html": {
-      "h": 1800,
-      "w": 390,
-      "title": "Telefon · kontrola szczelności",
-      "x": 1520,
-      "y": 9440
-    },
-    "Technik-wyciek.dc.html": {
-      "h": 1800,
-      "w": 390,
-      "title": "Telefon · kontrola, nieszczelność",
-      "x": 1990,
-      "y": 9440
-    },
-    "Technik-wyciek-ciemny.dc.html": {
-      "h": 1800,
-      "w": 390,
-      "title": "Telefon · nieszczelność · ciemny",
-      "x": 2460,
-      "y": 9440
-    },
-    "Technik-montaz.dc.html": {
-      "h": 1800,
-      "w": 390,
-      "title": "Telefon · montaż split",
-      "x": 2930,
-      "y": 9440
-    },
-    "Planowanie.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1920,
-      "title": "Planowanie · dzień",
-      "x": 0,
-      "y": 13240,
-      "is_interactive": true
-    },
-    "Planowanie-przeciaganie.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1920,
-      "title": "Planowanie · przeciąganie ZG-0920 · ciemny",
-      "x": 2000,
-      "y": 13240
-    },
-    "Planowanie-mapa.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1920,
-      "title": "Planowanie · mapa tras",
-      "x": 4000,
-      "y": 13240
-    },
-    "Planowanie-mapa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1920,
-      "title": "Planowanie · mapa tras · ciemny",
-      "x": 6000,
-      "y": 13240
-    },
-    "Zlecenie-nowa.dc.html": {
-      "expand": "fill",
-      "h": 1600,
-      "w": 1440,
-      "title": "Zlecenie ZS-1047 · jasny",
-      "x": 0,
-      "y": 11440
-    },
-    "Zlecenie-nowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1600,
-      "w": 1440,
-      "title": "Zlecenie ZS-1047 · ciemny",
-      "x": 1520,
-      "y": 11440
-    },
-    "Urzadzenie-nowa.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta urządzenia · UR-3107",
-      "x": 3040,
-      "y": 7920
-    },
-    "Urzadzenie-nowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta urządzenia · ciemny",
-      "x": 4560,
-      "y": 7920
-    },
-    "Firma-fgaz-nowa.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · Historia F-gaz",
-      "x": 3040,
-      "y": 6400
-    },
-    "Firma-fgaz-nowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Karta firmy · Historia F-gaz · ciemny",
-      "x": 4560,
-      "y": 6400
-    },
-    "Zadania-tablica-nowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zadania · tablica · ciemny",
-      "x": 6080,
       "y": 1600
-    },
-    "Magazyn-samochody-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Magazyn · w samochodach · ciemny",
-      "x": 6080,
-      "y": 3200
-    },
-    "Osoby-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Osoby · ciemny",
-      "x": 6080,
-      "y": 4800
-    },
-    "Oferta.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Oferta OF-2026-118 · kreator · jasny",
-      "x": 0,
-      "y": 14560
-    },
-    "Oferta-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Oferta OF-2026-118 · kreator · ciemny",
-      "x": 1520,
-      "y": 14560
-    },
-    "Oferta-warunki.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Oferta · krok 4 Warunki",
-      "x": 3040,
-      "y": 14560
-    },
-    "Oferta-wysylka.dc.html": {
-      "expand": "fill",
-      "h": 1600,
-      "w": 1440,
-      "title": "Oferta · krok 5 Wysyłka",
-      "x": 4560,
-      "y": 14560
-    },
-    "Klient-oferta.dc.html": {
-      "expand": "fill",
-      "h": 1960,
-      "w": 1440,
-      "title": "Oferta · widok klienta (link)",
-      "x": 6080,
-      "y": 14560
-    },
-    "Klient-oferta-telefon.dc.html": {
-      "expand": "fill",
-      "h": 2700,
-      "w": 390,
-      "title": "Oferta · widok klienta · telefon",
-      "x": 7600,
-      "y": 14560
-    },
-    "Oferta-zaakceptowana.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Oferta · po akceptacji (biuro)",
-      "x": 0,
-      "y": 17360
-    },
-    "Klient-akceptacja-podpis.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "w": 390,
-      "title": "Klient · akceptacja 1/3 · podpis",
-      "x": 1520,
-      "y": 17360
-    },
-    "Klient-akceptacja-platnosc.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "w": 390,
-      "title": "Klient · akceptacja 2/3 · zaliczka",
-      "x": 1990,
-      "y": 17360
-    },
-    "Klient-akceptacja-gotowe.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "w": 390,
-      "title": "Klient · akceptacja 3/3 · gotowe",
-      "x": 2460,
-      "y": 17360
-    },
-    "Zlecenie-montaz.dc.html": {
-      "expand": "fill",
-      "h": 1280,
-      "w": 1440,
-      "title": "Zlecenie montażu ZS-1052 · jasny",
-      "x": 0,
-      "y": 18460
-    },
-    "Zlecenie-montaz-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1280,
-      "w": 1440,
-      "title": "Zlecenie montażu ZS-1052 · ciemny",
-      "x": 1520,
-      "y": 18460
-    },
-    "Technik-pompa.dc.html": {
-      "h": 2960,
-      "w": 390,
-      "title": "Telefon · uruchomienie pompy ciepła",
-      "x": 3040,
-      "y": 18460
-    },
-    "Faktura-koncowa.dc.html": {
-      "expand": "fill",
-      "h": 1280,
-      "w": 1440,
-      "title": "Faktura końcowa FV/2026/12/003 · jasny",
-      "x": 0,
-      "y": 21620
-    },
-    "Faktura-koncowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1280,
-      "w": 1440,
-      "title": "Faktura końcowa · ciemny",
-      "x": 1520,
-      "y": 21620
-    },
-    "Klient-po-montazu.dc.html": {
-      "expand": "fill",
-      "h": 960,
-      "w": 390,
-      "title": "Klient · po montażu: dokumenty i dopłata",
-      "x": 3040,
-      "y": 21620
-    },
-    "Przeglady.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Przeglądy · najbliższe 60 dni",
-      "x": 0,
-      "y": 23100
-    },
-    "Przeglady-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Przeglądy · ciemny",
-      "x": 1520,
-      "y": 23100
-    },
-    "Umowa-serwisowa.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Umowa serwisowa UM-2026-031",
-      "x": 3040,
-      "y": 23100
-    },
-    "Klient-przeglad-termin.dc.html": {
-      "expand": "fill",
-      "h": 844,
-      "w": 390,
-      "title": "Klient · wybór terminu kontroli",
-      "x": 4560,
-      "y": 23100
-    },
-    "Raporty.dc.html": {
-      "expand": "fill",
-      "h": 1220,
-      "w": 1440,
-      "title": "Raporty · przegląd miesiąca",
-      "x": 0,
-      "y": 24420
-    },
-    "Raporty-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1220,
-      "w": 1440,
-      "title": "Raporty · ciemny",
-      "x": 1520,
-      "y": 24420
-    },
-    "Ustawienia-profil.dc.html": {
-      "expand": "fill",
-      "h": 1220,
-      "w": 1440,
-      "title": "Ustawienia · profil firmy",
-      "x": 0,
-      "y": 25840
-    },
-    "Ustawienia-uzytkownicy.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · użytkownicy i role",
-      "x": 1520,
-      "y": 25840
-    },
-    "Ustawienia-integracje.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · integracje",
-      "x": 3040,
-      "y": 25840
-    },
-    "Ustawienia-uzytkownicy-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · użytkownicy · ciemny",
-      "x": 4560,
-      "y": 25840
-    },
-    "Ustawienia-dokumenty.dc.html": {
-      "expand": "fill",
-      "h": 1340,
-      "w": 1440,
-      "title": "Ustawienia · dokumenty i numeracja",
-      "x": 0,
-      "y": 27260
-    },
-    "Ustawienia-katalog.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · katalog i marże",
-      "x": 1520,
-      "y": 27260
-    },
-    "Ustawienia-technicy.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · technicy i busy",
-      "x": 3040,
-      "y": 27260
-    },
-    "Ustawienia-moj-profil.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · mój profil",
-      "x": 0,
-      "y": 28800
-    },
-    "Ustawienia-powiadomienia.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · powiadomienia",
-      "x": 1520,
-      "y": 28800
-    },
-    "Ustawienia-wyglad.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · wygląd",
-      "x": 3040,
-      "y": 28800
-    },
-    "Zgloszenia.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zgłoszenia · lista i podgląd ZG-0920",
-      "x": 0,
-      "y": 30340
-    },
-    "Zgloszenia-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zgłoszenia · ciemny",
-      "x": 1520,
-      "y": 30340
-    },
-    "Skrzynka.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Skrzynka · wątek Hotel Oliwski",
-      "x": 3040,
-      "y": 30340
-    },
-    "Skrzynka-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Skrzynka · ciemny",
-      "x": 4560,
-      "y": 30340
-    },
-    "Leady.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Leady · lista i podgląd (Joanna Krawczyk)",
-      "x": 0,
-      "y": 31820
-    },
-    "Leady-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Leady · ciemny",
-      "x": 1520,
-      "y": 31820
-    },
-    "Szanse.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Szanse · tablica etapów",
-      "x": 3040,
-      "y": 31820
-    },
-    "Szanse-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Szanse · ciemny",
-      "x": 4560,
-      "y": 31820
-    },
-    "Szansa.dc.html": {
-      "expand": "fill",
-      "h": 1480,
-      "w": 1440,
-      "title": "Szansa SZ-0179 · Marek Zieliński (wygrana)",
-      "x": 0,
-      "y": 33300
-    },
-    "Szansa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1480,
-      "w": 1440,
-      "title": "Szansa SZ-0179 · ciemny",
-      "x": 1520,
-      "y": 33300
-    },
-    "Zakupy.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zakupy · zapotrzebowanie",
-      "x": 0,
-      "y": 35140
     },
     "Zakupy-ciemny.dc.html": {
       "expand": "fill",
       "h": 1120,
-      "w": 1440,
       "title": "Zakupy · ciemny",
+      "w": 1440,
       "x": 1520,
       "y": 35140
     },
-    "Zamowienie-zakupowe.dc.html": {
+    "Zakupy.dc.html": {
       "expand": "fill",
       "h": 1120,
+      "title": "Zakupy · zapotrzebowanie",
       "w": 1440,
-      "title": "Zamówienie ZK/2026/11/031 · przyjęcie dostawy",
-      "x": 3040,
+      "x": 0,
       "y": 35140
     },
     "Zamowienie-zakupowe-ciemny.dc.html": {
       "expand": "fill",
       "h": 1120,
-      "w": 1440,
       "title": "Zamówienie ZK · ciemny",
+      "w": 1440,
       "x": 4560,
       "y": 35140
     },
-    "Katalog.dc.html": {
+    "Zamowienie-zakupowe.dc.html": {
       "expand": "fill",
       "h": 1120,
+      "title": "Zamówienie ZK/2026/11/031 · przyjęcie dostawy",
       "w": 1440,
-      "title": "Katalog · urządzenia i pozycja ERGA08EV",
-      "x": 0,
-      "y": 36620
-    },
-    "Katalog-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Katalog · ciemny",
-      "x": 1520,
-      "y": 36620
-    },
-    "Import-cennika.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Import cennika · Termo-Bud Daikin 2027",
       "x": 3040,
-      "y": 36620
+      "y": 35140
     },
-    "Import-cennika-ciemny.dc.html": {
+    "Zgloszenia-ciemny.dc.html": {
       "expand": "fill",
       "h": 1120,
+      "title": "Zgłoszenia · ciemny",
       "w": 1440,
-      "title": "Import cennika · ciemny",
-      "x": 4560,
-      "y": 36620
-    },
-    "Przetargi.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Własna tabela · Przetargi (lista i panel)",
-      "x": 0,
-      "y": 38100
-    },
-    "Przetargi-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Przetargi · ciemny",
       "x": 1520,
-      "y": 38100
+      "y": 30340
     },
-    "Tabela-pola.dc.html": {
+    "Zgloszenia.dc.html": {
       "expand": "fill",
       "h": 1120,
+      "title": "Zgłoszenia · lista i podgląd ZG-0920",
       "w": 1440,
-      "title": "Ustawienia tabeli · Pola (Status)",
-      "x": 3040,
-      "y": 38100
-    },
-    "Tabela-pola-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · Pola · ciemny",
-      "x": 4560,
-      "y": 38100
-    },
-    "Tabela-panel.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · Panel boczny (edytor + podgląd)",
       "x": 0,
-      "y": 39580
+      "y": 30340
     },
-    "Tabela-panel-ciemny.dc.html": {
+    "Zlecenie-montaz-ciemny.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1280,
+      "title": "Zlecenie montażu ZS-1052 · ciemny",
       "w": 1440,
-      "title": "Ustawienia tabeli · Panel boczny · ciemny",
       "x": 1520,
-      "y": 39580
+      "y": 18460
     },
-    "Tabela-akcje.dc.html": {
+    "Zlecenie-montaz.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1280,
+      "title": "Zlecenie montażu ZS-1052 · jasny",
       "w": 1440,
-      "title": "Ustawienia tabeli · Akcje (Utwórz szansę)",
-      "x": 3040,
-      "y": 39580
-    },
-    "Tabela-akcje-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · Akcje · ciemny",
-      "x": 4560,
-      "y": 39580
-    },
-    "Tabela-uprawnienia.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · Uprawnienia",
       "x": 0,
-      "y": 41060
+      "y": 18460
     },
-    "Tabela-uprawnienia-ciemny.dc.html": {
+    "Zlecenie-nowa-ciemny.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1600,
+      "title": "Zlecenie ZS-1047 · ciemny",
       "w": 1440,
-      "title": "Ustawienia tabeli · Uprawnienia · ciemny",
       "x": 1520,
-      "y": 41060
+      "y": 11440
     },
-    "Tabela-nowa.dc.html": {
+    "Zlecenie-nowa.dc.html": {
       "expand": "fill",
-      "h": 1120,
+      "h": 1600,
+      "title": "Zlecenie ZS-1047 · jasny",
       "w": 1440,
-      "title": "Nowa tabela · szablon Reklamacje do producentów",
-      "x": 3040,
-      "y": 41060
-    },
-    "Tabela-nowa-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Nowa tabela · ciemny",
-      "x": 4560,
-      "y": 41060
-    },
-    "Obiekty.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Obiekty · lista",
       "x": 0,
-      "y": 42540
-    },
-    "Obiekty-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Obiekty · ciemny",
-      "x": 1520,
-      "y": 42540
-    },
-    "Obiekt.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Obiekt OB-0230 · Hotel Oliwski",
-      "x": 3040,
-      "y": 42540
-    },
-    "Obiekt-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Obiekt OB-0230 · ciemny",
-      "x": 4560,
-      "y": 42540
-    },
-    "Projekty.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekty · lista",
-      "x": 0,
-      "y": 44020
-    },
-    "Projekty-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekty · ciemny",
-      "x": 1520,
-      "y": 44020
-    },
-    "Projekt.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekt PJ-2026-011 · Hotel Bryza",
-      "x": 3040,
-      "y": 44020
-    },
-    "Projekt-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekt PJ-2026-011 · ciemny",
-      "x": 4560,
-      "y": 44020
-    },
-    "Dostawcy.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zakupy · dostawcy",
-      "x": 0,
-      "y": 45500
-    },
-    "Dostawcy-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zakupy · dostawcy · ciemny",
-      "x": 1520,
-      "y": 45500
-    },
-    "Cenniki.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zakupy · cenniki",
-      "x": 3040,
-      "y": 45500
-    },
-    "Cenniki-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Zakupy · cenniki · ciemny",
-      "x": 4560,
-      "y": 45500
-    },
-    "Tabela-widoki.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · widoki",
-      "x": 0,
-      "y": 46980
-    },
-    "Tabela-widoki-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia tabeli · widoki · ciemny",
-      "x": 1520,
-      "y": 46980
-    },
-    "Tabela-import.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Import z pliku · Przetargi",
-      "x": 3040,
-      "y": 46980
-    },
-    "Tabela-import-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Import z pliku · Przetargi · ciemny",
-      "x": 4560,
-      "y": 46980
-    },
-    "Projekty-os.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekty · oś czasu",
-      "x": 0,
-      "y": 48460
-    },
-    "Projekty-os-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Projekty · oś czasu · ciemny",
-      "x": 1520,
-      "y": 48460
-    },
-    "Raport-przetargi.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Raporty · z własnej tabeli Przetargi",
-      "x": 0,
-      "y": 49940
-    },
-    "Raport-przetargi-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Raporty · z własnej tabeli Przetargi · ciemny",
-      "x": 1520,
-      "y": 49940
-    },
-    "Ustawienia-pola-wlasne.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · pola własne",
-      "x": 3040,
-      "y": 49940
-    },
-    "Ustawienia-pola-wlasne-ciemny.dc.html": {
-      "expand": "fill",
-      "h": 1120,
-      "w": 1440,
-      "title": "Ustawienia · pola własne · ciemny",
-      "x": 4560,
-      "y": 49940
+      "y": 11440
     },
     "Reklamacje.dc.html": {
       "expand": "fill",
@@ -1012,7 +1012,56 @@
   "launch": {
     "view": "canvas"
   },
+  "noteOrder": [
+    "intro",
+    "zadania-title",
+    "zadania-intro",
+    "magazyn-title",
+    "magazyn-intro",
+    "firmy-title",
+    "firmy-intro",
+    "firma-title",
+    "firma-intro",
+    "urz-title",
+    "urz-intro",
+    "proto-title",
+    "proto-intro",
+    "zlec-title",
+    "zlec-intro",
+    "plan-title",
+    "plan-intro"
+  ],
   "notes": {
+    "firma-intro": {
+      "fill": "gray",
+      "text": "PLT-05 Karta firmy (pełna strona, jak rekord w Attio).\nNagłówek: logo, nazwa, opis, wszystkie kategorie + „Kategoria”, akcje Nowe zgłoszenie / Nowe zlecenie. J / K = poprzednia / następna firma z listy.\nZakładki: Przegląd, Obiekty, Urządzenia, Zlecenia, Umowy, Historia F-gaz, Aktywność.\nPrzegląd: alert o wygasającej umowie, 4 fakty (bez kafelków KPI), otwarte sprawy, najbliższe kontrole szczelności z CO₂e i częstotliwością.\nPrawy panel: szczegóły edytowalne w miejscu + osoby kontaktowe.\nHistoria F-gaz: status (po terminie / w 30 dni / do wpisu w CRO), 4 fakty, urządzenia objęte kontrolą z częstotliwością wg (UE) 2024/573 (5/50/500 t CO₂e → 12/6/3 mies., z systemem wykrywania ×2), dziennik operacji z dokumentem i statusem wpisu w CRO. Bez prawego panelu, żeby tabele miały pełną szerokość.",
+      "w": 560,
+      "x": -640,
+      "y": 6400
+    },
+    "firma-title": {
+      "kind": "title1",
+      "maxW": 6080,
+      "text": "Karta firmy · pełna strona",
+      "w": 240,
+      "x": 0,
+      "y": 6120
+    },
+    "firmy-intro": {
+      "fill": "gray",
+      "text": "PLT-04 Firmy i osoby (inspiracja: Attio, w stylu Precision UI).\nWiele kategorii na firmę, każda z własnym kolorem (tint 16%); widać 2, reszta jako +N z podpowiedzią.\nPasek sortowania i filtrów pod widokami; filtr kategorii: którakolwiek / wszystkie / żadna.\nKolumna Firma przypięta przy przewijaniu w bok, linie między wierszami (tabela edytowalna), podsumowanie na dole: liczba i suma przychodu.",
+      "w": 560,
+      "x": -640,
+      "y": 4800
+    },
+    "firmy-title": {
+      "kind": "title1",
+      "maxW": 7600,
+      "text": "Firmy i osoby · tabela z kategoriami",
+      "w": 240,
+      "x": 0,
+      "y": 4520
+    },
     "intro": {
       "fill": "gray",
       "text": "PLT-01 Mój dzień, rola Biuro / dyspozytor. Wersja 2: rama aplikacji (górny pasek + panel boczny na jednym tle), główny panel osadzony z promieniem 12 px i odstępem 8 px od krawędzi.\nWidgety po prawej: zwijane pojedynczo, cały panel chowa przycisk w nagłówku. Grupy listy też się zwijają.\nZnak rozpoznawczy: ścieżka statusu. Tweaks: motyw i stan (dane / pusty / wczytywanie).",
@@ -1020,13 +1069,65 @@
       "x": 0,
       "y": -420
     },
-    "zadania-title": {
+    "magazyn-intro": {
+      "fill": "gray",
+      "text": "PLT-03 Magazyn. Ten sam widok kolekcji w układzie tabeli, grupy wg kategorii.\nStan, rezerwacje i dostępne są tylko do odczytu (kłódka): zmienia je wyłącznie dokument PZ / RW / WZ / MM, widoczny w ruchach. Edytowalne w miejscu: minimalny stan, półka, kategoria.\nPoniżej minimum = ikona ostrzeżenia + pogrubienie; brak przy rezerwacji = ikona błędu.\nWydanie RW: ilość z ważenia butli (masa przed − po), wpis od razu do karty urządzenia F-gaz z CO₂e; podgląd skutków przed zatwierdzeniem.\nW samochodach: macierz pozycja × bus, braki wobec minimum w busie, jedna akcja MM uzupełnia wszystkie.",
+      "w": 560,
+      "x": -640,
+      "y": 3200
+    },
+    "magazyn-title": {
       "kind": "title1",
-      "text": "Zadania · widok kolekcji",
       "maxW": 7600,
+      "text": "Magazyn · tabela",
+      "w": 240,
       "x": 0,
-      "y": 1320,
-      "w": 240
+      "y": 2920
+    },
+    "plan-intro": {
+      "fill": "gray",
+      "text": "PLT-08 Planowanie (tablica dyspozytora), plansza 1920 px: tak będzie używane na monitorze w biurze.\nLewa kolumna: Do zaplanowania, zgłoszenia i przeglądy z umów, kolejność wg czasu do terminu SLA, szacowany czas pracy.\nOś 07–17: technik w wierszu z obciążeniem dnia, wizyty jako bloki (status = kształt + kolor fazy), dojazdy jako linia przerywana z minutami, linia „teraz”. Krótkie bloki pokazują tylko godzinę i tytuł, pełna treść w podpowiedzi.\nPrzeciąganie: pod każdym technikiem jego dopasowanie (wolny, odległość, czynnik w busie); podgląd bloku i okienko z kontrolą: dostępność, czynnik, SLA, kolizja z kolejną wizytą + akcje Przydziel / Przesuń kolejną.\nDo sprawdzenia: brak R32 w busie na montaż (powiązanie z ZD-118) i brak części dla wizyty czekającej.\nMapa: każdy technik ma stały kolor (awatar, trasa, piny, znacznik busa). Linia ciągła = przejechane, przerywana = plan, romb = zgłoszenie bez technika, K = baza. Wybrany bus: trasa wyróżniona, pozostałe przygaszone, karta z prędkością, czasem przyjazdu i częściami na pokładzie. Lewa kolumna: busy ze stanem i kolorowymi ikonami (km, czynnik, braki) oraz zgłoszenia z proponowanym technikiem; propozycja liczy odległość, wolne okno, czynnik, części i SLA, decyzja zostaje u dyspozytora. W kodzie mapa z MapLibre + OpenStreetMap, styl przygaszony z tokenów map-land / map-park / map-water.",
+      "w": 560,
+      "x": -640,
+      "y": 13240
+    },
+    "plan-title": {
+      "kind": "title1",
+      "maxW": 8000,
+      "text": "Planowanie · oś dnia",
+      "w": 240,
+      "x": 0,
+      "y": 12960
+    },
+    "proto-intro": {
+      "fill": "gray",
+      "text": "PLT-06 Konfigurowalny protokół. Szablon = uporządkowana lista sekcji z biblioteki (Pomiary, Checklista, Wybór, Czynnik, Części z magazynu, Czas pracy, Zdjęcia, Tekst, Zalecenia, Podpis). Sekcja: wymagana / opcjonalna, warunek wyświetlenia (np. gdy Wynik = Nieszczelność), pola z normami z karty urządzenia.\nSzablon przypisany do typu zlecenia; zapisuje do F-gaz/CRO, magazynu, parametrów urządzenia i PDF.\nTelefon: 1 kolumna, pola 44 px, tekst 15 px, postęp i skoki do sekcji, offline, przycisk Zakończ aktywny dopiero po wymaganych sekcjach.",
+      "w": 560,
+      "x": -640,
+      "y": 9440
+    },
+    "proto-title": {
+      "kind": "title1",
+      "maxW": 3320,
+      "text": "Protokoły · szablony i aplikacja technika",
+      "w": 240,
+      "x": 0,
+      "y": 9160
+    },
+    "urz-intro": {
+      "fill": "gray",
+      "text": "Zakładka Urządzenia: wyszukiwanie po numerze / modelu / SN, filtry typu i czynnika, „Tylko z obowiązkiem F-gaz”. Lista pogrupowana wg obiektów (pozostałe zwinięte). Kolumna Kontrola F-gaz: częstotliwość + termin albo „nie dotyczy” (< 5 t CO₂e lub czynnik naturalny). Stan: Sprawne / Awaria / Wyłączone, kształt + kolor.\nPanel: karta urządzenia UR-3107. Czynnik, ładunek i częstotliwość kontroli zablokowane (zmienia je dokument), reszta edytowalna w miejscu. Ostatnie zdarzenia z numerami dokumentów, dokumenty PDF.\nKarta urządzenia (pełna strona): parametry pracy z dwóch wizyt z normą (przed / po naprawie, odchylenia oznaczone), historia serwisu z dokumentami, zdjęcia, najbliższe terminy, szczegóły z polami zablokowanymi, układ (co zasila).",
+      "w": 560,
+      "x": -640,
+      "y": 7920
+    },
+    "urz-title": {
+      "kind": "title1",
+      "maxW": 6080,
+      "text": "Urządzenia · lista i karta",
+      "w": 240,
+      "x": 0,
+      "y": 7640
     },
     "zadania-intro": {
       "fill": "gray",
@@ -1035,110 +1136,28 @@
       "x": -640,
       "y": 1600
     },
-    "magazyn-title": {
+    "zadania-title": {
       "kind": "title1",
-      "text": "Magazyn · tabela",
       "maxW": 7600,
+      "text": "Zadania · widok kolekcji",
+      "w": 240,
       "x": 0,
-      "y": 2920,
-      "w": 240
-    },
-    "magazyn-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 3200,
-      "text": "PLT-03 Magazyn. Ten sam widok kolekcji w układzie tabeli, grupy wg kategorii.\nStan, rezerwacje i dostępne są tylko do odczytu (kłódka): zmienia je wyłącznie dokument PZ / RW / WZ / MM, widoczny w ruchach. Edytowalne w miejscu: minimalny stan, półka, kategoria.\nPoniżej minimum = ikona ostrzeżenia + pogrubienie; brak przy rezerwacji = ikona błędu.\nWydanie RW: ilość z ważenia butli (masa przed − po), wpis od razu do karty urządzenia F-gaz z CO₂e; podgląd skutków przed zatwierdzeniem.\nW samochodach: macierz pozycja × bus, braki wobec minimum w busie, jedna akcja MM uzupełnia wszystkie."
-    },
-    "firmy-title": {
-      "kind": "title1",
-      "text": "Firmy i osoby · tabela z kategoriami",
-      "maxW": 7600,
-      "x": 0,
-      "y": 4520,
-      "w": 240
-    },
-    "firmy-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 4800,
-      "text": "PLT-04 Firmy i osoby (inspiracja: Attio, w stylu Precision UI).\nWiele kategorii na firmę, każda z własnym kolorem (tint 16%); widać 2, reszta jako +N z podpowiedzią.\nPasek sortowania i filtrów pod widokami; filtr kategorii: którakolwiek / wszystkie / żadna.\nKolumna Firma przypięta przy przewijaniu w bok, linie między wierszami (tabela edytowalna), podsumowanie na dole: liczba i suma przychodu."
-    },
-    "firma-title": {
-      "kind": "title1",
-      "text": "Karta firmy · pełna strona",
-      "maxW": 6080,
-      "x": 0,
-      "y": 6120,
-      "w": 240
-    },
-    "firma-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 6400,
-      "text": "PLT-05 Karta firmy (pełna strona, jak rekord w Attio).\nNagłówek: logo, nazwa, opis, wszystkie kategorie + „Kategoria”, akcje Nowe zgłoszenie / Nowe zlecenie. J / K = poprzednia / następna firma z listy.\nZakładki: Przegląd, Obiekty, Urządzenia, Zlecenia, Umowy, Historia F-gaz, Aktywność.\nPrzegląd: alert o wygasającej umowie, 4 fakty (bez kafelków KPI), otwarte sprawy, najbliższe kontrole szczelności z CO₂e i częstotliwością.\nPrawy panel: szczegóły edytowalne w miejscu + osoby kontaktowe.\nHistoria F-gaz: status (po terminie / w 30 dni / do wpisu w CRO), 4 fakty, urządzenia objęte kontrolą z częstotliwością wg (UE) 2024/573 (5/50/500 t CO₂e → 12/6/3 mies., z systemem wykrywania ×2), dziennik operacji z dokumentem i statusem wpisu w CRO. Bez prawego panelu, żeby tabele miały pełną szerokość."
-    },
-    "urz-title": {
-      "kind": "title1",
-      "text": "Urządzenia · lista i karta",
-      "maxW": 6080,
-      "x": 0,
-      "y": 7640,
-      "w": 240
-    },
-    "urz-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 7920,
-      "text": "Zakładka Urządzenia: wyszukiwanie po numerze / modelu / SN, filtry typu i czynnika, „Tylko z obowiązkiem F-gaz”. Lista pogrupowana wg obiektów (pozostałe zwinięte). Kolumna Kontrola F-gaz: częstotliwość + termin albo „nie dotyczy” (< 5 t CO₂e lub czynnik naturalny). Stan: Sprawne / Awaria / Wyłączone, kształt + kolor.\nPanel: karta urządzenia UR-3107. Czynnik, ładunek i częstotliwość kontroli zablokowane (zmienia je dokument), reszta edytowalna w miejscu. Ostatnie zdarzenia z numerami dokumentów, dokumenty PDF.\nKarta urządzenia (pełna strona): parametry pracy z dwóch wizyt z normą (przed / po naprawie, odchylenia oznaczone), historia serwisu z dokumentami, zdjęcia, najbliższe terminy, szczegóły z polami zablokowanymi, układ (co zasila)."
-    },
-    "proto-title": {
-      "kind": "title1",
-      "text": "Protokoły · szablony i aplikacja technika",
-      "maxW": 3320,
-      "x": 0,
-      "y": 9160,
-      "w": 240
-    },
-    "proto-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 9440,
-      "text": "PLT-06 Konfigurowalny protokół. Szablon = uporządkowana lista sekcji z biblioteki (Pomiary, Checklista, Wybór, Czynnik, Części z magazynu, Czas pracy, Zdjęcia, Tekst, Zalecenia, Podpis). Sekcja: wymagana / opcjonalna, warunek wyświetlenia (np. gdy Wynik = Nieszczelność), pola z normami z karty urządzenia.\nSzablon przypisany do typu zlecenia; zapisuje do F-gaz/CRO, magazynu, parametrów urządzenia i PDF.\nTelefon: 1 kolumna, pola 44 px, tekst 15 px, postęp i skoki do sekcji, offline, przycisk Zakończ aktywny dopiero po wymaganych sekcjach."
-    },
-    "zlec-title": {
-      "kind": "title1",
-      "text": "Zlecenie · pełna strona",
-      "maxW": 3040,
-      "x": 0,
-      "y": 11160,
-      "w": 240
+      "y": 1320
     },
     "zlec-intro": {
       "fill": "gray",
+      "text": "PLT-07 Strona zlecenia ZS-1047 (awaria lodziarki, Delikatesy Morskie), stan na 13 lis 09:14: technik w drodze.\nNagłówek: tytuł, miejsce, urządzenie, kapsułki właściwości (status, priorytet, technik, termin, etykieta), pasek statusu na żywo z czasem SLA z umowy.\nPrzegląd: zgłoszenie od klienta, wizyty (zakończone i planowane), pomiary z protokołu z telefonu z normą (kolumna „Po naprawie” wypełni się z dzisiejszego protokołu), materiały i czynnik z dokumentami MM/RW (ilości zablokowane), aktywność z komentarzem.\nPrawy panel: rozliczenie na żywo (robocizna ze stawki z umowy, materiały, dojazd w ryczałcie), klient, obiekt i kontakt, urządzenie, szczegóły; SLA zablokowane, bo pochodzą z umowy.",
       "w": 560,
       "x": -640,
-      "y": 11440,
-      "text": "PLT-07 Strona zlecenia ZS-1047 (awaria lodziarki, Delikatesy Morskie), stan na 13 lis 09:14: technik w drodze.\nNagłówek: tytuł, miejsce, urządzenie, kapsułki właściwości (status, priorytet, technik, termin, etykieta), pasek statusu na żywo z czasem SLA z umowy.\nPrzegląd: zgłoszenie od klienta, wizyty (zakończone i planowane), pomiary z protokołu z telefonu z normą (kolumna „Po naprawie” wypełni się z dzisiejszego protokołu), materiały i czynnik z dokumentami MM/RW (ilości zablokowane), aktywność z komentarzem.\nPrawy panel: rozliczenie na żywo (robocizna ze stawki z umowy, materiały, dojazd w ryczałcie), klient, obiekt i kontakt, urządzenie, szczegóły; SLA zablokowane, bo pochodzą z umowy."
+      "y": 11440
     },
-    "plan-title": {
+    "zlec-title": {
       "kind": "title1",
-      "text": "Planowanie · oś dnia",
-      "maxW": 8000,
+      "maxW": 3040,
+      "text": "Zlecenie · pełna strona",
+      "w": 240,
       "x": 0,
-      "y": 12960,
-      "w": 240
-    },
-    "plan-intro": {
-      "fill": "gray",
-      "w": 560,
-      "x": -640,
-      "y": 13240,
-      "text": "PLT-08 Planowanie (tablica dyspozytora), plansza 1920 px: tak będzie używane na monitorze w biurze.\nLewa kolumna: Do zaplanowania, zgłoszenia i przeglądy z umów, kolejność wg czasu do terminu SLA, szacowany czas pracy.\nOś 07–17: technik w wierszu z obciążeniem dnia, wizyty jako bloki (status = kształt + kolor fazy), dojazdy jako linia przerywana z minutami, linia „teraz”. Krótkie bloki pokazują tylko godzinę i tytuł, pełna treść w podpowiedzi.\nPrzeciąganie: pod każdym technikiem jego dopasowanie (wolny, odległość, czynnik w busie); podgląd bloku i okienko z kontrolą: dostępność, czynnik, SLA, kolizja z kolejną wizytą + akcje Przydziel / Przesuń kolejną.\nDo sprawdzenia: brak R32 w busie na montaż (powiązanie z ZD-118) i brak części dla wizyty czekającej.\nMapa: każdy technik ma stały kolor (awatar, trasa, piny, znacznik busa). Linia ciągła = przejechane, przerywana = plan, romb = zgłoszenie bez technika, K = baza. Wybrany bus: trasa wyróżniona, pozostałe przygaszone, karta z prędkością, czasem przyjazdu i częściami na pokładzie. Lewa kolumna: busy ze stanem i kolorowymi ikonami (km, czynnik, braki) oraz zgłoszenia z proponowanym technikiem; propozycja liczy odległość, wolne okno, czynnik, części i SLA, decyzja zostaje u dyspozytora. W kodzie mapa z MapLibre + OpenStreetMap, styl przygaszony z tokenów map-land / map-park / map-water."
+      "y": 11160
     }
   },
   "order": [
@@ -1248,27 +1267,26 @@
     "Projekty.dc.html",
     "Projekty-ciemny.dc.html",
     "Projekt.dc.html",
-    "Projekt-ciemny.dc.html"
+    "Projekt-ciemny.dc.html",
+    "Dostawcy.dc.html",
+    "Dostawcy-ciemny.dc.html",
+    "Cenniki.dc.html",
+    "Cenniki-ciemny.dc.html",
+    "Tabela-widoki.dc.html",
+    "Tabela-widoki-ciemny.dc.html",
+    "Tabela-import.dc.html",
+    "Tabela-import-ciemny.dc.html",
+    "Projekty-os.dc.html",
+    "Projekty-os-ciemny.dc.html",
+    "Raport-przetargi.dc.html",
+    "Raport-przetargi-ciemny.dc.html",
+    "Ustawienia-pola-wlasne.dc.html",
+    "Ustawienia-pola-wlasne-ciemny.dc.html",
+    "Reklamacje.dc.html",
+    "Reklamacje-ciemny.dc.html",
+    "Reklamacja.dc.html",
+    "Reklamacja-ciemny.dc.html"
   ],
   "pages": [],
-  "title": "Avero — Mój dzień (dashboard)",
-  "noteOrder": [
-    "intro",
-    "zadania-title",
-    "zadania-intro",
-    "magazyn-title",
-    "magazyn-intro",
-    "firmy-title",
-    "firmy-intro",
-    "firma-title",
-    "firma-intro",
-    "urz-title",
-    "urz-intro",
-    "proto-title",
-    "proto-intro",
-    "zlec-title",
-    "zlec-intro",
-    "plan-title",
-    "plan-intro"
-  ]
+  "title": "Avero — Mój dzień (dashboard)"
 }
