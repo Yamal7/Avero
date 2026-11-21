@@ -2,6 +2,11 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Sprawdzian rdzenia — firma elektryczna)
+- Sprawdzian na firmie elektrycznej bez pakietu (Mój dzień, urządzenie, zlecenie) potwierdził, że rdzeń wystarcza innej branży serwisowej, jeśli umie: własne typy urządzeń z polami, przeglądy z częstotliwością firmy, szablony protokołów z tabelą pomiarów i oceną, zalecenie → oferta, pola własne użytkownika z ważnością (lista w `LAYERS.md`).
+- Rama aplikacji bierze nazwę i znak firmy z konfiguracji; pasek boczny bez słów branżowych.
+- Adnotacje sprawdzianu (ramka przerywana, znaczniki R / K) są tylko w makietach przeglądowych — nie w produkcie.
+
 ## 2026-11-21 (Warstwy: rdzeń, pakiety, konfiguracja)
 - **Mapa warstw** w `LAYERS.md`: każdy moduł, sekcja i pole należy do rdzenia (R), pakietu branżowego (P:HVACR) albo konfiguracji firmy (K). Rynek rdzenia: firmy serwisowo-instalacyjne, nie „każda branża”.
 - Pakiety można łączyć (np. HVACR + Elektro). Pakiet wymaga modułów rdzenia (HVACR: Urządzenia i Przeglądy, Katalog i Magazyn) — nie da się ich wyłączyć przy aktywnym pakiecie.

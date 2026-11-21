@@ -51,6 +51,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |
 | Dostawcy i Cenniki (zakładki Zakupów) | `screens/21-dostawcy-cenniki.md` | Zakupy · dostawcy (panel Termo-Bud), Zakupy · cenniki (panel Chłodpol, historia R404A) (jasny / ciemny) |
 | Faktury: należności, do wystawienia, wszystkie, zaliczki | `screens/23-faktury-naleznosci.md` | Faktury · należności (panel Hotel Oliwski), do wystawienia (panel ZS-1047), wszystkie (panel miesiąca, KSeF, eksport), zaliczki (panel PJ-2026-013) (jasny / ciemny) |
+| Sprawdzian rdzenia (firma elektryczna bez pakietu) | `screens/25-sprawdzian-rdzenia.md` | Sprawdzian · Mój dzień, urządzenie UR-0318, zlecenie ZL-0734 (jasny / ciemny) — makiety przeglądowe z adnotacjami |
 | Portal klienta | `screens/24-portal-klienta.md` | Klient · portal Kancelaria Wit (`Klient-portal.dc.html`) |
 | Reklamacje i gwarancje | `screens/22-reklamacje.md` | Reklamacje · od klientów (panel RK-2026-011), do dostawców (panel Klimatech), gwarancje kończą się (panel UR-2655), Reklamacja RK-2026-017 (jasny / ciemny) |
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |

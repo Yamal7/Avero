@@ -63,6 +63,10 @@ Docelowy rynek rdzenia: firmy serwisowo-instalacyjne (HVACR, elektryka, wod-kan,
 
 Ekranów nie przerysowujemy — oznaczamy, które części pochodzą z pakietu. Sprawdzian: kluczowe ekrany bez pakietu (firma elektryczna) — kolejny krok projektu.
 
+## Wymagania rdzenia ze sprawdzianu (firma elektryczna)
+
+Szczegóły: `screens/25-sprawdzian-rdzenia.md`. Rdzeń musi mieć: własne typy urządzeń z zestawem pól (K); przeglądy okresowe z częstotliwością ustawianą przez firmę; szablony protokołów z sekcją-tabelą, wartościami granicznymi i oceną wyniku; zalecenie z protokołu → oferta; pola własne użytkownika z datą ważności; nazwę i znak firmy w ramie z konfiguracji; dowolne jednostki w magazynie.
+
 ## Punkty rozszerzeń (co pakiet i konfiguracja mogą dodać)
 
 1. Typy rekordów (urządzenia, przeglądu, pozycji katalogu) z zestawem pól.
