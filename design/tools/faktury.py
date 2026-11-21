@@ -14,9 +14,9 @@ def cav(ini,c,size=20): return f'<span title="{ini}" style="width:{size}px;heigh
 def head(cur,right):
     return ('<div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 20px;min-width:0">'+ic(WALLET,16,'var(--text-secondary)')+
             '<h1 style="margin:0;font-size:13px;line-height:20px;font-weight:500">Faktury</h1><span style="width:8px"></span>'+
-            tabs([('Należności','11'),('Do wystawienia','5'),('Wszystkie',''),('Zaliczki','2')],cur)+SP+right+'</div>')
-AGE=[('Przed terminem',229860,'var(--text-tertiary)',.45),('1–30 dni',14820,'var(--warning)',1),('31–60 dni',6240,'#E0702A',1),('ponad 60 dni',2420,'var(--danger)',1)]
-TOT=sum(a[1] for a in AGE); assert TOT==253340
+            tabs([('Należności','11'),('Do wystawienia','5'),('Wszystkie',''),('Zaliczki','4')],cur)+SP+right+'</div>')
+AGE=[('Przed terminem',274572,'var(--text-tertiary)',.45),('1–30 dni',14820,'var(--warning)',1),('31–60 dni',6240,'#E0702A',1),('ponad 60 dni',2420,'var(--danger)',1)]
+TOT=sum(a[1] for a in AGE); assert TOT==298052
 fmt=lambda v: f'{v:,}'.replace(',',' ')
 # =================== NALEŻNOŚCI
 NC='minmax(0,1.3fr) 128px 104px 96px minmax(0,1fr)'
@@ -34,12 +34,12 @@ n('<sc-if value="{{isFk}}" hint-placeholder-val="{{false}}">')
 n(head(0,ib('Opcje widoku','Opcje widoku  ⇧V',FILTER)+'<span style="width:4px"></span>'+btn('Nowa faktura','Nowa faktura — ze zlecenia, oferty albo pusta  C',PLUS)))
 n('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">')
 # wiek należności
-bar='<div role="img" aria-label="Należności wg wieku: razem 253 340 zł, po terminie 23 480 zł" style="display:flex;gap:2px;height:10px">'+''.join(
+bar='<div role="img" aria-label="Należności wg wieku: razem 298 052 zł, po terminie 23 480 zł" style="display:flex;gap:2px;height:10px">'+''.join(
     f'<span title="{t}: {fmt(v)} zł" style="flex:{v} 1 0;min-width:6px;border-radius:{"5px 0 0 5px" if i==0 else ("0 5px 5px 0" if i==3 else "0")};background:{c};opacity:{o}"></span>' for i,(t,v,c,o) in enumerate(AGE))+'</div>'
 leg='<div style="display:flex;gap:20px;flex-wrap:wrap">'+''.join(
     f'<span style="display:flex;flex-direction:column;gap:2px"><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">{dot(c)}{t}</span><span class="num" style="font-weight:500">{fmt(v)} zł</span></span>' for t,v,c,o in AGE)+'</div>'
 n('<div style="display:flex;flex-direction:column;gap:10px;margin:4px 20px 12px;padding:12px 14px;border-radius:12px;background:var(--bg-raised)">'
-  '<div style="display:flex;align-items:baseline;gap:12px"><span style="font-weight:500">Do zapłaty</span><span class="num" style="font-size:18px;line-height:26px;font-weight:600;letter-spacing:-0.015em">253 340 zł</span>'
+  '<div style="display:flex;align-items:baseline;gap:12px"><span style="font-weight:500">Do zapłaty</span><span class="num" style="font-size:18px;line-height:26px;font-weight:600;letter-spacing:-0.015em">298 052 zł</span>'
   '<span style="font-size:12px;color:var(--text-secondary)">po terminie <span class="num" style="color:var(--text-primary);font-weight:500">23 480 zł</span> · 8 faktur</span>'+SP+
   '<span style="font-size:12px;color:var(--text-tertiary)" title="Średni czas od wystawienia do zapłaty, ostatnie 90 dni">średnio płacą po 19 dniach</span></div>'+bar+leg+'</div>')
 # wpłaty do dopasowania
@@ -57,7 +57,7 @@ n(nrow('Delikatesy Morskie','FV/2026/10/072','Termin 30 paź','1 910,00','30 pa�
 n(nrow('Kancelaria Wit','FV/2026/11/006','Termin 1 lis','4 960,00','1 lis','Termin niedziela 1 listopada','18 dni','var(--warning)','wpłata czeka na dopasowanie','Wyciąg z 19 lis 14:02',sub='Gdańsk · umowa serwisowa'))
 n(nrow('Piekarnia Rogal','FV/2026/11/009','Termin 10 lis','1 840,00','10 lis','Termin wtorek 10 listopada','9 dni','var(--warning)','przypomnienie 17 lis','E-mail z linkiem do płatności, nieotwarty',sub='Gdynia'))
 n(nrow('Przychodnia Zdrowie','FV/2026/11/015','Termin 15 lis','1 410,00','15 lis','Termin niedziela 15 listopada','4 dni','var(--warning)','przypomnienie przed terminem','Automatyczne 3 dni przed terminem',sub='Gdynia'))
-n('<div style="display:flex;align-items:center;gap:8px;padding:12px 10px 0;font-size:12px;color:var(--text-secondary)"><span>8 faktur po terminie · 7 klientów</span>'+SP+'<span>Przed terminem 229 860 zł, w tym FV/2026/11/031 Hotel Bryza 194 400 zł do 4 gru</span></div>')
+n('<div style="display:flex;align-items:center;gap:8px;padding:12px 10px 0;font-size:12px;color:var(--text-secondary)"><span>8 faktur po terminie · 7 klientów</span>'+SP+'<span>Przed terminem 274 572 zł, w tym FV/2026/11/031 Hotel Bryza 239 112 zł do 4 gru</span></div>')
 n('</div></div>')
 # panel Hotel Oliwski
 def step(icon,col,date_,title,body,state='done'):

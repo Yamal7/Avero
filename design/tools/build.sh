@@ -27,5 +27,7 @@ python3 design/tools/projekty2.py   # projekty: oś czasu i zespół
 python3 design/tools/raport_tabela.py # raporty: raport z własnej tabeli Przetargi
 python3 design/tools/reklamacje.py   # serwis: reklamacje i gwarancje
 python3 design/tools/faktury.py      # finanse: należności i do wystawienia
+python3 design/tools/faktury2.py     # finanse: wszystkie faktury (KSeF, eksport) i zaliczki
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
+python3 design/tools/klient2.py      # portal klienta firmowego
 echo "Gotowe: design/canvas/Main.dc.html"

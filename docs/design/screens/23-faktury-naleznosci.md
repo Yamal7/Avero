@@ -31,6 +31,17 @@ Zakładki: Należności, Do wystawienia, Wszystkie, Zaliczki. „Nowa faktura”
 - Płatność: termin z karty firmy, wysyłka, konto (zamaskowane, z Ustawień).
 - „Podgląd faktury” — numer nadawany przy wystawieniu.
 
+## Wszystkie (ekran `faktury wszystkie`)
+- Okres w nagłówku (miesiąc, ← →), filtry rodzaju (FV, FZ, FK) i stanu KSeF. Fakty: liczba dokumentów, netto.
+- Kolumny: numer (mono), nabywca i czego dotyczy, data wystawienia (przy fakturach z poprzedniego miesiąca: wystawienie → termin), netto, brutto, **KSeF**: przyjęta (data i godzina; numer KSeF w szczegółach), poza KSeF · e-mail (osoba prywatna), **odrzucona** z powodem (błąd, na górze listy). Zapłacona przygaszona.
+- Panel miesiąca: sprzedaż netto, VAT należny, liczba dokumentów; KSeF (przyjęte, poza KSeF, odrzucone z „Popraw”, ważność tokenu — tylko nazwa zmiennej środowiskowej); **eksport do biura rachunkowego** (odbiorca, format JPK_FA + PDF, ostatni i następny eksport; paczka jako szkic do zatwierdzenia, wstrzymana przy odrzuconej fakturze). „Pobierz zestawienie miesiąca” (⌘E).
+
+## Zaliczki (ekran `faktury zaliczki`)
+- Nierozliczone zaliczki: wezwania bez wpłaty i zapłacone zaliczki czekające na fakturę końcową. Fakty: do rozliczenia, oczekujące.
+- Kolumny: klient i podstawa (oferta, projekt albo FZ), brutto (netto + VAT w podpowiedzi), wpłata (termin w ostrzeżeniu albo data i sposób), rozliczenie (w której fakturze, część rozliczona przy projektach etapowych).
+- Zasada: faktura zaliczkowa powstaje po wpłacie (przy dopasowaniu); faktura końcowa sama pomniejsza podstawę i VAT o zaliczki.
+- Panel wezwania: kontrakt, zaliczka netto, VAT, do zapłaty; przebieg (wezwanie, przypomnienie 3 dni przed, termin, start prac zależny od wpłaty); co się stanie przy spóźnieniu (ostrzeżenie w projekcie, propozycja przesunięcia — bez automatycznych zmian). „Wyślij przypomnienie teraz” (szkic).
+
 ## Stany
 - Brak należności po terminie: „Wszystkie faktury zapłacone w terminie.” + przed terminem.
 - Brak do wystawienia: „Wszystkie zakończone zlecenia są rozliczone.”

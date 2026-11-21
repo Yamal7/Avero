@@ -2,6 +2,12 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Faktury: wszystkie, zaliczki; portal klienta)
+- **KSeF w rejestrze faktur**: stan przy każdym dokumencie; odrzucona faktura na górze z powodem; eksport do biura rachunkowego (JPK_FA + PDF) raz w miesiącu jako szkic do zatwierdzenia, wstrzymany przy odrzuconej fakturze. Token KSeF tylko jako zmienna środowiskowa.
+- **Zaliczki**: wezwanie (PDF z rachunkiem) przed wpłatą; faktura zaliczkowa powstaje przy dopasowaniu wpłaty; start prac może zależeć od wpłaty, ale przesunięcie terminu tylko decyzją człowieka.
+- Kwoty projektów w scenariuszu są netto; należności liczone brutto (FV/2026/11/031 239 112,00 zł; należności razem 298 052 zł).
+- **Portal klienta**: stały osobisty link (logowanie linkiem e-mail), zakładki Przegląd / Faktury / Urządzenia / Zgłoszenia / Umowa; „Zamów ponownie” z usług z historii klienta, ceny netto po rabacie z umowy.
+
 ## 2026-11-21 (Faktury: należności i rozliczenie zleceń)
 - **Moduł Faktury** ma zakładki Należności, Do wystawienia, Wszystkie, Zaliczki; rekord faktury bez zmian.
 - **Ścieżka przypomnień**: 3 dni przed terminem i 7 dni po — automatycznie (e-mail z linkiem do płatności); od 14 dni telefon opiekuna z zapisem obietnicy zapłaty; od 30 dni propozycja wezwania do zapłaty (szkic, wysyłka po sprawdzeniu). Progi w Ustawieniach.
@@ -9,7 +15,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Nie wstrzymujemy awarii ani obowiązków prawnych (F-gaz)** z powodu należności; wstrzymujemy propozycje sprzedażowe (umowy, przeglądy przed końcem gwarancji). „Usługi wstrzymane” = poza awariami, decyzja właściciela.
 - **Wpłaty** dopasowuje człowiek (Avero proponuje po kwocie i tytule); faktura jest zapłacona dopiero po dopasowaniu.
 - **Do wystawienia**: faktura dopiero po podpisanym protokole; pole własne „Numer PO na fakturze” blokuje wystawienie; zlecenia z umowy do faktury zbiorczej 1. dnia miesiąca; gwarancyjne bez faktury (rozliczenie w reklamacji).
-- Należności w Raportach liczone łącznie z projektami (253 340 zł na 19 lis, w tym FV/2026/11/031 194 400 zł przed terminem).
+- Należności w Raportach liczone łącznie z projektami (298 052 zł na 19 lis, w tym FV/2026/11/031 239 112 zł brutto przed terminem).
 
 ## 2026-11-21 (Reklamacje: dostawcy i kończące się gwarancje)
 - **Roszczenia do dostawców** mają własną zakładkę; źródłem jest reklamacja klienta albo przyjęcie towaru (PZ). Szkic powstaje z diagnozy i wychodzi dopiero po uznaniu reklamacji klienta. Termin odpowiedzi liczony wg warunków handlowych dostawcy (pole w rejestrze dostawców).
