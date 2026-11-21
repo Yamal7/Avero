@@ -1034,6 +1034,38 @@
       "title": "Reklamacje · gwarancje kończą się · ciemny",
       "x": 4560,
       "y": 52900
+    },
+    "Faktury-naleznosci.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · należności",
+      "x": 0,
+      "y": 54380
+    },
+    "Faktury-naleznosci-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · należności · ciemny",
+      "x": 1520,
+      "y": 54380
+    },
+    "Faktury-do-wystawienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · do wystawienia",
+      "x": 3040,
+      "y": 54380
+    },
+    "Faktury-do-wystawienia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · do wystawienia · ciemny",
+      "x": 4560,
+      "y": 54380
     }
   },
   "createdOnFiles": {
@@ -1321,7 +1353,11 @@
     "Reklamacje-dostawcy.dc.html",
     "Reklamacje-dostawcy-ciemny.dc.html",
     "Reklamacje-gwarancje.dc.html",
-    "Reklamacje-gwarancje-ciemny.dc.html"
+    "Reklamacje-gwarancje-ciemny.dc.html",
+    "Faktury-naleznosci.dc.html",
+    "Faktury-naleznosci-ciemny.dc.html",
+    "Faktury-do-wystawienia.dc.html",
+    "Faktury-do-wystawienia-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"
