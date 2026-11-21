@@ -858,6 +858,118 @@
       "title": "Projekt PJ-2026-011 · ciemny",
       "x": 4560,
       "y": 44020
+    },
+    "Dostawcy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · dostawcy",
+      "x": 0,
+      "y": 45500
+    },
+    "Dostawcy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · dostawcy · ciemny",
+      "x": 1520,
+      "y": 45500
+    },
+    "Cenniki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · cenniki",
+      "x": 3040,
+      "y": 45500
+    },
+    "Cenniki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Zakupy · cenniki · ciemny",
+      "x": 4560,
+      "y": 45500
+    },
+    "Tabela-widoki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · widoki",
+      "x": 0,
+      "y": 46980
+    },
+    "Tabela-widoki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia tabeli · widoki · ciemny",
+      "x": 1520,
+      "y": 46980
+    },
+    "Tabela-import.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import z pliku · Przetargi",
+      "x": 3040,
+      "y": 46980
+    },
+    "Tabela-import-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Import z pliku · Przetargi · ciemny",
+      "x": 4560,
+      "y": 46980
+    },
+    "Projekty-os.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · oś czasu",
+      "x": 0,
+      "y": 48460
+    },
+    "Projekty-os-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · oś czasu · ciemny",
+      "x": 1520,
+      "y": 48460
+    },
+    "Raport-przetargi.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Raporty · z własnej tabeli Przetargi",
+      "x": 0,
+      "y": 49940
+    },
+    "Raport-przetargi-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Raporty · z własnej tabeli Przetargi · ciemny",
+      "x": 1520,
+      "y": 49940
+    },
+    "Ustawienia-pola-wlasne.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · pola własne",
+      "x": 3040,
+      "y": 49940
+    },
+    "Ustawienia-pola-wlasne-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · pola własne · ciemny",
+      "x": 4560,
+      "y": 49940
     }
   },
   "createdOnFiles": {

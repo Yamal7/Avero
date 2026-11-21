@@ -141,7 +141,7 @@ k(col_('Wycena',2,'28 200 zł','Szanse 40 % · ważona 11 280 zł',[
 k(col_('Oferta',3,'157 820 zł','Szanse 55 % · ważona 86 801 zł',[
   card('Pompa ciepła · dom 160 m²','Marek Zieliński · Rumia','44 020 zł','Wariant polecany B · OF-2026-118','pc',OF('OF-2026-118','Oferta wysłana 11 lis · ważna do 2 gru')+sch(ic(EYE,12,'var(--text-tertiary)')+'3× · wczoraj','Klient otworzył ofertę 3 razy, ostatnio czwartek 12 lis 21:14 — porównywał warianty B i C'),cav('TL',TL),sel=True),
   card('Wymiana klimatyzacji sal 1–3','Kancelaria Wit · Gdańsk','27 300 zł','OF-2026-114','kl',OF('OF-2026-114','Wysłana 9 lis')+nxt('nieotwarta 4 dni','SMS przypominający wysłany automatycznie 12 lis · dziś zadanie „zadzwoń”',late=True),cav('PK',PKC)),
-  card('VRV · sala eventowa','Galeria Bałtycka · Gdańsk','86 500 zł','OF-2026-109','kl',OF('OF-2026-109','Wysłana 3 lis')+nxt('zarząd 30 lis','Decyzja zarządu klienta — poniedziałek 30 lis'),cav('PK',PKC))]))
+  card('VRV · sala eventowa','Galeria Portowa · Gdańsk','86 500 zł','OF-2026-109','kl',OF('OF-2026-109','Wysłana 3 lis')+nxt('zarząd 30 lis','Decyzja zarządu klienta — poniedziałek 30 lis'),cav('PK',PKC))]))
 k(col_('Negocjacje',1,'128 000 zł','Szanse 75 % · ważona 96 000 zł',[
   card('Wymiana 2 central wentylacyjnych','Przychodnia Zdrowie · Gdynia','128 000 zł','OF-2026-102 · wersja 3','went',OF('OF-2026-102 v3','Trzecia wersja oferty, 6 lis')+sch('rabat 5 %?','Klient prosi o 5 % rabatu · marża po rabacie 24,1 % — powyżej progu 22 %'),cav('PK',PKC))]+
   ['<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:4px 8px">'

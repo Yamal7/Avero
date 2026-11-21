@@ -55,9 +55,9 @@ def travel(a,b,label):
 techs=[
  ('MZ','Marek Zieliński','GD 4H217','6 h 15 min z 8 h',78,'zajęty do 12:30',
    [travel(7.25,7.5,'15'),block(7.5,8.25,'done4','ZS-1038','Przegląd 4 kasetonów','Hotel Mercure Gdańsk'),travel(8.25,8.5,'15'),
-    block(8.5,12.5,'real','ZS-1042','Przegląd 6 jednostek VRV','Galeria Bałtycka, z Tomaszem'),travel(13.6,14,'25'),block(14,15.5,'plan','ZS-1050','Przegląd klimatyzacji serwerowni','Kancelaria Rybicki · Gdańsk')]),
+    block(8.5,12.5,'real','ZS-1042','Przegląd 6 jednostek VRV','Galeria Portowa, z Tomaszem'),travel(13.6,14,'25'),block(14,15.5,'plan','ZS-1050','Przegląd klimatyzacji serwerowni','Kancelaria Rybicki · Gdańsk')]),
  ('TL','Tomasz Lewandowski','GD 7K904','7 h 30 min z 8 h',94,'zajęty do 15:30',
-   [block(8,12,'real','ZS-1042','Przegląd 6 jednostek VRV','Galeria Bałtycka, z Markiem'),travel(12,12.5,'25'),
+   [block(8,12,'real','ZS-1042','Przegląd 6 jednostek VRV','Galeria Portowa, z Markiem'),travel(12,12.5,'25'),
     block(12.5,15.5,'plan','ZS-1045','Montaż split Daikin Perfera 3,5 kW','Jan Kowalski · Sopot',warn='Brak R32 w busie GD 7K904: w busie 0 kg, potrzebne ok. 1 kg na dopełnienie')]),
  ('KN','Kamil Nowicki','GD 2N551','3 h 30 min z 8 h',44,'wolny 10:30–13:30 · 21 km',
    [travel(9.2,9.5,'28'),block(9.5,10.5,'drodze','ZS-1047','Wentylator w lodziarce','Delikatesy Morskie · Gdynia',sel=True),travel(13.5,14,'30'),

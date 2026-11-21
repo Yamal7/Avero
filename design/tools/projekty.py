@@ -64,7 +64,7 @@ a(row('PJ-2026-009',FAN,'#C98A12','Wentylacja z odzyskiem ciepła','Szkoła Pods
 a(row('PJ-2026-008',FLAME,'#E0702A','Pompy ciepła w 6 domach','Osiedle Leśne Zacisze · Chwaszczyno','Montaż · 3 z 6 domów','Etap 3 z 5 · domy 1–3 uruchomione',50,'22 sty 2027','Piątek 22 stycznia 2027 · przerwa świąteczna 23 gru – 6 sty','268 800',marg('25,0 %','25,4 %'),cav('TL',TL)))
 a(row('PJ-2026-013',SNOW,'#3B82D6','Chłodzenie serwerowni · 2 agregaty wody lodowej','Biurowiec Kwadrant · Gdynia','Przygotowanie · 1 z 5','Projekt wykonawczy w uzgodnieniu · start montażu pon 7 gru',10,'12 lut 2027','Piątek 12 lutego 2027','268 000',marg('23,5 %','23,5 %'),cav('PK',PKC)))
 a('<div style="display:flex;align-items:center;gap:8px;height:28px;padding:12px 10px 0;font-size:12px;color:var(--text-tertiary)">Zakończone ostatnio</div>')
-a(row('PJ-2026-006',SNOW,'#3B82D6','Modernizacja maszynowni','Galeria Bałtycka · Gdańsk','Zakończony · 23 paź','Odbiór końcowy bez uwag',100,'23 paź','Piątek 23 października','154 000',marg('22,0 %','24,6 %',done=True),cav('PK',PKC)))
+a(row('PJ-2026-006',SNOW,'#3B82D6','Modernizacja maszynowni','Galeria Portowa · Gdańsk','Zakończony · 23 paź','Odbiór końcowy bez uwag',100,'23 paź','Piątek 23 października','154 000',marg('22,0 %','24,6 %',done=True),cav('PK',PKC)))
 a('</div></sc-if>')
 
 # =================== REKORD PJ-2026-011
