@@ -8,6 +8,7 @@ Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy w
 - **Bez prawdziwych marek i adresów obcych firm**: Hotel Mercure → Hotel Nadmorski, Olivia Four → Biurowiec Kwadrant (PJ-2026-013); Jan Kowalski → Krzysztof Lis.
 - **Planowanie i Mój dzień pokazują ten sam dzień (13 lis)**: ZG-0920 Przychodnia Zdrowie (Morska 105), ZG-0923 Biuro Bilans, ZG-0924 Piekarnia Rogal; Delikatesy Morskie pod Starowiejską 12.
 - Prefiks `ZK/` tylko dla zamówień zakupowych.
+- Resztki spoza scenariusza: agregat Bitzer w Delikatesach dostał własny numer UR-3109 (UR-3107 to lodziarka); adres Delikatesów wszędzie Starowiejska 12; ZS-1021 Piekarnia Rogal 17,1 t, kontrola do 9 gru; WM Grunwaldzka 186 → Wspólnota Kasztanowa 7 (Rumia); Deweloper Nadmorski → Osiedle Leśne Zacisze (PJ-2026-008); ZG-0918 → Kancelaria Wit.
 
 ## 2026-11-21 (Projekty)
 - **Projekt = realizacja wieloetapowa spinająca istniejące rekordy**: wygrana szansa i zaakceptowana oferta → umowa wykonawcza → etapy (fazy z datami) → zlecenia (ZS) przypięte do etapów → zakupy (ZK) → faktury według harmonogramu płatności. Projekt nie dubluje zleceń ani magazynu; zbiera ich koszty (PRODUCT_PLAN, etap 5: plan vs rzeczywistość, wynik).

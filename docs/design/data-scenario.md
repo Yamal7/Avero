@@ -14,6 +14,7 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 - Skrzynka (13 lis): Ewa Malinowska (Hotel Oliwski, szefowa kuchni) 9:02 — agregat znów stanął, komora 9 °C, dostawa 11:00 → propozycja: dołącz do ZG-0912, priorytet Pilny, przesuń PD na 10:45 (po Przychodni, 4 km). Joanna Krawczyk — formularz www, wycena klimatyzacji 3 pokoje 64 m² w Redłowie → lead.
 - **ZS-1045** — montaż wstrzymany: brak R32 w busie (zadanie ZD-118).
 - Urządzenie **UR-3107** lodziarka, R404A 5,4 kg = 21,2 t CO₂e → kontrola co 12 mies.
+- Urządzenie **UR-3109** agregat Bitzer 4FES-5Y, Delikatesy Morskie (maszynownia, Starowiejska 12), R404A 18,5 kg = 72,6 t → kontrola co 6 mies., następna 4 gru; regały UR-3110 w tym układzie. Rekord urządzenia w makiecie pokazuje UR-3109.
 
 ## Scenariusz sprzedaży (pompa ciepła)
 - Klient: **Marek Zieliński** (osoba prywatna, KL-0388), Dębogórska 31, 84-230 Rumia, dom 160 m², tel. +48 604 219 553, m.zielinski@poczta.onet.pl.

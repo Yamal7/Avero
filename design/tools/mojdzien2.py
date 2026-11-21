@@ -44,6 +44,27 @@ s=s.replace("title: 'Agregat Bitzer 4FES-5Y', place: 'Gdynia, ul. Świętojańsk
 s=s.replace('Komora mroźnicza — oszroniony parownik</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Restauracja Przystań · Gdynia','Komora mroźnicza — oszroniony parownik</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Piekarnia Rogal · Gdynia')
 s=s.replace('Klimatyzator kapie wodą na biurko</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Hotel Nadmorski','Klimatyzator kapie wodą na biurko</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Biuro Bilans · Gdynia')
 s=s.replace('>Szron na parowniku komory<','>Oszroniony parownik<').replace('>Hałas klimakonwektora<','>Klimatyzator kapie<')
+# --- 2c. Resztki spoza scenariusza (21 lis)
+# UR-3107 = lodziarka (21,2 t); agregat Bitzer 4FES-5Y w bazie dostaje własny numer UR-3109
+_out=[];_i=0
+for _m in _re2.finditer('UR-3107',s):
+    _w=s[max(0,_m.start()-300):_m.end()+300]
+    _keep=any(k in _w for k in ('21,2','lodziar','ZS-1047','Starowiejska 12, Gdynia ·','(12 lis)'))
+    _out.append(s[_i:_m.start()]); _out.append('UR-3107' if _keep else 'UR-3109'); _i=_m.end()
+_out.append(s[_i:]); s=''.join(_out)
+for a,b in [('ul. Świętojańska 34','ul. Starowiejska 12'),('Świętojańska 34','Starowiejska 12'),
+            ("Tip: 'Alarm temperatury −11 °C · zgłoszenie ZG-0920'","Tip: 'Ostatni alarm temperatury 2 lis · zamknięty'"),
+            ('Kontrola szczelności, 52,4 t CO₂e</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Piekarnia Rogal · Oliwa','Kontrola szczelności, 17,1 t CO₂e</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Piekarnia Rogal · Gdynia'),
+            ('<span class="num" style="color:var(--danger);font-weight:500">3 dni po terminie</span></span><span class="ell" style="font-weight:500">Kontrola szczelności, 17,1 t','<span class="num" style="color:var(--text-secondary)">do 9 gru</span></span><span class="ell" style="font-weight:500">Kontrola szczelności, 17,1 t'),
+            ('Błąd E7 jednostki zewnętrznej</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">WM Grunwaldzka 186 · Wrzeszcz','Błąd E7 jednostki zewnętrznej</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Kancelaria Wit · Gdańsk'),
+            ("FR('WM Grunwaldzka 186', 'WG', ['Wspólnota', 'Klimatyzacja'], 'Gdańsk'","FR('Wspólnota Kasztanowa 7', 'WK', ['Wspólnota', 'Wentylacja'], 'Rumia'"),
+            ("'WM Grunwaldzka 186', 'WG'","'Wspólnota Kasztanowa 7', 'WK'"),
+            ("FR('Deweloper Nadmorski', 'DN', ['Deweloper', 'Pompy ciepła', 'Projekt'], 'Reda', 0, 'Brak', 'none'","FR('Osiedle Leśne Zacisze', 'LZ', ['Deweloper', 'Pompy ciepła', 'Projekt'], 'Chwaszczyno', 6, 'Projekt PJ-2026-008', 'proj'"),
+            ("'Deweloper Nadmorski', 'DN'","'Osiedle Leśne Zacisze', 'LZ'")]:
+    assert a in s, a[:60]
+    s=s.replace(a,b)
+for bad in ('Świętojańska 34','Deweloper Nadmorski'):
+    assert bad not in s, bad
 # --- 3. dane dnia
 def block(start,end):
     i=s.index(start); j=s.index(end,i)+len(end); return i,j
