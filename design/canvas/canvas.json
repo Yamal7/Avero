@@ -1106,6 +1106,22 @@
       "title": "Portal klienta · Kancelaria Wit",
       "x": 6080,
       "y": 55860
+    },
+    "Ustawienia-moduly.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "w": 1440,
+      "title": "Ustawienia · moduły i pakiety",
+      "x": 0,
+      "y": 57340
+    },
+    "Ustawienia-moduly-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "w": 1440,
+      "title": "Ustawienia · moduły i pakiety · ciemny",
+      "x": 1520,
+      "y": 57340
     }
   },
   "createdOnFiles": {
@@ -1402,7 +1418,9 @@
     "Faktury-wszystkie-ciemny.dc.html",
     "Faktury-zaliczki.dc.html",
     "Faktury-zaliczki-ciemny.dc.html",
-    "Klient-portal.dc.html"
+    "Klient-portal.dc.html",
+    "Ustawienia-moduly.dc.html",
+    "Ustawienia-moduly-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

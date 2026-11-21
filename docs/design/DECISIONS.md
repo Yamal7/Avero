@@ -2,6 +2,14 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Warstwy: rdzeń, pakiety, konfiguracja)
+- **Mapa warstw** w `LAYERS.md`: każdy moduł, sekcja i pole należy do rdzenia (R), pakietu branżowego (P:HVACR) albo konfiguracji firmy (K). Rynek rdzenia: firmy serwisowo-instalacyjne, nie „każda branża”.
+- Pakiety można łączyć (np. HVACR + Elektro). Pakiet wymaga modułów rdzenia (HVACR: Urządzenia i Przeglądy, Katalog i Magazyn) — nie da się ich wyłączyć przy aktywnym pakiecie.
+- **Wyłączenie modułu lub pakietu ukrywa, nie usuwa**. Wyłączenie pakietu z obowiązkami prawnymi wymaga potwierdzenia.
+- Pakiet używa tych samych punktów rozszerzeń co konfiguracja firmy (typy rekordów, sekcje, kolumny, reguły, szablony, widżety, słownik, uprawnienia), ale jest wersjonowany przez Avero i nieedytowalny przez firmę.
+- Rdzeń zmienia nazwy: „busy” → „pojazdy” (makiety do poprawienia przy najbliższej zmianie ekranu); słownictwo branżowe tylko ze słownika pakietu.
+- Zawsze włączone: Skrzynka, Mój dzień, Zadania, Firmy i osoby, Obiekty, Zgłoszenia, Zlecenia, Planowanie, Faktury, Raporty, Ustawienia.
+
 ## 2026-11-21 (Faktury: wszystkie, zaliczki; portal klienta)
 - **KSeF w rejestrze faktur**: stan przy każdym dokumencie; odrzucona faktura na górze z powodem; eksport do biura rachunkowego (JPK_FA + PDF) raz w miesiącu jako szkic do zatwierdzenia, wstrzymany przy odrzuconej fakturze. Token KSeF tylko jako zmienna środowiskowa.
 - **Zaliczki**: wezwanie (PDF z rachunkiem) przed wpłatą; faktura zaliczkowa powstaje przy dopasowaniu wpłaty; start prac może zależeć od wpłaty, ale przesunięcie terminu tylko decyzją człowieka.

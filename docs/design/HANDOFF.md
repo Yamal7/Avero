@@ -56,7 +56,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
 | Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
 | Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |
-| Ustawienia (10 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, pola własne, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
+| Ustawienia (11 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, pola własne, moduły i pakiety, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
 
 Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 
@@ -69,5 +69,7 @@ Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 5. Odświeżony ekran projektuje się **obok** starego (do porównania); stary usuwa właściciel po akceptacji.
 
 ## Kierunek produktu
+
+**Mapa warstw (rdzeń / pakiet HVACR / konfiguracja) i zasady dla kodu: `LAYERS.md` — czytaj przed projektowaniem bazy danych i struktury modułów.**
 
 Avero ma być sprzedawany innym firmom: wspólny rdzeń + pakiety branżowe (HVACR pierwszy) + warstwa elastyczna (własne pola, konfigurowalny panel boczny, własne tabele). Szczegóły i konsekwencje dla kodu: `DECISIONS.md`, wpis „Kierunek produktu” z 20 lis 2026.

@@ -51,7 +51,7 @@ def sep(): return '<div style="height:1px;background:var(--edge)"></div>'
 
 # ---------- settings secondary nav
 def snav(cur):
-    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów'),('pola','<rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path>','Pola własne')]),
+    G=[('Firma',[('profil',BLD,'Profil firmy'),('dok',DOCN,'Dokumenty i numeracja'),('cen',TAGI,'Katalog i marże'),('szab',CLIP,'Szablony protokołów'),('pola','<rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path>','Pola własne'),('moduly','<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12M3.29 7 12 12l8.71-5"></path>','Moduły i pakiety')]),
        ('Zespół',[('uz',USERS,'Użytkownicy i role'),('bus',TRUCK,'Technicy i busy')]),
        ('Połączenia',[('int',PLUG,'Integracje')]),
        ('Moje konto',[('ja',USER,'Profil'),('pow',BELL,'Powiadomienia'),('wyg',SUN,'Wygląd')])]
