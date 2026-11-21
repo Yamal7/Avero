@@ -32,6 +32,18 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 - Faktura końcowa **FV/2026/12/003**: do zapłaty 33 279,12 zł brutto (30 814,00 netto + 2 465,12 VAT), termin 8 gru, poza KSeF (B2C).
 - Przegląd gwarancyjny 1 gru 2027; propozycja umowy serwisowej 590 zł netto / rok (637,20 brutto), e-mail 15 gru.
 
+## Projekty (sobota 21 lis 2026)
+- W realizacji 4 / 1 334 800 zł netto, marża prognoza 23,2 % (plan 23,7 %), do zafakturowania w grudniu 384 360 zł.
+- **PJ-2026-011 Klimatyzacja VRV · 42 pokoje** — Hotel Bryza (KL-0402), obiekt OB-0611 Haffnera 22, Sopot; 14 wrz – 18 gru 2026; kierownik TL, zespół TL, MZ, Elektro-Bud (podwykonawca, 28 000 zł), rozliczenia PK. Z SZ-0142 (wygrana 4 wrz), OF-2026-097 v2, umowa UW-2026-014 z 9 wrz; 486 000 zł netto.
+  - Etapy: przygotowanie 14 wrz–2 paź ✓; dostawy 28 wrz–16 paź ✓ (ZK/2026/09/044, 047); instalacja freonowa i skropliny 5 paź–6 lis ✓ (próba ciśnieniowa 6 lis, PC-011); montaż jednostek wewn. 26 paź–4 gru (28 z 42, 67 %); elektryka i sterowanie 9 lis–4 gru (45 %); uruchomienie 7–11 gru; odbiór 14–18 gru. Postęp 60 %.
+  - Koszty plan / do dziś / prognoza: materiały 252 000 / 196 400 / 254 300; robocizna 78 000 / 31 800 / 86 480 (+64 h, przebudowa trasy skroplin na 2. piętrze, PK-03 z 12 lis); usługi obce 28 000 / 9 500 / 28 000; dojazdy i sprzęt 11 360 / 4 200 / 11 260; razem 369 360 / 241 900 / 380 040. Marża plan 24,0 % → prognoza 21,8 %; aneks 64 h × 175 zł = 11 200 zł → 23,6 %.
+  - Płatności: zaliczka 30 % 145 800 (FZ/2026/09/021, zapł. 18 wrz); 40 % 194 400 po instalacji freonowej (FV/2026/11/031, wyst. 9 lis, termin pt 4 gru); 30 % 145 800 po odbiorze (~18 gru).
+  - Najbliższe: montaż piętro 3, pokoje 301–308 (pon–śr, ZS-1071, TL+MZ); dostawa sterowników grupowych wt 24 lis (ZK/2026/11/036, Klimatech); narada z hotelem czw 26 lis 10:00.
+- **PJ-2026-009** Wentylacja z odzyskiem ciepła — Szkoła Podstawowa nr 4, Rumia; 312 000; odbiory, 92 %, koniec pon 30 lis; marża 22,0 → 23,1 %; PK.
+- **PJ-2026-008** Pompy ciepła w 6 domach — Osiedle Leśne Zacisze, Chwaszczyno; 268 800; montaż 3 z 6, 50 %; koniec 22 sty 2027; 25,0 → 25,4 %; TL.
+- **PJ-2026-013** Chłodzenie serwerowni, 2 agregaty wody lodowej — Biurowiec Kwadrant, Gdynia; 268 000; przygotowanie 10 %, montaż od pon 7 gru, koniec 12 lut 2027; 23,5 %; PK.
+- Zakończony: **PJ-2026-006** Modernizacja maszynowni — Galeria Bałtycka; 154 000; 23 paź; 22,0 → wynik 24,6 %.
+
 ## Obiekty (piątek 20 lis 2026)
 - 84 obiekty, 312 urządzeń, 1 284 t CO₂e; 3 kontrole po terminie (UR-3107 12 lis, UR-2304 15 lis, UR-1988 17 lis), 21 obiektów z umową.
 - **OB-0230 Hotel Oliwski · kuchnia i restauracja**, Opacka 12, 80-338 Gdańsk Oliwa (klient KL-0217, opiekun PD). Instalacja „Chłodnictwo kuchni” (2014): UR-2304 agregat Bitzer R404A 12,5 kg 49,0 t (sn 1408 22 517, karta w CRO; kontrola co 12 mies., ostatnia 15 lis 2025 — szczelna, KS/2025/11/009; termin 15 lis 2026 — po terminie), UR-2305 parownik komory mięsnej (0…+2 °C), UR-2306 parownik komory warzywnej (+4…+6 °C). Instalacja „Klimatyzacja restauracji” (2021, sala 120 m²): UR-2310 i UR-2311 Daikin split 3,5 kW R32 0,95 kg (0,64 t), gwarancja wygasła 3 cze 2026.

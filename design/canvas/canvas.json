@@ -826,6 +826,38 @@
       "title": "Obiekt OB-0230 · ciemny",
       "x": 4560,
       "y": 42540
+    },
+    "Projekty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · lista",
+      "x": 0,
+      "y": 44020
+    },
+    "Projekty-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekty · ciemny",
+      "x": 1520,
+      "y": 44020
+    },
+    "Projekt.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekt PJ-2026-011 · Hotel Bryza",
+      "x": 3040,
+      "y": 44020
+    },
+    "Projekt-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Projekt PJ-2026-011 · ciemny",
+      "x": 4560,
+      "y": 44020
     }
   },
   "createdOnFiles": {
@@ -1068,7 +1100,11 @@
     "Obiekty.dc.html",
     "Obiekty-ciemny.dc.html",
     "Obiekt.dc.html",
-    "Obiekt-ciemny.dc.html"
+    "Obiekt-ciemny.dc.html",
+    "Projekty.dc.html",
+    "Projekty-ciemny.dc.html",
+    "Projekt.dc.html",
+    "Projekt-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)",

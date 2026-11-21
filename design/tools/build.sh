@@ -18,5 +18,6 @@ python3 design/tools/katalog.py     # katalog i import cennika
 python3 design/tools/flex.py        # warstwa elastyczna: przetargi, pola, panel boczny
 python3 design/tools/flex2.py       # warstwa elastyczna: kreator tabeli, akcje, uprawnienia
 python3 design/tools/obiekty.py     # obiekty: lista i rekord Hotel Oliwski
+python3 design/tools/projekty.py    # projekty: lista i rekord PJ-2026-011
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 echo "Gotowe: design/canvas/Main.dc.html"

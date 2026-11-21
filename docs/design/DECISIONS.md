@@ -2,6 +2,16 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Projekty)
+- **Projekt = realizacja wieloetapowa spinająca istniejące rekordy**: wygrana szansa i zaakceptowana oferta → umowa wykonawcza → etapy (fazy z datami) → zlecenia (ZS) przypięte do etapów → zakupy (ZK) → faktury według harmonogramu płatności. Projekt nie dubluje zleceń ani magazynu; zbiera ich koszty (PRODUCT_PLAN, etap 5: plan vs rzeczywistość, wynik).
+- **Numeracja `PJ-RRRR-NNN`**, umowa wykonawcza `UW-RRRR-NNN`, protokół konieczności `PK-NN` (w obrębie projektu).
+- **Postęp ważony budżetem etapów**; etap w toku pokazuje postęp z ilości (np. 28 z 42 jednostek).
+- **Harmonogram jako oś czasu etapów** z linią „dziś” (akcent); przeciągnięcie etapu przesuwa jego zlecenia (z ostrzeżeniem o konfliktach w Planowaniu).
+- **Koszty: plan / do dziś / prognoza / różnica** w kategoriach materiały, robocizna, usługi obce, dojazdy i sprzęt. Prognoza = do dziś + pozostała praca według postępu. Marża plan → prognoza na liście i w rekordzie; ostrzeżenie, gdy prognoza spada poniżej planu.
+- **Zmiany zakresu przez protokół konieczności → aneks** akceptowany przez klienta online (jak oferta); dopóki aneks nie jest podpisany, koszt obciąża marżę.
+- **Harmonogram płatności**: zaliczka, transze po etapach, płatność po odbiorze; faktura końcowa wystawiana po podpisaniu protokołu odbioru.
+- Nowe, bez backendu: projekty, etapy, harmonogram płatności, aneksy, protokoły konieczności, podwykonawcy jako członkowie zespołu.
+
 ## 2026-11-20 (Obiekty)
 - **Obiekt = lokalizacja z backendu** (`locations`: klient, adres, miasto, kod). Hierarchia bez zmian: klient → obiekt → instalacja (`installations`, rodzaj, data montażu) → urządzenia (`devices`). Do dodania w `locations`: nazwa obiektu, rodzaj (hotel, handel, biuro, gastronomia, medyczny, dom…), współrzędne, opiekun (technik prowadzący), dostęp (wjazd, klucze, godziny, uwagi), osoby na miejscu. **Nie przechowujemy kodów do drzwi i alarmów** — tylko informację, gdzie je dostać.
 - **Lista obiektów sortowana po najpilniejszej kontroli F-gaz**; kolumny: obiekt i adres, klient, rodzaj, urządzenia i suma t CO₂e, kontrola F-gaz (po terminie — czerwony, do 30 dni — ostrzeżenie, < 5 t — „nie dotyczy”), umowa, otwarte sprawy, ostatnia wizyta. Widok Mapa (OSM).
