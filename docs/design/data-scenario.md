@@ -14,7 +14,7 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 - Skrzynka (13 lis): Ewa Malinowska (Hotel Oliwski, szefowa kuchni) 9:02 — agregat znów stanął, komora 9 °C, dostawa 11:00 → propozycja: dołącz do ZG-0912, priorytet Pilny, przesuń PD na 10:45 (po Przychodni, 4 km). Joanna Krawczyk — formularz www, wycena klimatyzacji 3 pokoje 64 m² w Redłowie → lead.
 - **ZS-1045** — montaż wstrzymany: brak R32 w busie (zadanie ZD-118).
 - Urządzenie **UR-3107** lodziarka, R404A 5,4 kg = 21,2 t CO₂e → kontrola co 12 mies.
-- Urządzenie **UR-3109** agregat Bitzer 4FES-5Y, Delikatesy Morskie (maszynownia, Starowiejska 12), R404A 18,5 kg = 72,6 t → kontrola co 6 mies., następna 4 gru; regały UR-3110 w tym układzie. Rekord urządzenia w makiecie pokazuje UR-3109.
+- Urządzenie **UR-3111** agregat Bitzer 4FES-5Y, Delikatesy Morskie (maszynownia, Starowiejska 12), R404A 18,5 kg = 72,6 t → kontrola co 6 mies., następna 4 gru; regały UR-3110 w tym układzie. Rekord urządzenia w makiecie pokazuje UR-3111. Obiekt łącznie: UR-3107 21,2 t + UR-3111 72,6 t + UR-3108 (agregat 4DES-7Y, 24 kg) 94,1 t + split R32 0,9 t = **188,8 t**; parownik komory UR-3109 i regały UR-3110 w układach agregatów.
 
 ## Scenariusz sprzedaży (pompa ciepła)
 - Klient: **Marek Zieliński** (osoba prywatna, KL-0388), Dębogórska 31, 84-230 Rumia, dom 160 m², tel. +48 604 219 553, m.zielinski@poczta.onet.pl.
@@ -46,12 +46,12 @@ Wszystkie makiety używają tych samych danych, żeby ekrany były spójne. Uży
 - Zakończony: **PJ-2026-006** Modernizacja maszynowni — Galeria Bałtycka; 154 000; 23 paź; 22,0 → wynik 24,6 %.
 
 ## Obiekty (piątek 20 lis 2026)
-- 84 obiekty, 312 urządzeń, 1 284 t CO₂e; 3 kontrole po terminie (UR-3107 12 lis, UR-2304 15 lis, UR-1988 17 lis), 21 obiektów z umową.
+- 84 obiekty, 312 urządzeń, 1 434 t CO₂e; 3 kontrole po terminie (UR-3107 12 lis, UR-2304 15 lis, UR-1988 17 lis), 21 obiektów z umową.
 - **OB-0230 Hotel Oliwski · kuchnia i restauracja**, Opacka 12, 80-338 Gdańsk Oliwa (klient KL-0217, opiekun PD). Instalacja „Chłodnictwo kuchni” (2014): UR-2304 agregat Bitzer R404A 12,5 kg 49,0 t (sn 1408 22 517, karta w CRO; kontrola co 12 mies., ostatnia 15 lis 2025 — szczelna, KS/2025/11/009; termin 15 lis 2026 — po terminie), UR-2305 parownik komory mięsnej (0…+2 °C), UR-2306 parownik komory warzywnej (+4…+6 °C). Instalacja „Klimatyzacja restauracji” (2021, sala 120 m²): UR-2310 i UR-2311 Daikin split 3,5 kW R32 0,95 kg (0,64 t), gwarancja wygasła 3 cze 2026.
 - Wizyty: 13 lis ZG-0912 (PD) — presostat HP, +1,2 kg R404A regenerowanego (RW/2026/11/044), kontrola przełożona; 2 cze PR/2026/06/017 (MZ); 15 lis 2025 kontrola szczelności (PD).
 - Dostęp: wjazd od ul. Opackiej (rampa — nie blokować 10:30–11:30), klucz do maszynowni w recepcji (całodobowa), kuchnia 6:00–23:00, prace przy komorach najlepiej 14:00–17:00. Na miejscu: Ewa Malinowska (szefowa kuchni, +48 512 408 113), Paweł Grabowski (kierownik techniczny, +48 601 772 905).
 - Finanse: obrót 2026 7 420 zł (6 wizyt), należność po terminie 9 860 zł (FV/2026/10/061 i FV/2026/11/012, najstarsza 31 dni). Propozycja umowy ok. 5 400 zł netto/rok.
-- Pozostałe obiekty: Galeria Bałtycka · maszynownia (14 urządzeń, 50,1 t, następna kontrola 16 maj 2027), Delikatesy Morskie (3, 38,6 t), Kancelaria Wit (4, 6,7 t), Piekarnia Rogal (2, 17,1 t, kontrola 9 gru), Przychodnia Zdrowie (4, 3,1 t), Biuro Bilans (3, 2,4 t), dom Marka Zielińskiego OB-0511 (montaż 30 lis).
+- Pozostałe obiekty: Galeria Bałtycka · maszynownia (14 urządzeń, 50,1 t, następna kontrola 16 maj 2027), Delikatesy Morskie (6, 188,8 t), Kancelaria Wit (4, 6,7 t), Piekarnia Rogal (2, 17,1 t, kontrola 9 gru), Przychodnia Zdrowie (4, 3,1 t), Biuro Bilans (3, 2,4 t), dom Marka Zielińskiego OB-0511 (montaż 30 lis).
 
 ## Katalog (piątek 20 lis 2026, 16:00)
 - Liczby: 248 pozycji (Urządzenia 64, Materiały 131, Usługi 41, Dojazd 12); próg marży 22 %, docelowa 25 %.

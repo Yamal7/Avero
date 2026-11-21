@@ -45,12 +45,12 @@ s=s.replace('Komora mroźnicza — oszroniony parownik</span><span style="displa
 s=s.replace('Klimatyzator kapie wodą na biurko</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Hotel Nadmorski','Klimatyzator kapie wodą na biurko</span><span style="display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-secondary)"><span class="ell" style="flex:1 1 auto">Biuro Bilans · Gdynia')
 s=s.replace('>Szron na parowniku komory<','>Oszroniony parownik<').replace('>Hałas klimakonwektora<','>Klimatyzator kapie<')
 # --- 2c. Resztki spoza scenariusza (21 lis)
-# UR-3107 = lodziarka (21,2 t); agregat Bitzer 4FES-5Y w bazie dostaje własny numer UR-3109
+# UR-3107 = lodziarka (21,2 t); agregat Bitzer 4FES-5Y w bazie dostaje własny numer UR-3111
 _out=[];_i=0
 for _m in _re2.finditer('UR-3107',s):
     _w=s[max(0,_m.start()-300):_m.end()+300]
     _keep=any(k in _w for k in ('21,2','lodziar','ZS-1047','Starowiejska 12, Gdynia ·','(12 lis)'))
-    _out.append(s[_i:_m.start()]); _out.append('UR-3107' if _keep else 'UR-3109'); _i=_m.end()
+    _out.append(s[_i:_m.start()]); _out.append('UR-3107' if _keep else 'UR-3111'); _i=_m.end()
 _out.append(s[_i:]); s=''.join(_out)
 for a,b in [('ul. Świętojańska 34','ul. Starowiejska 12'),('Świętojańska 34','Starowiejska 12'),
             ("Tip: 'Alarm temperatury −11 °C · zgłoszenie ZG-0920'","Tip: 'Ostatni alarm temperatury 2 lis · zamknięty'"),
@@ -63,6 +63,7 @@ for a,b in [('ul. Świętojańska 34','ul. Starowiejska 12'),('Świętojańska 3
             ("'Deweloper Nadmorski', 'DN'","'Osiedle Leśne Zacisze', 'LZ'")]:
     assert a in s, a[:60]
     s=s.replace(a,b)
+s=s.replace("DV('UR-3108', 'Agregat Bitzer 4DES-7Y'","DV('UR-3107', 'Lodziarka', 'sala sprzedaży, agregat wbudowany', 'R404A', '5,4 kg', 'co 12 mies. · 12 lis', 'late', 'ok', { fgTip: '21,2 t CO₂e · kontrola po terminie 1 dzień' }),\n        DV('UR-3108', 'Agregat Bitzer 4DES-7Y'",1)
 for bad in ('Świętojańska 34','Deweloper Nadmorski'):
     assert bad not in s, bad
 # --- 3. dane dnia
