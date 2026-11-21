@@ -1170,6 +1170,14 @@
       "title": "Sprawdzian rdzenia · zlecenie ZL-0734 · ciemny",
       "x": 7600,
       "y": 58900
+    },
+    "Main2.dc.html": {
+      "x": 0,
+      "y": 60140,
+      "w": 1440,
+      "h": 1120,
+      "expand": "fill",
+      "title": "Komponent ekranów 2 (Main2) — ekrany od Zgłoszeń"
     }
   },
   "createdOnFiles": {
@@ -1474,7 +1482,8 @@
     "Sprawdzian-urzadzenie.dc.html",
     "Sprawdzian-urzadzenie-ciemny.dc.html",
     "Sprawdzian-zlecenie.dc.html",
-    "Sprawdzian-zlecenie-ciemny.dc.html"
+    "Sprawdzian-zlecenie-ciemny.dc.html",
+    "Main2.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

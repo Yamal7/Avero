@@ -2,6 +2,10 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Makiety: dwa pliki komponentu)
+- Kanwa nie renderuje pliku `.dc.html` większego niż ok. 2 MiB — po przekroczeniu progu (16:53, 2 137 387 B) wszystkie plansze komputerowe były białe. Build dzieli teraz makietę (`design/tools/split.py`, ostatni krok `build.sh`): **`Main.dc.html`** — rama + ekrany do Ustawień włącznie, **`Main2.dc.html`** — ta sama rama + ekrany od Zgłoszeń. Plansze-opakowania importują właściwy plik automatycznie; build kończy się błędem, gdy któryś plik przekroczy 1,8 MB.
+- Dla kodu bez znaczenia: to tylko podział makiety. Ekrany, props `ekran` i `theme` bez zmian.
+
 ## 2026-11-21 (Sprawdzian rdzenia — firma elektryczna)
 - Sprawdzian na firmie elektrycznej bez pakietu (Mój dzień, urządzenie, zlecenie) potwierdził, że rdzeń wystarcza innej branży serwisowej, jeśli umie: własne typy urządzeń z polami, przeglądy z częstotliwością firmy, szablony protokołów z tabelą pomiarów i oceną, zalecenie → oferta, pola własne użytkownika z ważnością (lista w `LAYERS.md`).
 - Rama aplikacji bierze nazwę i znak firmy z konfiguracji; pasek boczny bez słów branżowych.
