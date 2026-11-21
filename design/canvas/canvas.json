@@ -1002,6 +1002,174 @@
       "title": "Reklamacja RK-2026-017 · ciemny",
       "x": 4560,
       "y": 51420
+    },
+    "Reklamacje-dostawcy.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · do dostawców",
+      "x": 0,
+      "y": 52900
+    },
+    "Reklamacje-dostawcy-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · do dostawców · ciemny",
+      "x": 1520,
+      "y": 52900
+    },
+    "Reklamacje-gwarancje.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · gwarancje kończą się",
+      "x": 3040,
+      "y": 52900
+    },
+    "Reklamacje-gwarancje-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Reklamacje · gwarancje kończą się · ciemny",
+      "x": 4560,
+      "y": 52900
+    },
+    "Faktury-naleznosci.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · należności",
+      "x": 0,
+      "y": 54380
+    },
+    "Faktury-naleznosci-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · należności · ciemny",
+      "x": 1520,
+      "y": 54380
+    },
+    "Faktury-do-wystawienia.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · do wystawienia",
+      "x": 3040,
+      "y": 54380
+    },
+    "Faktury-do-wystawienia-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · do wystawienia · ciemny",
+      "x": 4560,
+      "y": 54380
+    },
+    "Faktury-wszystkie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · wszystkie",
+      "x": 0,
+      "y": 55860
+    },
+    "Faktury-wszystkie-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · wszystkie · ciemny",
+      "x": 1520,
+      "y": 55860
+    },
+    "Faktury-zaliczki.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · zaliczki",
+      "x": 3040,
+      "y": 55860
+    },
+    "Faktury-zaliczki-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Faktury · zaliczki · ciemny",
+      "x": 4560,
+      "y": 55860
+    },
+    "Klient-portal.dc.html": {
+      "expand": "fill",
+      "h": 1240,
+      "w": 1440,
+      "title": "Portal klienta · Kancelaria Wit",
+      "x": 6080,
+      "y": 55860
+    },
+    "Ustawienia-moduly.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "w": 1440,
+      "title": "Ustawienia · moduły i pakiety",
+      "x": 0,
+      "y": 57340
+    },
+    "Ustawienia-moduly-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "w": 1440,
+      "title": "Ustawienia · moduły i pakiety · ciemny",
+      "x": 1520,
+      "y": 57340
+    },
+    "Sprawdzian-dzien.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · Mój dzień (Volt-Serwis)",
+      "x": 0,
+      "y": 58900
+    },
+    "Sprawdzian-dzien-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · Mój dzień (Volt-Serwis) · ciemny",
+      "x": 1520,
+      "y": 58900
+    },
+    "Sprawdzian-urzadzenie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · urządzenie UR-0318",
+      "x": 3040,
+      "y": 58900
+    },
+    "Sprawdzian-urzadzenie-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · urządzenie UR-0318 · ciemny",
+      "x": 4560,
+      "y": 58900
+    },
+    "Sprawdzian-zlecenie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · zlecenie ZL-0734",
+      "x": 6080,
+      "y": 58900
+    },
+    "Sprawdzian-zlecenie-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Sprawdzian rdzenia · zlecenie ZL-0734 · ciemny",
+      "x": 7600,
+      "y": 58900
     }
   },
   "createdOnFiles": {
@@ -1285,7 +1453,28 @@
     "Reklamacje.dc.html",
     "Reklamacje-ciemny.dc.html",
     "Reklamacja.dc.html",
-    "Reklamacja-ciemny.dc.html"
+    "Reklamacja-ciemny.dc.html",
+    "Reklamacje-dostawcy.dc.html",
+    "Reklamacje-dostawcy-ciemny.dc.html",
+    "Reklamacje-gwarancje.dc.html",
+    "Reklamacje-gwarancje-ciemny.dc.html",
+    "Faktury-naleznosci.dc.html",
+    "Faktury-naleznosci-ciemny.dc.html",
+    "Faktury-do-wystawienia.dc.html",
+    "Faktury-do-wystawienia-ciemny.dc.html",
+    "Faktury-wszystkie.dc.html",
+    "Faktury-wszystkie-ciemny.dc.html",
+    "Faktury-zaliczki.dc.html",
+    "Faktury-zaliczki-ciemny.dc.html",
+    "Klient-portal.dc.html",
+    "Ustawienia-moduly.dc.html",
+    "Ustawienia-moduly-ciemny.dc.html",
+    "Sprawdzian-dzien.dc.html",
+    "Sprawdzian-dzien-ciemny.dc.html",
+    "Sprawdzian-urzadzenie.dc.html",
+    "Sprawdzian-urzadzenie-ciemny.dc.html",
+    "Sprawdzian-zlecenie.dc.html",
+    "Sprawdzian-zlecenie-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

@@ -105,15 +105,15 @@ def mrow(col,n,cnt,rev,m,d,dgood):
 mt=('<div role="table" aria-label="Marża wg rodzaju prac" style="display:flex;flex-direction:column">'
     f'<div role="row" style="display:grid;grid-template-columns:{MC};column-gap:12px;height:24px;align-items:center;padding:0 8px;font-size:12px;color:var(--text-tertiary)"><span>Rodzaj</span><span style="text-align:right">Zleceń</span><span style="text-align:right">Przychód</span><span>Marża · próg 22 %</span><span style="text-align:right">vs wrz</span></div>'+
     mrow('--s1','Serwis i awarie',41,'61 200',42,'+1 pp',True)+mrow('--s2','Montaże klimatyzacji',19,'54 800',14,'−7 pp',False)+mrow('--s3','Pompy ciepła',3,'29 600',27,'−2 pp',False)+mrow('--s4','Umowy serwisowe',5,'26 800',52,'0 pp',False)+'</div>')
-AG=[('Przed terminem','35 460','var(--text-tertiary)',35460),('1–30 dni','14 820','var(--warning)',14820),('31–60 dni','6 240','#E0702A',6240),('ponad 60 dni','2 420','var(--danger)',2420)]
+AG=[('Przed terminem','274 572','var(--text-tertiary)',274572),('1–30 dni','14 820','var(--warning)',14820),('31–60 dni','6 240','#E0702A',6240),('ponad 60 dni','2 420','var(--danger)',2420)]
 tot=sum(x[3] for x in AG)
-agbar='<div role="img" aria-label="Należności wg wieku: razem 58 940 zł" style="display:flex;gap:2px;height:10px">'+''.join(f'<span title="{n}: {v} zł" style="flex:{w} 1 0;border-radius:{"5px 0 0 5px" if i==0 else ("0 5px 5px 0" if i==3 else "0")};background:{c};{"opacity:.45;" if i==0 else ""}"></span>' for i,(n,v,c,w) in enumerate(AG))+'</div>'
+agbar='<div role="img" aria-label="Należności wg wieku: razem 298 052 zł" style="display:flex;gap:2px;height:10px">'+''.join(f'<span title="{n}: {v} zł" style="flex:{w} 1 0;border-radius:{"5px 0 0 5px" if i==0 else ("0 5px 5px 0" if i==3 else "0")};background:{c};{"opacity:.45;" if i==0 else ""}"></span>' for i,(n,v,c,w) in enumerate(AG))+'</div>'
 aglist='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+''.join(f'<span style="display:flex;flex-direction:column;gap:2px"><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">{dot(c)}{n}</span><span class="num" style="font-weight:500">{v} zł</span></span>' for n,v,c,w in AG)+'</div>'
 def debtor(n,v,d,tip):
     return (f'<div title="{tip}" style="display:flex;align-items:center;gap:10px;min-height:36px;padding:0 8px;border-radius:10px"><span class="ell" style="flex:1 1 auto">{n}</span><span class="num" style="font-size:12px;color:var(--text-tertiary)">{d}</span><span class="num" style="width:84px;text-align:right;font-weight:500">{v}</span></div>')
 a('<div style="display:flex;gap:24px;align-items:flex-start">'
   '<section style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px">'+h3('Marża wg rodzaju prac')+mt+'</section>'
-  '<section style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px">'+h3('Należności',sch('58 940 zł','Razem nieopłacone faktury · stan na 19 lis'))+
+  '<section style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px">'+h3('Należności',sch('298 052 zł','Razem nieopłacone faktury · stan na 19 lis · w tym FV/2026/11/031 Hotel Bryza 239 112 zł brutto przed terminem'))+
   '<div style="display:flex;flex-direction:column;gap:12px;padding:12px;border-radius:12px;background:var(--bg-raised)">'+agbar+aglist+'</div>'+
   '<div style="display:flex;flex-direction:column">'+debtor('Hotel Oliwski','9 860 zł','31 dni','FV/2026/10/018 · kontrola F-gaz zaległa')+debtor('Kancelaria Wit','4 960 zł','18 dni','FV/2026/10/027')+debtor('Restauracja Port','2 420 zł','74 dni','FV/2026/09/004 · 2 przypomnienia bez odpowiedzi')+'</div></section></div>')
 # technicians

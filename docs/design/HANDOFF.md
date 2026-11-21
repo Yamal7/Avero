@@ -50,11 +50,14 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 | Warstwa elastyczna (własne tabele) | `screens/18-wlasne-tabele.md` | Przetargi · lista i panel, Ustawienia tabeli · Pola / Widoki / Panel boczny / Akcje / Uprawnienia, Import z pliku, Nowa tabela (jasny / ciemny) |
 | Katalog | `screens/17-katalog.md` | Katalog · urządzenia i pozycja ERGA08EV, Import cennika · Termo-Bud Daikin 2027 (jasny / ciemny) |
 | Dostawcy i Cenniki (zakładki Zakupów) | `screens/21-dostawcy-cenniki.md` | Zakupy · dostawcy (panel Termo-Bud), Zakupy · cenniki (panel Chłodpol, historia R404A) (jasny / ciemny) |
-| Reklamacje i gwarancje | `screens/22-reklamacje.md` | Reklamacje · lista (panel RK-2026-011), Reklamacja RK-2026-017 (jasny / ciemny) |
+| Faktury: należności, do wystawienia, wszystkie, zaliczki | `screens/23-faktury-naleznosci.md` | Faktury · należności (panel Hotel Oliwski), do wystawienia (panel ZS-1047), wszystkie (panel miesiąca, KSeF, eksport), zaliczki (panel PJ-2026-013) (jasny / ciemny) |
+| Sprawdzian rdzenia (firma elektryczna bez pakietu) | `screens/25-sprawdzian-rdzenia.md` | Sprawdzian · Mój dzień, urządzenie UR-0318, zlecenie ZL-0734 (jasny / ciemny) — makiety przeglądowe z adnotacjami |
+| Portal klienta | `screens/24-portal-klienta.md` | Klient · portal Kancelaria Wit (`Klient-portal.dc.html`) |
+| Reklamacje i gwarancje | `screens/22-reklamacje.md` | Reklamacje · od klientów (panel RK-2026-011), do dostawców (panel Klimatech), gwarancje kończą się (panel UR-2655), Reklamacja RK-2026-017 (jasny / ciemny) |
 | Zakupy | `screens/16-zakupy.md` | Zakupy · zapotrzebowanie, Zamówienie ZK/2026/11/031 · przyjęcie dostawy (jasny / ciemny) |
 | Leady i Szanse | `screens/15-leady-szanse.md` | Leady · lista i podgląd, Szanse · tablica etapów, Szansa SZ-0179 · rekord (jasny / ciemny) |
 | Zgłoszenia i Skrzynka | `screens/14-zgloszenia-skrzynka.md` | Zgłoszenia · lista i podgląd ZG-0920, Skrzynka · wątek Hotel Oliwski (jasny / ciemny) |
-| Ustawienia (10 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, pola własne, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
+| Ustawienia (11 zakładek) | `screens/13-ustawienia.md` | Ustawienia · profil firmy, dokumenty, katalog i marże, pola własne, moduły i pakiety, użytkownicy, technicy i busy, integracje, mój profil, powiadomienia, wygląd |
 
 Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 
@@ -67,5 +70,7 @@ Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 5. Odświeżony ekran projektuje się **obok** starego (do porównania); stary usuwa właściciel po akceptacji.
 
 ## Kierunek produktu
+
+**Mapa warstw (rdzeń / pakiet HVACR / konfiguracja) i zasady dla kodu: `LAYERS.md` — czytaj przed projektowaniem bazy danych i struktury modułów.**
 
 Avero ma być sprzedawany innym firmom: wspólny rdzeń + pakiety branżowe (HVACR pierwszy) + warstwa elastyczna (własne pola, konfigurowalny panel boczny, własne tabele). Szczegóły i konsekwencje dla kodu: `DECISIONS.md`, wpis „Kierunek produktu” z 20 lis 2026.

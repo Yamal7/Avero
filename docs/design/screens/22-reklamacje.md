@@ -13,6 +13,20 @@ Makiety: ekrany `reklamacje` (lista z panelem) i `reklamacja` (rekord RK-2026-01
 - **Do decyzji**: zgłoszenie dotyczy urządzenia na gwarancji — Avero pyta, czy obsłużyć je jako reklamację, czy jako zwykłe (płatne) zgłoszenie. Sam nie zmienia statusu.
 - Kolumny: stan (ikona + słowo; odrzucona przekreślonym kółkiem, wiersz przygaszony), reklamacja (tytuł, numer, klient), urządzenie (nazwa, kod), podstawa (kapsułka z datą końca w podpowiedzi), termin (najbliższa rzecz do zrobienia; termin odpowiedzi konsumentowi w kolorze ostrzeżenia), opiekun.
 
+## Do dostawców (ekran `reklamacje dostawcy`)
+- Roszczenia z reklamacji klientów i z przyjęć towaru (wada wykryta przed montażem). Fakty: do odzyskania (uznane lub wysłane, nierozliczone), części do odesłania.
+- Kolumny: stan (Szkic / Wysłane / Uznane / Odrzucone / Zamknięte — ikona + słowo), towar i dostawca z numerem zgłoszenia u dostawcy, źródło (RK albo PZ) i żądanie (część, ryczałt robocizny, korekta faktury, zwrot kosztu), wartość (cena zakupu netto), dalej (termin odpowiedzi dostawcy w kolorze ostrzeżenia, gdy zostały ≤ 3 dni).
+- Szkic roszczenia powstaje z diagnozy w reklamacji klienta i czeka na jej uznanie.
+- Pod tabelą zasada magazynu: części do reklamacji leżą na osobnej półce z etykietą roszczenia, poza wydaniami i inwentaryzacją.
+- Panel roszczenia: termin odpowiedzi wg warunków dostawcy, towar (ZK, PZ, gdzie zamontowany, kiedy awaria, gwarancja dostawcy), zgłoszenie (kanał, zdjęcia), żądanie (kwota, czy obejmuje robociznę, co z uszkodzoną częścią). „Zapisz odpowiedź dostawcy” (⌘↵), „Przygotuj przypomnienie” (szkic).
+
+## Gwarancje kończą się (ekran `reklamacje gwarancje`)
+- Urządzenia, którym gwarancja montażu lub producenta kończy się w 60 dni. Fakt: ilu klientów bez umowy.
+- Kolumny: urządzenie (kilka urządzeń jednego obiektu w jednym wierszu), klient i rodzaj gwarancji, koniec (≤ 7 dni ostrzeżeniem, pełna data w podpowiedzi), dalej, opiekun.
+- Stany „dalej”: przegląd umówiony, kontakt bez odpowiedzi (podpowiedź kanału), **wstrzymane — należność po terminie** (decyzja właściciela), umowa obejmuje (wiersz przygaszony), przypomnienie zaplanowane.
+- Zasada pod tabelą: propozycje 60 i 30 dni przed końcem, wysyłka po zatwierdzeniu; pomijani klienci z umową i z należnością po terminie.
+- Panel: gwarancje z warunkiem (przegląd co 12 mies.), propozycja (przegląd przed końcem gwarancji — usterki wykryte do końca naprawiane na koszt producenta; potem umowa), kontakt (e-mail nieotwarty; SMS niedostępny, dopóki kanał czeka na dostawcę). „Zadzwoń i umów przegląd”, „Nie proponuj więcej”.
+
 ## Panel reklamacji (360 px)
 - Numer, tytuł, klient i kanał, ścieżka etapów.
 - **Rękojmia wobec konsumenta**: odpowiedź w 14 dni od zgłoszenia, inaczej reklamacja uznana — licznik dni w nocie ostrzegawczej.

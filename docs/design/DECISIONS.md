@@ -2,6 +2,39 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-21 (Sprawdzian rdzenia — firma elektryczna)
+- Sprawdzian na firmie elektrycznej bez pakietu (Mój dzień, urządzenie, zlecenie) potwierdził, że rdzeń wystarcza innej branży serwisowej, jeśli umie: własne typy urządzeń z polami, przeglądy z częstotliwością firmy, szablony protokołów z tabelą pomiarów i oceną, zalecenie → oferta, pola własne użytkownika z ważnością (lista w `LAYERS.md`).
+- Rama aplikacji bierze nazwę i znak firmy z konfiguracji; pasek boczny bez słów branżowych.
+- Adnotacje sprawdzianu (ramka przerywana, znaczniki R / K) są tylko w makietach przeglądowych — nie w produkcie.
+
+## 2026-11-21 (Warstwy: rdzeń, pakiety, konfiguracja)
+- **Mapa warstw** w `LAYERS.md`: każdy moduł, sekcja i pole należy do rdzenia (R), pakietu branżowego (P:HVACR) albo konfiguracji firmy (K). Rynek rdzenia: firmy serwisowo-instalacyjne, nie „każda branża”.
+- Pakiety można łączyć (np. HVACR + Elektro). Pakiet wymaga modułów rdzenia (HVACR: Urządzenia i Przeglądy, Katalog i Magazyn) — nie da się ich wyłączyć przy aktywnym pakiecie.
+- **Wyłączenie modułu lub pakietu ukrywa, nie usuwa**. Wyłączenie pakietu z obowiązkami prawnymi wymaga potwierdzenia.
+- Pakiet używa tych samych punktów rozszerzeń co konfiguracja firmy (typy rekordów, sekcje, kolumny, reguły, szablony, widżety, słownik, uprawnienia), ale jest wersjonowany przez Avero i nieedytowalny przez firmę.
+- Rdzeń zmienia nazwy: „busy” → „pojazdy” (makiety do poprawienia przy najbliższej zmianie ekranu); słownictwo branżowe tylko ze słownika pakietu.
+- Zawsze włączone: Skrzynka, Mój dzień, Zadania, Firmy i osoby, Obiekty, Zgłoszenia, Zlecenia, Planowanie, Faktury, Raporty, Ustawienia.
+
+## 2026-11-21 (Faktury: wszystkie, zaliczki; portal klienta)
+- **KSeF w rejestrze faktur**: stan przy każdym dokumencie; odrzucona faktura na górze z powodem; eksport do biura rachunkowego (JPK_FA + PDF) raz w miesiącu jako szkic do zatwierdzenia, wstrzymany przy odrzuconej fakturze. Token KSeF tylko jako zmienna środowiskowa.
+- **Zaliczki**: wezwanie (PDF z rachunkiem) przed wpłatą; faktura zaliczkowa powstaje przy dopasowaniu wpłaty; start prac może zależeć od wpłaty, ale przesunięcie terminu tylko decyzją człowieka.
+- Kwoty projektów w scenariuszu są netto; należności liczone brutto (FV/2026/11/031 239 112,00 zł; należności razem 298 052 zł).
+- **Portal klienta**: stały osobisty link (logowanie linkiem e-mail), zakładki Przegląd / Faktury / Urządzenia / Zgłoszenia / Umowa; „Zamów ponownie” z usług z historii klienta, ceny netto po rabacie z umowy.
+
+## 2026-11-21 (Faktury: należności i rozliczenie zleceń)
+- **Moduł Faktury** ma zakładki Należności, Do wystawienia, Wszystkie, Zaliczki; rekord faktury bez zmian.
+- **Ścieżka przypomnień**: 3 dni przed terminem i 7 dni po — automatycznie (e-mail z linkiem do płatności); od 14 dni telefon opiekuna z zapisem obietnicy zapłaty; od 30 dni propozycja wezwania do zapłaty (szkic, wysyłka po sprawdzeniu). Progi w Ustawieniach.
+- **Wezwanie**: odsetki ustawowe za opóźnienie w transakcjach handlowych i rekompensata 40/70/100 € za fakturę (tylko firmy) — doliczenie rekompensaty opcjonalne.
+- **Nie wstrzymujemy awarii ani obowiązków prawnych (F-gaz)** z powodu należności; wstrzymujemy propozycje sprzedażowe (umowy, przeglądy przed końcem gwarancji). „Usługi wstrzymane” = poza awariami, decyzja właściciela.
+- **Wpłaty** dopasowuje człowiek (Avero proponuje po kwocie i tytule); faktura jest zapłacona dopiero po dopasowaniu.
+- **Do wystawienia**: faktura dopiero po podpisanym protokole; pole własne „Numer PO na fakturze” blokuje wystawienie; zlecenia z umowy do faktury zbiorczej 1. dnia miesiąca; gwarancyjne bez faktury (rozliczenie w reklamacji).
+- Należności w Raportach liczone łącznie z projektami (298 052 zł na 19 lis, w tym FV/2026/11/031 239 112 zł brutto przed terminem).
+
+## 2026-11-21 (Reklamacje: dostawcy i kończące się gwarancje)
+- **Roszczenia do dostawców** mają własną zakładkę; źródłem jest reklamacja klienta albo przyjęcie towaru (PZ). Szkic powstaje z diagnozy i wychodzi dopiero po uznaniu reklamacji klienta. Termin odpowiedzi liczony wg warunków handlowych dostawcy (pole w rejestrze dostawców).
+- Części do reklamacji: osobna półka z etykietą roszczenia, poza wydaniami i inwentaryzacją.
+- **Kończące się gwarancje**: propozycja przeglądu przed końcem i umowy 60 i 30 dni przed końcem; pomijamy klientów z umową; przy należności po terminie propozycja wstrzymana do decyzji właściciela. Wysyłka zawsze po zatwierdzeniu.
+
 ## 2026-11-21 (Reklamacje i gwarancje)
 - **Reklamacje to moduł rdzenia** w grupie Serwis (po Przeglądach). Szablon własnej tabeli „Reklamacje do producentów” zostaje tylko dla firm, które nie chcą modułu — dane nie są wspólne.
 - Reklamacja zawsze dotyczy urządzenia; numer `RK-RRRR-NNN`. Podstawy: gwarancja montażu, gwarancja producenta, rękojmia (konsument), gwarancja naprawy. Etapy: Zgłoszona → Diagnoza → Decyzja → Naprawa → Rozliczenie → Zamknięta / Odrzucona.

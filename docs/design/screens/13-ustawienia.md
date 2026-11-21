@@ -76,3 +76,10 @@ Elementy oznaczone „nowe” nie istnieją jeszcze w kodzie — do wyceny i dec
 - Portal klienta: pola wewnętrzne nigdy; włączyć można tylko pole oznaczone „dla klienta”.
 - Podgląd (340 px): prawdziwy panel (ZG-0912 Hotel Oliwski) z polami własnymi w istniejących sekcjach, pod polami systemowymi; edytowane pole obwiedzione akcentem.
 - Pola obiektu (godziny dostępu, parking) widzi technik; kodów do drzwi i alarmów Avero nie przechowuje.
+
+## Moduły i pakiety (Firma › Moduły i pakiety, `ust="moduły i pakiety"`)
+- Tylko administrator. Zasada w nagłówku: wyłączenie ukrywa moduł w menu i ⌘K — dane zostają i wracają po ponownym włączeniu. Warstwy i zasady: `LAYERS.md`.
+- **Pakiety branżowe** jako kafle (można łączyć): nazwa, co obejmuje, stan — aktywny (kropka), w przygotowaniu, planowany (przygaszone). Wybrany kafel obwiedziony akcentem.
+- **Moduły** rdzenia z przełącznikami i opisem. Moduł wymagany przez aktywny pakiet — przełącznik zablokowany, kapsułka „wymagany przez HVACR”. Lista modułów zawsze włączonych pod spodem.
+- **Konfiguracja firmy**: skróty do własnych tabel, pól własnych, szablonów (ile z pakietu), ról.
+- Panel pakietu: wersja i dostawca (Avero), kto i kiedy włączył; **co dodaje** (typy urządzeń, typ przeglądu z zasadą częstotliwości, reguły, szablony, sekcje i kolumny, raporty i widżety, słownik — szczegóły w podpowiedziach); dane w programie; od czego zależy. „Wyłącz pakiet…” (tekst w kolorze błędu) — wymaga potwierdzenia; obowiązki prawne pakietu zostają po stronie firmy.

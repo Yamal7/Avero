@@ -12,6 +12,7 @@ python3 design/tools/raporty.py     # raporty
 python3 design/tools/ustawienia.py  # ustawienia: profil firmy, użytkownicy, integracje
 python3 design/tools/ustawienia2.py # ustawienia: dokumenty, katalog, technicy, mój profil, powiadomienia, wygląd
 python3 design/tools/ustawienia3.py # ustawienia: pola własne w modułach rdzenia
+python3 design/tools/ustawienia4.py # ustawienia: moduły i pakiety
 python3 design/tools/zgloszenia.py  # zgłoszenia (lista + podgląd) i skrzynka
 python3 design/tools/leady.py       # leady (lista + podgląd) i szanse (tablica etapów)
 python3 design/tools/szansa.py      # rekord szansy SZ-0179
@@ -26,5 +27,9 @@ python3 design/tools/projekty.py    # projekty: lista i rekord PJ-2026-011
 python3 design/tools/projekty2.py   # projekty: oś czasu i zespół
 python3 design/tools/raport_tabela.py # raporty: raport z własnej tabeli Przetargi
 python3 design/tools/reklamacje.py   # serwis: reklamacje i gwarancje
+python3 design/tools/faktury.py      # finanse: należności i do wystawienia
+python3 design/tools/faktury2.py     # finanse: wszystkie faktury (KSeF, eksport) i zaliczki
+python3 design/tools/test_rdzen.py    # sprawdzian rdzenia: firma elektryczna bez pakietu
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
+python3 design/tools/klient2.py      # portal klienta firmowego
 echo "Gotowe: design/canvas/Main.dc.html"
