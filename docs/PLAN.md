@@ -47,7 +47,7 @@ Wszystko inne rozstrzygnij sam, wybierając rozwiązanie bezpieczniejsze i łatw
 
 | # | Decyzja | Blokuje |
 |---|---|---|
-| D1 | **Tailwind czy zwykły CSS na tokenach.** `tokens.css` i skill zakładają Tailwind (`theme.extend`), obecny kod używa zwykłego CSS (`src/app/precision.css`). | M0.2 |
+| D1 | ✅ **Rozstrzygnięte 2026-11-22: Tailwind v4, wprowadzany stopniowo** (zgoda na zależności `tailwindcss` i `@tailwindcss/postcss`). Szczegóły w M0.2. | — |
 | D2 | **Akceptacja planu migracji wielofirmowości** (przeniesienie obecnych danych do organizacji Kranz). Claude Code przygotuje plan w trybie planowania i się zatrzyma. | M0.1 |
 
 ## Stan wyjściowy
@@ -60,7 +60,7 @@ Działa (szczegóły w `docs/STATUS.md`): rama aplikacji i skróty, Mój dzień 
 |---|---|---|---|
 | **Faza 0 — Fundament** | | | |
 | [ ] | M0.1 Wielofirmowość: organizacje, `org_id`, RLS | KRA-27 | D2 |
-| [ ] | M0.2 Tokeny z `tokens.css`, Geist, ikony Phosphor | KRA-26 | D1 |
+| [ ] | M0.2 Tailwind v4 na tokenach z `tokens.css`, ikony Phosphor | KRA-26 | — |
 | [ ] | M0.3 Tabele w jednej linii, logo z kartą podglądu, przypięta kolumna | KRA-63 | M0.2 |
 | [ ] | M0.4 Silnik widoku kolekcji w Magazynie, Firmach, Przeglądach | KRA-31 | M0.3 |
 | [ ] | M0.5 Rejestr rozszerzeń i pakiet HVACR | KRA-29 | M0.1 |
@@ -110,12 +110,20 @@ Bez tej fazy każdy kolejny moduł trzeba by potem przerabiać: nowe tabele bez 
 - [ ] Przełącznik firmy w ramie przełącza organizację (gdy użytkownik należy do kilku).
 - [ ] Pełna regresja (`pnpm test`, `pnpm db:test`) przechodzi.
 
-### M0.2 Tokeny, Geist, Phosphor — KRA-26
+### M0.2 Tailwind v4 na tokenach, Phosphor — KRA-26
 Źródła: `docs/design/tokens.css`, skill `precision-ui`, `DECISIONS.md` (ikony Phosphor zatwierdzone), `STATUS.md` › Odstępstwa (tokeny).
-- [ ] `precision.css` ujednolicony z `tokens.css` (jasny i ciemny) zgodnie z decyzją D1; jedna lista tokenów w repo.
-- [ ] Geist i Geist Mono; ikony `@phosphor-icons/react` (Regular) zamiast `design-icons.tsx`.
-- [ ] Hook `after-edit` nie zgłasza surowych kolorów w `src/components` i `src/app` (poza plikami tokenów).
-- [ ] Istniejące ekrany wyglądają jak dotąd lub bliżej makiet w obu motywach (zrzuty przed / po w PR).
+Decyzja D1: **Tailwind v4, stopniowo**. Zależności zatwierdzone: `tailwindcss`, `@tailwindcss/postcss`, `@phosphor-icons/react`. Geist i Geist Mono już są (`next/font/google` w `src/app/layout.tsx`).
+- [ ] Tailwind v4 przez PostCSS; konfiguracja w CSS blokiem `@theme` (nie `tailwind.config.js` / `theme.extend` — to zapis z v3, komentarz w `tokens.css` jest nieaktualny, zgłosić w „Pytaniach do projektu”).
+- [ ] **Tylko tokeny:** domyślne skale Tailwinda wyłączone (`--color-*: initial`, tak samo promienie, cienie, odstępy spoza siatki 4 px), a w `@theme` wyłącznie wartości z `tokens.css`. Klasa typu `bg-indigo-500` nie generuje stylu.
+- [ ] Motyw ciemny przez `[data-theme="dark"]` (wariant `dark` zmapowany na ten atrybut), bez drugiego zestawu klas.
+- [ ] `precision.css` i `tokens.css` mają jedną listę zmiennych (bez rozjazdu wartości); stare klasy działają dalej.
+- [ ] **Bez rozbijania obecnych ekranów:** reset stylów Tailwinda (preflight) nie zmienia wyglądu istniejących ekranów — warstwy CSS ułożone tak, by `globals.css` / `precision.css` wygrywały tam, gdzie trzeba (zrzuty przed / po w PR).
+- [ ] Wspólne elementy przeniesione na Tailwind: rama aplikacji, przyciski, pola, kapsułki, wiersz tabeli (pod M0.3). Pozostałe ekrany przechodzą na Tailwind **przy okazji swojego modułu**, nie wszystkie naraz; style wpisane w komponenty (`style={{…}}`) usuwane przy tej samej okazji.
+- [ ] Ikony `@phosphor-icons/react` (Regular) zamiast `design-icons.tsx`.
+- [ ] ESLint zgłasza klasy Tailwinda z dowolną wartością (`w-[13px]`, `text-[#fff]`) w `src/components` i `src/app`; hook `after-edit` nadal zgłasza surowe kolory.
+- [ ] Opis zasad w `CLAUDE.md` › Stos technologiczny: nowe komponenty tylko w Tailwindzie, bez nowych klas w `precision.css`.
+
+Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go na Tailwind i usuwa jego martwe reguły z `precision.css`.
 
 ### M0.3 Tabele w jednej linii — KRA-63
 Źródła: `DECISIONS.md` 2026-11-21 i 2026-11-22, `design/tools/ui1.py`, `design/tools/tabele_przewijane.py`.
@@ -293,3 +301,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 ## Dziennik planu
 
 - 2026-11-22 — pierwsza wersja planu: 29 modułów w 4 fazach, powiązanych z zadaniami w Linear (nowe: KRA-63, KRA-64, KRA-65, KRA-66).
+- 2026-11-22 — D1 rozstrzygnięta: Tailwind v4 na tokenach, stopniowo (M0.2 przepisane).

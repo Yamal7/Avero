@@ -28,7 +28,7 @@ Nie zmieniaj plików w `docs/design/` ani `design/` — to obszar czatu projekto
 - **Next.js 15** (App Router) + **React 19** + **TypeScript** (`strict`). Menedżer pakietów: **pnpm** (nigdy npm/yarn).
 - **Supabase**: Postgres z RLS; aplikacja korzysta z tabel **wyłącznie przez funkcje RPC**. Klienci: `src/lib/supabase/browser.ts` i `server.ts`.
 - **Zod** — schematy i klient API w `packages/api-client` (alias `@hvac/api-client`), walidacja w `src/lib/validation`.
-- **Style**: dziś zwykły CSS na zmiennych-tokenach (`src/app/precision.css`, warstwa Precision UI ładowana po `globals.css`). `tokens.css` i skill zakładają Tailwind — czy go wprowadzić, decyduje właściciel (decyzja D1 w `docs/PLAN.md`); do tego czasu nie dodawaj Tailwinda.
+- **Style**: **Tailwind v4 na tokenach** (decyzja właściciela 2026-11-22, wprowadzany stopniowo — moduł M0.2 w `docs/PLAN.md`). Tokeny w bloku `@theme`, domyślne skale Tailwinda wyłączone, bez wartości dowolnych (`w-[13px]`). Do czasu przeniesienia stare ekrany działają na zwykłym CSS (`src/app/precision.css` po `globals.css`); nowych klas tam nie dopisuj, a ekran przebudowywany w module przenieś na Tailwind.
 - **Testy**: Vitest (`tests/*.test.ts`), testy SQL pgTAP (`supabase/tests/`).
 - Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS).
 - Docelowe biblioteki UI ze skilla Precision UI (Radix/React Aria, cmdk, Motion, Sonner, Phosphor, Geist) — **każdą nową zależność dodawaj dopiero po zgodzie właściciela**.
