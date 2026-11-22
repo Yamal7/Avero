@@ -40,6 +40,20 @@ Dwie etykiety w Linear:
 - **„projekt → kod”** — czat projektowy po zatwierdzeniu ekranu lub zmiany tworzy (albo aktualizuje) zadanie z kryteriami odbioru i dopisuje wiersz do tabeli modułów w tym pliku. Claude Code na starcie sesji sprawdza otwarte zadania z tą etykietą, które nie mają jeszcze wiersza w planie, i dopisuje je w odpowiedniej fazie.
 - **„kod → projekt”** — Claude Code przy pytaniu, sprzeczności albo błędzie w `docs/design/` lub makiecie tworzy zadanie z tą etykietą (powiązane z zadaniem modułu), dopisuje pytanie w `docs/STATUS.md` z numerem zadania i **przechodzi do innego modułu bez blokad** — nie czeka na odpowiedź, chyba że pytanie blokuje wszystko (wtedy warunek zatrzymania).
 
+### Zmiany planu
+
+Kto zmienia (czat projektowy, Claude Code albo właściciel), zmienia **oba miejsca naraz** i dopisuje jedną linię w „Dzienniku planu”.
+
+| Zmiana | Co zrobić |
+|---|---|
+| Nowa faza | Nowa sekcja i wiersze w tabeli modułów; nowy kamień milowy w Linear o tej samej nazwie. |
+| Nowy moduł | Wiersz w tabeli + sekcja z kryteriami; zadanie „projekt → kod” z kamieniem milowym fazy. |
+| Zmiana modułu **niezrobionego** | Poprawić kryteria tutaj i w zadaniu Linear. |
+| Zmiana modułu **zrobionego** (jest na `main`) | Nowe zadanie „projekt → kod” powiązane ze starym (`related`) i nowy wiersz w planie, np. `M1.3b`. Starego zadania nie otwierać — historia ma się zgadzać z kodem. |
+| Moduł niepotrzebny | Zadanie → Canceled z jednym zdaniem dlaczego; wiersz w planie przekreślony (`~~…~~`), nie usuwany. |
+
+Przy rozbieżności: **zakres i kryteria odbioru — rozstrzyga Linear; kolejność i fazy — rozstrzyga ten plik.** Claude Code na starcie sesji porównuje zadania „projekt → kod” zmienione od ostatniego wpisu w dzienniku z planem i wyrównuje plan (osobny commit `Plan: …`).
+
 ### Warunki zatrzymania
 
 Zatrzymaj się i zapytaj właściciela tylko, gdy:
@@ -328,3 +342,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — pierwsza wersja planu: 29 modułów w 4 fazach, powiązanych z zadaniami w Linear (nowe: KRA-63, KRA-64, KRA-65, KRA-66).
 - 2026-11-22 — D1 rozstrzygnięta: Tailwind v4 na tokenach, stopniowo (M0.2 przepisane).
 - 2026-11-22 — D2 zaakceptowana z góry pod warunkami (M0.1); statusy zadań w Linear i współpraca z czatem projektowym przez etykiety „projekt → kod” / „kod → projekt”.
+- 2026-11-22 — sekcja „Zmiany planu”: nowe fazy i moduły, zmiany modułów zrobionych i niezrobionych, rozstrzyganie rozbieżności między planem a Linear.
