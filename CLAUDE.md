@@ -50,7 +50,7 @@ pnpm db:test        # testy pgTAP
 Kolejność modułów, zależności, kryteria odbioru i zasady pracy bez potwierdzeń między modułami: **`docs/PLAN.md`**.
 
 Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań” i „Współpraca z czatem projektowym”:
-- Na starcie sesji: zadania z etykietą **„projekt → kod”** bez wiersza w planie dopisz do planu; zadania In Review, których PR jest już scalony, zamknij jako Done.
+- Na starcie sesji: zadania z etykietą **„projekt → kod”** bez wiersza w planie dopisz do planu, a zmienione od ostatniego wpisu w „Dzienniku planu” — wyrównaj z planem (`docs/PLAN.md` › „Zmiany planu”); zadania In Review, których PR jest już scalony, zamknij jako Done.
 - Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
 - Moduł skończony → **In Review**. Done ustawia scalenie PR (`Closes KRA-…` w opisie PR), nie Ty.
 
