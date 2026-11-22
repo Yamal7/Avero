@@ -75,3 +75,7 @@ Każdy ekran desktop istnieje w motywie jasnym i ciemnym.
 **Mapa warstw (rdzeń / pakiet HVACR / konfiguracja) i zasady dla kodu: `LAYERS.md` — czytaj przed projektowaniem bazy danych i struktury modułów.**
 
 Avero ma być sprzedawany innym firmom: wspólny rdzeń + pakiety branżowe (HVACR pierwszy) + warstwa elastyczna (własne pola, konfigurowalny panel boczny, własne tabele). Szczegóły i konsekwencje dla kodu: `DECISIONS.md`, wpis „Kierunek produktu” z 20 lis 2026.
+
+## Współpraca z Claude Code przez Linear (od 22 lis 2026, zespół Kranz_)
+- Czat projektowy po zatwierdzeniu ekranu tworzy lub aktualizuje zadanie z etykietą **„projekt → kod”** (zakres, „Gotowe, gdy”, ścieżki do opisu ekranu i makiet) i dopisuje moduł do `docs/PLAN.md` we właściwej fazie, z zależnościami. Takie zadania zamyka scalenie PR Claude Code.
+- Claude Code zgłasza błędy i braki w `docs/design/` jako zadania **„kod → projekt”**. Czat projektowy sprawdza je przed każdym nowym modułem, poprawia i zamyka jako Done z jednym zdaniem, co zmieniono.
