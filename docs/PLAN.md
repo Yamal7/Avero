@@ -18,9 +18,27 @@ Dla każdego modułu, w kolejności z tabeli:
 3. Subagent: czyta źródła (`HANDOFF.md`, `LAYERS.md`, `DECISIONS.md`, opis ekranu, makieta), ładuje skill `precision-ui`, pisze najpierw testy logiki, potem kod.
 4. Weryfikacja: `pnpm lint && pnpm typecheck && pnpm test`; przy SQL także `pnpm db:lint && pnpm db:test`; ekran otwarty i sprawdzony w obu motywach.
 5. Agent `reviewer` przegląda zmiany; błędy z grupy „Błędy” poprawić przed commitem.
-6. Commit modułu (`M1.3 Karta urządzenia: …`), odhaczenie `[x]` w tabeli poniżej, wpis w `docs/STATUS.md`, status zadania w Linear → Done (lub In Review, jeśli coś zostało do decyzji).
+6. Commit modułu z numerem zadania (`KRA-34 M1.3 Karta urządzenia: …`), odhaczenie `[x]` w tabeli poniżej, wpis w `docs/STATUS.md`, status zadania w Linear → **In Review** z linkiem do gałęzi lub PR.
 
-Jedna gałąź na fazę (`feat/faza-1-serwis`), commit na moduł, **pull request na koniec fazy** z podsumowaniem: co zrobiono, odstępstwa od makiet, pytania.
+Jedna gałąź na fazę (`feat/faza-1-serwis`), commit na moduł, **pull request na koniec fazy** z podsumowaniem: co zrobiono, odstępstwa od makiet, pytania. W opisie PR po jednej linii `Closes KRA-…` na każde zadanie z fazy.
+
+### Statusy zadań w Linear
+
+| Status | Kto ustawia | Kiedy |
+|---|---|---|
+| In Progress | Claude Code | start modułu |
+| In Review | Claude Code | moduł skończony, testy przechodzą, commit na gałęzi fazy |
+| **Done** | **automatycznie** (integracja GitHub ↔ Linear) | właściciel scala PR fazy z `Closes KRA-…` |
+| Done (ręcznie) | Claude Code | tylko gdy PR jest już scalony, a zadanie zostało otwarte (sprawdź na starcie sesji) |
+
+Claude Code **nie zamyka** zadania jako Done przed scaleniem — Done oznacza „jest na `main`”. Zadania „kod → projekt” zamyka czat projektowy po poprawce w `docs/design/`.
+
+### Współpraca z czatem projektowym
+
+Dwie etykiety w Linear:
+
+- **„projekt → kod”** — czat projektowy po zatwierdzeniu ekranu lub zmiany tworzy (albo aktualizuje) zadanie z kryteriami odbioru i dopisuje wiersz do tabeli modułów w tym pliku. Claude Code na starcie sesji sprawdza otwarte zadania z tą etykietą, które nie mają jeszcze wiersza w planie, i dopisuje je w odpowiedniej fazie.
+- **„kod → projekt”** — Claude Code przy pytaniu, sprzeczności albo błędzie w `docs/design/` lub makiecie tworzy zadanie z tą etykietą (powiązane z zadaniem modułu), dopisuje pytanie w `docs/STATUS.md` z numerem zadania i **przechodzi do innego modułu bez blokad** — nie czeka na odpowiedź, chyba że pytanie blokuje wszystko (wtedy warunek zatrzymania).
 
 ### Warunki zatrzymania
 
@@ -48,7 +66,7 @@ Wszystko inne rozstrzygnij sam, wybierając rozwiązanie bezpieczniejsze i łatw
 | # | Decyzja | Blokuje |
 |---|---|---|
 | D1 | ✅ **Rozstrzygnięte 2026-11-22: Tailwind v4, wprowadzany stopniowo** (zgoda na zależności `tailwindcss` i `@tailwindcss/postcss`). Szczegóły w M0.2. | — |
-| D2 | **Akceptacja planu migracji wielofirmowości** (przeniesienie obecnych danych do organizacji Kranz). Claude Code przygotuje plan w trybie planowania i się zatrzyma. | M0.1 |
+| D2 | ✅ **Zaakceptowane z góry 2026-11-22, pod warunkami** z M0.1 (lokalna baza, test liczności, organizacja „Kranz HVACR”, skrypt cofający, wgranie na Supabase „Avero” ręcznie przez właściciela). Plan spełniający warunki — bez zatrzymania; plan, który od nich odbiega — zatrzymanie. | — |
 
 ## Stan wyjściowy
 
@@ -59,7 +77,7 @@ Działa (szczegóły w `docs/STATUS.md`): rama aplikacji i skróty, Mój dzień 
 | | Moduł | Linear | Zależy od |
 |---|---|---|---|
 | **Faza 0 — Fundament** | | | |
-| [ ] | M0.1 Wielofirmowość: organizacje, `org_id`, RLS | KRA-27 | D2 |
+| [ ] | M0.1 Wielofirmowość: organizacje, `org_id`, RLS | KRA-27 | — |
 | [ ] | M0.2 Tailwind v4 na tokenach z `tokens.css`, ikony Phosphor | KRA-26 | — |
 | [ ] | M0.3 Tabele w jednej linii, logo z kartą podglądu, przypięta kolumna | KRA-63 | M0.2 |
 | [ ] | M0.4 Silnik widoku kolekcji w Magazynie, Firmach, Przeglądach | KRA-31 | M0.3 |
@@ -102,7 +120,14 @@ Bez tej fazy każdy kolejny moduł trzeba by potem przerabiać: nowe tabele bez 
 
 ### M0.1 Wielofirmowość — KRA-27
 Źródła: `DECISIONS.md` 2026-11-20 „Kierunek produktu”, `LAYERS.md` › Zasady dla kodu, `docs/PRODUCT_PLAN.md` (ryzyko „Wiele niezależnych firm”).
-**Najpierw plan migracji w trybie planowania — zatrzymaj się po nim (D2).**
+**Najpierw plan migracji w trybie planowania.** Właściciel zaakceptował go z góry (D2), jeśli spełnia **wszystkie** warunki:
+1. migracja tworzona i testowana wyłącznie na lokalnej bazie (`pnpm db:reset`, `pnpm db:test`);
+2. test liczności przed i po migracji — żaden rekord nie ginie;
+3. każdy istniejący rekord trafia do organizacji „Kranz HVACR”;
+4. dołączony skrypt cofający (osobny plik, opisany w PR) i sprawdzony lokalnie;
+5. **nic nie jest wgrywane na projekt Supabase „Avero”** — robi to właściciel ręcznie po scaleniu PR (instrukcja w opisie PR).
+
+Plan spełnia warunki → zapisz go w opisie PR i działaj dalej. Plan musi od któregoś odejść → zatrzymaj się i zapytaj.
 - [ ] Tabele organizacji i członkostw; `org_id` w każdej tabeli danych; RPC filtrują po organizacji bieżącego użytkownika.
 - [ ] Obecne dane przeniesione do organizacji „Kranz HVACR”; nic nie ginie (test liczności przed / po).
 - [ ] pgTAP: użytkownik firmy A nie odczyta ani nie zmieni danych firmy B w żadnej tabeli i RPC; klient portalu widzi tylko swoje.
@@ -302,3 +327,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 
 - 2026-11-22 — pierwsza wersja planu: 29 modułów w 4 fazach, powiązanych z zadaniami w Linear (nowe: KRA-63, KRA-64, KRA-65, KRA-66).
 - 2026-11-22 — D1 rozstrzygnięta: Tailwind v4 na tokenach, stopniowo (M0.2 przepisane).
+- 2026-11-22 — D2 zaakceptowana z góry pod warunkami (M0.1); statusy zadań w Linear i współpraca z czatem projektowym przez etykiety „projekt → kod” / „kod → projekt”.

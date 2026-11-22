@@ -54,7 +54,9 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 - **Kategorie osób kontaktowych:** makiety nie pokazują, gdzie się je edytuje; teraz w komórce tabeli Osoby.
 
 Rozstrzygnięte przez właściciela 2026-11-22:
-- Style: Tailwind v4 na tokenach z `tokens.css`, wprowadzany stopniowo (domyślne skale wyłączone, bez wartości dowolnych); zgoda na `tailwindcss`, `@tailwindcss/postcss`. Komentarz w `tokens.css` mówi o `theme.extend` (Tailwind v3) — w v4 tokeny idą do bloku `@theme`; do poprawienia po stronie projektu.
+- Style: Tailwind v4 na tokenach z `tokens.css`, wprowadzany stopniowo (domyślne skale wyłączone, bez wartości dowolnych); zgoda na `tailwindcss`, `@tailwindcss/postcss`. Komentarz w `tokens.css` mówi o `theme.extend` (Tailwind v3) — w v4 tokeny idą do bloku `@theme`; do poprawienia po stronie projektu (**KRA-67**, „kod → projekt”).
+- Migracja wielofirmowości (D2): zaakceptowana z góry pod warunkami z `docs/PLAN.md` › M0.1.
+- Zadania w Linear: Claude Code ustawia In Review, Done ustawia scalenie PR; etykiety „projekt → kod” i „kod → projekt” (`docs/PLAN.md` › Współpraca z czatem projektowym).
 
 Rozstrzygnięte przez właściciela 2026-11-20:
 - J = poprzednia, K = następna firma (zgodnie z `screens/04-klienci.md`).

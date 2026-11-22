@@ -49,6 +49,11 @@ pnpm db:test        # testy pgTAP
 
 Kolejność modułów, zależności, kryteria odbioru i zasady pracy bez potwierdzeń między modułami: **`docs/PLAN.md`**.
 
+Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań” i „Współpraca z czatem projektowym”:
+- Na starcie sesji: zadania z etykietą **„projekt → kod”** bez wiersza w planie dopisz do planu; zadania In Review, których PR jest już scalony, zamknij jako Done.
+- Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
+- Moduł skończony → **In Review**. Done ustawia scalenie PR (`Closes KRA-…` w opisie PR), nie Ty.
+
 1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania i plan do akceptacji.
 2. **Logika najpierw testem.** Reguły biznesowe (magazyn, F-gaz, terminy kontroli, oferty) → najpierw test w `tests/` lub `supabase/tests/`, potem kod.
 3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi roboczej; nie pracuj na `main`, nie rób `git push --force`.
