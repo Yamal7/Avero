@@ -1,6 +1,7 @@
 # Projekty: lista realizacji wieloetapowych i rekord PJ-2026-011 (Hotel Bryza, VRV 42 pokoi). Scenariusz: sobota 21 lis 2026.
 from datetime import date
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -36,11 +37,14 @@ def marg(plan,prog,warn=False,done=False):
             f'<span style="color:var(--text-tertiary)">{plan}</span><span style="color:var(--text-tertiary)">→</span>{w_}<span style="color:{col};font-weight:500">{prog}</span></span>')
 
 # =================== LISTA
-COLS='92px minmax(0,1.7fr) minmax(0,1fr) 112px 104px 104px 132px 24px'
+COLS='92px minmax(0,1.7fr) 20px 112px minmax(0,1fr) 112px 92px 92px 132px 24px'
 def row(no,icon,col,name,cli,phase,phasetip,pct,end,endtip,val,mg,who,endcol='var(--text-secondary)'):
-    return (f'<div role="row" class="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;min-height:52px;padding:4px 10px;border-radius:10px">'
+    f,city=(cli.split(' · ')+[''])[:2]
+    return (f'<div role="row" class="row row1" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px">'
             f'<span role="cell" class="mono" style="font-size:12px;color:var(--text-tertiary);white-space:nowrap">{no}</span>'
-            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{ic(icon,14,col)}<span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">{cli}</span></span></span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{ic(icon,14,col)}<span class="ell" style="font-weight:500">{name}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(f)}</span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("pin","red",12)}<span class="ell">{city}</span></span>'
             f'<span role="cell" class="ell" title="{phasetip}" style="font-size:12px;color:var(--text-secondary)">{phase}</span>'
             f'<span role="cell" style="display:flex;align-items:center;gap:8px"><span style="flex:1 1 auto">{bar(pct)}</span><span class="num" style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right;white-space:nowrap">{pct} %</span></span>'
             f'<span role="cell" class="num" title="{endtip}" style="text-align:right;font-size:12px;color:{endcol};white-space:nowrap">{end}</span>'
@@ -58,7 +62,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'+
   '<span title="Do zafakturowania w grudniu wg harmonogramów płatności">Do zafakturowania w gru. <span class="num" style="color:var(--text-primary);font-weight:500">384 360 zł</span></span>'
   '<span title="PJ-2026-011 — prognoza marży 2,2 pp poniżej planu" style="display:inline-flex;align-items:center;gap:4px;color:var(--warning)">'+ic(WARN,12,'var(--warning)')+'1 poniżej planu</span></span></div>')
 a('<div role="table" aria-label="Projekty" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Nr</span><span>Projekt · klient</span><span>Etap</span><span>Postęp</span><span style="text-align:right">Koniec</span><span style="text-align:right">Wartość netto</span><span style="text-align:right" title="Plan → prognoza na koniec">Marża</span><span></span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Nr','hash')+u_th('Projekt','layers','violet')+u_th('','bld','indigo',tip='Klient')+u_th('Miasto','pin','red')+u_th('Etap','flag','green')+u_th('Postęp','trend','teal')+u_th('Koniec','cal','blue','right')+u_th('Netto','coin','yellow','right')+u_th('Marża','percent','orange','right',tip='Plan → prognoza na koniec')+'<span></span></div>')
 a(row('PJ-2026-011',WIND,'#2BB3B1','Klimatyzacja VRV · 42 pokoje','Hotel Bryza · Sopot','Montaż jednostek wewn. · 4 z 7','28 z 42 jednostek zamontowanych',60,'18 gru','Piątek 18 grudnia · bez opóźnień','486 000',marg('24,0 %','21,8 %',True),cav('TL',TL)))
 a(row('PJ-2026-009',FAN,'#C98A12','Wentylacja z odzyskiem ciepła','Szkoła Podstawowa nr 4 · Rumia','Odbiory · 6 z 6','Odbiór końcowy pon 30 lis',92,'30 lis','Poniedziałek 30 listopada','312 000',marg('22,0 %','23,1 %'),cav('PK',PKC)))
 a(row('PJ-2026-008',FLAME,'#E0702A','Pompy ciepła w 6 domach','Osiedle Leśne Zacisze · Chwaszczyno','Montaż · 3 z 6 domów','Etap 3 z 5 · domy 1–3 uruchomione',50,'22 sty 2027','Piątek 22 stycznia 2027 · przerwa świąteczna 23 gru – 6 sty','268 800',marg('25,0 %','25,4 %'),cav('TL',TL)))

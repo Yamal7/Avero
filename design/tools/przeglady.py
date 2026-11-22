@@ -1,4 +1,5 @@
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -42,17 +43,18 @@ BASIS={'fgaz':(SHIELD,'#D6453D','F-gaz'),'um':(CONTRACT,'#5E6AD2','Umowa'),'gw':
 TYPEI={'chl':(SNOW,'#3B82D6'),'kl':(WIND,'#2BB3B1'),'pc':(FLAME,'#E0702A')}
 
 # =================== PRZEGLĄDY (lista)
-COLS='18px 24px minmax(0,1.3fr) minmax(0,1fr) 128px 76px 56px'
+COLS='18px 24px minmax(0,1.3fr) 20px minmax(0,1fr) 128px 76px 56px'
 def row(stk,typ,dev,devtip,cli,clitip,basis,btxt,btip,when,whentip,tech,sel=False,sub=''):
     ti,tc=TYPEI[typ]; bi,bc,bl=BASIS[basis]
     bg='background:var(--bg-subtle);' if sel else ''
     chk=(f'<span aria-hidden="true" style="width:16px;height:16px;border-radius:5px;{"background:var(--accent);" if sel else "box-shadow:inset 0 0 0 1.5px var(--border-strong);"}display:inline-flex;align-items:center;justify-content:center">'+(ic(CHECK,12,'#fff') if sel else '')+'</span>')
     whenc='var(--danger)' if stk=='late' else 'var(--text-secondary)'
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:40px;padding:0 12px 0 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 12px 0 10px;border-radius:10px;{bg}">'
             f'<span role="cell">{chk}</span>'
             f'<span role="cell" title="{STN[stk]}" style="display:inline-flex;justify-content:center">{st(stk)}</span>'
             f'<span role="cell" title="{devtip}" style="display:flex;align-items:center;gap:8px;min-width:0">{ic(ti,14,tc)}<span class="ell">{dev}</span>{sub}</span>'
-            f'<span role="cell" class="ell" title="{clitip}" style="color:var(--text-secondary)">{cli}</span>'
+            f'<span role="cell" style="display:flex">{u_logo(cli)}</span>'
+            f'<span role="cell" title="{cli} · {clitip}" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("pin","red",12)}<span class="ell">{clitip}</span></span>'
             f'<span role="cell" style="display:flex;gap:4px;min-width:0">{sch(ic(bi,12,bc)+btxt,btip)}</span>'
             f'<span role="cell" class="num" title="{whentip}" style="text-align:right;color:{whenc}">{when}</span>'
             f'<span role="cell" style="display:flex;justify-content:flex-end">{tech}</span>'
@@ -80,7 +82,7 @@ a('<div style="display:flex;align-items:center;gap:8px;margin:0 20px 8px;height:
   '<button type="button" class="pri" title="Zaplanuj razem w jednej trasie  P" style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border:0;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:500">'+ic(ROUTE,14)+'Zaplanuj w trasie</button>'+ib('Odznacz','Odznacz  Esc','<path d="M18 6 6 18M6 6l12 12"></path>',28)+'</div>')
 # table
 a('<div role="table" aria-label="Przeglądy" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 12px 0 10px;font-size:12px;color:var(--text-tertiary)"><span></span><span></span><span>Urządzenie</span><span>Klient · obiekt</span><span>Podstawa</span><span style="text-align:right">Termin</span><span style="text-align:right">Technik</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;height:24px;padding:0 12px 0 10px;font-size:12px;color:var(--text-tertiary)"><span></span><span></span>'+u_th('Urządzenie','box','teal')+u_th('','bld','indigo',tip='Klient')+u_th('Obiekt','pin','red')+u_th('Podstawa','shield','violet')+u_th('Termin','cal','blue','right')+u_th('Technik','user','orange','right')+'</div>')
 a(grp('Po terminie',3,'<span style="font-size:12px;color:var(--danger)">kontrole F-gaz</span>'))
 a(row('late','chl','Lodziarka','UR-3107 · R404A 5,4 kg · 21,2 t CO₂e','Delikatesy Morskie','Starowiejska 12, Gdynia','fgaz','12 mies.','Kontrola szczelności — obowiązek: 21,2 t CO₂e','12 lis','Termin minął 7 dni temu',cav('KN',KN),sub=obj('ZS-1047','Technik jest dziś na miejscu w ZS-1047 — wykonaj kontrolę przy okazji')))
 a(row('late','chl','Agregat Bitzer','UR-2304 · R404A 12,5 kg · 49,0 t CO₂e','Hotel Oliwski','Kuchnia · Gdańsk Oliwa','fgaz','12 mies.','Kontrola szczelności — 49,0 t CO₂e','15 lis','4 dni po terminie',sugg('PD',PD,'Proponowany: Piotr — w pobliżu w czwartek')))

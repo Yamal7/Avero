@@ -30,9 +30,9 @@ w('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0">')
 # lista widoków
 def vrow(icon,name,sub,n,sel=False,lock=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="option" aria-selected="{str(sel).lower()}" class="row" style="display:grid;grid-template-columns:16px 16px minmax(0,1fr) auto;column-gap:8px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span title="Przeciągnij — kolejność kapsułek nad listą" style="display:inline-flex">{ic(GRIP,14,"var(--text-tertiary)")}</span>{ic(icon,14,"var(--text-secondary)")}'
-            f'<span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:{500 if sel else 400}">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></span>'
+    return (f'<div role="option" aria-selected="{str(sel).lower()}" class="row" style="display:grid;grid-template-columns:16px 16px minmax(0,1fr) auto;column-gap:8px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span title="Przeciągnij — kolejność kapsułek nad listą" style="display:inline-flex">{ic(GRIP,14,"var(--text-tertiary)")}</span>{ic(icon,14,"var(--ic-violet)")}'
+            f'<span class="ell" title="{sub}" style="font-weight:{500 if sel else 400}">{name}</span>'
             f'<span class="num" style="font-size:12px;color:var(--text-tertiary)">{n}</span></div>')
 w('<div role="listbox" aria-label="Widoki tabeli Przetargi" style="flex:0 0 272px;min-width:0;display:flex;flex-direction:column;gap:2px;padding:4px 8px 24px 16px">')
 w('<div style="display:flex;align-items:center;gap:8px;height:28px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">Wspólne · widzi każdy z dostępem</div>')
@@ -105,17 +105,20 @@ i_('<div style="display:flex;flex-direction:column;gap:12px;padding:12px 24px 12
    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+capd('<span class="num" style="font-weight:500">41</span> nowych','Nowe rekordy PR-016 – PR-056')+capd('<span class="num" style="font-weight:500">3</span> do uzupełnienia','Ten sam numer ogłoszenia już jest w tabeli: PR-004, PR-007, PR-009')+
    capd('<span class="num" style="font-weight:500">2</span> pominięte','Wiersze 31 i 44 — brak nazwy zamówienia (pole wymagane)')+capd(ic(WARN,14,'var(--warning)')+'<span class="num" style="font-weight:500">6</span> do sprawdzenia','4 zamawiających bez rekordu w Firmach, 2 wiersze bez terminu')+'</div></div>')
 MC='minmax(0,1fr) minmax(0,1.1fr) 16px minmax(0,1fr) minmax(0,1.2fr)'
+def ftico(t):
+    k=('cal','blue') if 'Data' in t else ('coin','yellow') if 'Kwota' in t else ('bld','indigo') if 'Powiązanie' in t else ('list','violet') if 'ybór' in t else ('hash','slate') if 'unikalne' in t else ('text','teal')
+    return u_ci(*k)
 def mrow(col,ex,fld,ftype,state,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{MC};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{MC};column-gap:12px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{bg}">'
             f'<span class="ell" style="font-weight:500">{col}</span><span class="ell" style="font-size:12px;color:var(--text-secondary)">{ex}</span>{ic(ARROW,14,"var(--text-tertiary)")}'
-            f'<span style="display:flex;flex-direction:column;min-width:0"><span class="ell">{fld}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{ftype}</span></span>'
+            f'<span style="display:flex;align-items:center;gap:8px;min-width:0"><span title="{ftype}" style="display:inline-flex">{ftico(ftype)}</span><span class="ell">{fld}</span></span>'
             f'<span style="display:flex;justify-content:flex-start;min-width:0">{state}</span></div>')
 ok=lambda t,tip: sch(ic(CHECK,12,'var(--success)')+t,tip)
 wr=lambda t,tip: sch(ic(WARN,12,'var(--warning)')+t,tip,col='var(--warning)')
 nu=lambda t,tip: sch(t,tip)
 i_('<div role="table" aria-label="Kolumny pliku i pola tabeli" style="display:flex;flex-direction:column;padding:0 16px 16px">')
-i_(f'<div role="row" style="display:grid;grid-template-columns:{MC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Kolumna w pliku</span><span>Przykład (wiersz 2)</span><span></span><span>Pole w tabeli</span><span>Stan</span></div>')
+i_(f'<div role="row" style="display:grid;grid-template-columns:{MC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Kolumna w pliku','grid','green')+u_th('Przykład (wiersz 2)','eye','slate')+'<span></span>'+u_th('Pole w tabeli','list','violet')+u_th('Stan','flag','orange')+'</div>')
 i_(mrow('Przedmiot zamówienia','Serwis klimatyzacji w urzędzie','Nazwa zamówienia','Tekst · wymagane',wr('2 puste → pominięte','Wiersze 31 i 44')))
 i_(mrow('Zamawiający','Gmina Puck','Zamawiający','Powiązanie → Firmy',wr('38 z 42 w Firmach','4 bez rekordu — wybierz w panelu, co z nimi zrobić'),sel=True))
 i_(mrow('Nr ogłoszenia','2025/BZP 00412290','Numer ogłoszenia','Tekst · unikalne',nu('3 już w tabeli → uzupełnienie','PR-004, PR-007, PR-009 — tylko puste pola')))

@@ -1,5 +1,6 @@
 # Obiekty: lista miejsc u klientów (lokalizacje z backendu) i rekord obiektu Hotel Oliwski. Scenariusz: piątek 20 lis 2026, 9:00.
 P='design/canvas/Main.dc.html'
+exec(open('design/tools/ui1.py').read())
 SRC2=open('design/tools/zl2.py').read()
 exec(SRC2.split("P1=st_svg")[0])
 exec(SRC2[SRC2.index("def prop("):SRC2.index("a('<aside")])
@@ -33,13 +34,14 @@ def fg(t,kind,tip):
     return f'<span title="{tip}" class="num" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:{col};font-weight:{500 if kind in ("late","soon") else 400};white-space:nowrap">{icn}{t}</span>'
 
 # =================== LISTA
-COLS='minmax(0,1.6fr) minmax(0,1fr) 92px 112px 132px 104px 64px 96px'
+COLS='minmax(0,1.3fr) minmax(0,1fr) 20px 112px 92px 132px 104px 56px 96px'
 def row(name,addr,cli,kind,dev,devtip,fgz,um,open_,last,lasttip,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0">{ic(PIN,14,"var(--text-tertiary)")}<span style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">{addr}</span></span></span>'
-            f'<span role="cell" class="ell" style="color:var(--text-secondary)">{cli}</span>'
-            f'<span role="cell" style="font-size:12px;color:var(--text-secondary)">{kind}</span>'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" style="display:flex;align-items:center;gap:10px;min-width:0"><span class="ell" style="font-weight:500">{name}</span></span>'
+            f'<span role="cell" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("pin","red",12)}<span class="ell">{addr}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(cli,open_=sel)}</span>'
+            f'<span role="cell" style="font-size:12px;color:var(--text-secondary);min-width:0;display:flex">{u_obj(kind,12)}</span>'
             f'<span role="cell" class="num" title="{devtip}" style="text-align:right;font-size:12px;color:var(--text-secondary)">{dev}</span>'
             f'<span role="cell" style="display:flex">{fgz}</span>'
             f'<span role="cell" style="display:flex">{um}</span>'
@@ -60,7 +62,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 12px">'
   '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)"><span>312 urządzeń</span><span title="Suma ekwiwalentu CO₂ czynników we wszystkich obiektach">1 434 t CO₂e</span>'
   '<span title="UR-3107 Delikatesy Morskie (12 lis), UR-2304 Hotel Oliwski (15 lis), UR-1988 Kancelaria Wit (17 lis)" style="display:inline-flex;align-items:center;gap:4px;color:var(--danger)">'+ic(SHIELD,12,'var(--danger)')+'3 kontrole po terminie</span></span></div>')
 a('<div role="table" aria-label="Obiekty" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Obiekt · adres</span><span>Klient</span><span>Rodzaj</span><span style="text-align:right">Urządzenia</span><span>Kontrola F-gaz</span><span>Umowa</span><span style="text-align:right">Otwarte</span><span style="text-align:right">Ostatnia wizyta</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{COLS};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Obiekt','bld','violet')+u_th('Adres','pin','red')+u_th('','bld','indigo',tip='Klient')+u_th('Rodzaj','tag','pink')+u_th('Urządzenia','box','teal','right')+u_th('Kontrola F-gaz','shield','orange')+u_th('Umowa','contract','green')+u_th('Otwarte','alert','red','right')+u_th('Wizyta','cal','blue','right')+'</div>')
 a(row('Hotel Oliwski · kuchnia i restauracja','Opacka 12, Gdańsk Oliwa','Hotel Oliwski','hotel','5 · 50,3 t','Agregat Bitzer R404A 49,0 t + 2 split R32',fg('15 lis · 5 dni po','late','UR-2304 · co 12 mies.'),dash,'0','13 lis · PD','Piątek 13 lis · ZG-0912 · Piotr',sel=True))
 a(row('Galeria Portowa · maszynownia','Grunwaldzka 212, Gdańsk','Galeria Portowa','handel','14 · 50,1 t','VRV: 1 jednostka zewnętrzna + 13 wewnętrznych, R410A 24 kg',fg('16 maj 2027','ok','Co 6 mies. · ostatnia 16 lis'),obj('UM-2026-031','Reakcja 4 h, 2 przeglądy w roku'),'0','16 lis · TL','Poniedziałek 16 lis · przegląd półroczny'))
 a(row('Delikatesy Morskie','Starowiejska 12, Gdynia','Delikatesy Morskie','handel','6 · 188,8 t','2 agregaty Bitzer R404A + lodziarka UR-3107',fg('12 lis · 8 dni po','late','UR-3107 · co 12 mies.'),dash,'1','12 lis · KN','ZS-1047 · otwarty lead: wymiana lodziarki'))
@@ -85,17 +87,18 @@ k('<div style="display:flex;flex-direction:column;gap:12px;padding:12px 24px 12p
   btn('Nowe zgłoszenie','Nowe zgłoszenie dla obiektu  C',PLUS)+btn('Zaplanuj kontrolę szczelności','UR-2304 · po terminie od 15 lis — wizyta z kontrolą i protokołem  ⌘↵',SHIELD,pri=True)+'</div>'
   '<div style="display:flex;flex-wrap:wrap;gap:6px">'+capd(ic(SHIELD,14,'var(--danger)')+'Kontrola F-gaz po terminie · 5 dni','UR-2304 · termin był w niedzielę 15 lis 2026')+capd('5 urządzeń · 50,3 t CO₂e','2 instalacje')+capd(ic(COIN,14,'var(--warning)')+'Należność 9 860 zł · 31 dni','FV/2026/10/061 · termin płatności 20 paź')+capd('Bez umowy serwisowej','Rozliczenie za każdą wizytę')+'</div></div>')
 k('<div style="display:flex;align-items:center;gap:4px;padding:0 24px 12px">'+tabs([('Przegląd',''),('Urządzenia','5'),('Historia serwisu','23'),('Dokumenty','14'),('Zdjęcia','38')])+'</div>')
-DC='minmax(0,1.6fr) 120px 96px 132px 100px'
+DC='64px minmax(0,1.2fr) minmax(0,1fr) 120px 72px 132px 96px'
 def dev(code,name,sub,ref,co2,ctrl,warr,sel=False):
-    return (f'<div role="row" class="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;min-height:44px;padding:4px 10px;border-radius:10px">'
-            f'<span style="display:flex;flex-direction:column;min-width:0"><span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="mono" style="font-size:11px;color:var(--text-tertiary)">{code}</span><span class="ell" style="font-weight:500">{name}</span></span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-secondary)">{sub}</span></span>'
-            f'<span style="font-size:12px;color:var(--text-secondary)">{ref}</span><span class="num" style="text-align:right;font-size:12px;color:var(--text-secondary)">{co2}</span><span>{ctrl}</span><span class="num" style="text-align:right;font-size:12px;color:var(--text-secondary)">{warr}</span></div>')
+    return (f'<div role="row" class="row row1" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px">'
+            f'<span class="mono" style="font-size:11px;color:var(--text-tertiary)">{code}</span><span class="ell" style="font-weight:500">{name}</span>'
+            f'<span class="ell" title="{sub}" style="font-size:12px;color:var(--text-secondary)">{sub}</span>'
+            f'<span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("drop","blue",12)}<span class="ell">{ref}</span></span><span class="num" style="text-align:right;font-size:12px;color:var(--text-secondary)">{co2}</span><span>{ctrl}</span><span class="num" style="text-align:right;font-size:12px;color:var(--text-secondary)">{warr}</span></div>')
 def inst(icon,col,name,meta_,rows):
     return (f'<div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border-radius:10px;background:var(--bg-raised)">{ic(icon,14,col)}<span style="font-weight:500">{name}</span><span style="font-size:12px;color:var(--text-secondary)">{meta_}</span>{SP}{ib("Dodaj urządzenie","Dodaj urządzenie do instalacji",PLUS,24)}</div>'
             +''.join(rows)+'</div>')
 k('<div style="display:flex;flex-direction:column;gap:20px;padding:0 16px 24px">')
 k('<section style="display:flex;flex-direction:column;gap:6px">'+'<div style="padding:0 8px">'+h3('Instalacje i urządzenia')+'</div>'+
-  f'<div role="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Urządzenie</span><span>Czynnik · ładunek</span><span style="text-align:right">CO₂e</span><span>Kontrola szczelności</span><span style="text-align:right">Gwarancja</span></div>'+
+  f'<div role="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Nr','hash')+u_th('Urządzenie','box','teal')+u_th('Miejsce','pin','red')+u_th('Czynnik','drop','blue')+u_th('CO₂e','percent','green','right')+u_th('Kontrola','shield','orange')+u_th('Gwarancja','shield','violet','right')+'</div>'+
   inst(SNOW,'#3B82D6','Chłodnictwo kuchni','montaż 2014 · zaplecze, maszynownia w piwnicy',[
     dev('UR-2304','Agregat skraplający Bitzer','Maszynownia · sn 1408 22 517 · karta w CRO','R404A · 12,5 kg','49,0 t',fg('15 lis · po terminie','late','Co 12 mies. · ostatnia 15 lis 2025 — szczelna'),'po gwarancji'),
     dev('UR-2305','Parownik · komora mięsna','Obieg UR-2304 · 0 do +2 °C','obieg agregatu','—',fg('z agregatem','na','Ładunek liczony na agregacie'),'po gwarancji'),

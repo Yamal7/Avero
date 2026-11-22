@@ -10,13 +10,16 @@ def head2(cur,right):
 CLOUD='<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>'
 EXPORT='<path d="M12 3v12M7 8l5-5 5 5"></path><path d="M5 21h14"></path>'
 # =================== WSZYSTKIE
-AC='116px minmax(0,1.3fr) 84px 92px 92px 176px'
+AC='132px 20px minmax(0,1.4fr) 92px 92px 92px 168px'
+DOCT={'FV':('receipt','green','Faktura VAT'),'FK':('ret','red','Faktura korygująca'),'FZ':('coin','violet','Faktura zaliczkowa')}
 def arow(no,kind,cli,date_,net,gross,ks,kstip,sel=False,muted=False,warn=False):
     bg='background:var(--bg-subtle);' if sel else ''
     op='opacity:.6;' if muted else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{AC};column-gap:12px;align-items:center;min-height:40px;padding:2px 10px;border-radius:10px;{bg}{op}">'
-            f'<span role="cell" class="mono ell" style="font-size:11px">{no}</span>'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell">{cli}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{kind}</span></span>'
+    di,dc,dt=DOCT[no[:2]]
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{AC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}{op}">'
+            f'<span role="cell" style="display:flex;align-items:center;gap:6px;min-width:0"><span title="{dt}" style="display:inline-flex">{u_ci(di,dc)}</span><span class="mono ell" style="font-size:11px">{no}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(cli)}</span>'
+            f'<span role="cell" class="ell" title="{cli} · {kind}" style="color:var(--text-secondary)">{kind}</span>'
             f'<span role="cell" class="num" style="font-size:12px;color:var(--text-secondary)">{date_}</span>'
             f'<span role="cell" class="num" style="text-align:right">{net}</span><span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{gross}</span>'
             f'<span role="cell" title="{kstip}" style="display:flex;min-width:0;font-size:12px;padding-left:12px">{ks}</span></div>')
@@ -30,7 +33,7 @@ a('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div
 a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+capd('Wszystkie rodzaje','Faktury, zaliczkowe, korygujące')+capd(ic(CLOUD,14,'var(--text-tertiary)')+'KSeF: wszystkie','Przyjęte, poza KSeF, błąd')+SP+
   '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)"><span>34 dokumenty</span><span>Netto <span class="num" style="color:var(--text-primary);font-weight:500">248 916 zł</span></span></span></div>')
 a('<div role="table" aria-label="Faktury z listopada" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{AC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Numer</span><span>Nabywca</span><span>Wystawiona</span><span style="text-align:right">Netto</span><span style="text-align:right">Brutto</span><span style="padding-left:12px">KSeF</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{AC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('Numer','hash')+u_th('','bld','indigo',tip='Nabywca')+u_th('Opis','text','violet')+u_th('Wystawiona','cal','blue')+u_th('Netto','coin','yellow','right')+u_th('Brutto','coin','orange','right')+'<span style="padding-left:12px">'+u_th('KSeF','send','teal')+'</span></div>')
 a(arow('FK/2026/11/003','korekta do FV/2026/11/018 · rabat po reklamacji','Restauracja Przystań','19 lis','−120,00','−147,60',kserr('odrzucona: data sprzedaży'),'KSeF odrzucił dokument 19 lis 15:12 — data sprzedaży późniejsza niż data wystawienia faktury korygowanej. Popraw i wyślij ponownie.',warn=True))
 a(arow('FV/2026/11/031','transza 40 % · PJ-2026-011','Hotel Bryza','9 lis','194 400,00','239 112,00',ksok('przyjęta · 9 lis 11:42'),'Numer KSeF w szczegółach faktury',sel=False))
 a(arow('FV/2026/11/024','montaż klimatyzacji · ZS-1041','Biuro Bilans','18 lis','3 990,00','4 907,70',ksok('przyjęta · 18 lis 16:05'),'Numer KSeF w szczegółach faktury'))
@@ -63,14 +66,17 @@ def step(icon,col,date_,title,body,state='done'):
     return (f'<div style="display:grid;grid-template-columns:18px 52px minmax(0,1fr);column-gap:8px;padding:6px 0">{ic(icon,14,col)}<span class="num" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{date_}</span>'
             f'<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:12px;line-height:16px;color:{c};{"font-weight:500" if state=="cur" else ""}">{title}</span>{f"<span style=\"font-size:12px;line-height:16px;color:var(--text-tertiary)\">{body}</span>" if body else ""}</span></div>')
 # =================== ZALICZKI
-ZC='minmax(0,1.5fr) 104px 136px minmax(0,1.2fr)'
+ZC='20px 120px minmax(0,1.5fr) 104px 136px minmax(0,1.2fr)'
 def zrow(title,ref,cli,amount,amtip,st,sttip,settle,settletip,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{ZC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{cli}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="mono" style="font-size:11px;white-space:nowrap">{ref}</span><span class="ell">{title}</span></span></span>'
+    k='pc' if 'Pomp' in title else ('vrf' if 'VRV' in title else ('chł' if 'serwerowni' in title else 'klima'))
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{ZC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" style="display:flex">{u_logo(cli)}</span>'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{ref}</span>'
+            f'<span role="cell" title="{cli}" style="display:flex;align-items:center;gap:8px;min-width:0">{u_kind(k)}<span class="ell" style="font-weight:500">{title}</span></span>'
             f'<span role="cell" class="num" title="{amtip}" style="text-align:right;font-weight:500">{amount}</span>'
             f'<span role="cell" title="{sttip}" style="display:flex;font-size:12px;padding-left:12px">{st}</span>'
-            f'<span role="cell" class="ell" title="{settletip}" style="font-size:12px;color:var(--text-secondary)">{settle}</span></div>')
+            f'<span role="cell" title="{settletip}" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">{u_ci("receipt","green",12)}<span class="ell">{settle}</span></span></div>')
 paid=lambda t: f'<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap">{ic(CHECK,14,"var(--success)")}{t}</span>'
 wait=lambda t: f'<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--warning)">{ic(CLOCK,14,"var(--warning)")}{t}</span>'
 Z=[];z=Z.append
@@ -82,7 +88,7 @@ z('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+c
   '<span title="Zapłacone zaliczki, które czekają na rozliczenie w fakturze końcowej">Do rozliczenia <span class="num" style="color:var(--text-primary);font-weight:500">237 142,08 zł</span></span>'
   '<span title="Wezwania do zapłaty zaliczki bez wpłaty">Oczekujące <span class="num" style="color:var(--text-primary);font-weight:500">98 892,00 zł</span></span></span></div>')
 z('<div role="table" aria-label="Zaliczki" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-z(f'<div role="row" style="display:grid;grid-template-columns:{ZC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Klient i podstawa</span><span style="text-align:right">Brutto</span><span style="padding-left:12px">Wpłata</span><span>Rozliczenie</span></div>')
+z(f'<div role="row" style="display:grid;grid-template-columns:{ZC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)">'+u_th('','bld','indigo',tip='Klient')+u_th('Nr','hash')+u_th('Podstawa','layers','violet')+u_th('Brutto','coin','yellow','right')+'<span style="padding-left:12px">'+u_th('Wpłata','bank','green')+'</span>'+u_th('Rozliczenie','receipt','teal')+'</div>')
 z(zrow('Chłodzenie serwerowni · zaliczka 30 %','PJ-2026-013','Biurowiec Kwadrant','98 892,00','80 400,00 netto + 23 % VAT · wezwanie 12 lis',wait('do czw 26 lis'),'Wezwanie wysłane 12 lis · termin 14 dni',
        'FZ po wpłacie · montaż od 7 gru','Montaż rusza po zaksięgowaniu zaliczki — warunek umowy',sel=True))
 z(zrow('Pompa ciepła · zaliczka 30 %','FZ/2026/11/014','Marek Zieliński','14 262,48','13 206,00 netto + 8 % VAT',paid('18 lis · BLIK'),'Przelewy24 · 18 lis 14:58',

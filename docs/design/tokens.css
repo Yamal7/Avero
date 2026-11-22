@@ -32,6 +32,17 @@
   --success: #2F9E5B;
   --warning: #C98A12;
   --danger: #D6453D;
+  /* Kolory ikon (nagłówki kolumn, rodzaje prac, kanały, dokumenty) — tylko ikony, nigdy tekst */
+  --ic-blue: #2F7FE0;
+  --ic-teal: #139C93;
+  --ic-orange: #E0702A;
+  --ic-violet: #8B5CF6;
+  --ic-green: #2F9E5B;
+  --ic-yellow: #C98A12;
+  --ic-red: #D6453D;
+  --ic-pink: #D6458F;
+  --ic-indigo: #5E6AD2;
+  --ic-slate: #7C8391;
   --st-progress: #B38600;   /* „W realizacji” */
   --st-blocked: #D2691E;    /* „Wstrzymane” */
 
@@ -98,6 +109,17 @@
   --success: #4CC27A;
   --warning: #E0A63A;
   --danger: #EF6A62;
+  /* Kolory ikon — ciemny */
+  --ic-blue: #5CA0F0;
+  --ic-teal: #3CC2B8;
+  --ic-orange: #F0904E;
+  --ic-violet: #A98BFA;
+  --ic-green: #4CC27A;
+  --ic-yellow: #E0A63A;
+  --ic-red: #EF6A62;
+  --ic-pink: #EE74B0;
+  --ic-indigo: #7C85E0;
+  --ic-slate: #9AA1AD;
   --st-progress: #E2B93B;
   --st-blocked: #F08A3E;
   --shadow-pop: 0 4px 16px rgba(0, 0, 0, .4);

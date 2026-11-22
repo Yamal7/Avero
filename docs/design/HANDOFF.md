@@ -27,6 +27,7 @@ Claude Code nie otworzy tych linków — wszystko, co potrzebne do kodu, jest w 
 - Górny pasek 44 px na tle `--bg-shell`: przełącznik firmy, szukaj (⌘K), nowy, skrzynka, kalendarz, **karty otwartych rekordów** (jak w przeglądarce: Mój dzień, Zadania, Magazyn, Firmy, ZS-1047…), stan synchronizacji, powiadomienia, awatar.
 - Panel boczny 232 px na tym samym tle, zwijany. Sekcje (zwijane): Skrzynka, Mój dzień · **Sprzedaż**: Leady, Szanse, Oferty · **Klienci**: Firmy i osoby, Obiekty, Urządzenia, Umowy · **Serwis**: Zgłoszenia, Zlecenia, Planowanie, Przeglądy · **Projekty**: Projekty, Zadania · **Finanse i magazyn**: Faktury, Katalog, Magazyn, Zakupy · na dole Raporty, Ustawienia.
 - Panel główny osadzony w ramie: odstęp 8 px, promień 12 px, tło `--bg-surface`.
+- **Tabele (od 21 lis):** jeden wiersz tekstu, 36 px; firma jako logo w kolumnie z kartą podglądu po najechaniu; nagłówki i komórki z kolorowymi ikonami z tokenów `--ic-*`. Wzór: `design/tools/ui1.py` (`u_logo`, `u_th`, `u_ci`, `u_kind`), szczegóły w DECISIONS 2026-11-21. Za szerokie tabele przewijają się w poziomie z przypiętą kolumną główną (DECISIONS 2026-11-22).
 - Ekran rekordu: pasek 44 px (okruszki, ID mono, akcje ikonowe) → tytuł 18 px + linia meta z ikonami → kapsułki właściwości → treść (max ~960 px) + prawy panel szczegółów 340 px z cienką linią `--edge`.
 
 ## Moduły — stan projektu (20 lis 2026)

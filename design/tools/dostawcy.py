@@ -2,6 +2,7 @@
 # Scenariusz: piątek 20 lis 2026, 8:40 (jak Zapotrzebowanie). Uruchamiany po zakupy.py.
 SRCZ=open('design/tools/zakupy.py').read()
 exec(SRCZ.split("# =================== ZAPOTRZEBOWANIE")[0])   # helpery: ic, ib, capd, kv, prop, sch, obj, btn, tabs, ikony
+exec(open('design/tools/ui1.py').read())
 P='design/canvas/Main.dc.html'; s=open(P).read()
 SER='#2a78d6'
 dot=lambda c: f'<span style="width:6px;height:6px;border-radius:50%;background:{c};flex:0 0 auto"></span>'
@@ -13,12 +14,13 @@ def head(cur,counts):
 def fact(label,val,tip): return f'<span title="{tip}">{label} <span class="num" style="color:var(--text-primary);font-weight:500">{val}</span></span>'
 
 # =================== DOSTAWCY
-DC='minmax(0,1.5fr) minmax(0,1.15fr) 132px 96px 76px 52px'
+DC='minmax(0,1.3fr) 56px minmax(0,1fr) 132px 92px 56px 40px'
 def drow(name,code,cats,terms,termstip,cen,purch,purtip,ontime,ontip,opn,opntip,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span style="display:flex;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--text-tertiary)"><span class="mono" style="font-size:11px;white-space:nowrap;flex:0 0 auto">{code}</span><span class="ell">{cats}</span></span></span>'
-            f'<span role="cell" title="{termstip}" style="display:flex;flex-direction:column;min-width:0;font-size:12px;line-height:16px;color:var(--text-secondary)">'+''.join(f'<span class="ell">{t}</span>' for t in terms.split(' · '))+'</span>'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" title="{cats}" style="display:flex;min-width:0">{u_logo(name,label=True)}</span>'
+            f'<span role="cell" class="mono ell" style="font-size:11px;color:var(--text-tertiary)">{code}</span>'
+            f'<span role="cell" title="{termstip}" style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--text-secondary)">'+f'<span style="display:inline-flex;align-items:center;gap:4px;min-width:0">{u_ci("coin","yellow",12)}<span class="ell">{terms.split(" · ")[0]}</span></span>'+''.join(f'<span title="{t}" style="display:inline-flex;flex:0 0 auto">{u_ci(("truck","clock")[i],("teal","blue")[i],12)}</span>' for i,t in enumerate(terms.split(' · ')[1:3]))+'</span>'
             f'<span role="cell" style="display:flex;min-width:0">{cen}</span>'
             f'<span role="cell" class="num" title="{purtip}" style="text-align:right">{purch}</span>'
             f'<span role="cell" class="num" title="{ontip}" style="text-align:right;color:var(--text-secondary)">{ontime}</span>'
@@ -35,7 +37,7 @@ a('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+c
   '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)">'+
   fact('Zakupy 12 mies.','388 200 zł','Przyjęte PZ od grudnia 2025 do listopada 2026, netto')+fact('Na czas','94 %','Dostawy w potwierdzonym terminie, ostatnie 12 miesięcy · 71 z 76')+'</span></div>')
 a('<div role="table" aria-label="Dostawcy" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-a(f'<div role="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Dostawca</span><span>Warunki</span><span>Cennik</span><span style="text-align:right">Zakupy 12 mies.</span><span style="text-align:right" title="Dostawy w potwierdzonym terminie">Na czas</span><span style="text-align:right" title="Otwarte zamówienia">Otw.</span></div>')
+a(f'<div role="row" style="display:grid;grid-template-columns:{DC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Dostawca','truck','indigo')+'</span><span>'+u_th('Nr','hash')+'</span><span>'+u_th('Warunki','coin','yellow')+'</span><span>'+u_th('Cennik','list','violet')+'</span><span style="text-align:right">Zakupy 12 mies.</span><span style="text-align:right" title="Dostawy w potwierdzonym terminie">Na czas</span><span style="text-align:right" title="Otwarte zamówienia">Otw.</span></div>')
 a(drow('Termo-Bud Pomorze','DS-007','pompy ciepła, hydraulika · Gdańsk','przelew 14 dni · darmowa od 500 zł','Rabat 18 % od cennika Daikin, 15 % Panasonic · dostawa 2 dni robocze',
        cen_plan('Daikin 2027 od 1 sty','Zaplanowany: koszty w katalogu zmienią się 1 stycznia · obecny Daikin 2026 do 31 gru'),'184 320 zł','23 zamówienia','96 %','22 z 23 dostaw na czas','1','ZK/2026/11/031 — podkładki dosłanie 24 lis',sel=True))
 a(drow('Klimatech Gdańsk','DS-003','klimatyzacja, materiały montażowe','przelew 21 dni · darmowa od 800 zł','Zamówienie do 15:00 · rabat 8 % od cennika miesięcznego',
@@ -92,11 +94,12 @@ a('<section style="display:flex;flex-direction:column;gap:6px">'+ah3('Zakupy 12 
 a('</aside></div></sc-if>')
 
 # =================== CENNIKI
-CC='minmax(0,1.5fr) 128px 64px 56px minmax(0,1fr) 112px'
+CC='minmax(0,1.3fr) 20px 128px 64px 56px minmax(0,1fr) 112px'
 def crow(name,sup_,valid,validtip,n,disc,chg,chgtip,stat,sel=False):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{CC};column-gap:12px;align-items:center;min-height:48px;padding:4px 10px;border-radius:10px;{bg}">'
-            f'<span role="cell" style="display:flex;flex-direction:column;min-width:0"><span class="ell" style="font-weight:500">{name}</span><span class="ell" style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sup_}</span></span>'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{CC};column-gap:12px;align-items:center;padding:0 10px;border-radius:10px;{bg}">'
+            f'<span role="cell" style="display:flex;align-items:center;gap:8px;min-width:0">{u_ci("list","violet")}<span class="ell" style="font-weight:500">{name}</span></span>'
+            f'<span role="cell" style="display:flex">{u_logo(sup_)}</span>'
             f'<span role="cell" class="num ell" title="{validtip}" style="font-size:12px;color:var(--text-secondary)">{valid}</span>'
             f'<span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{n}</span>'
             f'<span role="cell" class="num" style="text-align:right;color:var(--text-secondary)">{disc}</span>'
@@ -111,7 +114,7 @@ c('<div style="display:flex;align-items:center;gap:6px;padding:4px 20px 8px">'+c
   '<span style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-secondary)">'+fact('Pozycji z ceną','1 207','Pozycje dostawców dopasowane do katalogu: 231 z 248')+fact('Zmiany w lis.','47','Zmiany kosztów z cenników i ofert od 1 listopada')+'</span></div>')
 c('<p style="margin:0;padding:0 20px 8px;font-size:12px;line-height:16px;color:var(--text-tertiary)">Avero porównuje ceny z cenników, ofert handlowców i ostatnich faktur. Koszt w katalogu zmienia się dopiero po zatwierdzeniu importu.</p>')
 c('<div role="table" aria-label="Cenniki" style="display:flex;flex-direction:column;padding:0 16px 24px">')
-c(f'<div role="row" style="display:grid;grid-template-columns:{CC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>Cennik</span><span>Ważność</span><span style="text-align:right">Pozycje</span><span style="text-align:right">Rabat</span><span>Ostatnia zmiana</span><span style="text-align:right">Stan</span></div>')
+c(f'<div role="row" style="display:grid;grid-template-columns:{CC};column-gap:12px;align-items:center;height:24px;padding:0 10px;font-size:12px;color:var(--text-tertiary)"><span>'+u_th('Cennik','list','violet')+'</span><span>'+u_th('','truck','indigo',tip='Dostawca')+'</span><span>'+u_th('Ważność','cal','blue')+'</span><span style="text-align:right">Pozycje</span><span style="text-align:right">Rabat</span><span>Ostatnia zmiana</span><span style="text-align:right">Stan</span></div>')
 c(crow('Daikin 2027','Termo-Bud Pomorze','od 1 sty 2027','Zaplanowany — dziś obowiązuje Daikin 2026','214','18 %','20 lis · śr. +5,1 %','33 podwyżki, 3 obniżki, 18 nowych · wczytała Agnieszka 15:40',
        sch(ic(CLOCK,12,'var(--text-tertiary)')+'zaplanowany','Wejdzie 1 stycznia 2027')))
 c(crow('Daikin 2026','Termo-Bud Pomorze','do 31 gru 2026','Zastąpi go Daikin 2027','198','18 %','15 sty','Wczytany 15 stycznia 2026',akt()))

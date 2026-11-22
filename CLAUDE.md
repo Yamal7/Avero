@@ -9,7 +9,7 @@ Interfejs jest projektowany w osobnym czacie Claude (makiety). To repozytorium j
 1. Przeczytaj `docs/design/HANDOFF.md` (stan projektu, rama aplikacji, mapa modułów).
 2. Przeczytaj `docs/design/LAYERS.md` — który moduł, sekcja i pole należy do rdzenia, a co do pakietu HVACR lub konfiguracji firmy; rdzeń nie może zależeć od pakietu.
 3. Przeczytaj `docs/design/DECISIONS.md` — decyzje mają pierwszeństwo przed Twoimi domysłami.
-4. Przeczytaj opis modułu w `docs/design/screens/` i, jeśli potrzeba, makietę w `design/canvas/` (HTML jest czytelny jako kod; ekrany przełącza atrybut `ekran` w `Main.dc.html`).
+4. Przeczytaj opis modułu w `docs/design/screens/` i, jeśli potrzeba, makietę w `design/canvas/` (HTML jest czytelny jako kod; ekrany przełącza atrybut `ekran` w `Main.dc.html` i `Main2.dc.html` — makieta podzielona na dwa pliki z tą samą ramą, ekrany od Zgłoszeń są w `Main2`).
 5. Załaduj skill `precision-ui` (`.claude/skills/precision-ui/`).
 6. Używaj wyłącznie tokenów z `docs/design/tokens.css` — żadnych surowych hexów i promieni w komponentach.
 7. Dane przykładowe (seedy, testy, Storybook) bierz z `docs/design/data-scenario.md`.

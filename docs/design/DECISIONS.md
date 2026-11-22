@@ -2,6 +2,26 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-22 (Tabele: przewijanie w poziomie z przypiętą kolumną, jak w Attio)
+- Gdy kolumny się nie mieszczą (np. przy otwartym panelu szczegółów), **tabela przewija się w poziomie** — nie ściskamy kolumn i nie chowamy ich automatycznie. Kolumny elastyczne mają minimum: główna (tytuł / nazwa) 220 px, pozostałe 112–176 px.
+- **Przypięte są kolumny do głównej włącznie** (stan / nr / ikona / tytuł) — `position: sticky` z tłem powierzchni (zaznaczony i najechany wiersz: `--bg-subtle`), cienka linia `--edge` po prawej stronie ostatniej przypiętej kolumny. Nagłówek przewija się razem z wierszami, paski grup (np. „Do pierwszego kontaktu”) zostają w widocznej części.
+- Przewijanie: Shift + kółko, gładzik, pasek przewijania (cienki). Klawiatura: ← / → przesuwa o kolumnę, gdy fokus jest w tabeli.
+- Karta podglądu logo renderowana poza obszarem przewijania (w kodzie: Popover w portalu), żeby nie była ucinana.
+- W makiecie robi to krok `design/tools/tabele_przewijane.py` dla wszystkich tabel w jednej linii (18 tabel); Firmy i Osoby już miały przypiętą kolumnę.
+- Mój dzień (sprawdzian Volt-Serwis): ostatnia kolumna ma stałą szerokość, więc logo firm stoją w jednej kolumnie; ikona przy drugiej kolumnie zależy od treści (pinezka = miejsce, kalendarz = termin, moneta = kwota).
+
+## 2026-11-21 (Tabele w jednej linii, firma jako logo, kolorowe ikony)
+- **Wiersz tabeli = jedna linia tekstu, 36 px** (`.row1`, token `--row-h`). Szary drugi wiersz (numer, firma, miasto, opis) przechodzi do osobnych kolumn. Numery zostają w mono, w kolumnie „Nr” na początku wiersza. Zastępuje fragment wpisu „Druga linia tekstu w wierszu → kapsułki po prawej”.
+- **Firma w tabeli = logo 20 px w osobnej kolumnie** (nagłówek tylko ikoną budynku, podpowiedź „Klient”). Kwadrat r6 = firma, koło = osoba prywatna. Dopóki firma nie wgra logo — inicjały na kolorze marki (pole „Kolor logo” w karcie firmy, domyślnie z palety 10 kolorów). Najechanie albo fokus klawiatury pokazuje **kartę podglądu 280 px**: logo 32, nazwa, branża, miasto, opiekun, umowa, telefon, ostatni kontakt, „Otwórz kartę klienta ↵”. Gdy firma jest głównym obiektem wiersza (Należności, Leady, Dostawcy, Firmy) — logo + nazwa.
+- **Kolorowe ikony pomagają szukać** (jak w nowym Linear): nagłówki kolumn z ikoną w kolorze (Nr #, Klient budynek, Miasto pinezka, Kwota moneta, Termin kalendarz…), ikona rodzaju prac przed tytułem (chłodnictwo niebieska śnieżynka, klimatyzacja turkusowy wiatr, pompa ciepła pomarańczowy płomień, wentylacja zielony wentylator, VRF fioletowe warstwy, elektryka żółta błyskawica), kanał (e-mail niebieski, telefon turkusowy, portal fioletowy, formularz indygo, technik pomarańczowy), rodzaj dokumentu (FV zielona, FK czerwona, FZ fioletowa), rodzaj obiektu (hotel, handel, gastronomia, medyczny, dom).
+- Kolory ikon tylko z tokenów `--ic-blue/teal/orange/violet/green/yellow/red/pink/indigo/slate` (osobne wartości jasne i ciemne). Tekst nigdy nie przyjmuje koloru ikony — kolor niesie ikona, tekst zostaje w odcieniach szarości. Status nadal: kształt + kolor + tekst.
+- Gdy zabraknie miejsca (otwarty panel szczegółów), chowamy najpierw kolumny pomocnicze (nr urządzenia, nr po stronie dostawcy, asortyment) do podpowiedzi — nie wracamy do dwóch linii.
+- Poza zakresem (to nie tabele): Skrzynka (lista wątków), listy ustawień z opisami, etykiety wierszy w Planowaniu — zostają dwuwierszowe.
+
+## 2026-11-21 (Makiety: dwa pliki komponentu)
+- Kanwa nie renderuje pliku `.dc.html` większego niż ok. 2 MiB — po przekroczeniu progu (16:53, 2 137 387 B) wszystkie plansze komputerowe były białe. Build dzieli teraz makietę (`design/tools/split.py`, ostatni krok `build.sh`): **`Main.dc.html`** — rama + ekrany do Ustawień włącznie, **`Main2.dc.html`** — ta sama rama + ekrany od Zgłoszeń. Plansze-opakowania importują właściwy plik automatycznie; build kończy się błędem, gdy któryś plik przekroczy 1,8 MB.
+- Dla kodu bez znaczenia: to tylko podział makiety. Ekrany, props `ekran` i `theme` bez zmian.
+
 ## 2026-11-21 (Sprawdzian rdzenia — firma elektryczna)
 - Sprawdzian na firmie elektrycznej bez pakietu (Mój dzień, urządzenie, zlecenie) potwierdził, że rdzeń wystarcza innej branży serwisowej, jeśli umie: własne typy urządzeń z polami, przeglądy z częstotliwością firmy, szablony protokołów z tabelą pomiarów i oceną, zalecenie → oferta, pola własne użytkownika z ważnością (lista w `LAYERS.md`).
 - Rama aplikacji bierze nazwę i znak firmy z konfiguracji; pasek boczny bez słów branżowych.
