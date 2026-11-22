@@ -1,5 +1,5 @@
 import { it,expect,vi } from 'vitest';
-import { mailConfig,workerAuthorized,type MailConfig } from '@/lib/email/config';
+import { mailConfig,workerAuthorized } from '@/lib/email/config';
 import { emailPayload,sendNotificationEmail,checkEmailDelivery } from '@/lib/email/transport';
 import { runEmailWorker } from '@/lib/email/worker';
 const id='ab230000-0000-4000-8000-000000000001',lease='ab230000-0000-4000-8000-000000000002',baseEnv={NOTIFICATION_MAIL_MODE:'local',NOTIFICATION_MAIL_FROM:'noreply@hvac.local',APP_URL:'http://localhost:3100',NOTIFICATION_MAIL_RECIPIENTS:'admin@hvac.local',SUPABASE_SERVICE_ROLE_KEY:'server-only',NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:54321',NOTIFICATION_WORKER_SECRET:'x'.repeat(40)},config=mailConfig(baseEnv)!,job={id,lease,recipient:'admin@hvac.local',category:'tasks' as const,sender:config.from,appUrl:config.appUrl,payload:null},payload=emailPayload(job);

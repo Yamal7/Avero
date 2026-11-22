@@ -65,6 +65,7 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
+- 2026-11-22 — CI (GitHub Actions: Aplikacja, Baza danych) i ochrona `main`; gałąź i PR na moduł (`kra-…`). Lint pomija `design/**`.
 - 2026-11-22 — plan wdrożenia makiet: `docs/PLAN.md` (29 modułów w 4 fazach, powiązanych z Linear); do decyzji właściciela: D2 (migracja wielofirmowości).
 - 2026-11-22 — decyzja właściciela D1: Tailwind v4 na tokenach, wprowadzany stopniowo (M0.2 / KRA-26).
 - 2026-11-20 — 9 poprawek zgodności z rozmową projektową (statusy, zadania, magazyn, firmy, osoby, karta firmy, skróty, silnik widoku).

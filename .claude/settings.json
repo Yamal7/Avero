@@ -2,22 +2,41 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
+      "Bash(pnpm lint)",
       "Bash(pnpm lint *)",
+      "Bash(pnpm typecheck)",
       "Bash(pnpm typecheck *)",
+      "Bash(pnpm test)",
       "Bash(pnpm test *)",
       "Bash(pnpm vitest *)",
+      "Bash(pnpm build)",
       "Bash(pnpm exec eslint *)",
-      "Bash(pnpm db:lint *)",
-      "Bash(pnpm db:test *)",
+      "Bash(pnpm db:lint)",
+      "Bash(pnpm db:test)",
+      "Bash(pnpm db:reset)",
+      "Bash(pnpm exec supabase start *)",
+      "Bash(pnpm exec supabase status *)",
+      "Bash(pnpm exec supabase stop *)",
       "Bash(git status *)",
       "Bash(git diff *)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push -u origin kra-*)",
+      "Bash(git push origin kra-*)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr merge --auto --squash *)"
     ],
     "ask": [
       "Bash(pnpm add *)",
-      "Bash(pnpm remove *)",
-      "Bash(git push *)",
-      "Bash(pnpm db:reset *)"
+      "Bash(pnpm remove *)"
     ],
     "deny": [
       "Read(./.env)",
@@ -29,7 +48,11 @@
       "Bash(git reset --hard *)",
       "Bash(supabase db push *)",
       "Bash(supabase db reset --linked *)",
-      "Bash(rm -rf *)"
+      "Bash(rm -rf *)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin HEAD:main*)",
+      "Bash(git push -u origin main*)",
+      "Bash(gh pr merge --admin *)"
     ]
   },
   "hooks": {
@@ -37,7 +60,11 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-files.mjs\"", "timeout": 10 }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-files.mjs\"",
+            "timeout": 10
+          }
         ]
       }
     ],
@@ -45,14 +72,22 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/after-edit.mjs\"", "timeout": 90 }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/after-edit.mjs\"",
+            "timeout": 90
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-check.mjs\"", "timeout": 300 }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-check.mjs\"",
+            "timeout": 300
+          }
         ]
       }
     ]
