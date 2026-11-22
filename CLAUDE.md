@@ -52,11 +52,12 @@ Kolejność modułów, zależności, kryteria odbioru i zasady pracy bez potwier
 Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań” i „Współpraca z czatem projektowym”:
 - Na starcie sesji: zadania z etykietą **„projekt → kod”** bez wiersza w planie dopisz do planu, a zmienione od ostatniego wpisu w „Dzienniku planu” — wyrównaj z planem (`docs/PLAN.md` › „Zmiany planu”); zadania In Review, których PR jest już scalony, zamknij jako Done.
 - Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
-- Moduł skończony → **In Review**. Done ustawia scalenie PR (`Closes KRA-…` w opisie PR), nie Ty.
+- **Gałąź i PR na moduł**: gałąź `kra-34-m1-3-…` z aktualnego `main`, PR `KRA-34 M1.3 …` z `Closes KRA-34`, potem `gh pr merge --auto --squash <nr>` (scali się sam po zielonym CI). PR z warunku zatrzymania — tytuł `[do akceptacji] …`, bez `--auto`. Statusy w Linear przesuwa integracja; Ty tylko jako zapas. Nie zamykaj zadania jako Done przed scaleniem.
+- `main` jest chroniony: scalenie tylko przy zielonym CI („Aplikacja” i „Baza danych”). Nie pushuj na `main`.
 
 1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania. Moduł z `docs/PLAN.md` jest już zaakceptowany: zapisz plan w commicie / opisie PR i działaj dalej, zatrzymując się tylko przy „Warunkach zatrzymania”. Zmiana spoza planu → plan do akceptacji właściciela.
 2. **Logika najpierw testem.** Reguły biznesowe (magazyn, F-gaz, terminy kontroli, oferty) → najpierw test w `tests/` lub `supabase/tests/`, potem kod.
-3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi roboczej; nie pracuj na `main`, nie rób `git push --force`.
+3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi modułu; nie pracuj na `main`, nie rób `git push --force`.
 4. **Sprawdź, zanim powiesz „gotowe”.** `pnpm lint && pnpm typecheck && pnpm test`; przy zmianach w SQL także `pnpm db:lint && pnpm db:test`. Ekran UI — otwórz go i sprawdź w obu motywach.
 
 ## Baza danych i bezpieczeństwo

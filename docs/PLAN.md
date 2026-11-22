@@ -13,25 +13,33 @@ Polecenie na start (przykład):
 
 Dla każdego modułu, w kolejności z tabeli:
 
-1. Sprawdź zależności — wszystkie moduły z „Zależy od” muszą być odhaczone. Jeśli nie są, weź następny moduł bez blokad albo się zatrzymaj.
-2. Uruchom **osobnego subagenta** na moduł (świeży kontekst). Przekaż mu: numer modułu, zadanie Linear, pliki źródłowe i kryteria odbioru z tego planu. Główna sesja tylko koordynuje.
-3. Subagent: czyta źródła (`HANDOFF.md`, `LAYERS.md`, `DECISIONS.md`, opis ekranu, makieta), ładuje skill `precision-ui`, pisze najpierw testy logiki, potem kod.
-4. Weryfikacja: `pnpm lint && pnpm typecheck && pnpm test`; przy SQL także `pnpm db:lint && pnpm db:test`; ekran otwarty i sprawdzony w obu motywach.
-5. Agent `reviewer` przegląda zmiany; błędy z grupy „Błędy” poprawić przed commitem.
-6. Commit modułu z numerem zadania (`KRA-34 M1.3 Karta urządzenia: …`), odhaczenie `[x]` w tabeli poniżej, wpis w `docs/STATUS.md`, status zadania w Linear → **In Review** z linkiem do gałęzi lub PR.
+1. Sprawdź zależności — moduły z „Zależy od” muszą być **scalone na `main`**. Jeśli nie są, weź następny moduł bez blokad albo poczekaj na scalenie (`gh pr checks <nr> --watch`).
+2. Gałąź z aktualnego `main` o nazwie z numerem zadania: `kra-34-m1-3-karta-urzadzenia` (małe litery). Numer w nazwie gałęzi łączy ją z zadaniem w Linear.
+3. Uruchom **osobnego subagenta** na moduł (świeży kontekst). Przekaż mu: numer modułu, zadanie Linear, pliki źródłowe i kryteria odbioru z tego planu. Główna sesja tylko koordynuje.
+4. Subagent: czyta źródła (`HANDOFF.md`, `LAYERS.md`, `DECISIONS.md`, opis ekranu, makieta), ładuje skill `precision-ui`, pisze najpierw testy logiki, potem kod.
+5. Weryfikacja lokalna: `pnpm lint && pnpm typecheck && pnpm test`; przy SQL także `pnpm db:lint && pnpm db:test`; ekran otwarty i sprawdzony w obu motywach.
+6. Agent `reviewer` przegląda zmiany; błędy z grupy „Błędy” poprawić przed commitem.
+7. Commity z numerem zadania (`KRA-34 M1.3 Karta urządzenia: …`), odhaczenie `[x]` w tabeli poniżej i wpis w `docs/STATUS.md` w tej samej gałęzi.
+8. **PR na moduł** do `main`: tytuł `KRA-34 M1.3 Karta urządzenia`, w opisie `Closes KRA-34`, podsumowanie, odstępstwa od makiet, wynik `reviewer`. Potem `gh pr merge --auto --squash <nr>` — PR scali się sam, gdy CI przejdzie.
+9. CI czerwone → popraw na tej samej gałęzi (maks. 3 próby, potem warunek zatrzymania).
 
-Jedna gałąź na fazę (`feat/faza-1-serwis`), commit na moduł, **pull request na koniec fazy** z podsumowaniem: co zrobiono, odstępstwa od makiet, pytania. W opisie PR po jednej linii `Closes KRA-…` na każde zadanie z fazy.
+**PR do akceptacji właściciela** (bez `--auto`, z `[do akceptacji]` na początku tytułu): migracja zmieniająca istniejące dane, poszerzenie uprawnień, nowa zależność, zmiana spoza planu. Claude Code bierze wtedy kolejny moduł, który od tego PR nie zależy.
+
+### CI i ochrona `main`
+
+- **CI** (`.github/workflows/ci.yml`) na każdym PR: zadanie **„Aplikacja”** (lint, typy, testy, build) i **„Baza danych”** (wszystkie migracje na czystej bazie, lint SQL, pgTAP).
+- **Ochrona `main`**: scalenie możliwe tylko, gdy oba zadania CI są zielone; zakaz force-push i usuwania gałęzi. Hooki Claude Code sprawdzają to samo wcześniej, w sesji — CI jest ostatecznym strażnikiem dla każdego PR, także z czatu projektowego.
 
 ### Statusy zadań w Linear
 
 | Status | Kto ustawia | Kiedy |
 |---|---|---|
-| In Progress | Claude Code | start modułu |
-| In Review | Claude Code | moduł skończony, testy przechodzą, commit na gałęzi fazy |
-| **Done** | **automatycznie** (integracja GitHub ↔ Linear) | właściciel scala PR fazy z `Closes KRA-…` |
-| Done (ręcznie) | Claude Code | tylko gdy PR jest już scalony, a zadanie zostało otwarte (sprawdź na starcie sesji) |
+| In Progress | **automatycznie** (integracja GitHub ↔ Linear) | pierwszy push gałęzi `kra-…` albo otwarcie PR |
+| In Review | **automatycznie** | PR gotowy do przeglądu (jeśli tak ustawiono w Linear) |
+| **Done** | **automatycznie** | scalenie PR z `Closes KRA-…` / gałęzią `kra-…` |
+| Done (ręcznie) | Claude Code | tylko gdy PR jest scalony, a zadanie zostało otwarte (sprawdź na starcie sesji) |
 
-Claude Code **nie zamyka** zadania jako Done przed scaleniem — Done oznacza „jest na `main`”. Zadania „kod → projekt” zamyka czat projektowy po poprawce w `docs/design/`.
+Automatyczne przejścia ustawia się w Linear: Settings › Teams › Kranz_ › Workflow › Pull request automations. Claude Code ustawia status ręcznie tylko jako zapas, gdy automat nie zadziałał. **Nie zamyka** zadania jako Done przed scaleniem — Done oznacza „jest na `main`”. Zadania „kod → projekt” zamyka czat projektowy po poprawce w `docs/design/`.
 
 ### Współpraca z czatem projektowym
 
@@ -343,3 +351,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — D1 rozstrzygnięta: Tailwind v4 na tokenach, stopniowo (M0.2 przepisane).
 - 2026-11-22 — D2 zaakceptowana z góry pod warunkami (M0.1); statusy zadań w Linear i współpraca z czatem projektowym przez etykiety „projekt → kod” / „kod → projekt”.
 - 2026-11-22 — sekcja „Zmiany planu”: nowe fazy i moduły, zmiany modułów zrobionych i niezrobionych, rozstrzyganie rozbieżności między planem a Linear.
+- 2026-11-22 — CI w GitHub Actions i ochrona `main`; gałąź i PR na moduł z numerem KRA (zamiast gałęzi na fazę), scalanie automatyczne po zielonym CI, statusy w Linear przesuwa integracja.
