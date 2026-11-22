@@ -53,6 +53,11 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 
 - **Kategorie osób kontaktowych:** makiety nie pokazują, gdzie się je edytuje; teraz w komórce tabeli Osoby.
 
+Rozstrzygnięte przez właściciela 2026-11-22:
+- Style: Tailwind v4 na tokenach z `tokens.css`, wprowadzany stopniowo (domyślne skale wyłączone, bez wartości dowolnych); zgoda na `tailwindcss`, `@tailwindcss/postcss`. Komentarz w `tokens.css` mówi o `theme.extend` (Tailwind v3) — w v4 tokeny idą do bloku `@theme`; do poprawienia po stronie projektu (**KRA-67**, „kod → projekt”).
+- Migracja wielofirmowości (D2): zaakceptowana z góry pod warunkami z `docs/PLAN.md` › M0.1.
+- Zadania w Linear: Claude Code ustawia In Review, Done ustawia scalenie PR; etykiety „projekt → kod” i „kod → projekt” (`docs/PLAN.md` › Współpraca z czatem projektowym).
+
 Rozstrzygnięte przez właściciela 2026-11-20:
 - J = poprzednia, K = następna firma (zgodnie z `screens/04-klienci.md`).
 - Ikona „Do sprawdzenia” zostaje jak w makiecie (pełne zielone kółko).
@@ -60,6 +65,8 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
+- 2026-11-22 — plan wdrożenia makiet: `docs/PLAN.md` (29 modułów w 4 fazach, powiązanych z Linear); do decyzji właściciela: D2 (migracja wielofirmowości).
+- 2026-11-22 — decyzja właściciela D1: Tailwind v4 na tokenach, wprowadzany stopniowo (M0.2 / KRA-26).
 - 2026-11-20 — 9 poprawek zgodności z rozmową projektową (statusy, zadania, magazyn, firmy, osoby, karta firmy, skróty, silnik widoku).
 - 2026-11-20 — repozytorium projektu połączone z kodem (merge `Yamal7/avero` do gałęzi `redesign-precision-ui`); uzupełniono stan implementacji.
 - 2026-11-20 — utworzono plik (szablon z czatu projektowego).

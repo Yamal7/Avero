@@ -28,7 +28,7 @@ Nie zmieniaj plików w `docs/design/` ani `design/` — to obszar czatu projekto
 - **Next.js 15** (App Router) + **React 19** + **TypeScript** (`strict`). Menedżer pakietów: **pnpm** (nigdy npm/yarn).
 - **Supabase**: Postgres z RLS; aplikacja korzysta z tabel **wyłącznie przez funkcje RPC**. Klienci: `src/lib/supabase/browser.ts` i `server.ts`.
 - **Zod** — schematy i klient API w `packages/api-client` (alias `@hvac/api-client`), walidacja w `src/lib/validation`.
-- **Style**: zwykły CSS na zmiennych-tokenach (`src/app/precision.css`, warstwa Precision UI ładowana po `globals.css`). Tailwinda nie ma — nie dodawaj go.
+- **Style**: **Tailwind v4 na tokenach** (decyzja właściciela 2026-11-22, wprowadzany stopniowo — moduł M0.2 w `docs/PLAN.md`). Tokeny w bloku `@theme`, domyślne skale Tailwinda wyłączone, bez wartości dowolnych (`w-[13px]`). Do czasu przeniesienia stare ekrany działają na zwykłym CSS (`src/app/precision.css` po `globals.css`); nowych klas tam nie dopisuj, a ekran przebudowywany w module przenieś na Tailwind.
 - **Testy**: Vitest (`tests/*.test.ts`), testy SQL pgTAP (`supabase/tests/`).
 - Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS).
 - Docelowe biblioteki UI ze skilla Precision UI (Radix/React Aria, cmdk, Motion, Sonner, Phosphor, Geist) — **każdą nową zależność dodawaj dopiero po zgodzie właściciela**.
@@ -47,7 +47,14 @@ pnpm db:test        # testy pgTAP
 
 ## Sposób pracy
 
-1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania i plan do akceptacji.
+Kolejność modułów, zależności, kryteria odbioru i zasady pracy bez potwierdzeń między modułami: **`docs/PLAN.md`**.
+
+Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań” i „Współpraca z czatem projektowym”:
+- Na starcie sesji: zadania z etykietą **„projekt → kod”** bez wiersza w planie dopisz do planu; zadania In Review, których PR jest już scalony, zamknij jako Done.
+- Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
+- Moduł skończony → **In Review**. Done ustawia scalenie PR (`Closes KRA-…` w opisie PR), nie Ty.
+
+1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania. Moduł z `docs/PLAN.md` jest już zaakceptowany: zapisz plan w commicie / opisie PR i działaj dalej, zatrzymując się tylko przy „Warunkach zatrzymania”. Zmiana spoza planu → plan do akceptacji właściciela.
 2. **Logika najpierw testem.** Reguły biznesowe (magazyn, F-gaz, terminy kontroli, oferty) → najpierw test w `tests/` lub `supabase/tests/`, potem kod.
 3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi roboczej; nie pracuj na `main`, nie rób `git push --force`.
 4. **Sprawdź, zanim powiesz „gotowe”.** `pnpm lint && pnpm typecheck && pnpm test`; przy zmianach w SQL także `pnpm db:lint && pnpm db:test`. Ekran UI — otwórz go i sprawdź w obu motywach.
