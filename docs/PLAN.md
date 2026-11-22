@@ -162,6 +162,7 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 - [ ] Firma jako logo 20 px (kwadrat r6 = firma, koło = osoba), inicjały na kolorze marki, karta podglądu 280 px w portalu (najechanie i fokus).
 - [ ] Kolorowe ikony nagłówków i rodzaju prac z `--ic-*`; tekst szary.
 - [ ] Przewijanie w poziomie z przypiętymi kolumnami do głównej, cienka linia `--edge`, ← / → o kolumnę.
+- [ ] Karta podglądu firmy zawsze nad wierszami i przypiętymi kolumnami, nieucinana przez obszar przewijania (Popover w portalu); paski grup trzymają etykietę w widocznej części.
 - [ ] Zastosowane w Firmach, Osobach, Zadaniach, Magazynie.
 
 ### M0.4 Silnik widoku kolekcji — KRA-31
@@ -214,7 +215,9 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 - [ ] Trzy szablony z makiety odtworzone na danych; sekcje Czynnik / F-gaz tylko z pakietem.
 
 ### M1.6 Telefon technika — KRA-36
-Źródła: `screens/05-protokoly.md` (Telefon technika), `Technik.dc.html`, `Technik-montaz.dc.html`, `Technik-pompa.dc.html`, `Technik-wyciek.dc.html`.
+Źródła: `screens/05-protokoly.md` (Telefon technika), `screens/26-aplikacje-telefon.md`, `Telefon-dzien.dc.html`, `Telefon-menu.dc.html`, `Telefon-wizyta.dc.html`, `Technik.dc.html`, `Technik-montaz.dc.html`, `Technik-pompa.dc.html`, `Technik-wyciek.dc.html`.
+- [ ] Wzór Linear mobile: duży tytuł, listy 56 px z ikoną stanu i priorytetu, pływający pasek kart (Mój dzień, Zlecenia, Magazyn auta, Skrzynka) + okrągły przycisk zdjęcia/zgłoszenia, menu jako arkusz.
+- [ ] Wizyta jak zadanie: właściwości (stan, priorytet, adres z nawigacją, kontakt, urządzenie, podstawa), kroki, części, aktywność, notatka z dyktowaniem, „Zakończ i podpisz”.
 - [ ] 390 px, jedna kolumna, pola 44 px, bez poziomego przewijania.
 - [ ] Pomiary z kapsułką normy i ostrzeżeniem poza normą; „Zakończ” aktywny po wymaganych sekcjach.
 - [ ] Offline: zapis lokalny i ponowienie bez duplikatów (test idempotencji).
@@ -259,7 +262,8 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 Źródła: `screens/08-oferty.md` (Widok klienta, Akceptacja), `screens/24-portal-klienta.md`, `Klient-*.dc.html`.
 - [ ] Oferta pod linkiem: ceny brutto, **bez cen zakupu, marży, dostępności i zdjęć wewnętrznych** (test na odpowiedzi API, nie tylko na UI).
 - [ ] Akceptacja: podpis, zgoda na montaż przed 14 dniami (gdy dotyczy), zaliczka (P24 w trybie testowym), potwierdzenie.
-- [ ] Portal klienta zgodny z makietą; link wygasa zgodnie z ustawieniem.
+- [ ] Portal klienta zgodny z makietą (bez kart: sekcja „Teraz”, listy w jednej linii); link wygasa zgodnie z ustawieniem.
+- [ ] Aplikacja klienta na telefon według `screens/26-aplikacje-telefon.md` (`Klient-telefon.dc.html`): pływający pasek kart i przycisk „Zgłoś usterkę”.
 
 ### M2.5 Zlecenie montażu — KRA-38
 Źródła: `screens/09-zlecenie-montazu.md`, `Zlecenie-montaz.dc.html`.
@@ -314,7 +318,8 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - [ ] Wyjątki uprawnień per pole obowiązują też w eksporcie i API (test).
 
 ### M3.5 Raporty — KRA-42
-Źródła: `screens/12-raporty.md`, `Raporty.dc.html`, `Raport-przetargi.dc.html`.
+Źródła: `screens/12-raporty.md`, `screens/18-wlasne-tabele.md` (raport z własnej tabeli), `Raporty.dc.html`, `Raport-przetargi.dc.html`.
+- [ ] Raport z własnej tabeli bez kart; panel ustawień wykresu: etykieta i jedno pole wartości w wierszu, grupy Dane / Wygląd / Dostęp.
 - [ ] Przegląd miesiąca: 4 fakty, przychód wg rodzaju prac, marża z progiem 22 %, należności, technicy; widok tabeli dla każdego wykresu.
 - [ ] Kwoty zgodne z modułami źródłowymi (test sum); zakładka F-gaz z pakietu; raporty z własnych tabel.
 
@@ -337,3 +342,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — sekcja „Zmiany planu”: nowe fazy i moduły, zmiany modułów zrobionych i niezrobionych, rozstrzyganie rozbieżności między planem a Linear.
 - 2026-11-22 — CI w GitHub Actions i ochrona `main`; gałąź i PR na moduł z numerem KRA (zamiast gałęzi na fazę), scalanie automatyczne po zielonym CI, statusy w Linear przesuwa integracja.
 - 2026-11-22 — tabela modułów generowana z Linear (`scripts/linear-plan-sync.mjs`, workflow „Linear → plan”); Linear jedynym źródłem prawdy o modułach.
+- 2026-11-22 — czat projektowy: zmiana niezrobionych modułów M0.3 (karta firmy nad tabelą), M1.6 (telefon technika w stylu Linear mobile), M2.4 (portal bez kart + aplikacja klienta na telefon), M3.5 (raport z tabeli bez kart, czytelny panel); kryteria poprawione tu i w KRA-63, KRA-36, KRA-40, KRA-42.

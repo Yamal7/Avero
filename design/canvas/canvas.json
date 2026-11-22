@@ -1178,6 +1178,48 @@
       "h": 1120,
       "expand": "fill",
       "title": "Komponent ekranów 2 (Main2) — ekrany od Zgłoszeń"
+    },
+    "Telefon-dzien.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · Mój dzień",
+      "w": 390,
+      "x": 7640,
+      "y": 55860
+    },
+    "Telefon-dzien-ciemny.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · Mój dzień · ciemny",
+      "w": 390,
+      "x": 8080,
+      "y": 55860
+    },
+    "Telefon-menu.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · menu",
+      "w": 390,
+      "x": 8520,
+      "y": 55860
+    },
+    "Telefon-wizyta.dc.html": {
+      "h": 1300,
+      "title": "Telefon technika · wizyta (jak zadanie w Linear)",
+      "w": 390,
+      "x": 8960,
+      "y": 55860
+    },
+    "Klient-telefon.dc.html": {
+      "h": 960,
+      "title": "Klient · aplikacja · przegląd",
+      "w": 390,
+      "x": 9400,
+      "y": 55860
+    },
+    "Klient-telefon-ciemny.dc.html": {
+      "h": 960,
+      "title": "Klient · aplikacja · przegląd · ciemny",
+      "w": 390,
+      "x": 9840,
+      "y": 55860
     }
   },
   "createdOnFiles": {
@@ -1483,7 +1525,13 @@
     "Sprawdzian-urzadzenie-ciemny.dc.html",
     "Sprawdzian-zlecenie.dc.html",
     "Sprawdzian-zlecenie-ciemny.dc.html",
-    "Main2.dc.html"
+    "Main2.dc.html",
+    "Telefon-dzien.dc.html",
+    "Telefon-dzien-ciemny.dc.html",
+    "Telefon-menu.dc.html",
+    "Telefon-wizyta.dc.html",
+    "Klient-telefon.dc.html",
+    "Klient-telefon-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"
