@@ -1,0 +1,71 @@
+# CI dla Avero: każde PR do main i każdy push na main.
+# Dwa zadania muszą przejść, zanim PR da się scalić (ochrona gałęzi main):
+#   "Aplikacja"  — lint, typy, testy Vitest, build Next.js
+#   "Baza danych" — migracje na czystej bazie, lint SQL, testy pgTAP
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Aplikacja
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typy
+        run: pnpm typecheck
+      - name: Testy
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+        env:
+          # Wartości zastępcze tylko do zbudowania aplikacji; żadnych sekretów w CI.
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          APP_URL: http://localhost:3000
+
+  db:
+    name: Baza danych
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lokalny Supabase (wszystkie migracje na czystej bazie)
+        run: pnpm exec supabase start -x studio,imgproxy,logflare,vector,edge-runtime,supavisor
+      - name: Lint SQL
+        run: pnpm db:lint
+      - name: Testy pgTAP
+        run: pnpm db:test
+      - name: Zatrzymanie Supabase
+        if: always()
+        run: pnpm exec supabase stop --no-backup
