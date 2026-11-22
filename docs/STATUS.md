@@ -60,6 +60,7 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
+- 2026-11-22 — plan wdrożenia makiet: `docs/PLAN.md` (29 modułów w 4 fazach, powiązanych z Linear); do decyzji właściciela: D1 (Tailwind) i D2 (migracja wielofirmowości).
 - 2026-11-20 — 9 poprawek zgodności z rozmową projektową (statusy, zadania, magazyn, firmy, osoby, karta firmy, skróty, silnik widoku).
 - 2026-11-20 — repozytorium projektu połączone z kodem (merge `Yamal7/avero` do gałęzi `redesign-precision-ui`); uzupełniono stan implementacji.
 - 2026-11-20 — utworzono plik (szablon z czatu projektowego).
