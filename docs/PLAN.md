@@ -13,13 +13,13 @@ Polecenie na start (przykład):
 
 Dla każdego modułu, w kolejności z tabeli:
 
-1. Sprawdź zależności — moduły z „Zależy od” muszą być **scalone na `main`**. Jeśli nie są, weź następny moduł bez blokad albo poczekaj na scalenie (`gh pr checks <nr> --watch`).
+1. Sprawdź zależności — moduły z „Zależy od” muszą być **scalone na `main`** (stan „Done” w tabeli albo w Linear). Jeśli nie są, weź następny moduł bez blokad albo poczekaj na scalenie (`gh pr checks <nr> --watch`).
 2. Gałąź z aktualnego `main` o nazwie z numerem zadania: `kra-34-m1-3-karta-urzadzenia` (małe litery). Numer w nazwie gałęzi łączy ją z zadaniem w Linear.
 3. Uruchom **osobnego subagenta** na moduł (świeży kontekst). Przekaż mu: numer modułu, zadanie Linear, pliki źródłowe i kryteria odbioru z tego planu. Główna sesja tylko koordynuje.
 4. Subagent: czyta źródła (`HANDOFF.md`, `LAYERS.md`, `DECISIONS.md`, opis ekranu, makieta), ładuje skill `precision-ui`, pisze najpierw testy logiki, potem kod.
 5. Weryfikacja lokalna: `pnpm lint && pnpm typecheck && pnpm test`; przy SQL także `pnpm db:lint && pnpm db:test`; ekran otwarty i sprawdzony w obu motywach.
 6. Agent `reviewer` przegląda zmiany; błędy z grupy „Błędy” poprawić przed commitem.
-7. Commity z numerem zadania (`KRA-34 M1.3 Karta urządzenia: …`), odhaczenie `[x]` w tabeli poniżej i wpis w `docs/STATUS.md` w tej samej gałęzi.
+7. Commity z numerem zadania (`KRA-34 M1.3 Karta urządzenia: …`) i wpis w `docs/STATUS.md` w tej samej gałęzi. Tabeli modułów nie odhaczaj — stan przychodzi z Linear.
 8. **PR na moduł** do `main`: tytuł `KRA-34 M1.3 Karta urządzenia`, w opisie `Closes KRA-34`, podsumowanie, odstępstwa od makiet, wynik `reviewer`. Potem `gh pr merge --auto --squash <nr>` — PR scali się sam, gdy CI przejdzie.
 9. CI czerwone → popraw na tej samej gałęzi (maks. 3 próby, potem warunek zatrzymania).
 
@@ -50,38 +50,18 @@ Dwie etykiety w Linear:
 
 ### Zmiany planu
 
-Kto zmienia (czat projektowy, Claude Code albo właściciel), zmienia **oba miejsca naraz** i dopisuje jedną linię w „Dzienniku planu”.
+**Linear jest jedynym źródłem prawdy o modułach** — zakres, kryteria odbioru, faza, kolejność (numer modułu), zależności i stan. Tabela modułów w tym pliku powstaje z Linear automatycznie; sekcje z kryteriami poniżej tabeli to kopia robocza dla Claude Code — przy rozbieżności obowiązuje zadanie w Linear.
 
-| Zmiana | Co zrobić |
+| Zmiana | Co zrobić (czat projektowy, Claude Code albo właściciel) |
 |---|---|
-| Nowa faza | Nowa sekcja i wiersze w tabeli modułów; nowy kamień milowy w Linear o tej samej nazwie. |
-| Nowy moduł | Wiersz w tabeli + sekcja z kryteriami; zadanie „projekt → kod” z kamieniem milowym fazy. |
-| Zmiana modułu **niezrobionego** | Poprawić kryteria tutaj i w zadaniu Linear. |
-| Zmiana modułu **zrobionego** (jest na `main`) | Nowe zadanie „projekt → kod” powiązane ze starym (`related`) i nowy wiersz w planie, np. `M1.3b`. Starego zadania nie otwierać — historia ma się zgadzać z kodem. |
-| Moduł niepotrzebny | Zadanie → Canceled z jednym zdaniem dlaczego; wiersz w planie przekreślony (`~~…~~`), nie usuwany. |
+| Nowa faza | Kamień milowy „Faza N · nazwa” w Linear (w projekcie „Interfejs Precision UI — wdrożenie makiet” albo „Architektura wielofirmowa…”). |
+| Nowy moduł | Zadanie „projekt → kod” z kamieniem milowym fazy, notatką „Moduł w `docs/PLAN.md`: M1.9” i relacjami „blokowane przez”. Claude Code dopisuje sekcję z kryteriami w tym pliku przy starcie modułu. |
+| Zmiana kolejności lub fazy | Zmień numer modułu w opisie albo kamień milowy w Linear. |
+| Zmiana modułu **niezrobionego** | Popraw zakres i kryteria w zadaniu Linear. |
+| Zmiana modułu **zrobionego** (Done, jest na `main`) | Nowe zadanie „projekt → kod” powiązane ze starym (`related`), numer np. `M1.3b`. Starego zadania nie otwieraj — historia ma się zgadzać z kodem. |
+| Moduł niepotrzebny | Zadanie → Canceled z jednym zdaniem dlaczego (w tabeli pojawi się przekreślone). |
 
-Przy rozbieżności: **zakres i kryteria odbioru — rozstrzyga Linear; kolejność i fazy — rozstrzyga ten plik.** Claude Code na starcie sesji porównuje zadania „projekt → kod” zmienione od ostatniego wpisu w dzienniku z planem i wyrównuje plan (osobny commit `Plan: …`).
-
-### Warunki zatrzymania
-
-Zatrzymaj się i zapytaj właściciela tylko, gdy:
-
-- makieta lub opis ekranu są niejasne albo sprzeczne z `DECISIONS.md`,
-- potrzebna jest **nowa zależność** (biblioteka),
-- migracja **zmienia lub przenosi istniejące dane** (nie dotyczy nowych tabel),
-- testy nie przechodzą po 3 próbach naprawy,
-- zmiana dotyka uprawnień w sposób, który poszerza dostęp (klient, technik, inna firma).
-
-Wszystko inne rozstrzygnij sam, wybierając rozwiązanie bezpieczniejsze i łatwiejsze do cofnięcia, i zapisz decyzję w `docs/STATUS.md` (sekcja „Odstępstwa od makiet” albo „Pytania do projektu”).
-
-### Definicja ukończenia (każdy moduł)
-
-- Lint, typy i testy przechodzą; nowa logika ma testy; nowe tabele mają RLS i test pgTAP, że **inna firma i klient portalu nie widzą** danych.
-- Komponenty mają stany: domyślny, hover, aktywny, fokus, wyłączony, ładowanie (skeleton), pusty, błąd.
-- Oba motywy; tylko tokeny (`var(--…)`); klawiatura zgodna z opisem ekranu.
-- Rdzeń nie importuje pakietu HVACR (`LAYERS.md`); pojęcia F-gaz tylko z pakietu.
-- Dane przykładowe z `docs/design/data-scenario.md`.
-- `docs/STATUS.md` zaktualizowany; zadanie w Linear zaktualizowane.
+Zadanie bez numeru modułu trafia do tabeli jako „M?” i na listę pod tabelą — Claude Code nadaje mu numer w opisie zadania na starcie sesji.
 
 ## Decyzje właściciela przed startem
 
@@ -96,6 +76,9 @@ Działa (szczegóły w `docs/STATUS.md`): rama aplikacji i skróty, Mój dzień 
 
 ## Moduły
 
+Tabela poniżej jest **generowana z Linear** (workflow „Linear → plan”: codziennie, po każdym scaleniu do `main` i na żądanie). Nie edytuj jej ręcznie — zmień zadanie w Linear: faza = kamień milowy „Faza N · …”, numer modułu = „Moduł w `docs/PLAN.md`: M1.3” w opisie, zależności = relacje „blokowane przez”, stan = status zadania.
+
+<!-- linear:moduly:start -->
 | | Moduł | Linear | Zależy od |
 |---|---|---|---|
 | **Faza 0 — Fundament** | | | |
@@ -131,6 +114,7 @@ Działa (szczegóły w `docs/STATUS.md`): rama aplikacji i skróty, Mój dzień 
 | [ ] | M3.5 Raporty | KRA-42 | M2.6 |
 | [ ] | M3.6 Skrzynka (najpierw portal i formularz, poczta po KRA-58) | KRA-44 | M1.7 |
 | [ ] | M3.7 Audyt motywu ciemnego na wszystkich ekranach | KRA-32 | wszystkie |
+<!-- linear:moduly:end -->
 
 Poza tym planem: zadania czatu projektowego (KRA-53, KRA-54, KRA-55) i pilotaż (projekt „Pilotaż i wdrożenie”, KRA-51–62).
 
@@ -352,3 +336,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — D2 zaakceptowana z góry pod warunkami (M0.1); statusy zadań w Linear i współpraca z czatem projektowym przez etykiety „projekt → kod” / „kod → projekt”.
 - 2026-11-22 — sekcja „Zmiany planu”: nowe fazy i moduły, zmiany modułów zrobionych i niezrobionych, rozstrzyganie rozbieżności między planem a Linear.
 - 2026-11-22 — CI w GitHub Actions i ochrona `main`; gałąź i PR na moduł z numerem KRA (zamiast gałęzi na fazę), scalanie automatyczne po zielonym CI, statusy w Linear przesuwa integracja.
+- 2026-11-22 — tabela modułów generowana z Linear (`scripts/linear-plan-sync.mjs`, workflow „Linear → plan”); Linear jedynym źródłem prawdy o modułach.
