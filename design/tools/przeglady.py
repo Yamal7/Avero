@@ -49,7 +49,7 @@ def row(stk,typ,dev,devtip,cli,clitip,basis,btxt,btip,when,whentip,tech,sel=Fals
     bg='background:var(--bg-subtle);' if sel else ''
     chk=(f'<span aria-hidden="true" style="width:16px;height:16px;border-radius:5px;{"background:var(--accent);" if sel else "box-shadow:inset 0 0 0 1.5px var(--border-strong);"}display:inline-flex;align-items:center;justify-content:center">'+(ic(CHECK,12,'#fff') if sel else '')+'</span>')
     whenc='var(--danger)' if stk=='late' else 'var(--text-secondary)'
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 12px 0 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 12px 0 10px;border-radius:10px;{bg}">'
             f'<span role="cell">{chk}</span>'
             f'<span role="cell" title="{STN[stk]}" style="display:inline-flex;justify-content:center">{st(stk)}</span>'
             f'<span role="cell" title="{devtip}" style="display:flex;align-items:center;gap:8px;min-width:0">{ic(ti,14,tc)}<span class="ell">{dev}</span>{sub}</span>'

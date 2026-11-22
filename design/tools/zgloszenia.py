@@ -60,7 +60,7 @@ SRCC2={'mail':'var(--ic-blue)','portal':'var(--ic-violet)','tel':'var(--ic-teal)
 COLS='16px 16px 60px minmax(0,1.7fr) 20px minmax(0,0.9fr) 16px 112px 48px 24px'
 def row(pr,stt,num,subj,subjtip,cli,clitip,sk,sktip,visit,visittip,age,agetip,who,sel=False,sub='',agecol='var(--text-tertiary)'):
     bg='background:var(--bg-subtle);' if sel else ''
-    return (f'<div role="row" class="row" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{bg}">'
+    return (f'<div role="row" class="row row1" aria-selected="{str(sel).lower()}" style="display:grid;grid-template-columns:{COLS};column-gap:10px;align-items:center;min-height:36px;padding:0 10px;border-radius:10px;{bg}">'
             f'<span role="cell" title="Priorytet: {PRN[pr]}" style="display:inline-flex">{prio(pr)}</span>'
             f'<span role="cell" title="{TSTN[stt]}" style="display:inline-flex">{tst(stt)}</span>'
             f'<span role="cell" class="mono" style="color:var(--text-tertiary)">{num}</span>'

@@ -33,5 +33,6 @@ python3 design/tools/faktury2.py     # finanse: wszystkie faktury (KSeF, eksport
 python3 design/tools/test_rdzen.py    # sprawdzian rdzenia: firma elektryczna bez pakietu
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 python3 design/tools/klient2.py      # portal klienta firmowego
+python3 design/tools/tabele_przewijane.py # tabele: przewijanie w poziomie, przypięta kolumna główna
 python3 design/tools/split.py       # podział na Main + Main2 (limit rozmiaru pliku na kanwie)
 echo "Gotowe: design/canvas/Main.dc.html"

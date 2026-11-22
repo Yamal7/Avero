@@ -2,6 +2,14 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-22 (Tabele: przewijanie w poziomie z przypiętą kolumną, jak w Attio)
+- Gdy kolumny się nie mieszczą (np. przy otwartym panelu szczegółów), **tabela przewija się w poziomie** — nie ściskamy kolumn i nie chowamy ich automatycznie. Kolumny elastyczne mają minimum: główna (tytuł / nazwa) 220 px, pozostałe 112–176 px.
+- **Przypięte są kolumny do głównej włącznie** (stan / nr / ikona / tytuł) — `position: sticky` z tłem powierzchni (zaznaczony i najechany wiersz: `--bg-subtle`), cienka linia `--edge` po prawej stronie ostatniej przypiętej kolumny. Nagłówek przewija się razem z wierszami, paski grup (np. „Do pierwszego kontaktu”) zostają w widocznej części.
+- Przewijanie: Shift + kółko, gładzik, pasek przewijania (cienki). Klawiatura: ← / → przesuwa o kolumnę, gdy fokus jest w tabeli.
+- Karta podglądu logo renderowana poza obszarem przewijania (w kodzie: Popover w portalu), żeby nie była ucinana.
+- W makiecie robi to krok `design/tools/tabele_przewijane.py` dla wszystkich tabel w jednej linii (18 tabel); Firmy i Osoby już miały przypiętą kolumnę.
+- Mój dzień (sprawdzian Volt-Serwis): ostatnia kolumna ma stałą szerokość, więc logo firm stoją w jednej kolumnie; ikona przy drugiej kolumnie zależy od treści (pinezka = miejsce, kalendarz = termin, moneta = kwota).
+
 ## 2026-11-21 (Tabele w jednej linii, firma jako logo, kolorowe ikony)
 - **Wiersz tabeli = jedna linia tekstu, 36 px** (`.row1`, token `--row-h`). Szary drugi wiersz (numer, firma, miasto, opis) przechodzi do osobnych kolumn. Numery zostają w mono, w kolumnie „Nr” na początku wiersza. Zastępuje fragment wpisu „Druga linia tekstu w wierszu → kapsułki po prawej”.
 - **Firma w tabeli = logo 20 px w osobnej kolumnie** (nagłówek tylko ikoną budynku, podpowiedź „Klient”). Kwadrat r6 = firma, koło = osoba prywatna. Dopóki firma nie wgra logo — inicjały na kolorze marki (pole „Kolor logo” w karcie firmy, domyślnie z palety 10 kolorów). Najechanie albo fokus klawiatury pokazuje **kartę podglądu 280 px**: logo 32, nazwa, branża, miasto, opiekun, umowa, telefon, ostatni kontakt, „Otwórz kartę klienta ↵”. Gdy firma jest głównym obiektem wiersza (Należności, Leady, Dostawcy, Firmy) — logo + nazwa.
