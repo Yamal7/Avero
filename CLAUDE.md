@@ -54,7 +54,7 @@ Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań�
 - Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
 - Moduł skończony → **In Review**. Done ustawia scalenie PR (`Closes KRA-…` w opisie PR), nie Ty.
 
-1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania i plan do akceptacji.
+1. **Najpierw plan.** Zmiana dotykająca więcej niż ~3 plików, bazy danych albo uprawnień → najpierw tryb planowania. Moduł z `docs/PLAN.md` jest już zaakceptowany: zapisz plan w commicie / opisie PR i działaj dalej, zatrzymując się tylko przy „Warunkach zatrzymania”. Zmiana spoza planu → plan do akceptacji właściciela.
 2. **Logika najpierw testem.** Reguły biznesowe (magazyn, F-gaz, terminy kontroli, oferty) → najpierw test w `tests/` lub `supabase/tests/`, potem kod.
 3. **Małe kroki.** Jedna funkcja = jeden commit na gałęzi roboczej; nie pracuj na `main`, nie rób `git push --force`.
 4. **Sprawdź, zanim powiesz „gotowe”.** `pnpm lint && pnpm typecheck && pnpm test`; przy zmianach w SQL także `pnpm db:lint && pnpm db:test`. Ekran UI — otwórz go i sprawdź w obu motywach.
