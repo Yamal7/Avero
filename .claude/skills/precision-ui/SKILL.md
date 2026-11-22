@@ -35,7 +35,7 @@ Ustal (z rozmowy, pamięci lub krótkim pytaniem, maks. jedno):
 - Ruch 120–200 ms, tylko opacity/transform, `cubic-bezier(0.2,0,0,1)`, szanuj `prefers-reduced-motion`.
 - Motyw jasny i ciemny od pierwszego dnia, wyłącznie przez tokeny.
 - Każdy komponent ma stany: domyślny, hover, aktywny, fokus, wyłączony, ładowanie (skeleton), pusty, błąd.
-- Biblioteki tylko z listy: Radix UI lub React Aria, Tailwind wyłącznie z tokenami, cmdk, Motion, Sonner, Lucide lub Phosphor. shadcn/ui tylko jako punkt startu, zawsze przestylowany. Nowej biblioteki nie dodajesz bez zgody.
+- Biblioteki tylko z listy: Radix UI lub React Aria, Tailwind v4 wyłącznie z tokenami (blok `@theme`, domyślne skale wyłączone, bez wartości dowolnych), cmdk, Motion, Sonner, Lucide lub Phosphor. shadcn/ui tylko jako punkt startu, zawsze przestylowany. Nowej biblioteki nie dodajesz bez zgody.
 
 ### Tokeny (jasny / ciemny)
 
@@ -95,7 +95,7 @@ Wyróżnik budujesz detalem, nie dekoracją: precyzyjne wyrównania, przemyślan
 2. **Forma wyniku**:
    - makieta / projekt ekranu do oceny i edycji → artefakt typu Design (jeśli dostępny);
    - projekt w Figmie → tylko gdy użytkownik o to prosi; wtedy przez konektor Figma;
-   - implementacja → kod React + Tailwind (tokeny jako zmienne CSS zmapowane w `theme.extend`) + biblioteki z listy.
+   - implementacja → kod React + Tailwind v4 (tokeny z `docs/design/tokens.css` w bloku `@theme`, domyślne skale wyłączone, bez `theme.extend` i bez wartości dowolnych typu `w-[13px]`) + biblioteki z listy.
 3. **Odświeżanie istniejących ekranów**: nową wersję umieść obok starej, żeby użytkownik mógł porównać; starą usuwa on sam po akceptacji (chyba że poprosi, by usunąć od razu).
 4. **Szlif**: dopisz wszystkie stany komponentów, skróty klawiszowe, motyw ciemny, puste stany, błędy, ładowanie.
 5. **Mikrocopy**: czasownik + obiekt („Utwórz zlecenie”), wielka litera tylko na początku, błąd mówi co się stało i co zrobić, daty względne z pełną datą w tooltipie.

@@ -1,7 +1,10 @@
 /*
  * Avero — tokeny projektu (Precision UI)
  * Źródło: makiety w design/canvas/Main.dc.html (klasa .av / .av.dark).
- * W kodzie: zmapuj te zmienne w Tailwind (theme.extend) — nie używaj surowych hexów w komponentach.
+ * W kodzie (Tailwind v4, decyzja D1 z 22 lis 2026): te zmienne trafiają do bloku @theme w CSS
+ * (konfiguracja w CSS, bez tailwind.config.js i bez theme.extend z v3). Domyślne skale Tailwinda
+ * wyłączone (np. --color-*: initial; --spacing-*: initial), zostają wyłącznie te tokeny.
+ * Bez wartości dowolnych (w-[13px], bg-[#fff]) i bez surowych hexów w komponentach.
  * Motyw ciemny przełączany atrybutem [data-theme="dark"] na <html>.
  */
 
