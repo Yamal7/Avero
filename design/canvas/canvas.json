@@ -1220,6 +1220,48 @@
       "w": 390,
       "x": 9840,
       "y": 55860
+    },
+    "Klient-A-co-teraz.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek A „Co teraz”",
+      "w": 390,
+      "x": 7640,
+      "y": 57260
+    },
+    "Klient-A-co-teraz-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek A „Co teraz” · ciemny",
+      "w": 390,
+      "x": 8080,
+      "y": 57260
+    },
+    "Klient-B-urzadzenia.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B „Moje urządzenia”",
+      "w": 390,
+      "x": 8760,
+      "y": 57260
+    },
+    "Klient-B-urzadzenia-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B „Moje urządzenia” · ciemny",
+      "w": 390,
+      "x": 9200,
+      "y": 57260
+    },
+    "Klient-B-urzadzenie.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B · po skanie naklejki",
+      "w": 390,
+      "x": 9640,
+      "y": 57260
+    },
+    "Klient-B-urzadzenie-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B · po skanie naklejki · ciemny",
+      "w": 390,
+      "x": 10080,
+      "y": 57260
     }
   },
   "createdOnFiles": {
@@ -1531,7 +1573,13 @@
     "Telefon-menu.dc.html",
     "Telefon-wizyta.dc.html",
     "Klient-telefon.dc.html",
-    "Klient-telefon-ciemny.dc.html"
+    "Klient-telefon-ciemny.dc.html",
+    "Klient-A-co-teraz.dc.html",
+    "Klient-A-co-teraz-ciemny.dc.html",
+    "Klient-B-urzadzenia.dc.html",
+    "Klient-B-urzadzenia-ciemny.dc.html",
+    "Klient-B-urzadzenie.dc.html",
+    "Klient-B-urzadzenie-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

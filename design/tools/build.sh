@@ -34,6 +34,7 @@ python3 design/tools/test_rdzen.py    # sprawdzian rdzenia: firma elektryczna be
 python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.html)
 python3 design/tools/klient2.py      # portal klienta firmowego
 python3 design/tools/telefon.py      # aplikacje na telefon w stylu Linear mobile (technik, klient)
+python3 design/tools/klient_tel.py   # aplikacja klienta: kierunki A „Co teraz” i B „Moje urządzenia” (do wyboru)
 python3 design/tools/tabele_przewijane.py # tabele: przewijanie w poziomie, przypięta kolumna główna
 python3 design/tools/split.py       # podział na Main + Main2 (limit rozmiaru pliku na kanwie)
 echo "Gotowe: design/canvas/Main.dc.html"
