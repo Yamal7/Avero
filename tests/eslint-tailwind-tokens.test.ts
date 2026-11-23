@@ -4,10 +4,10 @@ import { Linter } from 'eslint';
 import plugin from '../eslint-rules/tailwind-tokens.mjs';
 
 const linter = new Linter({ configType: 'flat' });
-const config = [{
+const config: Linter.Config[] = [{
   files: ['**/*.tsx'],
   plugins: { avero: plugin },
-  rules: { 'avero/tailwind-tokens': 'error' },
+  rules: { 'avero/tailwind-tokens': 'error' as const },
   languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
 }];
 const lint = (code: string) => linter.verify(code, config, { filename: 'src/components/x.tsx' }).map(m => m.message);
@@ -20,7 +20,7 @@ describe('ESLint: klasy Tailwinda tylko z tokenów', () => {
     'export const a = <div className={`size-7 ${on ? "bg-subtle" : "bg-transparent"}`} />;',
     "export const href = '/dashboard/soon/[module]';",
     "export const label = 'Ładunek 5.4 kg — p. 0.5 bar';",
-    'export const a = <div className="opacity-50 w-full -mt-1 inset-0" />;',
+    'export const a = <div className="opacity-50 w-full -mt-1 inset-0 h-px" />;',
   ])('dozwolone: %s', code => {
     expect(lint(code)).toEqual([]);
   });
@@ -35,6 +35,7 @@ describe('ESLint: klasy Tailwinda tylko z tokenów', () => {
     ["const base = 'flex p-0.5'; export const a = <div className={base} />;", 'p-0.5'],
     ['export const a = <div className="md:gap-1.5" />;', 'md:gap-1.5'],
     ['export const a = <div className="-mt-2.5" />;', '-mt-2.5'],
+    ['export const a = <div className="gap-px" />;', 'gap-px'],
   ])('zabronione: %s', (code, token) => {
     const messages = lint(code);
     expect(messages).toHaveLength(1);

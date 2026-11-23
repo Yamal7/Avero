@@ -12,6 +12,8 @@ const SPACING = [
   'translate-x', 'translate-y', 'scroll-m', 'scroll-p', 'leading', 'indent',
 ];
 const fractional = new RegExp(`^-?(?:${SPACING.join('|')})-\\d+\\.\\d+$`);
+// odstęp 1 px (`p-px`, `gap-px`) — też poza siatką 4 px; `w-px` / `h-px` (linie 1 px) zostają dozwolone
+const onePixel = /^-?(?:p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y)-px$/;
 // utility z wartością dowolną: `w-[…]`, `w-(…)`; także niedomknięta (fragment szablonu `grid-cols-[${x}]`)
 const arbitraryValue = /^-?[a-z][a-z0-9-]*-[[(]/;
 // dowolna właściwość: `[mask-type:luminance]`
@@ -34,7 +36,7 @@ function utilityOf(token) {
 export function forbiddenClass(token) {
   if (!classLike.test(token)) return false;
   const utility = utilityOf(token);
-  return arbitraryValue.test(utility) || arbitraryProperty.test(utility) || fractional.test(utility);
+  return arbitraryValue.test(utility) || arbitraryProperty.test(utility) || fractional.test(utility) || onePixel.test(utility);
 }
 
 const rule = {
