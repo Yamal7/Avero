@@ -2,9 +2,9 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
-## 2026-11-23 Lewy panel zwijany; wiersze w jednej linii — wariant do porównania
+## 2026-11-23 Lewy panel zwijany; Skrzynka, Planowanie i Ustawienia bez zmian
 - **Lewy panel ma trzy stany** (zatwierdzone): rozwinięty 232 px → zwinięty 52 px (same ikony, nazwa w podpowiedzi, nagłówki grup jako linia, licznik jako kropka akcentu) → ukryty (główny obszar na całą szerokość, odstęp 8 px). Przełącza przycisk z ikoną panelu w górnym pasku, obok przełącznika firmy, i skrót `[`. W stanie ukrytym najechanie na lewą krawędź (8 px) wysuwa panel nad treścią (opis, nie rysowane). Stan zapamiętany dla użytkownika. Makiety: prop `pasek` ramy, plansze `Panel-zwiniety`, `Panel-ukryty`, `Panel-zwiniety-ciemny`. Do kodu: KRA-68 (M0.6).
-- **Jedna linia w Skrzynce, Planowaniu i Ustawieniach — wariant, nie decyzja.** Prop `wiersze` = „jedna linia” obok obecnych „dwie linie”, plansze parami `Linia-skrzynka-dwie/jedna`, `Linia-planowanie-dwie/jedna`, `Linia-ustawienia-dwie/jedna`. Skrzynka: wiersz 40 px (kropka, awatar, nadawca, temat, kanał, czas), bez fragmentu treści i etykiet. Planowanie: nazwa technika z paskiem obciążenia w jednej linii, karty z samym tytułem. Ustawienia: wiersz 36 px, opis obok tytułu. Do kodu dopiero po wyborze właściciela.
+- **Skrzynka, Planowanie i Ustawienia zostają w dwóch liniach** (wybór właściciela po porównaniu). Wariant „jedna linia” (wiersz 40 px w Skrzynce bez fragmentu treści, karty planowania z samym tytułem, opis obok tytułu w Ustawieniach) odrzucony; prop `wiersze` i plansze `Linia-*` usunięte z kanwy. Zasada jednej linii obowiązuje w tabelach (M0.3), nie w listach wątków, siatce planowania i wierszach ustawień.
 - Główny ekran Raportów, portal klienta i aplikacje na telefon bez zmian (odłożone).
 
 ## 2026-11-22 (wieczór) Mniej „widgetów”, aplikacje na telefon jak Linear mobile
