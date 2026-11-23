@@ -66,9 +66,9 @@ select is(array(
 select is(array(
  select c.relname::text from pg_class c
  where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v')
- and c.relname in ('organizations','org_active','org_members','staff_users')
+ and c.relname in ('organizations','org_active','org_members','staff_users','auth_user_directory')
  and (has_table_privilege('authenticated',c.oid,'SELECT') or has_table_privilege('anon',c.oid,'SELECT')) order by 1),
- array[]::text[],'Membership tables are not readable directly');
+ array[]::text[],'Membership tables and the account directory are not readable directly');
 
 select is(array(
  select p.oid::regprocedure::text from pg_proc p
