@@ -10,6 +10,47 @@ import { roleLabels,type AccessRole } from '@/lib/access/types';
 import { Icon,type IconName } from './icon';
 import { ThemeCapsule } from './theme-switcher';
 import { CommandPalette,type PaletteEntry } from './command-palette';
+import { Bell, CaretDown, MagnifyingGlass, NotePencil, Plus } from '@phosphor-icons/react/ssr';
+import { cx } from '@/lib/cx';
+
+/* Rama aplikacji (M0.2): wyłącznie klasy Tailwinda na tokenach. Klasy pui-shell, av i pui-main zostają jako
+   zaczepienia dla arkuszy ekranów sprzed przebudowy (np. .pui-main h1, .av .ib) — nie niosą już stylów ramy. */
+const focusRing='focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent';
+const shell={
+ root:'pui-shell av flex h-dvh flex-col bg-shell text-primary print:h-auto print:bg-transparent',
+ top:'flex h-12 flex-none items-center gap-2 pl-2 pr-3 max-desktop:px-2 print:hidden',
+ topLeft:'flex min-w-0 shrink-0 grow-0 basis-54 items-center gap-1 max-desktop:shrink max-desktop:basis-auto',
+ round:`relative size-7 min-h-0 flex-none items-center justify-center rounded-pill border-0 p-0 text-secondary no-underline transition-colors hover:bg-shell-hover ${focusRing}`,
+ workspace:`flex h-8 min-h-0 min-w-0 flex-auto items-center justify-start gap-2 rounded-md border-0 bg-transparent px-2 text-left text-body leading-5 font-medium text-primary transition-colors hover:bg-shell-hover ${focusRing}`,
+ mark:'inline-flex size-5 flex-none items-center justify-center rounded-xs bg-primary text-micro font-semibold text-shell',
+ tabs:'flex min-w-0 flex-initial items-center overflow-hidden max-desktop:flex-auto',
+ pinnedTab:`inline-flex size-7 flex-none items-center justify-center rounded-sm border-0 p-0 no-underline transition-colors ${focusRing}`,
+ tab:`inline-flex h-7 min-w-0 max-w-50 flex-initial items-center rounded-sm border-0 text-small no-underline transition-colors ${focusRing}`,
+ tabOn:'bg-surface text-primary',
+ tabOff:'bg-transparent hover:bg-shell-hover hover:text-primary',
+ newTab:`inline-flex size-6 min-h-0 flex-none items-center justify-center rounded-sm border-0 bg-transparent p-0 text-tertiary transition-colors hover:bg-subtle hover:text-primary ${focusRing}`,
+ badge:'pointer-events-none absolute h-3.5 min-w-3.5 rounded-pill bg-primary text-center font-semibold text-shell tabular-nums',
+ avatar:'inline-flex size-6 items-center justify-center rounded-pill border-0 bg-surface font-medium text-secondary',
+ backdrop:'fixed inset-0 z-55 hidden size-full min-h-0 rounded-none border-0 bg-scrim p-0 max-desktop:block print:hidden',
+ side:'flex flex-none basis-sidebar flex-col gap-4 overflow-x-hidden overflow-y-auto px-2 pt-1 pb-4 max-desktop:fixed max-desktop:inset-y-0 max-desktop:left-0 max-desktop:z-60 max-desktop:w-68 max-desktop:border-r max-desktop:border-border max-desktop:bg-shell max-desktop:pt-3 max-desktop:transition-all max-desktop:duration-base print:hidden',
+ groupHead:`flex h-7 min-h-0 w-full items-center justify-start gap-1 rounded-sm border-0 bg-transparent px-2 text-left text-small leading-4 font-medium text-tertiary transition-colors hover:bg-transparent hover:text-secondary max-desktop:h-11 ${focusRing}`,
+ nav:`group flex h-7 w-full items-center justify-start gap-2 rounded-sm border-0 px-2 text-left no-underline transition-colors max-desktop:h-11 ${focusRing}`,
+ navIdle:'bg-transparent font-normal text-secondary hover:bg-shell-hover hover:text-primary',
+ navActive:'bg-shell-hover font-medium text-primary',
+ navIcon:'shrink-0 text-tertiary transition-colors group-hover:text-primary',
+ main:'pui-main relative mr-2 mb-2 flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-edge bg-surface max-desktop:mx-1 max-desktop:mb-1 max-desktop:rounded-lg print:m-0 print:overflow-visible print:rounded-none print:border-0',
+};
+/* eslint-disable avero/tailwind-tokens -- Wartości 1:1 z makiety ramy spoza siatki 4 px i spoza tokenów (2, 6, 10 px, 1 px,
+   tekst 10 px). Zostawione, żeby rama wyglądała jak przed M0.2; do decyzji projektu (docs/STATUS.md › Pytania do projektu). */
+const offGrid={
+ tabsGap:'gap-0.5',
+ pinnedEnd:'mr-1.5',
+ tab:'gap-1.5 px-2.5',
+ navGap:'gap-px',
+ badge:'top-0.5 right-0.5 px-0.75 text-[10px] leading-3.5',
+ avatarText:'text-[10px]',
+};
+/* eslint-enable avero/tailwind-tokens */
 type NavEntry={href:string;label:string;icon:IconName;soon?:boolean;roles?:string[];count?:number};
 type NavGroup={id:string;title:string;items:NavEntry[]};
 const soon=(slug:string)=>'/dashboard/soon/'+slug;
@@ -94,37 +135,37 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  };window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[router]);
  function item(entry:NavEntry){
   const active=current?.href===entry.href;
-  return <Link key={entry.href} href={entry.href} className={`pui-nav${active?' is-active':''}`} aria-current={active?'page':undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:undefined} onClick={()=>setMobileOpen(false)}>
-   <Icon name={entry.icon} size={16}/><span className="ell">{entry.label}</span>
-   {!entry.soon&&entry.count?<span className="pui-nav-count num">{entry.count}</span>:null}
+  return <Link key={entry.href} href={entry.href} className={cx(shell.nav,active?shell.navActive:shell.navIdle)} aria-current={active?'page':undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:undefined} onClick={()=>setMobileOpen(false)}>
+   <Icon name={entry.icon} size={16} className={active?'shrink-0 text-primary':shell.navIcon}/><span className="min-w-0 flex-auto truncate">{entry.label}</span>
+   {!entry.soon&&entry.count?<span className="text-small text-tertiary tabular-nums">{entry.count}</span>:null}
   </Link>;
  }
- return <div className={`pui-shell av${mobileOpen?' is-nav-open':''}`}>
- <header className="pui-top no-print">
-  <div className="pui-top-left">
-   <button ref={mobileButton} type="button" className="pui-round pui-menu" aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
-   <button type="button" className="shellbtn pui-ws" title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)} style={{flex:'1 1 auto',minWidth:0,display:'flex',alignItems:'center',gap:8,height:32,padding:'0 8px',border:0,borderRadius:10,background:'transparent',textAlign:'left'}}><span style={{width:20,height:20,borderRadius:6,background:'var(--text-primary)',color:'var(--bg-shell)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:600,flex:'0 0 auto'}}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="ell" style={{fontWeight:500}}>{company}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{flex:'0 0 auto',color:'var(--text-tertiary)'}}><path d="m6 9 6 6 6-6"/></svg></button>
-   <button type="button" className="shellbtn" aria-label="Szukaj" title="Szukaj  ⌘K" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
-   <Link className="shellbtn" href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie  C" style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'var(--bg-surface)',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></Link>
+ return <div className={shell.root}>
+ <header className={cx(shell.top,'no-print')}>
+  <div className={shell.topLeft}>
+   <button ref={mobileButton} type="button" className={cx(shell.round,'hidden bg-transparent hover:text-primary max-desktop:inline-flex')} aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
+   <button type="button" className={shell.workspace} title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={shell.mark}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="min-w-0 truncate font-medium max-desktop:hidden">{company}</span><CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden /></button>
+   <button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label="Szukaj" title="Szukaj  ⌘K" aria-keyshortcuts="Meta+K" onClick={()=>{setMobileOpen(false);setPalette(true);}}><MagnifyingGlass size={16} aria-hidden /></button>
+   <Link className={cx(shell.round,'inline-flex bg-surface')} href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie  C" aria-keyshortcuts="C"><NotePencil size={16} aria-hidden /></Link>
   </div>
-  <div role="tablist" aria-label="Karty" className="pui-tabs" style={{flex:'0 1 auto',minWidth:0,overflow:'hidden',display:'flex',alignItems:'center',gap:2}}>
-   {pinned.map((entry,i)=>{const on=current?.href===entry.href;return <Link key={entry.href} role="tab" aria-selected={on} href={entry.href} className={`dtab${on?' act':''}`} aria-label={`${entry.label}, karta przypięta`} title={entry.label} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,color:on?'var(--text-primary)':i===0?'var(--text-tertiary)':'var(--text-secondary)',padding:0,marginRight:i===pinned.length-1?6:0}}><Icon name={entry.icon} size={14}/></Link>;})}
-   {recent.map(tabEntry=>{const on=tabEntry.href===currentTabHref;return <Link key={tabEntry.href} role="tab" aria-selected={on} href={tabEntry.href} className={`dtab${on?' act':''}`} title={tabEntry.label} style={{flex:'0 1 auto',minWidth:0,maxWidth:200,display:'inline-flex',alignItems:'center',gap:6,height:28,padding:'0 10px',border:0,borderRadius:8,color:on?'var(--text-primary)':'var(--text-secondary)',fontSize:12,fontWeight:on?500:400}}><Icon name={tabEntry.icon} size={14}/><span className="ell">{tabEntry.label}</span></Link>;})}
+  <div role="tablist" aria-label="Karty" className={cx(shell.tabs,offGrid.tabsGap)}>
+   {pinned.map((entry,i)=>{const on=current?.href===entry.href;return <Link key={entry.href} role="tab" aria-selected={on} href={entry.href} className={cx(shell.pinnedTab,on?shell.tabOn:cx(shell.tabOff,i===0?'text-tertiary':'text-secondary'),i===pinned.length-1&&offGrid.pinnedEnd)} aria-label={`${entry.label}, karta przypięta`} title={entry.label}><Icon name={entry.icon} size={14}/></Link>;})}
+   {recent.map(tabEntry=>{const on=tabEntry.href===currentTabHref;return <Link key={tabEntry.href} role="tab" aria-selected={on} href={tabEntry.href} className={cx(shell.tab,offGrid.tab,on?cx(shell.tabOn,'font-medium'):cx(shell.tabOff,'font-normal text-secondary'))} title={tabEntry.label}><Icon name={tabEntry.icon} size={14}/><span className="min-w-0 truncate">{tabEntry.label}</span></Link>;})}
   </div>
-  <button type="button" className="ib" aria-label="Nowa karta" title="Nowa karta  ⌥T  ·  przełączanie kart ⌥1–9" onClick={()=>{setMobileOpen(false);setPalette(true);}} style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:8,background:'transparent',color:'var(--text-tertiary)',padding:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
-  <span className="pui-top-spacer" style={{flex:'1 1 auto'}}/>
-  <div className="pui-top-right" style={{flex:'0 0 auto',display:'flex',alignItems:'center',gap:4}}>
-   <span style={{position:'relative',display:'inline-flex'}}><button type="button" className="shellbtn" aria-label={`Powiadomienia${notificationUnread?` — nieprzeczytane: ${notificationUnread}`:totalAlerts?` — bieżące sprawy: ${totalAlerts}`:''}`} title="Powiadomienia  G I" onClick={event=>openPanel('alerts',event.currentTarget)} style={{width:28,height:28,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-secondary)',padding:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.27 21a2 2 0 0 0 3.46 0"/><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33"/></svg></button>{badge>0&&<span className="num" aria-hidden="true" style={{position:'absolute',top:2,right:2,minWidth:14,height:14,padding:'0 3px',borderRadius:7,background:'var(--text-primary)',color:'var(--bg-shell)',fontSize:10,lineHeight:'14px',fontWeight:600,textAlign:'center',pointerEvents:'none'}}>{badge>99?'99+':badge}</span>}</span>
-   <button type="button" className="shellbtn" aria-label={`${displayName}, ${roleLabels[role as AccessRole]||role}`} title={`${displayName} · ${roleLabels[role as AccessRole]||role}`} onClick={event=>openPanel('profile',event.currentTarget)} style={{width:28,height:28,display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',padding:0}}><span style={{width:24,height:24,borderRadius:'50%',background:'var(--bg-surface)',border:0,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,color:'var(--text-secondary)'}}>{initials||'U'}</span></button>
+  <button type="button" className={shell.newTab} aria-label="Nowa karta" title="Nowa karta  ⌥T  ·  przełączanie kart ⌥1–9" aria-keyshortcuts="Alt+T" onClick={()=>{setMobileOpen(false);setPalette(true);}}><Plus size={14} aria-hidden /></button>
+  <span className="flex-auto"/>
+  <div className="flex flex-none items-center gap-1">
+   <span className="relative inline-flex"><button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label={`Powiadomienia${notificationUnread?` — nieprzeczytane: ${notificationUnread}`:totalAlerts?` — bieżące sprawy: ${totalAlerts}`:''}`} title="Powiadomienia  G I" onClick={event=>openPanel('alerts',event.currentTarget)}><Bell size={16} aria-hidden /></button>{badge>0&&<span aria-hidden="true" className={cx(shell.badge,offGrid.badge)}>{badge>99?'99+':badge}</span>}</span>
+   <button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label={`${displayName}, ${roleLabels[role as AccessRole]||role}`} title={`${displayName} · ${roleLabels[role as AccessRole]||role}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={cx(shell.avatar,offGrid.avatarText)}>{initials||'U'}</span></button>
   </div>
  </header>
- <div className="pui-body">
-  {mobileOpen&&<button className="pui-backdrop no-print" aria-label="Zamknij menu" onClick={()=>setMobileOpen(false)}/>}
-  <aside ref={sidebar} className="pui-side no-print" id="app-sidebar" aria-label="Nawigacja główna">
-   <nav className="pui-nav-group" aria-label="Start">{top.map(entry=>item(entry.href==='/dashboard/notifications'?{...entry,count:notificationUnread}:entry))}</nav>
+ <div className="flex min-h-0 flex-auto items-stretch">
+  {mobileOpen&&<button className={shell.backdrop} aria-label="Zamknij menu" onClick={()=>setMobileOpen(false)}/>}
+  <aside ref={sidebar} className={cx(shell.side,mobileOpen?'max-desktop:visible max-desktop:translate-x-0':'max-desktop:invisible max-desktop:-translate-x-full','no-print')} id="app-sidebar" aria-label="Nawigacja główna">
+   <nav className={cx('flex flex-col',offGrid.navGap)} aria-label="Start">{top.map(entry=>item(entry.href==='/dashboard/notifications'?{...entry,count:notificationUnread}:entry))}</nav>
    {groups.map(group=>{const items=group.items.filter(allowed);return items.length?<NavigationGroup key={group.id} id={group.id} title={group.title} viewerId={taskAlerts.viewerId}>{items.map(item)}</NavigationGroup>:null;})}
-   <span className="pui-side-spacer"/>
-   <nav className="pui-nav-group" aria-label="Administracja">{bottom.filter(allowed).map(item)}</nav>
+   <span className="flex-auto"/>
+   <nav className={cx('flex flex-col',offGrid.navGap)} aria-label="Administracja">{bottom.filter(allowed).map(item)}</nav>
   </aside>
  <CommandPalette open={palette} onClose={()=>setPalette(false)} actions={paletteActions(role)} places={allEntries.filter(entry=>allowed(entry)&&!entry.soon).map(entry=>({href:entry.href,label:entry.label,icon:entry.icon}))}/>
  <dialog ref={dialog} className="shell-dialog" aria-labelledby="shell-dialog-title" onCancel={closePanel} onClose={finishClose}><div className="shell-dialog-heading"><h2 id="shell-dialog-title">{panel==='search'?'Szukaj':panel==='alerts'?'Powiadomienia':'Twój profil'}</h2><button className="sidebar-icon-button" aria-label="Zamknij okno" onClick={closePanel}>×</button></div>
@@ -132,7 +173,7 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  <div hidden={panel!=='alerts'}><NotificationBellSummary open={panel==='alerts'} viewerId={taskAlerts.viewerId} onCount={setNotificationUnread} onNavigate={closePanel}/></div>
  {panel==='alerts'&&<div className="shell-alert-list"><p className="muted">Bieżące działania w Twoim dostępie. Zadania znikają z tej listy po wykonaniu lub przesunięciu terminu na przyszłość.</p><section className="shell-task-alerts" aria-labelledby="shell-task-alerts-title"><h3 id="shell-task-alerts-title">Twoje zadania</h3>{taskLoading?<p role="status" className="muted">Odświeżanie zadań…</p>:taskError?<div role="alert"><p className="error">{taskError}</p><button className="secondary" onClick={()=>setAlertReload(n=>n+1)}>Spróbuj ponownie</button></div>:taskData&&taskAlertTotal(taskData)>0?taskAlertLinks(taskData).map(item=><Link href={item.href} key={item.href} onClick={closePanel}><Icon name="check"/><span>{item.label}<strong>{item.count}</strong></span><Icon name="chevron" size={16}/></Link>):<p className="shell-no-alerts">Nie masz zaległych ani dzisiejszych zadań.</p>}<Link className="shell-task-agenda" href="/dashboard/tasks?filter=open" onClick={closePanel}>Otwórz moje zadania <Icon name="arrow" size={16}/></Link></section>{serviceAlerts>0&&<section aria-labelledby="shell-service-alerts-title"><h3 id="shell-service-alerts-title">Serwis i przeglądy</h3>{alerts.urgent>0&&<Link href="/dashboard/service?status=open" onClick={closePanel}><Icon name="wrench"/><span>Pilne zgłoszenia<strong>{alerts.urgent}</strong></span><Icon name="chevron" size={16}/></Link>}{alerts.overdue>0&&<Link href="/dashboard/maintenance?view=overdue" onClick={closePanel}><Icon name="calendar"/><span>Przeglądy po terminie<strong>{alerts.overdue}</strong></span><Icon name="chevron" size={16}/></Link>}{alerts.upcoming>0&&<Link href="/dashboard/maintenance?view=upcoming" onClick={closePanel}><Icon name="calendar"/><span>Przeglądy w ciągu 30 dni<strong>{alerts.upcoming}</strong></span><Icon name="chevron" size={16}/></Link>}</section>}</div>}
  {panel==='profile'&&<div className="profile-panel"><span className="avatar" aria-hidden="true">{initials||'U'}</span><h3>{displayName}</h3><p>{email}</p><p className="muted">{roleLabels[role as AccessRole]||role}</p><div className="pui-theme-row"><span>Ciemny motyw</span><ThemeCapsule/></div><Link className="button secondary" href="/dashboard/settings" onClick={closePanel}>Ustawienia konta</Link><form action={logout}><button className="profile-signout" type="submit">Wyloguj się</button></form></div>}</dialog>
- <div className="pui-main" inert={mobileOpen}><div className="workspace">{children}</div></div>
+ <div className={shell.main} inert={mobileOpen}><div className="workspace">{children}</div></div>
  </div></div>;
 }
 
@@ -148,7 +189,7 @@ function NavigationGroup({id,title,viewerId,children}:{id:string;title:string;vi
   return()=>{live=false;};},[storageKey,prefKey]);
  function toggle(){const next=!collapsed;setCollapsed(next);try{localStorage.setItem(storageKey,next?'collapsed':'expanded');}catch{/* Navigation remains usable when storage is unavailable. */}
   accountPrefs=null;void fetch('/api/v1/me/preferences',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:prefKey,value:next})}).catch(()=>{});}
- return <section className="pui-nav-group"><button type="button" className="pui-group-h" aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={`pui-caret${collapsed?' is-closed':''}`} aria-hidden="true"><Icon name="down" size={12}/></span></button><div id={'nav-group-'+id} className="pui-nav-group" hidden={collapsed}>{children}</div></section>;
+ return <section className={cx('flex flex-col',offGrid.navGap)}><button type="button" className={shell.groupHead} aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={cx('inline-flex transition-transform',collapsed&&'-rotate-90')} aria-hidden="true"><Icon name="down" size={12}/></span></button><div id={'nav-group-'+id} className={cx(collapsed?'hidden':'flex','flex-col',offGrid.navGap)} hidden={collapsed}>{children}</div></section>;
 }
 
 

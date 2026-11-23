@@ -140,6 +140,16 @@
   --breakpoint-desktop: 761px;
 }
 
+/* Czas przejść z tokenów (--dur-fast jest domyślny dla transition-*). */
+@utility duration-fast {
+  --tw-duration: var(--dur-fast);
+  transition-duration: var(--dur-fast);
+}
+@utility duration-base {
+  --tw-duration: var(--dur-base);
+  transition-duration: var(--dur-base);
+}
+
 /* Pierścień pola: wewnętrzny, 1,5 px (Precision UI: fokus pola) — Tailwind nie ma ułamkowej grubości ring.
    Kolor z ring-accent / ring-danger (zmienna --tw-ring-color), domyślnie --accent. */
 @utility field-ring {
