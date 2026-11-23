@@ -2,7 +2,8 @@
 /* Zlecenie (design ZS-1047): measurements, materials and the activity thread, styled with the design's inline values. */
 import { useEffect, useState, type CSSProperties } from 'react';
 import { serviceJobSchema, type ServiceJob, type ServiceMaterial, type ServiceMeasurement } from '@hvac/api-client';
-import { PersonAvatar, personName } from './design-icons';
+import { PersonAvatar } from '@/components/glyphs';
+import { personName } from '@/lib/tasks/labels';
 import { catalogMoney } from '@/lib/catalog/format';
 
 export type JobEvent = { at: string; who: string | null; whoId: string | null; text: string; ref?: string };

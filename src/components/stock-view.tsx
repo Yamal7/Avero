@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockRefillResultSchema, stockUnits, type StockDraft, type StockItem, type StockLocation, type StockMove, type StockOverview } from '@hvac/api-client';
-import { DI, PersonAvatar, personName, taskNumber, ticketCode } from './design-icons';
+import { PersonAvatar } from '@/components/glyphs';
+import { personName, taskNumber, ticketCode } from '@/lib/tasks/labels';
+import { Archive, ArrowLineDown, ArrowLineUp, ArrowsLeftRight, CaretDown, CaretRight, Cloud, Cube, Drop, FileText, Folder, Gauge, Hash, Lock, NotePencil, Plus, Rows, SidebarSimple, Truck, Warning, WarningCircle, X } from '@phosphor-icons/react/ssr';
 
 export type StockTicket = { id: string; number: number; subject: string; customer: string; devices: { id: string; label: string }[] };
 export type StockTask = { id: string; number: number; title: string; customerId: string; customer: string };
@@ -12,25 +14,24 @@ type DocKind = 'PZ' | 'RW' | 'MM' | 'WZ';
 type View = 'all' | 'refrigerant' | 'below' | 'vehicles';
 type Dialog = { kind: DocKind; itemId?: string; from?: string; to?: string; draft?: StockDraft } | { kind: 'item'; item?: StockItem } | { kind: 'vehicle' } | null;
 
-const sv = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
 const I = {
-  box: <svg {...sv} width={16} height={16}><rect x="2" y="3" width="20" height="5" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4" /></svg>,
-  lock: <svg {...sv} width={12} height={12} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>,
-  warn: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--warning)' }}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4M12 17h.01" /></svg>,
-  err: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>,
-  out: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M12 21V9M7 14l5-5 5 5" /><path d="M5 3h14" /></svg>,
-  in: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--success)' }}><path d="M12 3v12M7 10l5 5 5-5" /><path d="M5 21h14" /></svg>,
-  mm: <svg {...sv} style={{ flex: '0 0 auto' }}><path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" /></svg>,
-  drop: <svg {...sv} style={{ flex: '0 0 auto' }}><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg>,
-  cube: <svg {...sv} style={{ flex: '0 0 auto' }}><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5M12 22V12" /></svg>,
-  cloud: <svg {...sv} style={{ flex: '0 0 auto' }}><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></svg>,
-  gauge: <svg {...sv} style={{ flex: '0 0 auto' }}><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0" /></svg>,
-  shelf: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18" /></svg>,
-  folder: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></svg>,
-  hash: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" /></svg>,
-  min: <svg {...sv} width={16} height={16} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0" /></svg>,
-  draft: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8" /></svg>,
-  truck: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></svg>,
+  box: <Archive size={16} className="shrink-0" aria-hidden />,
+  lock: <Lock size={12} className="shrink-0 text-tertiary" aria-hidden />,
+  warn: <Warning size={14} className="shrink-0 text-warning" aria-hidden />,
+  err: <WarningCircle size={14} className="shrink-0 text-danger" aria-hidden />,
+  out: <ArrowLineUp size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  in: <ArrowLineDown size={14} className="shrink-0 text-success" aria-hidden />,
+  mm: <ArrowsLeftRight size={14} className="shrink-0" aria-hidden />,
+  drop: <Drop size={14} className="shrink-0" aria-hidden />,
+  cube: <Cube size={14} className="shrink-0" aria-hidden />,
+  cloud: <Cloud size={14} className="shrink-0" aria-hidden />,
+  gauge: <Gauge size={14} className="shrink-0" aria-hidden />,
+  shelf: <Rows size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  folder: <Folder size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  hash: <Hash size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  min: <Gauge size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  draft: <FileText size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  truck: <Truck size={14} className="shrink-0 text-tertiary" aria-hidden />,
 };
 const ib = (s: number): CSSProperties => ({ width: s, height: s, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-secondary)', padding: 0, minHeight: 0 });
 const chip: CSSProperties = { height: 22, display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 8px 0 6px', borderRadius: 11, background: 'var(--bg-subtle)', fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' };
@@ -62,7 +63,7 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
   return (
     <main className="dk" style={{ flex: '1 1 auto', minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
-        <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.box}</span><span style={{ color: 'var(--text-secondary)' }}>Finanse i magazyn</span><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+        <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.box}</span><span style={{ color: 'var(--text-secondary)' }}>Finanse i magazyn</span><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
         <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Magazyn</h1><span style={{ flex: '1 1 auto' }} />
         <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{items.length} pozycji · {belowCount} poniżej minimum</span>
       </div>
@@ -71,8 +72,8 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
           {([['all', 'Wszystkie'], ['refrigerant', 'Czynniki chłodnicze'], ['below', 'Poniżej minimum'], ['vehicles', 'W samochodach']] as [View, string][]).map(([v, l]) => <Link key={v} role="tab" aria-selected={view === v} className="tab" href={href(v)} style={tab(view === v)}>{l}</Link>)}
         </div>
         <span style={{ flex: '1 1 auto' }} />
-        {view !== 'vehicles' && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} style={ib(28)}>{DI.panel}</button>}
-        {manage && <button type="button" className="sec" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} style={{ ...sec, marginLeft: 4 }}>{DI.plus14}Pozycja</button>}
+        {view !== 'vehicles' && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} style={ib(28)}><SidebarSimple size={16} mirrored className="shrink-0" aria-hidden /></button>}
+        {manage && <button type="button" className="sec" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} style={{ ...sec, marginLeft: 4 }}><Plus size={14} className="shrink-0" aria-hidden />Pozycja</button>}
         {data.drafts.map(d => <button key={d.id} type="button" className="sec" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} style={{ ...sec, fontWeight: 400, color: 'var(--text-secondary)' }}>{I.draft}Szkic {d.kind}</button>)}
         {manage && <button type="button" className="sec" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} style={sec}>{I.in}Przyjęcie</button>}
         {manage && <button type="button" className="sec" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} style={sec}>{I.out}WZ</button>}
@@ -94,7 +95,7 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
                     <section key={g.c} style={{ display: 'flex', flexDirection: 'column' }}>
                       <div className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, marginBottom: 4 }}>
                         <button type="button" aria-expanded={!collapsed[g.c]} onClick={() => setCollapsed(s => ({ ...s, [g.c]: !s[g.c] }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
-                          <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: collapsed[g.c] ? 'rotate(-90deg)' : 'rotate(0deg)' }}>{DI.caret}</span>
+                          <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: collapsed[g.c] ? 'rotate(-90deg)' : 'rotate(0deg)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
                           <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stockCategories[g.c]}</h2><span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span>
                         </button>
                       </div>
@@ -143,8 +144,8 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
     <aside aria-label={`Pozycja magazynowa ${item.code}`} className="tl-panel" style={{ flex: '0 0 400px', minWidth: 0, borderLeft: '1px solid var(--edge)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 44, padding: '0 8px 0 20px' }}>
         <span className="mono" style={{ color: 'var(--text-tertiary)' }}>{item.code}</span><span style={{ flex: '1 1 auto' }} />
-        {manage && <button type="button" className="ib" aria-label="Edytuj pozycję" title="Edytuj" onClick={onEdit} style={ib(24)}><svg {...sv} width={16} height={16}><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg></button>}
-        <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={onClose} style={ib(24)}>{DI.x}</button>
+        {manage && <button type="button" className="ib" aria-label="Edytuj pozycję" title="Edytuj" onClick={onEdit} style={ib(24)}><NotePencil size={16} className="shrink-0" aria-hidden /></button>}
+        <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={onClose} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 20px 16px' }}>
         <h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600, letterSpacing: '-0.01em' }}>{item.name}</h2>
@@ -231,7 +232,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px 8px' }}>
         {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" style={{ ...chip, padding: '0 8px 0 6px' }}>{I.warn}{totalShort} {totalShort === 1 ? 'brak' : totalShort < 5 ? 'braki' : 'braków'}</span>}
         <span style={{ flex: '1 1 auto' }} />
-        {manage && <button type="button" className="sec" onClick={onAddVan} style={sec}>{DI.plus14}Samochód</button>}
+        {manage && <button type="button" className="sec" onClick={onAddVan} style={sec}><Plus size={14} className="shrink-0" aria-hidden />Samochód</button>}
         {manage && totalShort > 0 && <button type="button" className="pri" disabled={busy} title="Jedno przesunięcie MM z bazy do każdego samochodu z brakami" onClick={() => void refill()} style={{ ...pri, opacity: busy ? 0.6 : 1 }}>{I.mm}{busy ? 'Księgowanie…' : `Uzupełnij braki (${totalShort})`}</button>}
       </div>
       {!vans.length ? <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>{manage ? 'Nie ma jeszcze samochodów. Dodaj samochód technika, a potem przesuń do niego towar dokumentem MM.' : 'Biuro nie dodało jeszcze samochodów.'}</p> : (
@@ -243,7 +244,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
           </div>
           {groups.map(g => (
             <section key={g.c} style={{ display: 'flex', flexDirection: 'column', marginTop: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 36, padding: '0 10px' }}><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.caret}</span><h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stockCategories[g.c]}</h2><span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 36, padding: '0 10px' }}><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span><h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stockCategories[g.c]}</h2><span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span></div>
               {g.rows.map(i => (
                 <div key={i.id} className="row" style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
                   <span className="mono ell" style={{ color: 'var(--text-tertiary)' }}>{i.code}</span><span className="ell" style={{ fontWeight: 500 }}>{i.name}</span>
@@ -279,7 +280,7 @@ function Modal({ title, sub, children, onClose }: { title: string; sub?: string;
   return (
     <div role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} style={{ position: 'fixed', inset: 0, zIndex: 80, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '96px 16px 16px', background: 'var(--scrim)' }}>
       <div role="dialog" aria-modal="true" aria-label={title} style={{ width: 'min(580px, 100%)', maxHeight: 'calc(100dvh - 120px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, padding: 20, borderRadius: 16, background: 'var(--bg-surface)', boxShadow: 'var(--shadow-modal)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600 }}>{title}</h2>{sub && <span className="mono" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{sub}</span>}<span style={{ flex: '1 1 auto' }} /><button type="button" className="ib" aria-label="Zamknij" onClick={onClose} style={ib(24)}>{DI.x}</button></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600 }}>{title}</h2>{sub && <span className="mono" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{sub}</span>}<span style={{ flex: '1 1 auto' }} /><button type="button" className="ib" aria-label="Zamknij" onClick={onClose} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button></div>
         {children}
       </div>
     </div>

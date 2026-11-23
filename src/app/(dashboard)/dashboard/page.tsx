@@ -9,19 +9,20 @@ import { myTaskCustomerHref } from '@/lib/crm/tasks';
 import { displayTime, localDate, SERVICE_TIME_ZONE, visitOnDate } from '@/lib/service/dates';
 import { visitLabels, type CalendarVisit } from '@/lib/service/types';
 import { requireSession } from '@/lib/auth';
-import { DI, PersonAvatar, PriorityIcon, ProgressGlyph, StatusIcon, personName, taskNumber, ticketCode, type Priority } from '@/components/design-icons';
+import { PersonAvatar, PriorityIcon, ProgressGlyph, StatusIcon } from '@/components/glyphs';
+import { personName, taskNumber, ticketCode, type Priority } from '@/lib/tasks/labels';
+import { Buildings, CalendarBlank, CalendarDot, CalendarX, CaretDown, CaretRight, Clock, Plus, SidebarSimple, Sun, Warning, WarningCircle, Wrench } from '@phosphor-icons/react/ssr';
 
-const sv = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
 const I = {
-  sun: <svg {...sv} width={16} height={16}><circle key="1" cx="12" cy="12" r="4" /><path key="2" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>,
-  alert: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><path key="1" d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path key="2" d="M12 9v4M12 17h.01" /></svg>,
-  clock: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 6v6l4 2" /></svg>,
-  late: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--danger)' }}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 8v4M12 16h.01" /></svg>,
-  cal: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><rect key="1" x="3" y="4" width="18" height="18" rx="2" /><path key="2" d="M16 2v4M8 2v4M3 10h18" /></svg>,
-  cal16: <svg {...sv} width={16} height={16}><rect key="1" x="3" y="4" width="18" height="18" rx="2" /><path key="2" d="M16 2v4M8 2v4M3 10h18" /></svg>,
-  tool: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>,
-  inbox: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M12 8v4M12 16h.01" /><circle key="2" cx="12" cy="12" r="10" /></svg>,
-  people: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><path key="1" d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path key="2" d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4" /></svg>,
+  sun: <Sun size={16} className="shrink-0" aria-hidden />,
+  alert: <Warning size={14} className="shrink-0 text-danger" aria-hidden />,
+  clock: <Clock size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  late: <WarningCircle size={14} className="shrink-0 text-danger" aria-hidden />,
+  cal: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  cal16: <CalendarBlank size={16} className="shrink-0" aria-hidden />,
+  tool: <Wrench size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  inbox: <WarningCircle size={14} className="shrink-0 text-tertiary" aria-hidden />,
+  people: <Buildings size={14} className="shrink-0 text-tertiary" aria-hidden />,
 };
 const ibStyle = (size: number): CSSProperties => ({ width: size, height: size, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-secondary)', padding: 0 });
 const rowStyle = (cols: string): CSSProperties => ({ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 });
@@ -32,7 +33,7 @@ function Group({ title, count, action, children }: { title: string; count: numbe
     <details open style={{ display: 'flex', flexDirection: 'column' }}>
       <summary className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, background: 'transparent', marginBottom: 4, listStyle: 'none', cursor: 'pointer' }}>
         <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px' }}>
-          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.caret}</span>
+          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
           <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{title}</h2>
           <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{count}</span>
         </span>
@@ -48,7 +49,7 @@ function Widget({ title, note, action, children }: { title: string; note?: strin
       <summary style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 4px', listStyle: 'none', cursor: 'pointer' }}>
         <span className="tab" style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', gap: 6, height: 28, padding: '0 6px', borderRadius: 8, color: 'var(--text-secondary)' }}>
           <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500, color: 'var(--text-primary)' }}>{title}</h2>
-          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.caret}</span>
+          <span className="caret day-caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
         </span>
         {note && <span style={{ fontSize: 12, color: 'var(--text-tertiary)', paddingRight: 6 }}>{note}</span>}
         {action}
@@ -121,14 +122,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     const own = visits.filter(v => v.assigned_to === id), done = own.filter(v => v.status === 'completed').length, active = own.some(v => v.status === 'in_progress' || v.status === 'en_route');
     return { id, label: people.get(id) || 'Technik', done, total: own.length, active };
   });
-  const groupAction = (href: string, label: string) => <Link href={href} className="ib" aria-label={label} title={label} style={ibStyle(24)}>{DI.plus16}</Link>;
+  const groupAction = (href: string, label: string) => <Link href={href} className="ib" aria-label={label} title={label} style={ibStyle(24)}><Plus size={16} className="shrink-0" aria-hidden /></Link>;
 
   return (
     <main className="dk" style={{ flex: '1 1 auto', minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
         <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.sun}</span>
         <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Mój dzień</h1>
-        <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+        <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
         <time dateTime={today} title={fullDate} style={{ color: 'var(--text-secondary)' }}>{dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1)}</time>
         <span style={{ flex: '1 1 auto' }} />
         <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{total} {plural(total, 'sprawa', 'sprawy', 'spraw')}</span>
@@ -140,7 +141,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <Link role="tab" aria-selected="false" className="tab" href="/dashboard/notifications" style={tabStyle(false)}>Aktywność</Link>
         </div>
         <span style={{ flex: '1 1 auto' }} />
-        <Link href={showRail ? '/dashboard?widgets=off' : '/dashboard'} className={`ib${showRail ? ' on' : ''}`} aria-label="Pokaż lub ukryj widgety" aria-pressed={showRail} title="Pokaż lub ukryj widgety" style={ibStyle(28)}>{DI.panel}</Link>
+        <Link href={showRail ? '/dashboard?widgets=off' : '/dashboard'} className={`ib${showRail ? ' on' : ''}`} aria-label="Pokaż lub ukryj widgety" aria-pressed={showRail} title="Pokaż lub ukryj widgety" style={ibStyle(28)}><SidebarSimple size={16} mirrored className="shrink-0" aria-hidden /></Link>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 16, padding: '4px 12px 24px' }}>
         <div style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -196,7 +197,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             </Group>
           )}
 
-          <Group title="Moje zadania" count={taskTotal} action={<Link href="/dashboard/tasks" className="ib" aria-label="Wszystkie zadania" title="Wszystkie zadania" style={ibStyle(24)}>{DI.chev}</Link>}>
+          <Group title="Moje zadania" count={taskTotal} action={<Link href="/dashboard/tasks" className="ib" aria-label="Wszystkie zadania" title="Wszystkie zadania" style={ibStyle(24)}><CaretRight size={12} className="shrink-0" aria-hidden /></Link>}>
             {tasks.items.length ? tasks.items.map(t => {
               const late = t.dueOn < tasks.today;
               return (
@@ -204,7 +205,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                   <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(t.number)}</span>
                   <span style={{ display: 'inline-flex' }}><StatusIcon state={t.state} /></span>
                   <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}><span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.title}</span><span className="ell" style={{ flex: '0 10000 auto', color: 'var(--text-secondary)' }}>{t.customerName}</span></span>
-                  <span className="num" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: late ? 'var(--danger)' : 'var(--text-primary)', fontWeight: 500 }}>{late ? DI.calLate : DI.calToday}<span>{late ? shortDate(t.dueOn) : 'Dziś'}</span></span>
+                  <span className="num" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: late ? 'var(--danger)' : 'var(--text-primary)', fontWeight: 500 }}>{late ? <CalendarX size={14} className="shrink-0 text-danger" aria-hidden /> : <CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />}<span>{late ? shortDate(t.dueOn) : 'Dziś'}</span></span>
                 </Link>
               );
             }) : <Empty>Nie masz zaległych ani dzisiejszych zadań.</Empty>}
@@ -242,7 +243,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               <Stat href={`/dashboard/calendar?week=${today}`} icon={I.tool} label="Wizyty" value={week.length} />
               <Stat href="/dashboard/maintenance?view=upcoming" icon={I.cal} label="Przeglądy" value={plansThisWeek} />
               <Stat href="/dashboard/service?status=open" icon={I.inbox} label="Otwarte zgłoszenia" value={serviceCount.count || 0} />
-              <Stat href="/dashboard/maintenance?view=overdue" icon={DI.calLate} label="Przeglądy po terminie" value={plans.summary.overdue} dot={plans.summary.overdue > 0} />
+              <Stat href="/dashboard/maintenance?view=overdue" icon={<CalendarX size={14} className="shrink-0 text-danger" aria-hidden />} label="Przeglądy po terminie" value={plans.summary.overdue} dot={plans.summary.overdue > 0} />
               <Stat href="/dashboard/customers" icon={I.people} label="Aktywni klienci" value={(customers.count || 0).toLocaleString('pl-PL')} />
             </Widget>
             <Widget title="Najbliższe przeglądy">

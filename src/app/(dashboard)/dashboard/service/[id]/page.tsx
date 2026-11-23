@@ -6,9 +6,11 @@ import { getServiceTicket } from '@/lib/service/data';
 import { displayDateTime } from '@/lib/service/dates';
 import { priorityLabels,ticketLabels,visitLabels,type Technician } from '@/lib/service/types';
 import { serviceJobSchema } from '@hvac/api-client';
-import { DI, PersonAvatar, PriorityIcon, ProgressGlyph, TicketStatusIcon, personName, ticketCode } from '@/components/design-icons';
+import { PersonAvatar, PriorityIcon, ProgressGlyph, TicketStatusIcon } from '@/components/glyphs';
+import { personName, ticketCode } from '@/lib/tasks/labels';
 import { ServiceJobSections, type JobEvent } from '@/components/service-job';
 import { AssignServiceTechnician,ScheduleVisit,TicketStatusForm,VisitActions } from '@/components/service-forms';
+import { CalendarDot, CaretRight, Plus } from '@phosphor-icons/react/ssr';
 export default async function TicketPage({params}:{params:Promise<{id:string}>}) {
  const {id}=await params;if(!z.string().uuid().safeParse(id).success) notFound();
  const ticket=await getServiceTicket(id);if(!ticket) notFound();
@@ -48,8 +50,8 @@ export default async function TicketPage({params}:{params:Promise<{id:string}>})
  return <main className="dk" style={{flex:'1 1 auto',minHeight:'100%',display:'flex',flexDirection:'column',background:'var(--bg-surface)'}}>
   <div style={{display:'flex',alignItems:'center',gap:8,height:44,padding:'0 12px 0 20px'}}>
    <span style={{display:'inline-flex',color:'var(--text-secondary)'}}>{ic.tool}</span>
-   <span style={{color:'var(--text-secondary)'}}>Serwis</span><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}>{DI.chev}</span>
-   <Link href="/dashboard/service" className="flink" style={{color:'var(--text-secondary)'}}>Zgłoszenia</Link><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}>{DI.chev}</span>
+   <span style={{color:'var(--text-secondary)'}}>Serwis</span><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
+   <Link href="/dashboard/service" className="flink" style={{color:'var(--text-secondary)'}}>Zgłoszenia</Link><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
    <h1 className="num" style={{margin:0,fontSize:13,lineHeight:'20px',fontWeight:500}}>{ticketCode(ticket.ticket_number)}</h1>
    <span style={{flex:'1 1 auto'}}/>
    <Link className="ib" href="/dashboard/calendar" aria-label="Planowanie" title="Planowanie" style={{width:24,height:24,display:'inline-flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',color:'var(--text-secondary)'}}>{ic.cal}</Link>
@@ -70,10 +72,10 @@ export default async function TicketPage({params}:{params:Promise<{id:string}>})
        <span className="capd" title="Status" style={capd}>{ticketGlyph}{ticketLabels[ticket.status]}</span>
        <span className="capd" title="Priorytet" style={capd}><PriorityIcon priority={ticket.priority==='high'?'high':ticket.priority==='low'?'low':'normal'}/>{priorityLabels[ticket.priority]}</span>
        {techLabel?<span className="capd" title={`Technik: ${techLabel}`} style={{...capd,padding:'0 10px 0 4px'}}><PersonAvatar id={ticket.assigned_to!} label={techLabel}/>{personName(techLabel)}</span>:<span className="capd" title="Bez technika" style={{...capd,color:'var(--text-secondary)'}}><span style={{width:14,height:14,borderRadius:'50%',border:'1px dashed var(--border-strong)'}}/>Bez technika</span>}
-       {active&&<span className="capd" title={`Najbliższa wizyta: ${active.scheduled_at}`} style={{...capd,fontWeight:500}}>{DI.calToday}{isToday(active.scheduled_at)?'Dziś':day(active.scheduled_at)}, {hm(active.scheduled_at)}</span>}
+       {active&&<span className="capd" title={`Najbliższa wizyta: ${active.scheduled_at}`} style={{...capd,fontWeight:500}}><CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />{isToday(active.scheduled_at)?'Dziś':day(active.scheduled_at)}, {hm(active.scheduled_at)}</span>}
       </div>
      </div>
-     {canManage&&ticket.status!=='closed'&&ticket.assigned_to&&<div style={{display:'flex',alignItems:'center',gap:8,flex:'0 0 auto'}}><a href="#nowa-wizyta" className="sec" style={{height:32,display:'inline-flex',alignItems:'center',gap:6,padding:'0 12px 0 10px',border:0,borderRadius:10,background:'var(--bg-subtle)',fontWeight:500}}>{DI.plus14}Nowa wizyta</a></div>}
+     {canManage&&ticket.status!=='closed'&&ticket.assigned_to&&<div style={{display:'flex',alignItems:'center',gap:8,flex:'0 0 auto'}}><a href="#nowa-wizyta" className="sec" style={{height:32,display:'inline-flex',alignItems:'center',gap:6,padding:'0 12px 0 10px',border:0,borderRadius:10,background:'var(--bg-subtle)',fontWeight:500}}><Plus size={14} className="shrink-0" aria-hidden />Nowa wizyta</a></div>}
     </div>
     <div style={{padding:'0 24px 16px'}}>
      <div role="status" style={{display:'flex',alignItems:'center',gap:8,minHeight:40,padding:'8px 8px 8px 12px',borderRadius:12,background:'var(--bg-raised)',flexWrap:'wrap'}}>

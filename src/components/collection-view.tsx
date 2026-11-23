@@ -2,6 +2,7 @@
 /* Collection view engine (design: „Widok kolekcji” + „Opcje widoku”): grouping, sorting, showing finished and empty groups,
    columns, filters and saved views. Options and saved views are kept on the account (user preferences), per collection. */
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { ArrowsDownUp, Check, CheckCircle, Eye, Stack, X } from '@phosphor-icons/react/ssr';
 
 export type ViewState = { group: string; sort: string; showDone: boolean; showEmpty: boolean; columns: string[]; filters: Record<string, string[]> };
 export type SavedView = { name: string; state: ViewState };
@@ -30,17 +31,17 @@ export function useCollectionView(collection: string, defaults: ViewState) {
 }
 
 type Choice = { value: string; label: string };
-const sv = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true, style: { flex: '0 0 auto', color: 'var(--text-tertiary)' } };
 const icons = {
-  group: <svg {...sv}><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /></svg>,
-  sort: <svg {...sv}><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16" /></svg>,
-  done: <svg {...sv}><circle cx="12" cy="12" r="10" /><path d="m8 12 3 3 5-6" /></svg>,
-  eye: <svg {...sv}><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0" /><circle cx="12" cy="12" r="3" /></svg>,
+  group: <Stack size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  sort: <ArrowsDownUp size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  done: <CheckCircle size={16} className="shrink-0 text-tertiary" aria-hidden />,
+  eye: <Eye size={16} className="shrink-0 text-tertiary" aria-hidden />,
 };
 const row: CSSProperties = { display: 'flex', alignItems: 'center', gap: 8, height: 32, padding: '0 0 0 8px' };
 const selectStyle: CSSProperties = { height: 28, minHeight: 0, padding: '0 6px 0 8px', border: 0, borderRadius: 8, background: 'var(--bg-subtle)', font: 'inherit', fontSize: 13, color: 'var(--text-primary)', boxShadow: 'none' };
 const chipStyle = (on: boolean): CSSProperties => ({ height: 24, display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 8px', border: 0, borderRadius: 12, background: on ? 'var(--bg-subtle)' : 'var(--bg-raised)', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontSize: 12, fontWeight: on ? 500 : 400, minHeight: 0 });
-const check = <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>;
+// 10 px: w wadze Regular kreska byłaby za cienka (ok. 0,6 px), dlatego Bold
+const check = <Check size={10} weight="bold" className="shrink-0" aria-hidden />;
 function Switch({ on, label, onChange }: { on: boolean; label: string; onChange: (v: boolean) => void }) {
   return <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} style={{ width: 28, height: 16, padding: 2, border: 0, borderRadius: 6, background: on ? 'var(--accent)' : 'var(--border-strong)', display: 'inline-flex', justifyContent: on ? 'flex-end' : 'flex-start', minHeight: 0 }}><span style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--bg-surface)' }} /></button>;
 }
@@ -88,6 +89,6 @@ export function SavedViewPills({ view }: { view: ReturnType<typeof useCollection
   return <>{view.saved.map(v => { const on = view.active === v.name; return (
     <span key={v.name} style={{ display: 'inline-flex', alignItems: 'center', height: 28, borderRadius: 14, background: on ? 'var(--bg-subtle)' : 'transparent' }}>
       <button type="button" role="tab" aria-selected={on} className="tab" onClick={() => view.apply(v.name)} style={{ height: 28, padding: '0 4px 0 12px', border: 0, borderRadius: 14, background: 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: on ? 500 : 400, minHeight: 0 }}>{v.name}</button>
-      <button type="button" aria-label={`Usuń widok ${v.name}`} title="Usuń widok" onClick={() => view.remove(v.name)} style={{ width: 20, height: 20, marginRight: 4, padding: 0, border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-tertiary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+      <button type="button" aria-label={`Usuń widok ${v.name}`} title="Usuń widok" onClick={() => view.remove(v.name)} style={{ width: 20, height: 20, marginRight: 4, padding: 0, border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-tertiary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}><X size={10} weight="bold" className="shrink-0" aria-hidden /></button>
     </span>); })}</>;
 }

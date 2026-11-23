@@ -17,8 +17,10 @@ import { catalogMoney } from '@/lib/catalog/format';
 import { maintenanceListSchema } from '@hvac/api-client';
 import { colorMap } from '@/lib/crm/category-colors';
 import { RecordPager } from '@/components/record-pager';
-import { DI, PersonAvatar, StatusIcon, TicketStatusIcon, personInitials, taskNumber, ticketCode } from '@/components/design-icons';
+import { PersonAvatar, StatusIcon, TicketStatusIcon } from '@/components/glyphs';
+import { personInitials, taskNumber, ticketCode } from '@/lib/tasks/labels';
 import { CustomerCategories } from '@/components/customer-categories';
+import { CalendarDot, CalendarX, CaretRight, Plus } from '@phosphor-icons/react/ssr';
 const categories={all:'Wszystkie zdarzenia',customer:'Profil klienta',contact:'Osoby kontaktowe',offer:'Oferty',work:'Realizacje',handover:'Odbiory',correction:'Poprawki',service:'Serwis',maintenance:'Przeglądy',crm_note:'Notatki CRM',crm_task:'Zadania CRM',crm_owner:'Opiekun'};
 const statuses:Record<string,string>={draft:'Robocza',published:'Udostępniona',accepted:'Zaakceptowana',superseded:'Poprzednia wersja',withdrawn:'Wycofana',archived:'Archiwalna',planned:'Zaplanowana',in_progress:'W trakcie',completed:'Zakończona',cancelled:'Anulowana',new:'Nowe',waiting:'Oczekuje',closed:'Zamknięte'};
 export default async function CustomerPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{tab?:string;page?:string;kind?:string;archived?:string;filter?:string}>}){
@@ -85,7 +87,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
   <section style={{display:'flex',flexDirection:'column',gap:4}}>
    <div style={{display:'flex',alignItems:'center',gap:8,height:32}}><h3 style={{flex:'1 1 auto',margin:0,fontSize:13,lineHeight:'20px',fontWeight:500}}>Najbliższe przeglądy</h3><Link href="/dashboard/maintenance" className="ghost" style={{height:28,display:'inline-flex',alignItems:'center',padding:'0 8px',border:0,borderRadius:8,color:'var(--text-secondary)',fontSize:12}}>Wszystkie przeglądy</Link></div>
    {plans.length?<><div style={{display:'grid',gridTemplateColumns:'minmax(0px, 1fr) 160px 80px 88px',columnGap:12,alignItems:'center',height:28,padding:0,fontSize:12,lineHeight:'16px',color:'var(--text-tertiary)'}}><span>Przegląd</span><span>Instalacja</span><span>Częstotliwość</span><span style={{textAlign:'right'}}>Termin</span></div>
-   <div style={{margin:'0 -8px'}}>{plans.map(pl=><Link key={pl.id} href={`/dashboard/maintenance/${pl.id}`} className="row" style={{display:'grid',gridTemplateColumns:'minmax(0px, 1fr) 160px 80px 88px',columnGap:12,alignItems:'center',height:36,padding:'0 8px',borderRadius:10}}><span className="ell" title={`${pl.address}, ${pl.city}`} style={{fontWeight:500}}>{pl.title}</span><span className="ell" style={{color:'var(--text-secondary)'}}>{pl.installation_type}</span><span style={{fontSize:12,color:'var(--text-secondary)'}}>co {pl.interval_months} mies.</span><span title={pl.next_due_on} style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:6,color:pl.state==='overdue'?'var(--danger)':'var(--text-primary)',fontWeight:500}}>{pl.state==='overdue'?DI.calLate:DI.calToday}<span className="num">{short(pl.next_due_on)}</span></span></Link>)}</div></>:<p style={{margin:0,color:'var(--text-secondary)'}}>Brak zaplanowanych przeglądów.</p>}
+   <div style={{margin:'0 -8px'}}>{plans.map(pl=><Link key={pl.id} href={`/dashboard/maintenance/${pl.id}`} className="row" style={{display:'grid',gridTemplateColumns:'minmax(0px, 1fr) 160px 80px 88px',columnGap:12,alignItems:'center',height:36,padding:'0 8px',borderRadius:10}}><span className="ell" title={`${pl.address}, ${pl.city}`} style={{fontWeight:500}}>{pl.title}</span><span className="ell" style={{color:'var(--text-secondary)'}}>{pl.installation_type}</span><span style={{fontSize:12,color:'var(--text-secondary)'}}>co {pl.interval_months} mies.</span><span title={pl.next_due_on} style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:6,color:pl.state==='overdue'?'var(--danger)':'var(--text-primary)',fontWeight:500}}>{pl.state==='overdue'?<CalendarX size={14} className="shrink-0 text-danger" aria-hidden />:<CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />}<span className="num">{short(pl.next_due_on)}</span></span></Link>)}</div></>:<p style={{margin:0,color:'var(--text-secondary)'}}>Brak zaplanowanych przeglądów.</p>}
   </section>
  </div>;
 
@@ -93,7 +95,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
   <div style={{display:'flex',alignItems:'center',gap:8,height:44,padding:'0 12px 0 20px'}}>
    <span style={{display:'inline-flex',color:'var(--text-secondary)'}}>{ic.building}</span>
    <Link href="/dashboard/customers" className="flink" style={{color:'var(--text-secondary)'}}>Firmy i osoby</Link>
-   <span style={{display:'inline-flex',color:'var(--text-tertiary)'}}>{DI.chev}</span>
+   <span style={{display:'inline-flex',color:'var(--text-tertiary)'}}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
    <h1 className="ell" style={{margin:0,fontSize:13,lineHeight:'20px',fontWeight:500}}>{customer.name}</h1>
    <span style={{flex:'1 1 auto'}}/>
    {nav&&<RecordPager position={nav.position} total={nav.total} previousHref={nav.previousId?`/dashboard/customers/${nav.previousId}`:null} nextHref={nav.nextId?`/dashboard/customers/${nav.nextId}`:null} noun={company?'firma':'osoba'}/>}
@@ -116,7 +118,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
       <CustomerCategories customer={id} initial={extra.categories} editable={editable} colors={catR.error?undefined:colorMap(catR.data as {name:string;color:string}[])}/>
      </div>
      <div style={{display:'flex',alignItems:'center',gap:8,flex:'0 0 auto'}}>
-      <Link href="/dashboard/service/new" className="sec" title="Nowe zgłoszenie" style={{height:32,display:'inline-flex',alignItems:'center',gap:6,padding:'0 12px 0 10px',border:0,borderRadius:10,background:'var(--bg-subtle)',fontWeight:500}}>{DI.plus14}Nowe zgłoszenie</Link>
+      <Link href="/dashboard/service/new" className="sec" title="Nowe zgłoszenie" style={{height:32,display:'inline-flex',alignItems:'center',gap:6,padding:'0 12px 0 10px',border:0,borderRadius:10,background:'var(--bg-subtle)',fontWeight:500}}><Plus size={14} className="shrink-0" aria-hidden />Nowe zgłoszenie</Link>
       {editable&&<OfferWizard initialCustomerId={id}/>}
      </div>
     </div>
@@ -141,7 +143,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
     </section>
     <div className="rec-section rec-crm" style={{padding:'0 8px'}}><CustomerCrmSummary customer={id} data={crm} editable={editable}/></div>
     <section style={{display:'flex',flexDirection:'column',gap:2}}>
-     <div style={{display:'flex',alignItems:'center',gap:8,height:24,padding:'0 0 0 8px'}}><h3 style={{flex:'1 1 auto',margin:0,fontSize:12,lineHeight:'16px',fontWeight:500,color:'var(--text-secondary)'}}>Osoby</h3><Link href={href('contacts')} className="ib" aria-label="Wszystkie osoby" title="Wszystkie osoby" style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-tertiary)',padding:0}}>{DI.plus16}</Link></div>
+     <div style={{display:'flex',alignItems:'center',gap:8,height:24,padding:'0 0 0 8px'}}><h3 style={{flex:'1 1 auto',margin:0,fontSize:12,lineHeight:'16px',fontWeight:500,color:'var(--text-secondary)'}}>Osoby</h3><Link href={href('contacts')} className="ib" aria-label="Wszystkie osoby" title="Wszystkie osoby" style={{width:24,height:24,flex:'0 0 auto',display:'inline-flex',alignItems:'center',justifyContent:'center',border:0,borderRadius:'50%',background:'transparent',color:'var(--text-tertiary)',padding:0}}><Plus size={16} className="shrink-0" aria-hidden /></Link></div>
      {contacts.length?contacts.map(c=><Link key={c.id} href={href('contacts')} className="row" title={[c.role,c.isPrimary?'główny kontakt':''].filter(Boolean).join(' · ')||c.name} style={{display:'flex',alignItems:'center',gap:10,minHeight:32,padding:'6px 8px',borderRadius:8}}><span aria-hidden="true" style={{width:20,height:20,flex:'0 0 auto',borderRadius:'50%',background:'var(--bg-subtle)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:600,color:'var(--text-secondary)'}}>{personInitials(c.name)}</span><span className="ell" style={{flex:'1 1 auto',fontWeight:500}}>{c.name}</span>{c.isPrimary&&<span title="Główny kontakt" style={{width:8,height:8,borderRadius:'50%',background:'rgb(75, 91, 214)'}}/>}</Link>):<p style={{margin:0,padding:'4px 8px',fontSize:12,color:'var(--text-secondary)'}}>Brak osób kontaktowych.</p>}
     </section>
     {data.canManage&&<section style={{display:'flex',flexDirection:'column',gap:2}}>

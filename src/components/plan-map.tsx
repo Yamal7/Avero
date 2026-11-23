@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import { assignTechnician, scheduleVisit } from '@/app/(dashboard)/dashboard/service/actions';
-import { PersonAvatar, PriorityIcon, ProgressGlyph, personColor, personName, ticketCode } from './design-icons';
+import { PersonAvatar, PriorityIcon, ProgressGlyph } from '@/components/glyphs';
+import { personColor, personName, ticketCode } from '@/lib/tasks/labels';
 import { freeSlot, hhmm, localMinutes, type PlanTech, type PlanTicket, type PlanVisit } from './plan-day';
 import { roadKm, type LatLng } from '@/lib/geo';
 

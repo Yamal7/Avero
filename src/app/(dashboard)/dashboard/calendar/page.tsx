@@ -8,8 +8,9 @@ import { PlanDay,type PlanDue,type PlanTech,type PlanTicket,type PlanVisit } fro
 import { PlanMap } from '@/components/plan-map';
 import { geoKey,type LatLng } from '@/lib/geo';
 import { companyProfileSchema } from '@hvac/api-client';
-import { DI,ticketCode } from '@/components/design-icons';
+import { ticketCode } from '@/lib/tasks/labels';
 import { maintenanceListSchema } from '@hvac/api-client';
+import { CaretRight, Plus } from '@phosphor-icons/react/ssr';
 async function WeekView({params}:{params:{week?:string;technician?:string}}){
  const requested=z.string().date().safeParse(params.week),start=weekStart(requested.success?requested.data:localDate()),{db}=await requireSession();
  const [calendar,mounts,manager]=await Promise.all([db.rpc('calendar_service_visits',{p_from:start}),db.rpc('calendar_work_visits',{p_from:start}),db.rpc('can_manage_crm')]);
@@ -38,7 +39,7 @@ export default async function CalendarPage({searchParams}:{searchParams:Promise<
  const dayLabel=new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw',weekday:'long',day:'numeric',month:'long'}).format(new Date(`${day}T12:00:00Z`));
  const header=(meta?:React.ReactNode)=><>
   <div style={{display:'flex',alignItems:'center',gap:8,height:44,padding:'0 12px 0 20px'}}>
-   <span style={{display:'inline-flex',color:'var(--text-secondary)'}}>{cal16}</span><span style={{color:'var(--text-secondary)'}}>Serwis</span><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}>{DI.chev}</span>
+   <span style={{display:'inline-flex',color:'var(--text-secondary)'}}>{cal16}</span><span style={{color:'var(--text-secondary)'}}>Serwis</span><span style={{display:'inline-flex',color:'var(--text-tertiary)'}}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
    <h1 style={{margin:0,fontSize:13,lineHeight:'20px',fontWeight:500}}>Planowanie</h1><span style={{flex:'1 1 auto'}}/>{meta}
   </div>
   <div style={{display:'flex',alignItems:'center',flexWrap:'wrap',gap:4,padding:'8px 12px 8px 16px'}}>
@@ -50,7 +51,7 @@ export default async function CalendarPage({searchParams}:{searchParams:Promise<
     <Link href={`/dashboard/calendar?view=week&week=${day}`} aria-current={view==='week'?'page':undefined} title="Tydzień" style={seg(view==='week')}>{calWeek}Tydzień</Link>
     <Link href={`/dashboard/calendar?view=map&day=${day}`} aria-current={view==='map'?'page':undefined} title="Mapa" style={seg(view==='map')}>{mapIcon}Mapa</Link>
    </div>
-   <Link href="/dashboard/service/new" className="pri" title="Nowe zgłoszenie" style={{height:28,display:'inline-flex',alignItems:'center',gap:6,padding:'0 10px 0 8px',border:0,borderRadius:8,background:'var(--accent)',color:'var(--on-accent)',fontWeight:500}}>{DI.plus14}Nowe zgłoszenie</Link>
+   <Link href="/dashboard/service/new" className="pri" title="Nowe zgłoszenie" style={{height:28,display:'inline-flex',alignItems:'center',gap:6,padding:'0 10px 0 8px',border:0,borderRadius:8,background:'var(--accent)',color:'var(--on-accent)',fontWeight:500}}><Plus size={14} className="shrink-0" aria-hidden />Nowe zgłoszenie</Link>
   </div>
  </>;
  if(view==='week')return <main className="dk" style={{flex:'1 1 auto',minHeight:'100%',display:'flex',flexDirection:'column',background:'var(--bg-surface)'}}>{header()}<div className="legacy-week" style={{padding:'0 24px 24px'}}><WeekView params={params}/></div></main>;
