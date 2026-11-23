@@ -1262,6 +1262,78 @@
       "w": 390,
       "x": 10080,
       "y": 57260
+    },
+    "Panel-zwiniety.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel zwinięty · Faktury",
+      "x": 0,
+      "y": 61400
+    },
+    "Panel-ukryty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel ukryty · Faktury",
+      "x": 1520,
+      "y": 61400
+    },
+    "Panel-zwiniety-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel zwinięty · Firmy · ciemny",
+      "x": 3040,
+      "y": 61400
+    },
+    "Linia-skrzynka-dwie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · dwie linie (dotychczas)",
+      "x": 0,
+      "y": 62660
+    },
+    "Linia-skrzynka-jedna.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Skrzynka · jedna linia",
+      "x": 1520,
+      "y": 62660
+    },
+    "Linia-planowanie-dwie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Planowanie · dwie linie (dotychczas)",
+      "x": 3040,
+      "y": 62660
+    },
+    "Linia-planowanie-jedna.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Planowanie · jedna linia",
+      "x": 4560,
+      "y": 62660
+    },
+    "Linia-ustawienia-dwie.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · powiadomienia · dwie linie (dotychczas)",
+      "x": 6080,
+      "y": 62660
+    },
+    "Linia-ustawienia-jedna.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Ustawienia · powiadomienia · jedna linia",
+      "x": 7600,
+      "y": 62660
     }
   },
   "createdOnFiles": {
@@ -1579,7 +1651,16 @@
     "Klient-B-urzadzenia.dc.html",
     "Klient-B-urzadzenia-ciemny.dc.html",
     "Klient-B-urzadzenie.dc.html",
-    "Klient-B-urzadzenie-ciemny.dc.html"
+    "Klient-B-urzadzenie-ciemny.dc.html",
+    "Panel-zwiniety.dc.html",
+    "Panel-ukryty.dc.html",
+    "Panel-zwiniety-ciemny.dc.html",
+    "Linia-skrzynka-dwie.dc.html",
+    "Linia-skrzynka-jedna.dc.html",
+    "Linia-planowanie-dwie.dc.html",
+    "Linia-planowanie-jedna.dc.html",
+    "Linia-ustawienia-dwie.dc.html",
+    "Linia-ustawienia-jedna.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

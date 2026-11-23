@@ -5,6 +5,7 @@ set -euo pipefail
 cp design/tools/base/Main.base.html design/canvas/Main.dc.html
 python3 design/tools/mojdzien2.py   # porządki: Mój dzień, spójne osoby i firmy w bazie
 python3 design/tools/jedna_linia.py # tabele w jednej linii: tokeny ikon, logo firm, karta podglądu
+python3 design/tools/pasek_boczny.py # lewy panel: rozwinięty / zwinięty / ukryty, przycisk [
 python3 design/tools/oferta.py      # oferta: pozycje, warunki, wysyłka, po akceptacji
 python3 design/tools/zm.py          # zlecenie montażu ZS-1052
 python3 design/tools/faktura.py     # faktura końcowa
@@ -35,6 +36,7 @@ python3 design/tools/klient.py      # ekrany klienta (osobne pliki Klient-*.dc.h
 python3 design/tools/klient2.py      # portal klienta firmowego
 python3 design/tools/telefon.py      # aplikacje na telefon w stylu Linear mobile (technik, klient)
 python3 design/tools/klient_tel.py   # aplikacja klienta: kierunki A „Co teraz” i B „Moje urządzenia” (do wyboru)
+python3 design/tools/linia_porownanie.py # prop wiersze: jedna linia w Skrzynce, Planowaniu, Ustawieniach (porównanie)
 python3 design/tools/tabele_przewijane.py # tabele: przewijanie w poziomie, przypięta kolumna główna
 python3 design/tools/split.py       # podział na Main + Main2 (limit rozmiaru pliku na kanwie)
 echo "Gotowe: design/canvas/Main.dc.html"
