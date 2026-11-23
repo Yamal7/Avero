@@ -46,14 +46,14 @@ describe('wspólne elementy (src/components/ui) — tylko klasy na tokenach', ()
     const pri = buttonClasses({ variant: 'pri' });
     expect(pri).toContain('bg-accent');
     expect(pri).toContain('focus-visible:outline-accent');
-    expect(pri).toMatch(/enabled:hover:/);
+    expect(pri).toMatch(/enabled:not-aria-disabled:hover:/);
     expect(pri).not.toMatch(/(^|\s)hover:/);
   });
 
   it('rama i układ list (app-shell, list-layout, glyphs) używają tylko istniejących klas Tailwinda', async () => {
     // klasy-zaczepienia dla arkuszy sprzed przebudowy (src/app/precision.css, globals.css) — nie są klasami Tailwinda
     const markers = new Set(['pui-shell', 'av', 'pui-main', 'workspace', 'no-print', 'group', 'pui-page-head', 'cv-actions', 'cv-pills', 'cv-table']);
-    const files = ['src/components/app-shell.tsx', 'src/components/list-layout.tsx', 'src/components/glyphs.tsx'];
+    const files = ['src/components/app-shell.tsx', 'src/components/app-shell-classes.ts', 'src/components/list-layout.tsx', 'src/components/glyphs.tsx'];
     const found = new Set<string>();
     for (const file of files) {
       const source = readFileSync(resolve(__dirname, '..', file), 'utf8');

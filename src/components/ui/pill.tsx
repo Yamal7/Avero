@@ -10,7 +10,7 @@ export function pillClasses({ active = false, size = 'md', className }: { active
   return cx(
     base,
     size === 'md' ? 'h-7 px-3 text-body leading-5' : 'h-6 px-2',
-    'border-0 min-h-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent max-desktop:h-9',
+    'border-0 py-0 min-h-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent max-desktop:h-9',
     active ? 'bg-subtle font-medium text-primary' : 'bg-transparent font-normal text-secondary hover:bg-transparent hover:text-primary',
     'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-secondary',
     className,
