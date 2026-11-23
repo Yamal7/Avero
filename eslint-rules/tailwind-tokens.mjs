@@ -1,7 +1,18 @@
 // Lokalna reguła ESLint (M0.2, KRA-26): w ekranach i komponentach klasy Tailwinda tylko z tokenów.
 // Zgłasza wartości dowolne (`w-[13px]`, `text-[#fff]`, `w-(--x)`, `[mask-type:luminance]`) oraz ułamkowe
 // odstępy spoza siatki 4 px (`p-0.5`, `gap-1.5`, `top-0.5`, `p-px`). Warianty dowolne (`data-[state=open]:`) są dozwolone —
-// to selektory, nie wartości. Sprawdzane są wszystkie napisy w pliku, bo klasy bywają w stałych i wariantach.
+// to selektory, nie wartości. Sprawdzane są wszystkie napisy w pliku, bo klasy bywają w stałych i wariantach,
+// z wyjątkiem atrybutów geometrii SVG (`d`, `points`, `viewBox`), które nie są listą klas.
+
+const SVG_GEOMETRY = new Set(['d', 'points', 'viewBox']);
+/** Czy napis leży w wartości atrybutu geometrii SVG (także `d={cond ? '…' : `…`}`). */
+function inSvgGeometry(node) {
+  for (let n = node.parent; n; n = n.parent) {
+    if (n.type === 'JSXAttribute') return SVG_GEOMETRY.has(n.name?.name);
+    if (n.type === 'JSXElement' || n.type.includes('Function') || n.type === 'Program') return false;
+  }
+  return false;
+}
 
 const SPACING = [
   'p', 'px', 'py', 'pt', 'pr', 'pb', 'pl', 'ps', 'pe',
@@ -13,8 +24,10 @@ const SPACING = [
 // Wymiary elementów (w-, h-, size-, min-/max-, basis-) i wysokość linii mogą być ułamkowe (ikona 14 px = size-3.5):
 // siatka 4 px dotyczy odstępów.
 const fractional = new RegExp(`^-?(?:${SPACING.join('|')})-\\d+\\.\\d+$`);
-// odstęp 1 px (`p-px`, `gap-px`) — też poza siatką 4 px; `w-px` / `h-px` (linie 1 px) zostają dozwolone
-const onePixel = /^-?(?:p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y)-px$/;
+// odstęp 1 px (`p-px`, `gap-px`, `top-px`, `translate-x-px`) — też poza siatką 4 px; `w-px` / `h-px` (linie 1 px) zostają dozwolone
+const onePixel = new RegExp(`^-?(?:${SPACING.join('|')})-px$`);
+// modyfikator przezroczystości z wartością dowolną: `bg-accent/[0.37]`, `bg-accent/(--x)`
+const arbitraryModifier = /\/[[(]/;
 // utility z wartością dowolną: `w-[…]`, `w-(…)`; także niedomknięta (fragment szablonu `grid-cols-[${x}]`)
 const arbitraryValue = /^-?[a-z][a-z0-9-]*-[[(]/;
 // dowolna właściwość: `[mask-type:luminance]`
@@ -31,13 +44,14 @@ function utilityOf(token) {
     else if (ch === ']' || ch === ')') depth = Math.max(0, depth - 1);
     else if (ch === ':' && depth === 0) start = i + 1;
   }
-  return token.slice(start).replace(/^!/, '');
+  // znacznik ważności: v3 `!p-2`, v4 `p-2!`
+  return token.slice(start).replace(/^!/, '').replace(/!$/, '');
 }
 
 export function forbiddenClass(token) {
   if (!classLike.test(token)) return false;
   const utility = utilityOf(token);
-  return arbitraryValue.test(utility) || arbitraryProperty.test(utility) || fractional.test(utility) || onePixel.test(utility);
+  return arbitraryValue.test(utility) || arbitraryProperty.test(utility) || arbitraryModifier.test(utility) || fractional.test(utility) || onePixel.test(utility);
 }
 
 const rule = {
@@ -59,9 +73,11 @@ const rule = {
       Literal(node) {
         if (typeof node.value !== 'string') return;
         if (node.parent?.type === 'ImportDeclaration' || node.parent?.type === 'ExportAllDeclaration' || node.parent?.type === 'ExportNamedDeclaration') return;
+        if (inSvgGeometry(node)) return;
         check(node, node.value);
       },
       TemplateElement(node) {
+        if (inSvgGeometry(node)) return;
         check(node, node.value.cooked ?? node.value.raw);
       },
     };
