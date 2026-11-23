@@ -263,7 +263,7 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 - [ ] Oferta pod linkiem: ceny brutto, **bez cen zakupu, marży, dostępności i zdjęć wewnętrznych** (test na odpowiedzi API, nie tylko na UI).
 - [ ] Akceptacja: podpis, zgoda na montaż przed 14 dniami (gdy dotyczy), zaliczka (P24 w trybie testowym), potwierdzenie.
 - [ ] Portal klienta zgodny z makietą (bez kart: sekcja „Teraz”, listy w jednej linii); link wygasa zgodnie z ustawieniem.
-- [ ] Aplikacja klienta na telefon według `screens/26-aplikacje-telefon.md` (`Klient-telefon.dc.html`): pływający pasek kart i przycisk „Zgłoś usterkę”.
+- Aplikacja klienta na telefon — **odłożona** (23 lis 2026): kierunek do ustalenia przez właściciela; poza zakresem M2.4. Portal w przeglądarce telefonu działa jak dotąd (układ responsywny).
 
 ### M2.5 Zlecenie montażu — KRA-38
 Źródła: `screens/09-zlecenie-montazu.md`, `Zlecenie-montaz.dc.html`.
@@ -343,3 +343,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — CI w GitHub Actions i ochrona `main`; gałąź i PR na moduł z numerem KRA (zamiast gałęzi na fazę), scalanie automatyczne po zielonym CI, statusy w Linear przesuwa integracja.
 - 2026-11-22 — tabela modułów generowana z Linear (`scripts/linear-plan-sync.mjs`, workflow „Linear → plan”); Linear jedynym źródłem prawdy o modułach.
 - 2026-11-22 — czat projektowy: zmiana niezrobionych modułów M0.3 (karta firmy nad tabelą), M1.6 (telefon technika w stylu Linear mobile), M2.4 (portal bez kart + aplikacja klienta na telefon), M3.5 (raport z tabeli bez kart, czytelny panel); kryteria poprawione tu i w KRA-63, KRA-36, KRA-40, KRA-42.
+- 2026-11-23 — czat projektowy: aplikacja klienta na telefon odłożona (właściciel szuka innego kierunku niż A/B); usunięta z kryteriów M2.4 tu i w KRA-40. Priorytet: program na komputer.

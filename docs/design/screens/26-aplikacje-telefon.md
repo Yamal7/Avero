@@ -16,12 +16,14 @@ Makiety (390 px): `Telefon-dzien.dc.html` (+ `-ciemny`), `Telefon-menu.dc.html`,
 - **Wizyta** jak zadanie w Linear: pasek (wstecz, numer w mono, więcej), firma z logo, tytuł 26 px, opis dla technika; **właściwości** w wierszach 48 px z ikoną (Stan, Priorytet, Adres z „Nawiguj”, Kontakt z „Zadzwoń”, Urządzenie, Podstawa); **Kroki** jako podzadania z ikonami stanu (zrobione przekreślone, z godziną); **Części** (z auta); **Aktywność**. Na dole: pole „Notatka do wizyty…” z dyktowaniem, aparat, główny przycisk „Zakończ i podpisz” (otwiera protokół / podpis).
 - Kody do drzwi i alarmów nie są pokazywane ani przechowywane.
 
-## Klient
+## Klient (wersja jak Linear — odrzucona, zbyt podobna do Lineara; nie wdrażać)
 - Karty: Przegląd · Urządzenia · Faktury · Zgłoszenia; przycisk: **Zgłoś usterkę**.
 - Przegląd: Teraz (wizyta, decyzje z akcją, oferta), Zgłoszenia (stan dla klienta), Urządzenia (stan: po terminie / w naprawie / sprawny), Faktury (do zapłaty).
 - Klient nigdy nie widzi marży, cen zakupu, dostępności ani zdjęć wewnętrznych.
 
-## Klient — dwa kierunki do wyboru (23 lis 2026, czeka na decyzję właściciela)
+## Klient — dwa kierunki (23 lis 2026) — ODŁOŻONE
+Właściciel odłożył aplikację klienta i szuka innego kierunku niż A i B. Makiety zostają na kanwie jako materiał do dyskusji; nie wdrażać.
+
 Wersja „jak Linear” (`Klient-telefon`) za bardzo przypomina narzędzie do pracy. Klient otwiera aplikację kilka razy w roku i chce wiedzieć: „czy wszystko w porządku i czy mam coś zrobić?”. Pasek na dole zostaje (standard iOS), zmienia się treść. Obie wersje w barwach firmy instalatorskiej (logo, nazwa, kolor marki z Ustawień — white-label; tu Kranz HVACR, `--brand`). Pasek: Start · Urządzenia · Dokumenty (z podpisami).
 - **A „Co teraz”** (`Klient-A-co-teraz`, + ciemny): prawie pusty ekran, jedna sprawa dużym tekstem z przyciskiem głównym i „Później”; niżej „Poza tym” w zdaniach (technik dziś o 9:00, oferta czeka, faktury opłacone). Nad paskiem stałe pole „Opisz usterkę…” z dyktowaniem i aparatem.
 - **B „Moje urządzenia”** (`Klient-B-urzadzenia`, `Klient-B-urzadzenie`, + ciemne): urządzenia z **pierścieniem czasu** do przeglądu / kontroli F-gaz (zielony daleko, pomarańczowy w naprawie / blisko, czerwony po terminie, w środku liczba dni). Główna akcja: **skan naklejki QR** na jednostce → karta urządzenia z pierścieniem, danymi, „Wybierz termin kontroli” i „Zgłoś usterkę tego urządzenia”.
