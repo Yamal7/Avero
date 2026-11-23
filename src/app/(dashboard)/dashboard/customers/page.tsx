@@ -6,23 +6,23 @@ import { PersonCategories } from '@/components/person-categories';
 import { CustomerFilters } from '@/components/customer-filters';
 import { categoryTint, colorMap } from '@/lib/crm/category-colors';
 import { requireSession } from '@/lib/auth';
-import { DI, personInitials } from '@/components/design-icons';
+import { personInitials } from '@/lib/tasks/labels';
 import { catalogMoney } from '@/lib/catalog/format';
+import { Building, Buildings, CaretRight, Clock, Coins, Cube, DownloadSimple, MagnifyingGlass, MapPin, Plus, Scroll, Tag, User } from '@phosphor-icons/react/ssr';
 
-const sv = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true, style: { flex: '0 0 auto' } };
 const I = {
-  building16: <svg {...sv} width={16} height={16}><path key="1" d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path key="2" d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4" /></svg>,
-  download: <svg {...sv}><path key="1" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>,
-  search: <svg {...sv}><circle key="1" cx="11" cy="11" r="8" /><path key="2" d="m21 21-4.3-4.3" /></svg>,
-  firm: <svg {...sv}><path key="1" d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path key="2" d="M10 6h4M10 10h4M10 14h4M10 18h4" /></svg>,
-  person: <svg {...sv}><circle key="1" cx="12" cy="8" r="4" /><path key="2" d="M4 21a8 8 0 0 1 16 0" /></svg>,
-  tag: <svg {...sv}><path key="1" d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle key="2" cx="7.5" cy="7.5" r=".5" fill="currentColor" /></svg>,
-  pin: <svg {...sv}><path key="1" d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle key="2" cx="12" cy="10" r="3" /></svg>,
-  cube: <svg {...sv}><path key="1" d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path key="2" d="m3.3 7 8.7 5 8.7-5M12 22V12" /></svg>,
-  contract: <svg {...sv}><path key="1" d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path key="2" d="M14 2v4a2 2 0 0 0 2 2h4M9 15l2 2 4-4" /></svg>,
-  clock: <svg {...sv}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 6v6l4 2" /></svg>,
-  coins: <svg {...sv}><circle key="1" cx="8" cy="8" r="6" /><path key="2" d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M16.71 13.88l.7.71-2.82 2.82" /></svg>,
-  clockMuted: <svg {...sv} style={{ flex: '0 0 auto', color: 'var(--text-tertiary)' }}><circle key="1" cx="12" cy="12" r="10" /><path key="2" d="M12 6v6l4 2" /></svg>,
+  building16: <Buildings size={16} className="shrink-0" aria-hidden />,
+  download: <DownloadSimple size={14} className="shrink-0" aria-hidden />,
+  search: <MagnifyingGlass size={14} className="shrink-0" aria-hidden />,
+  firm: <Building size={14} className="shrink-0" aria-hidden />,
+  person: <User size={14} className="shrink-0" aria-hidden />,
+  tag: <Tag size={14} className="shrink-0" aria-hidden />,
+  pin: <MapPin size={14} className="shrink-0" aria-hidden />,
+  cube: <Cube size={14} className="shrink-0" aria-hidden />,
+  contract: <Scroll size={14} className="shrink-0" aria-hidden />,
+  clock: <Clock size={14} className="shrink-0" aria-hidden />,
+  coins: <Coins size={14} className="shrink-0" aria-hidden />,
+  clockMuted: <Clock size={14} className="shrink-0 text-tertiary" aria-hidden />,
 };
 const cols = (people: boolean) => people ? '32px 260px 220px 120px 92px 120px 48px' : '32px 220px 240px 104px 92px 116px 120px 48px 128px';
 const head: CSSProperties = { display: 'flex', alignItems: 'center', gap: 6, padding: '0 8px' };
@@ -59,7 +59,7 @@ export default async function Customers({ searchParams }: { searchParams: Promis
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
         <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.building16}</span>
         <span style={{ color: 'var(--text-secondary)' }}>Klienci</span>
-        <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+        <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
         <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Firmy i osoby</h1>
         <div role="tablist" aria-label="Rodzaj rekordów" style={{ display: 'inline-flex', gap: 2, padding: 2, marginLeft: 8, borderRadius: 10, background: 'var(--bg-subtle)' }}>
           <Link role="tab" aria-selected={!people} href={`/dashboard/customers?${new URLSearchParams({ kind: 'company', ...(archived ? { archived: '1' } : {}) })}`} style={kindTab(!people)}>Firmy<span className="num" style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>{data.counts.company}</span></Link>
@@ -77,7 +77,7 @@ export default async function Customers({ searchParams }: { searchParams: Promis
         </div>
         <span style={{ flex: '1 1 auto' }} />
         {manage && <Link href="/dashboard/customers/import" className="sec" title="Import CSV" style={{ height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px 0 8px', marginLeft: 4, border: 0, borderRadius: 8, background: 'var(--bg-subtle)', fontWeight: 500 }}>{I.download}Import</Link>}
-        {manage && <Link href="/dashboard/customers/new" className="pri" title={people ? 'Nowa osoba' : 'Nowa firma'} style={{ height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px 0 8px', border: 0, borderRadius: 8, background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 500 }}>{DI.plus14}<span>{people ? 'Nowa osoba' : 'Nowa firma'}</span></Link>}
+        {manage && <Link href="/dashboard/customers/new" className="pri" title={people ? 'Nowa osoba' : 'Nowa firma'} style={{ height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px 0 8px', border: 0, borderRadius: 8, background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 500 }}><Plus size={14} className="shrink-0" aria-hidden /><span>{people ? 'Nowa osoba' : 'Nowa firma'}</span></Link>}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, padding: '0 12px 8px 16px' }}>
         <form id="customer-search-form" action="/dashboard/customers" role="search" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 28, padding: '0 8px', borderRadius: 8, background: 'var(--bg-subtle)', fontSize: 12 }}>

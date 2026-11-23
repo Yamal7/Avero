@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import type { MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
-import { DI, PersonAvatar, PriorityIcon, StatusIcon, isOpenTask, priorityLabel, taskLabels, taskNumber, taskStateLabel } from './design-icons';
+import { PersonAvatar, PriorityIcon, StatusIcon } from '@/components/glyphs';
+import { isOpenTask, priorityLabel, taskLabels, taskNumber, taskStateLabel } from '@/lib/tasks/labels';
+import { Plus } from '@phosphor-icons/react/ssr';
 
 type Task = MyTasks['items'][number];
 type State = Task['state'];
@@ -22,7 +24,7 @@ export function TaskBoard({ data }: { data: MyTasks }) {
                 <StatusIcon state={state} />
                 <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{name}</h2>
                 <span className="num" style={{ flex: '1 1 auto', fontSize: 12, color: 'var(--text-tertiary)' }}>{items.length}</span>
-                <Link href="/dashboard/customers" className="ib" aria-label={`Nowe zadanie: ${name}`} title="Nowe zadanie: wybierz firmę" style={{ width: 24, height: 24, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-tertiary)', padding: 0 }}>{DI.plus14}</Link>
+                <Link href="/dashboard/customers" className="ib" aria-label={`Nowe zadanie: ${name}`} title="Nowe zadanie: wybierz firmę" style={{ width: 24, height: 24, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-tertiary)', padding: 0 }}><Plus size={14} className="shrink-0" aria-hidden /></Link>
               </div>
               {items.map(t => {
                 const late = isOpenTask(t.state) && t.dueOn < data.today, today = t.dueOn === data.today;

@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { crmTaskCommentSchema, crmTaskCommentsSchema, crmTaskLinkOptionsSchema, crmTaskMetaSchema, taskPlanChangeSchema, taskPlanContextSchema, type CrmTaskLink, crmTaskProgressSchema, crmTaskSchema, type CrmTaskComment, type MyTask, type MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
 import { SavedViewPills, ViewOptions, useCollectionView, type ViewState } from './collection-view';
-import { DI, PriorityIcon, StatusIcon, isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from './design-icons';
+import { PriorityIcon, StatusIcon } from '@/components/glyphs';
+import { isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from '@/lib/tasks/labels';
+import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, CaretDown, FunnelSimple, LinkIcon, Plus, SidebarSimple, SlidersHorizontal, X } from '@phosphor-icons/react/ssr';
 
 type Task = MyTask;
 type State = Task['state'];
@@ -34,10 +36,10 @@ const stampShort = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: z
 const initials = (label: string) => label.split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join('') || '?';
 const open = (t: Task) => isOpenTask(t.state);
 function dueLabel(t: Task, today: string) {
-  if (open(t) && t.dueOn < today) return { text: short(t.dueOn), title: 'Po terminie', icon: DI.calLate, color: 'var(--danger)', weight: 500 };
-  if (t.dueOn === today) return { text: 'Dziś', title: 'Termin dziś', icon: DI.calToday, color: 'var(--text-primary)', weight: 500 };
-  if (t.dueOn === addDays(today, 1)) return { text: 'Jutro', title: 'Termin', icon: DI.cal, color: 'var(--text-secondary)', weight: 400 };
-  return { text: short(t.dueOn), title: 'Termin', icon: DI.cal, color: 'var(--text-secondary)', weight: 400 };
+  if (open(t) && t.dueOn < today) return { text: short(t.dueOn), title: 'Po terminie', icon: <CalendarX size={14} className="shrink-0 text-danger" aria-hidden />, color: 'var(--danger)', weight: 500 };
+  if (t.dueOn === today) return { text: 'Dziś', title: 'Termin dziś', icon: <CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />, color: 'var(--text-primary)', weight: 500 };
+  if (t.dueOn === addDays(today, 1)) return { text: 'Jutro', title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'var(--text-secondary)', weight: 400 };
+  return { text: short(t.dueOn), title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'var(--text-secondary)', weight: 400 };
 }
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 
@@ -169,17 +171,17 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
         <SavedViewPills view={view} />
         <span style={{ flex: '1 1 auto' }} />
         {showSearch && search}
-        <button type="button" className={`ib${showSearch ? ' on' : ''}`} aria-label="Filtruj" title="Szukaj zadania lub klienta  F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} style={ib(28)}>{DI.filter}</button>
+        <button type="button" className={`ib${showSearch ? ' on' : ''}`} aria-label="Filtruj" title="Szukaj zadania lub klienta  F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} style={ib(28)}><FunnelSimple size={16} className="shrink-0" aria-hidden /></button>
         {layoutSwitch}
         {!board && <span style={{ position: 'relative', display: 'inline-flex' }}>
-          <button type="button" data-view-options-trigger className={`ib${optionsOpen ? ' on' : ''}`} aria-label="Opcje widoku" title="Opcje widoku  V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} style={ib(28)}>{DI.sliders}</button>
+          <button type="button" data-view-options-trigger className={`ib${optionsOpen ? ' on' : ''}`} aria-label="Opcje widoku" title="Opcje widoku  V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} style={ib(28)}><SlidersHorizontal size={16} className="shrink-0" aria-hidden /></button>
           {optionsOpen && <ViewOptions view={view} onClose={() => setOptionsOpen(false)}
             groups={[{ value: 'status', label: 'Status' }, { value: 'priority', label: 'Priorytet' }, { value: 'label', label: 'Etykieta' }, { value: 'assignee', label: 'Osoba' }, { value: 'none', label: 'Bez grupowania' }]}
             sorts={[{ value: 'priority', label: 'Priorytet' }, { value: 'due', label: 'Termin' }, { value: 'number', label: 'Numer' }, { value: 'created', label: 'Utworzone' }]}
             columns={[{ value: 'priority', label: 'Priorytet' }, { value: 'number', label: 'Numer' }, { value: 'customer', label: 'Klient' }, { value: 'label', label: 'Etykieta' }, { value: 'due', label: 'Termin' }, { value: 'assignee', label: 'Osoba' }]}
             filters={[{ key: 'priority', label: 'priorytet', options: (Object.keys(priorityRank) as Priority[]).map(p => ({ value: p, label: priorityLabel[p] })) }, { key: 'label', label: 'etykieta', options: (Object.keys(taskLabels) as TaskLabel[]).map(l => ({ value: l, label: taskLabels[l].name, dot: <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[l].color }} /> })) }]} />}
         </span>}
-        {!board && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" title="Panel szczegółów  ]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} style={ib(28)}>{DI.panel}</button>}
+        {!board && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" title="Panel szczegółów  ]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} style={ib(28)}><SidebarSimple size={16} mirrored className="shrink-0" aria-hidden /></button>}
         {toolbarExtra}
       </div>
       {board ?? <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'stretch', minHeight: 0 }}>
@@ -193,7 +195,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
               <section key={g.key} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, marginBottom: 4 }}>
                   <button type="button" aria-expanded={!isCollapsed} onClick={() => setCollapsed(c => ({ ...c, [g.key]: !isCollapsed }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
-                    <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>{DI.caret}</span>
+                    <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
                     {g.icon}
                     <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{g.label}</h2>
                     <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span>
@@ -230,9 +232,9 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 44, padding: '0 8px 0 20px' }}>
               <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(selected.number)}</span>
               <span style={{ flex: '1 1 auto' }} />
-              <button type="button" className="ib" aria-label="Kopiuj link" title={copied ? 'Skopiowano' : 'Kopiuj link'} onClick={copyLink} style={ib(24)}>{DI.link}</button>
-              <Link className="ib" href={myTaskCustomerHref(selected)} aria-label="Otwórz w karcie klienta" title="Otwórz w karcie klienta" style={ib(24)}>{DI.building}</Link>
-              <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={() => setPanelOn(false)} style={ib(24)}>{DI.x}</button>
+              <button type="button" className="ib" aria-label="Kopiuj link" title={copied ? 'Skopiowano' : 'Kopiuj link'} onClick={copyLink} style={ib(24)}><LinkIcon size={16} className="shrink-0" aria-hidden /></button>
+              <Link className="ib" href={myTaskCustomerHref(selected)} aria-label="Otwórz w karcie klienta" title="Otwórz w karcie klienta" style={ib(24)}><BuildingOffice size={16} className="shrink-0" aria-hidden /></Link>
+              <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={() => setPanelOn(false)} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 20px 16px' }}>
               <h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600, letterSpacing: '-0.01em' }}>{selected.title}</h2>
@@ -243,9 +245,9 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
               <label className="capd" title="Priorytet" style={{ ...capd, position: 'relative', cursor: 'pointer' }}><PriorityIcon priority={selected.priority} />{priorityLabel[selected.priority]}<select aria-label="Priorytet" value={selected.priority} disabled={busy} onChange={e => void saveMeta(e.target.value as Priority, selected.label)} style={pickerStyle}>{(Object.keys(priorityLabel) as Priority[]).map(k => <option key={k} value={k}>{priorityLabel[k]}</option>)}</select></label>
               <label className="capd" title="Osoba" style={{ ...capd, padding: '0 10px 0 4px', position: 'relative', cursor: canPlan && open(selected) ? 'pointer' : 'default' }}><span aria-hidden="true" style={{ ...avatar(20, 9), background: 'var(--bg-surface)' }}>{initials(selected.assigneeLabel)}</span>{selected.assigneeLabel}{canPlan && open(selected) && people.length > 0 && <select aria-label="Osoba" value={selected.assigneeId} disabled={busy || conflict} onChange={e => savePlan(e.target.value, selected.dueOn)} style={pickerStyle}>{!people.some(p => p.id === selected.assigneeId) && <option value={selected.assigneeId}>{selected.assigneeLabel}</option>}{people.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}</select>}</label>
               {(() => { const d = dueLabel(selected, data.today); return <label className="capd" title={`Termin: ${longDay(selected.dueOn)}`} style={{ ...capd, fontWeight: 500, color: d.color, position: 'relative', cursor: canPlan && open(selected) ? 'pointer' : 'default' }}>{d.icon}{d.text}{canPlan && open(selected) && <input type="date" aria-label="Termin" value={selected.dueOn} disabled={busy || conflict} onClick={e => { try { e.currentTarget.showPicker(); } catch {} }} onChange={e => { if (e.target.value) savePlan(selected.assigneeId, e.target.value); }} style={{ ...pickerStyle, border: 0, padding: 0 }} />}</label>; })()}
-              <label className="capd" title="Etykieta" style={{ ...capd, padding: selected.label ? '0 10px' : 0, width: selected.label ? undefined : 28, justifyContent: 'center', position: 'relative', cursor: 'pointer', color: selected.label ? undefined : 'var(--text-secondary)' }}>{selected.label ? <><span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: taskLabels[selected.label].color }} />{taskLabels[selected.label].name}</> : DI.plus14}<select aria-label="Etykieta" value={selected.label ?? ''} disabled={busy} onChange={e => void saveMeta(selected.priority, (e.target.value || null) as TaskLabel | null)} style={pickerStyle}><option value="">Bez etykiety</option>{(Object.keys(taskLabels) as TaskLabel[]).map(k => <option key={k} value={k}>{taskLabels[k].name}</option>)}</select></label>
+              <label className="capd" title="Etykieta" style={{ ...capd, padding: selected.label ? '0 10px' : 0, width: selected.label ? undefined : 28, justifyContent: 'center', position: 'relative', cursor: 'pointer', color: selected.label ? undefined : 'var(--text-secondary)' }}>{selected.label ? <><span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: taskLabels[selected.label].color }} />{taskLabels[selected.label].name}</> : <Plus size={14} className="shrink-0" aria-hidden />}<select aria-label="Etykieta" value={selected.label ?? ''} disabled={busy} onChange={e => void saveMeta(selected.priority, (e.target.value || null) as TaskLabel | null)} style={pickerStyle}><option value="">Bez etykiety</option>{(Object.keys(taskLabels) as TaskLabel[]).map(k => <option key={k} value={k}>{taskLabels[k].name}</option>)}</select></label>
               <label className="capd" title={selected.link ? `${linkKind[selected.link.kind]}: ${selected.link.title}` : 'Powiąż ze zgłoszeniem, zleceniem lub ofertą'} style={{ ...capd, padding: selected.link ? '0 10px 0 8px' : 0, width: selected.link ? undefined : 28, justifyContent: 'center', position: 'relative', cursor: 'pointer', color: selected.link ? undefined : 'var(--text-secondary)' }} onPointerDown={() => void loadLinks()} onFocus={() => void loadLinks()}>
-                {selected.link ? <><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.link}</span><span className="mono" style={{ fontSize: 12 }}>{selected.link.code}</span></> : <span style={{ display: 'inline-flex' }}>{DI.link}</span>}
+                {selected.link ? <><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><LinkIcon size={16} className="shrink-0" aria-hidden /></span><span className="mono" style={{ fontSize: 12 }}>{selected.link.code}</span></> : <span style={{ display: 'inline-flex' }}><LinkIcon size={16} className="shrink-0" aria-hidden /></span>}
                 <select aria-label="Powiązane zlecenie" value={selected.link?.id ?? ''} disabled={busy || conflict} onChange={e => saveLink(e.target.value)} style={pickerStyle}>
                   <option value="">Bez powiązania</option>
                   {selected.link && !links?.some(l => l.id === selected.link!.id) && <option value={selected.link.id}>{selected.link.code} · {selected.link.title}</option>}

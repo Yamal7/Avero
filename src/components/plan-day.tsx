@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState, type CSSProperties, type DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { assignTechnician, scheduleVisit } from '@/app/(dashboard)/dashboard/service/actions';
-import { PersonAvatar, PriorityIcon, ProgressGlyph, personName, ticketCode, type Priority } from './design-icons';
+import { PersonAvatar, PriorityIcon, ProgressGlyph } from '@/components/glyphs';
+import { personName, ticketCode, type Priority } from '@/lib/tasks/labels';
 import { roadKm, travelMinutes, type LatLng } from '@/lib/geo';
 
 export type PlanTech = { id: string; label: string };

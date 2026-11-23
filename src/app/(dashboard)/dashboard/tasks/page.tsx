@@ -4,7 +4,7 @@ import { myTasksQuerySchema, myTasksSchema, type MyTasksQuery } from '@hvac/api-
 import { requireSession } from '@/lib/auth';
 import { TaskBoard } from '@/components/task-board';
 import { TaskListView } from '@/components/task-list';
-import { DI } from '@/components/design-icons';
+import { CaretRight, CheckSquare, Kanban, ListBullets } from '@phosphor-icons/react/ssr';
 
 /* Saved views of the design ("Wszystkie / Moje / Ten tydzień / F-gaz") map onto the filters the task query supports. */
 const views: [MyTasksQuery['filter'], string][] = [['open', 'Otwarte'], ['today', 'Dziś'], ['overdue', 'Po terminie'], ['upcoming', 'Nadchodzące'], ['closed', 'Zamknięte']];
@@ -24,9 +24,9 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
 
   const header = (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
-      <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{DI.check}</span>
+      <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}><CheckSquare size={16} className="shrink-0" aria-hidden /></span>
       <span style={{ color: 'var(--text-secondary)' }}>Projekty</span>
-      <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}>{DI.chev}</span>
+      <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
       <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Zadania</h1>
       <span style={{ flex: '1 1 auto' }} />
       <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{data.counts.open} otwartych</span>
@@ -42,8 +42,8 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
   );
   const layout = (
     <div role="group" aria-label="Układ" style={{ display: 'inline-flex', gap: 2, padding: 2, margin: '0 4px', borderRadius: 10, background: 'var(--bg-subtle)' }}>
-      <Link href={href(query.filter, query.page, 'list')} aria-current={view === 'list' ? 'page' : undefined} aria-label="Lista" title="Lista" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'list' ? 'var(--bg-surface)' : 'transparent', color: view === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{DI.list}</Link>
-      <Link href={href(query.filter, query.page, 'board')} aria-current={view === 'board' ? 'page' : undefined} aria-label="Tablica" title="Tablica" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'board' ? 'var(--bg-surface)' : 'transparent', color: view === 'board' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{DI.board}</Link>
+      <Link href={href(query.filter, query.page, 'list')} aria-current={view === 'list' ? 'page' : undefined} aria-label="Lista" title="Lista" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'list' ? 'var(--bg-surface)' : 'transparent', color: view === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}><ListBullets size={14} className="shrink-0" aria-hidden /></Link>
+      <Link href={href(query.filter, query.page, 'board')} aria-current={view === 'board' ? 'page' : undefined} aria-label="Tablica" title="Tablica" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'board' ? 'var(--bg-surface)' : 'transparent', color: view === 'board' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}><Kanban size={14} className="shrink-0" aria-hidden /></Link>
     </div>
   );
   const search = (
