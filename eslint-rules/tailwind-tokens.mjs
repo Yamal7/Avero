@@ -1,6 +1,6 @@
 // Lokalna reguła ESLint (M0.2, KRA-26): w ekranach i komponentach klasy Tailwinda tylko z tokenów.
 // Zgłasza wartości dowolne (`w-[13px]`, `text-[#fff]`, `w-(--x)`, `[mask-type:luminance]`) oraz ułamkowe
-// odstępy spoza siatki 4 px (`p-0.5`, `gap-1.5`). Warianty dowolne (`data-[state=open]:`) są dozwolone —
+// odstępy spoza siatki 4 px (`p-0.5`, `gap-1.5`, `top-0.5`, `p-px`). Warianty dowolne (`data-[state=open]:`) są dozwolone —
 // to selektory, nie wartości. Sprawdzane są wszystkie napisy w pliku, bo klasy bywają w stałych i wariantach.
 
 const SPACING = [
@@ -8,9 +8,10 @@ const SPACING = [
   'm', 'mx', 'my', 'mt', 'mr', 'mb', 'ml', 'ms', 'me',
   'gap', 'gap-x', 'gap-y', 'space-x', 'space-y',
   'inset', 'inset-x', 'inset-y', 'top', 'right', 'bottom', 'left', 'start', 'end',
-  'w', 'h', 'size', 'min-w', 'min-h', 'max-w', 'max-h', 'basis',
-  'translate-x', 'translate-y', 'scroll-m', 'scroll-p', 'leading', 'indent',
+  'translate-x', 'translate-y', 'scroll-m', 'scroll-p', 'scroll-mx', 'scroll-my', 'scroll-px', 'scroll-py', 'indent',
 ];
+// Wymiary elementów (w-, h-, size-, min-/max-, basis-) i wysokość linii mogą być ułamkowe (ikona 14 px = size-3.5):
+// siatka 4 px dotyczy odstępów.
 const fractional = new RegExp(`^-?(?:${SPACING.join('|')})-\\d+\\.\\d+$`);
 // odstęp 1 px (`p-px`, `gap-px`) — też poza siatką 4 px; `w-px` / `h-px` (linie 1 px) zostają dozwolone
 const onePixel = /^-?(?:p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y)-px$/;

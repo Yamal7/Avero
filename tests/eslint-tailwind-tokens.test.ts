@@ -21,6 +21,7 @@ describe('ESLint: klasy Tailwinda tylko z tokenów', () => {
     "export const href = '/dashboard/soon/[module]';",
     "export const label = 'Ładunek 5.4 kg — p. 0.5 bar';",
     'export const a = <div className="opacity-50 w-full -mt-1 inset-0 h-px" />;',
+    'export const a = <div className="size-3.5 h-3.5 min-w-3.5 leading-3.5 basis-54" />;',
   ])('dozwolone: %s', code => {
     expect(lint(code)).toEqual([]);
   });
@@ -36,6 +37,7 @@ describe('ESLint: klasy Tailwinda tylko z tokenów', () => {
     ['export const a = <div className="md:gap-1.5" />;', 'md:gap-1.5'],
     ['export const a = <div className="-mt-2.5" />;', '-mt-2.5'],
     ['export const a = <div className="gap-px" />;', 'gap-px'],
+    ['export const a = <div className="absolute top-0.5" />;', 'top-0.5'],
   ])('zabronione: %s', (code, token) => {
     const messages = lint(code);
     expect(messages).toHaveLength(1);
