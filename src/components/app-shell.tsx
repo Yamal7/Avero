@@ -14,6 +14,8 @@ import { Bell, CaretDown, MagnifyingGlass, NotePencil, Plus } from '@phosphor-ic
 import { cx } from '@/lib/cx';
 
 import { offGrid, shell } from './app-shell-classes';
+import { OrgSwitcher } from './org-switcher';
+import type { Organization } from '@hvac/api-client';
 type NavEntry={href:string;label:string;icon:IconName;soon?:boolean;roles?:string[];count?:number};
 type NavGroup={id:string;title:string;items:NavEntry[]};
 const soon=(slug:string)=>'/dashboard/soon/'+slug;
@@ -56,7 +58,7 @@ const allEntries=[...top,...groups.flatMap(group=>group.items),...bottom];
 const isActive=(href:string,pathname:string)=>href==='/dashboard'?pathname===href:pathname===href||pathname.startsWith(href+'/');
 type Panel='search'|'alerts'|'profile';
 const paletteActions=(role:string):PaletteEntry[]=>[{href:'/dashboard/service/new',label:'Nowe zgłoszenie serwisowe',icon:'alert'},...(staff.includes(role)?[{href:'/dashboard/customers/new',label:'Nowy klient',icon:'building' as IconName},{href:'/dashboard/offers',label:'Nowa oferta',icon:'offer' as IconName},{href:'/dashboard/catalog/new',label:'Nowa pozycja katalogu',icon:'book' as IconName}]:[])];
-export function AppShell({children,email,displayName,role,alerts,taskAlerts,companyName}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number};companyName?:string|null}){
+export function AppShell({children,email,displayName,role,alerts,taskAlerts,companyName,organizations=[]}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number};companyName?:string|null;organizations?:Organization[]}){
  const company=(companyName||'').trim()||'Avero';
  const router=useRouter();
  const [notificationUnread,setNotificationUnread]=useState(0);
@@ -107,7 +109,8 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  <header className={cx(shell.top,'no-print')}>
   <div className={shell.topLeft}>
    <button ref={mobileButton} type="button" className={cx(shell.round,'hidden bg-transparent hover:text-primary max-desktop:inline-flex')} aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
-   <button type="button" className={shell.workspace} title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={shell.mark}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="min-w-0 truncate font-medium max-desktop:hidden">{company}</span><CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden /></button>
+   {/* M0.1: przy kilku firmach przycisk z nazwą firmy otwiera przełącznik (org-switcher.tsx); przy jednej — profil, jak dotąd. */}
+   {organizations.length>1?<OrgSwitcher organizations={organizations} onProfile={element=>openPanel('profile',element)}/>:<button type="button" className={shell.workspace} title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={shell.mark}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="min-w-0 truncate font-medium max-desktop:hidden">{company}</span><CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden /></button>}
    <button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label="Szukaj" title="Szukaj  ⌘K" aria-keyshortcuts="Meta+K Control+K" onClick={()=>{setMobileOpen(false);setPalette(true);}}><MagnifyingGlass size={16} aria-hidden /></button>
    <Link className={cx(shell.round,'inline-flex bg-surface')} href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie  C"><NotePencil size={16} aria-hidden /></Link>
   </div>
