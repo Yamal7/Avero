@@ -1,0 +1,142 @@
+/*
+ * Wejście stylów aplikacji (M0.2, KRA-26): Tailwind v4 na tokenach z docs/design/tokens.css.
+ *
+ * Warstwy (kolejność = siła, ostatnia wygrywa):
+ *   theme     — miejsce na zmienne Tailwinda (puste: @theme ma tylko odwołania do tokenów);
+ *   legacy    — dotychczasowe arkusze globals.css → precision.css (bez zmian kolejności między nimi),
+ *               więc obecne ekrany wyglądają jak przed wprowadzeniem Tailwinda;
+ *   tokens    — jedyna lista zmiennych: docs/design/tokens.css; wygrywa z dawnymi definicjami
+ *               w globals.css (np. :root[data-theme=dark] { --accent }) niezależnie od specyficzności;
+ *   utilities — klasy Tailwinda, wygrywają z regułami bazowymi legacy (button, input, h1…).
+ * Bez preflightu (tailwindcss/preflight.css nie jest importowany) — reset globals.css zostaje.
+ * Nowe komponenty piszemy wyłącznie klasami Tailwinda; nowych klas w precision.css nie dopisujemy.
+ */
+@layer theme, legacy, tokens, utilities;
+
+@import './globals.css' layer(legacy);
+@import './precision.css' layer(legacy);
+@import '../../docs/design/tokens.css' layer(tokens);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+
+/* Klasy szukamy tylko w kodzie aplikacji (nie w makietach design/ ani w dokumentacji). */
+@source '../../src';
+
+/* Fonty next/font (layout.tsx) — tokens.css podaje nazwę „Geist”, a next/font ładuje krój pod własną nazwą w --font-geist. */
+@layer tokens {
+  :root {
+    --font-sans: var(--font-geist), "Geist", system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  }
+}
+
+/* Motyw ciemny: atrybut data-theme na <html>, bez drugiego zestawu klas. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/*
+ * inline    — klasy odwołują się wprost do zmiennych z tokens.css (np. rounded-md → var(--radius-md));
+ * reference — Tailwind nie wypisuje własnych zmiennych, więc nie powstają cykle (--radius-md: var(--radius-md)).
+ * --*: initial wyłącza wszystkie domyślne skale (paleta, promienie, cienie, rozmiary, fonty, breakpointy).
+ */
+@theme inline reference {
+  --*: initial;
+
+  /* Siatka 4 px: p-1 = 4px, gap-2 = 8px, h-8 = 32px; ułamki (p-0.5) blokuje reguła ESLint */
+  --spacing: 4px;
+  --spacing-control: var(--control-h);
+  --spacing-row: var(--row-h);
+  --spacing-sidebar: var(--sidebar-w);
+  --spacing-detail: var(--detail-w);
+
+  /* Tła */
+  --color-shell: var(--bg-shell);
+  --color-shell-hover: var(--bg-shell-hover);
+  --color-app: var(--bg-app);
+  --color-surface: var(--bg-surface);
+  --color-subtle: var(--bg-subtle);
+  --color-raised: var(--bg-raised);
+  --color-scrim: var(--scrim);
+
+  /* Linie */
+  --color-edge: var(--edge);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* Tekst: text-primary / text-secondary / text-tertiary */
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-tertiary: var(--text-tertiary);
+
+  /* Akcent i statusy */
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-st-progress: var(--st-progress);
+  --color-st-blocked: var(--st-blocked);
+
+  /* Kolory ikon — tylko ikony, nigdy tekst */
+  --color-ic-blue: var(--ic-blue);
+  --color-ic-teal: var(--ic-teal);
+  --color-ic-orange: var(--ic-orange);
+  --color-ic-violet: var(--ic-violet);
+  --color-ic-green: var(--ic-green);
+  --color-ic-yellow: var(--ic-yellow);
+  --color-ic-red: var(--ic-red);
+  --color-ic-pink: var(--ic-pink);
+  --color-ic-indigo: var(--ic-indigo);
+  --color-ic-slate: var(--ic-slate);
+
+  /* Osoby, mapa, wykresy */
+  --color-person-mz: var(--person-mz);
+  --color-person-tl: var(--person-tl);
+  --color-person-kn: var(--person-kn);
+  --color-person-pd: var(--person-pd);
+  --color-person-office: var(--person-office);
+  --color-map-land: var(--map-land);
+  --color-map-park: var(--map-park);
+  --color-map-water: var(--map-water);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+
+  /* Promienie zależne od wysokości elementu */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  /* Cienie — tylko warstwy pływające */
+  --shadow-pop: var(--shadow-pop);
+  --shadow-modal: var(--shadow-modal);
+
+  /* Typografia: rozmiary z tokenów, wysokość linii z siatki (leading-5 = 20px), wagi 400/500/600 */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --text-micro: var(--text-micro);
+  --text-small: var(--text-small);
+  --text-body: var(--text-body);
+  --text-heading: var(--text-heading);
+  --text-title: var(--text-title);
+  --text-display: var(--text-display);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --tracking-tight: -0.01em;
+
+  /* Ruch */
+  --ease-standard: var(--ease);
+  --default-transition-duration: var(--dur-fast);
+  --default-transition-timing-function: var(--ease);
+
+  /* Jeden próg jak w dotychczasowych arkuszach (max-width: 760px): max-desktop: = telefon */
+  --breakpoint-desktop: 761px;
+}
+
+/* Fokus pola: wewnętrzny pierścień akcentu 1,5 px (Precision UI) — Tailwind nie ma ułamkowej grubości ring. */
+@utility ring-focus {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}

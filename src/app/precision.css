@@ -1,28 +1,21 @@
 /*
  * Precision UI layer (redesign 2026-11).
- * Loaded after globals.css. Three parts:
- *   1. Design tokens (light / dark) + mapping of the legacy variables onto them,
+ * Loaded after globals.css (both in layer `legacy`, see src/app/tailwind.css). Three parts:
+ *   1. Mapping of the legacy variables onto the tokens from docs/design/tokens.css,
  *      so screens that are not redesigned yet pick up the new palette.
  *   2. Base skin for legacy screens (type scale, controls, cards).
  *   3. New components: app frame (.pui-*) and the "Mój dzień" screen (.day-*).
  */
 
-/* ───────── 1. Tokens ───────── */
+/* ───────── 1. Tokens ─────────
+ * Wartości tokenów są w jednym miejscu: docs/design/tokens.css (warstwa `tokens` w src/app/tailwind.css).
+ * Tutaj zostają tylko: aliasy starych nazw (dla ekranów sprzed przebudowy) i dodatki spoza tokens.css
+ * (--accent-hover, --*-fg, mieszanki color-mix) — zgłoszone w docs/STATUS.md › Pytania do projektu.
+ */
 :root {
   color-scheme: light;
-  --bg-app: #FBFBFA; --bg-surface: #FFFFFF; --bg-subtle: #EDECE9; --bg-raised: #F4F3F0;
-  --bg-shell: #F5F4F2; --bg-shell-hover: #EAE9E6;
-  --border: #E7E6E3; --border-strong: #D6D4D0; --edge: rgba(27, 26, 25, .07);
-  --text-primary: #1B1A19; --text-secondary: #63605B; --text-tertiary: #9C9893;
-  --accent: #5E6AD2; --accent-hover: #5460C6; --on-accent: #FFFFFF;
-  --success: #2F9E5B; --warning: #C98A12; --danger: #D6453D;
-  --st-progress: #B38600; --st-blocked: #D2691E;
-  --shadow-pop: 0 4px 16px rgba(0, 0, 0, .08); --shadow-modal: 0 16px 48px rgba(0, 0, 0, .16);
-  --scrim: rgba(15, 15, 14, .16);
-  --font-sans: var(--font-geist), "Geist", system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
-  --ease: cubic-bezier(0.2, 0, 0, 1); --dur-fast: 120ms; --dur-base: 180ms;
-  --control-h: 32px; --row-h: 36px; --pui-sidebar-w: 232px;
+  --accent-hover: #5460C6;
+  --pui-sidebar-w: var(--sidebar-w);
 
   /* legacy names → new tokens */
   --ink: var(--text-primary); --muted: var(--text-secondary); --line: var(--border);
@@ -41,15 +34,7 @@
 }
 :root[data-theme=dark] {
   color-scheme: dark;
-  --bg-app: #0F0F0E; --bg-surface: #171716; --bg-subtle: #1F1E1D; --bg-raised: #232220;
-  --bg-shell: #0B0B0A; --bg-shell-hover: #1B1A19;
-  --border: #282725; --border-strong: #363532; --edge: rgba(255, 255, 255, .07);
-  --text-primary: #EEEDEB; --text-secondary: #9C9893; --text-tertiary: #64615C;
-  --accent: #7C85E0; --accent-hover: #8A92E6; --on-accent: #0F0F0E;
-  --success: #4CC27A; --warning: #E0A63A; --danger: #EF6A62;
-  --st-progress: #E2B93B; --st-blocked: #F08A3E;
-  --shadow-pop: 0 4px 16px rgba(0, 0, 0, .4); --shadow-modal: 0 16px 48px rgba(0, 0, 0, .6);
-  --scrim: rgba(0, 0, 0, .4);
+  --accent-hover: #8A92E6;
 
   --ink: var(--text-primary); --muted: var(--text-secondary); --line: var(--border);
   --orange: var(--accent); --raised: var(--bg-raised);
