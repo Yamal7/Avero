@@ -49,6 +49,8 @@ pnpm db:test        # testy pgTAP
 
 Kolejność modułów, zależności, kryteria odbioru i zasady pracy bez potwierdzeń między modułami: **`docs/PLAN.md`**.
 
+Tryby pracy (`docs/PLAN.md` › „Tryby pracy”): `/kontrola` — jeden moduł z akceptacją planu i PR; `/plany N` — jedna akceptacja planów, potem bez pytań; `/paczka N` — w tle, tylko „Warunki zatrzymania”. Sesja główna koordynuje, moduł realizuje subagent `wykonawca`, przegląd robi `reviewer`.
+
 Linear (zespół Kranz_) — szczegóły w `docs/PLAN.md` › „Statusy zadań” i „Współpraca z czatem projektowym”:
 - **Linear jest źródłem prawdy o modułach.** Tabela modułów w `docs/PLAN.md` jest generowana z Linear (workflow „Linear → plan”) — nie edytuj jej ręcznie. Na starcie sesji: `git pull`, weź kolejność i stan z tabeli; zadaniom „M?” (bez numeru) nadaj numer w opisie zadania w Linear; zadania In Review ze scalonym PR zamknij jako Done.
 - Pytanie lub błąd w `docs/design/` → zadanie z etykietą **„kod → projekt”** + wpis w STATUS.md z numerem; pracuj dalej nad innym modułem.
