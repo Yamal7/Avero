@@ -127,8 +127,12 @@
   --font-weight-semibold: 600;
   --tracking-tight: -0.01em;
 
-  /* Ruch */
+  /* Ruch (animacje tylko dla ładowania: obrót ikony w przycisku, pulsowanie szkieletu; motion-safe:) */
   --ease-standard: var(--ease);
+  --animate-spin: spin 1s linear infinite;
+  --animate-pulse: pulse 2s var(--ease) infinite;
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 50% { opacity: .5; } }
   --default-transition-duration: var(--dur-fast);
   --default-transition-timing-function: var(--ease);
 
@@ -136,7 +140,8 @@
   --breakpoint-desktop: 761px;
 }
 
-/* Fokus pola: wewnętrzny pierścień akcentu 1,5 px (Precision UI) — Tailwind nie ma ułamkowej grubości ring. */
-@utility ring-focus {
-  box-shadow: inset 0 0 0 1.5px var(--accent);
+/* Pierścień pola: wewnętrzny, 1,5 px (Precision UI: fokus pola) — Tailwind nie ma ułamkowej grubości ring.
+   Kolor z ring-accent / ring-danger (zmienna --tw-ring-color), domyślnie --accent. */
+@utility field-ring {
+  box-shadow: inset 0 0 0 1.5px var(--tw-ring-color, var(--accent));
 }
