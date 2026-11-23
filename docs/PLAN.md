@@ -215,6 +215,7 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 - [ ] Trzy szablony z makiety odtworzone na danych; sekcje Czynnik / F-gaz tylko z pakietem.
 
 ### M1.6 Telefon technika — KRA-36
+> **Odłożone (23 lis 2026, decyzja właściciela) — nie zaczynać.** Kierunek wyglądu do ustalenia; makiety zostają jako materiał do dyskusji. Nic od tego modułu nie zależy.
 Źródła: `screens/05-protokoly.md` (Telefon technika), `screens/26-aplikacje-telefon.md`, `Telefon-dzien.dc.html`, `Telefon-menu.dc.html`, `Telefon-wizyta.dc.html`, `Technik.dc.html`, `Technik-montaz.dc.html`, `Technik-pompa.dc.html`, `Technik-wyciek.dc.html`.
 - [ ] Wzór Linear mobile: duży tytuł, listy 56 px z ikoną stanu i priorytetu, pływający pasek kart (Mój dzień, Zlecenia, Magazyn auta, Skrzynka) + okrągły przycisk zdjęcia/zgłoszenia, menu jako arkusz.
 - [ ] Wizyta jak zadanie: właściwości (stan, priorytet, adres z nawigacją, kontakt, urządzenie, podstawa), kroki, części, aktywność, notatka z dyktowaniem, „Zakończ i podpisz”.
@@ -259,6 +260,7 @@ Reguła dla kolejnych modułów: moduł, który przebudowuje ekran, przenosi go 
 - [ ] Wysyłka oferty do klienta tylko po potwierdzeniu.
 
 ### M2.4 Widoki klienta i portal — KRA-40
+> **Odłożone (23 lis 2026, decyzja właściciela) — nie zaczynać.** Kierunek wyglądu do ustalenia; makiety zostają jako materiał do dyskusji. Nic od tego modułu nie zależy.
 Źródła: `screens/08-oferty.md` (Widok klienta, Akceptacja), `screens/24-portal-klienta.md`, `Klient-*.dc.html`.
 - [ ] Oferta pod linkiem: ceny brutto, **bez cen zakupu, marży, dostępności i zdjęć wewnętrznych** (test na odpowiedzi API, nie tylko na UI).
 - [ ] Akceptacja: podpis, zgoda na montaż przed 14 dniami (gdy dotyczy), zaliczka (P24 w trybie testowym), potwierdzenie.
@@ -344,3 +346,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — tabela modułów generowana z Linear (`scripts/linear-plan-sync.mjs`, workflow „Linear → plan”); Linear jedynym źródłem prawdy o modułach.
 - 2026-11-22 — czat projektowy: zmiana niezrobionych modułów M0.3 (karta firmy nad tabelą), M1.6 (telefon technika w stylu Linear mobile), M2.4 (portal bez kart + aplikacja klienta na telefon), M3.5 (raport z tabeli bez kart, czytelny panel); kryteria poprawione tu i w KRA-63, KRA-36, KRA-40, KRA-42.
 - 2026-11-23 — czat projektowy: aplikacja klienta na telefon odłożona (właściciel szuka innego kierunku niż A/B); usunięta z kryteriów M2.4 tu i w KRA-40. Priorytet: program na komputer.
+- 2026-11-23 — czat projektowy: odłożone w całości M1.6 Telefon technika (KRA-36) i M2.4 Portal klienta (KRA-40) — „[odłożone]” w tytule w Linear i adnotacja w sekcjach; priorytet: program na komputer.
