@@ -15,7 +15,7 @@ Dla każdego modułu, w kolejności z tabeli:
 
 1. Sprawdź zależności — moduły z „Zależy od” muszą być **scalone na `main`** (stan „Done” w tabeli albo w Linear). Jeśli nie są, weź następny moduł bez blokad albo poczekaj na scalenie (`gh pr checks <nr> --watch`).
 2. Gałąź z aktualnego `main` o nazwie z numerem zadania: `kra-34-m1-3-karta-urzadzenia` (małe litery). Numer w nazwie gałęzi łączy ją z zadaniem w Linear.
-3. Uruchom **osobnego subagenta** na moduł (świeży kontekst). Przekaż mu: numer modułu, zadanie Linear, pliki źródłowe i kryteria odbioru z tego planu. Główna sesja tylko koordynuje.
+3. Uruchom **osobnego subagenta** `wykonawca` na moduł (świeży kontekst). Przekaż mu: numer modułu, zadanie Linear, pliki źródłowe i kryteria odbioru z tego planu. Główna sesja tylko koordynuje.
 4. Subagent: czyta źródła (`HANDOFF.md`, `LAYERS.md`, `DECISIONS.md`, opis ekranu, makieta), ładuje skill `precision-ui`, pisze najpierw testy logiki, potem kod.
 5. Weryfikacja lokalna: `pnpm lint && pnpm typecheck && pnpm test`; przy SQL także `pnpm db:lint && pnpm db:test`; ekran otwarty i sprawdzony w obu motywach.
 6. Agent `reviewer` przegląda zmiany; błędy z grupy „Błędy” poprawić przed commitem.
@@ -24,6 +24,30 @@ Dla każdego modułu, w kolejności z tabeli:
 9. CI czerwone → popraw na tej samej gałęzi (maks. 3 próby, potem warunek zatrzymania).
 
 **PR do akceptacji właściciela** (bez `--auto`, z `[do akceptacji]` na początku tytułu): migracja zmieniająca istniejące dane, poszerzenie uprawnień, nowa zależność, zmiana spoza planu. Claude Code bierze wtedy kolejny moduł, który od tego PR nie zależy.
+
+### Warunki zatrzymania
+
+**A. PR do akceptacji, praca idzie dalej.** PR z `[do akceptacji]`, bez `--auto`, z opisem, czego dotyczy decyzja; potem następny moduł, który od tego PR nie zależy:
+1. migracja, która zmienia lub usuwa istniejące dane (M0.1 spełniający warunki D2 tu nie należy);
+2. poszerzenie uprawnień — polityki RLS, role, to, co widzi klient portalu;
+3. nowa zależność (`pnpm add`);
+4. zmiana spoza planu albo plan modułu odbiegający od kryteriów odbioru lub warunków z góry (np. D2).
+
+**B. Stop i raport do właściciela.** Zatrzymaj pracę i opisz, co blokuje i jakie są opcje:
+1. CI czerwone po 3 próbach poprawki na tej samej gałęzi;
+2. pytanie „kod → projekt”, które blokuje wszystkie pozostałe moduły;
+3. potrzeba działania poza repo i lokalną bazą — projekt Supabase „Avero”, sekrety, `.env`, usługi zewnętrzne;
+4. żaden kolejny moduł nie jest wolny od blokad.
+
+### Tryby pracy
+
+Właściciel wybiera tryb zależnie od tego, ile ma czasu. Komendy są w `.claude/commands/`; każda używa „Pętli modułu” i „Warunków zatrzymania” — różnią się tylko tym, gdzie Claude Code czeka na właściciela.
+
+| Komenda | Kiedy | Gdzie czeka |
+|---|---|---|
+| `/kontrola [KRA-…]` | jest czas na pracę razem | akceptacja planu i review PR (PR `[do akceptacji]`, bez `--auto`) |
+| `/plany [N]` | chwila rano, reszta dnia zajęta | jedna akceptacja planów N modułów, potem bez pytań, scalanie automatyczne |
+| `/paczka [N]` | brak czasu, praca w tle | nigdzie — tylko „Warunki zatrzymania”; raport na końcu |
 
 ### CI i ochrona `main`
 
@@ -351,6 +375,7 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-22 — CI w GitHub Actions i ochrona `main`; gałąź i PR na moduł z numerem KRA (zamiast gałęzi na fazę), scalanie automatyczne po zielonym CI, statusy w Linear przesuwa integracja.
 - 2026-11-22 — tabela modułów generowana z Linear (`scripts/linear-plan-sync.mjs`, workflow „Linear → plan”); Linear jedynym źródłem prawdy o modułach.
 - 2026-11-22 — czat projektowy: zmiana niezrobionych modułów M0.3 (karta firmy nad tabelą), M1.6 (telefon technika w stylu Linear mobile), M2.4 (portal bez kart + aplikacja klienta na telefon), M3.5 (raport z tabeli bez kart, czytelny panel); kryteria poprawione tu i w KRA-63, KRA-36, KRA-40, KRA-42.
+- 2026-11-23 — dopisana sekcja „Warunki zatrzymania” (była przywoływana, ale jej brakowało; zebrana z zasad PR do akceptacji, CI i D2) oraz „Tryby pracy” z komendami `/kontrola`, `/plany`, `/paczka` i agentem `wykonawca`.
 - 2026-11-23 — czat projektowy: aplikacja klienta na telefon odłożona (właściciel szuka innego kierunku niż A/B); usunięta z kryteriów M2.4 tu i w KRA-40. Priorytet: program na komputer.
 - 2026-11-23 — czat projektowy: odłożone w całości M1.6 Telefon technika (KRA-36) i M2.4 Portal klienta (KRA-40) — „[odłożone]” w tytule w Linear i adnotacja w sekcjach; priorytet: program na komputer.
 - 2026-11-23 — czat projektowy: nowy moduł M0.6 Lewy panel (rozwinięty / zwinięty / ukryty), KRA-68, po M0.2. Skrzynka, Planowanie i Ustawienia zostają w dwóch liniach (wariant „jedna linia” odrzucony) — bez zmian w modułach.
