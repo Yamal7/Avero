@@ -64,6 +64,7 @@ select lives_ok($$select public.save_stock_item('1e430000-0000-4000-8000-0000000
 select alike(public.post_stock_document('3e430000-0000-4000-8000-00000000000b','PZ',null,'5e430000-0000-4000-8000-00000000000b',null,'Hurtownia','','[{"itemId":"1e430000-0000-4000-8000-00000000000b","quantity":5}]')->>'number','PZ/%/001','B gets its first PZ number');
 select lives_ok($$select public.save_customer_category('VIP','red')$$,'B colours a category');
 select lives_ok($$select public.save_company_profile(null,pg_temp.profile('Firma B sp. z o.o.'))$$,'B saves its company profile with bank account');
+select throws_ok($$select public.save_company_profile(0,pg_temp.profile('Firma B sp. z o.o.')||'{"bankAccount":"PL62 1090 1014 0000 0712 1981 2874"}')$$,'22023',null,'Bank account with a wrong checksum is refused');
 select is((select count(*)::int from storage.objects where name like 'e4300000-0000-4000-8000-00000000000b/%'),1,'B reads its own file');
 
 -- Firma A — te same operacje, niezależna numeracja.
@@ -188,7 +189,18 @@ select is(public.current_access()->>'role','none','Outsider has no role');
 select is(public.my_organizations(),'[]'::jsonb,'Outsider lists no firms');
 select is((select count(*)::int from public.customers),0,'Outsider sees no customers');
 select throws_ok($$select public.set_active_org(null)$$,'42501',null,'Null firm refused');
+
+-- Zaproszenie z firmy A wprowadza osobę do firmy A (i tylko A), niezależnie od jej braku aktywnej firmy.
+select pg_temp.as_user(1);
+select set_config('test.invite',public.create_access_invitation('org-7@example.invalid','office')::text,true);
+select pg_temp.as_user(7);
+select lives_ok($$select public.accept_access_invitation(current_setting('test.invite')::uuid)$$,'Outsider accepts the invitation of firm A');
+select is(public.current_org_id(),'0a430000-0000-4000-8000-00000000000a'::uuid,'Invitation makes firm A active');
+select is(public.current_access()->>'role','office','Invited role applies in firm A');
+select is(jsonb_array_length(public.my_organizations()),1,'Invited person belongs to one firm');
 reset role;
+select is((select org_id from public.org_members where user_id='a4300000-0000-4000-8000-000000000007'),'0a430000-0000-4000-8000-00000000000a'::uuid,'Membership stored in firm A');
+select is((select count(*)::int from public.access_audit_logs where target_user_id='a4300000-0000-4000-8000-000000000007' and org_id='0a430000-0000-4000-8000-00000000000a' and action='staff_users:INSERT'),1,'Audit entry belongs to firm A and keeps the old action name');
 set local role anon;
 select is((select count(*)::int from public.customers),0,'Anonymous sees no customers');
 reset role;
