@@ -112,7 +112,7 @@ export function PlanMap({ day, isToday, nowIso, technicians, visits, backlog, ba
         <svg width={size.w} height={size.h} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
           {routes.map(({ tech, color, stops }) => {
             const pts = [base, ...stops.map(s => s.at)].filter((p): p is LatLng => !!p).map(px);
-            return pts.length > 1 && <g key={tech.id}>{pts.slice(1).map((p, i) => { const done = stops[i] && (stops[i].status === 'completed' || stops[i].status === 'in_progress'); return <line key={i} x1={pts[i].x} y1={pts[i].y} x2={p.x} y2={p.y} stroke={color} strokeWidth={done ? 3 : 2.5} strokeDasharray={done ? undefined : '2 5'} strokeLinecap="round" opacity={0.9} />; })}</g>;
+            return pts.length > 1 && <g key={tech.id}>{pts.slice(1).map((p, i) => { const done = stops[i] && (stops[i].status === 'completed' || stops[i].status === 'in_progress'); return <line key={i} x1={pts[i].x} y1={pts[i].y} x2={p.x} y2={p.y} style={{ stroke: color }} strokeWidth={done ? 3 : 2.5} strokeDasharray={done ? undefined : '2 5'} strokeLinecap="round" opacity={0.9} />; })}</g>;
           })}
         </svg>
         {base && (() => { const p = px(base); return <span title={`Baza: ${baseLabel}`} style={{ position: 'absolute', left: p.x - 10, top: p.y - 10, width: 20, height: 20, borderRadius: 5, background: 'var(--text-primary)', color: 'var(--bg-surface)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, zIndex: 2 }}>{(baseLabel.trim()[0] || 'B').toUpperCase()}</span>; })()}

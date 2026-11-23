@@ -20,7 +20,10 @@ export type TicketState = 'new' | 'in_progress' | 'waiting' | 'closed';
 export const ticketStateLabel: Record<TicketState, string> = { new: 'Nowe', in_progress: 'W realizacji', waiting: 'Czeka na części', closed: 'Zamknięte' };
 export const ticketCode = (n: number) => `ZG-${String(n).padStart(4, '0')}`;
 
-const personPalette = ['rgb(59, 130, 214)', 'rgb(155, 107, 224)', 'rgb(31, 167, 165)', 'rgb(224, 112, 42)', 'rgb(214, 69, 61)', 'rgb(47, 158, 91)'];
+/* Stałe kolory osób z tokens.css (--person-*, te same w obu motywach). Dwa ostatnie nie mają stałego tokenu
+   (--danger / --success zmieniają się w ciemnym motywie), więc zostają wartością — pytanie w docs/STATUS.md.
+   Wynik idzie do style (background, stroke) — nie do atrybutów SVG, które nie rozumieją var(). */
+const personPalette = ['var(--person-mz)', 'var(--person-tl)', 'var(--person-kn)', 'var(--person-pd)', 'rgb(214, 69, 61)', 'rgb(47, 158, 91)'];
 export function personColor(id: string) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return personPalette[h % personPalette.length]!; }
 export function personInitials(label: string) { const base = label.includes('@') ? label.split('@')[0]! : label; return base.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join('') || '?'; }
 export function personName(label: string) { return label.includes('@') ? label.split('@')[0]! : label; }
