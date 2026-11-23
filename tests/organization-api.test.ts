@@ -1,0 +1,14 @@
+import { beforeEach,afterEach,it,expect,vi } from 'vitest';
+const mocks=vi.hoisted(()=>({authenticate:vi.fn(),rpc:vi.fn()}));
+vi.mock('@/lib/api/http',async original=>({...await original<typeof import('@/lib/api/http')>(),authenticate:mocks.authenticate}));
+import { GET,PUT,OPTIONS } from '@/app/api/v1/me/organization/route';
+const kranz={id:'0a000000-0000-4000-8000-000000000001',name:'Kranz HVACR',role:'admin',active:true},second={id:'0a430000-0000-4000-8000-00000000000b',name:'Chłodnictwo Bałtyk',role:'office',active:false};
+const request=(body?:unknown,query='')=>new Request('http://localhost:3100/api/v1/me/organization'+query,body!==undefined?{method:'PUT',headers:{'Content-Type':'application/json',Origin:'http://localhost:3100'},body:JSON.stringify(body)}:undefined);
+beforeEach(()=>{vi.clearAllMocks();vi.stubEnv('APP_URL','http://localhost:3100');mocks.authenticate.mockResolvedValue({role:'office',db:{rpc:mocks.rpc}});mocks.rpc.mockResolvedValue({data:[kranz,second],error:null});});afterEach(()=>vi.unstubAllEnvs());
+it('lists the firms of the signed-in person',async()=>{const r=await GET(request());expect(r.status).toBe(200);expect(await r.json()).toEqual([kranz,second]);expect(mocks.rpc).toHaveBeenCalledWith('my_organizations');});
+it('switches the active firm through the guarded RPC',async()=>{mocks.rpc.mockResolvedValue({data:[{...kranz,active:false},{...second,active:true}],error:null});const r=await PUT(request({orgId:second.id}));expect(r.status).toBe(200);expect(mocks.rpc).toHaveBeenCalledWith('set_active_org',{p_org:second.id});expect((await r.json())[1].active).toBe(true);});
+it.each([{},{orgId:'kranz'},{orgId:second.id,role:'admin'},null])('rejects invalid input %j without calling the database',async body=>{expect((await PUT(request(body))).status).toBe(400);expect(mocks.rpc).not.toHaveBeenCalled();});
+it('rejects query parameters',async()=>{expect((await GET(request(undefined,'?org=all'))).status).toBe(400);expect(mocks.rpc).not.toHaveBeenCalled();});
+it('maps a foreign firm to 403',async()=>{mocks.rpc.mockResolvedValue({data:null,error:{code:'42501'}});expect((await PUT(request({orgId:second.id}))).status).toBe(403);});
+it('rejects a malformed database answer',async()=>{mocks.rpc.mockResolvedValue({data:[{...kranz,secret:'x'}],error:null});expect((await GET(request())).status).toBe(502);});
+it('permits GET/PUT preflight only',async()=>{const r=(method:string)=>new Request('http://localhost:3100/api/v1/me/organization',{method:'OPTIONS',headers:{Origin:'http://localhost:3100','Access-Control-Request-Method':method}});expect((await OPTIONS(r('PUT'))).status).toBe(204);expect((await OPTIONS(r('DELETE'))).status).toBe(405);});
