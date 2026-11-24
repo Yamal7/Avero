@@ -4,16 +4,16 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
 
--- Tabele bez org_id: same organizacje, wybór aktywnej firmy, globalna pamięć geokodowania i ustawienia osobiste konta.
+-- Tabele bez org_id: same organizacje, wybór aktywnej firmy i ustawienia osobiste konta.
 create temp table guard_table_exceptions(name text primary key) on commit drop;
 insert into guard_table_exceptions values
- ('organizations'),('org_active'),('geocode_cache'),('user_preferences'),('notification_preferences'),('notification_email_preferences');
+ ('organizations'),('org_active'),('user_preferences'),('notification_preferences'),('notification_email_preferences');
 
 -- Funkcje security definer, które celowo działają jako postgres (widzą wszystkie firmy):
 -- wybór firmy, worker poczty (rola service_role, bez użytkownika), przyjęcie zaproszenia (zanim użytkownik należy do firmy).
 create temp table guard_function_exceptions(name text primary key) on commit drop;
 insert into guard_function_exceptions values
- ('current_org_id'),('org_default'),('my_organizations'),('set_active_org'),('account_enabled'),
+ ('current_org_id'),('org_default'),('my_organizations'),('set_active_org'),('account_enabled'),('account_enabled_in'),
  ('accept_access_invitation'),('read_my_invitation'),
  ('prepare_notification_emails'),('claim_notification_email'),('bind_notification_email'),('finish_notification_email'),
  ('notification_email_checks'),('finish_notification_email_check'),('assert_email_worker'),('email_job_eligible');
@@ -90,6 +90,16 @@ select is(array(
 
 select is(array(select name from guard_function_exceptions g where not exists(select 1 from pg_proc p where p.pronamespace='public'::regnamespace and p.proname=g.name) order by 1),
  array[]::text[],'Exception list names existing functions only');
+
+select is(array(
+ select c.relname::text from pg_class c
+ where c.relnamespace='public'::regnamespace and c.relkind='v'
+ and not coalesce('security_invoker=true'=any(c.reloptions),false)
+ and (has_table_privilege('anon',c.oid,'SELECT') or has_table_privilege('authenticated',c.oid,'SELECT')) order by 1),
+ array[]::text[],'Every view is security_invoker or unreadable for anon and authenticated');
+
+select ok(not has_function_privilege('anon','public.current_org_id()','EXECUTE') and not has_function_privilege('anon','public.org_default()','EXECUTE'),
+ 'Anonymous callers cannot execute current_org_id() or org_default()');
 
 select * from finish();
 rollback;

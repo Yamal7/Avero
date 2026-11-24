@@ -66,6 +66,7 @@ select lives_ok($$select public.save_customer_category('VIP','red')$$,'B colours
 select lives_ok($$select public.save_company_profile(null,pg_temp.profile('Firma B sp. z o.o.'))$$,'B saves its company profile with bank account');
 select throws_ok($$select public.save_company_profile(0,pg_temp.profile('Firma B sp. z o.o.')||'{"bankAccount":"PL62 1090 1014 0000 0712 1981 2874"}')$$,'22023',null,'Bank account with a wrong checksum is refused');
 select is((select count(*)::int from storage.objects where name like 'e4300000-0000-4000-8000-00000000000b/%'),1,'B reads its own file');
+select is(public.company_profile()->'data'->>'bankAccount','PL61 1090 1014 0000 0712 1981 2874','Admin reads the full bank account');
 
 -- Firma A — te same operacje, niezależna numeracja.
 select pg_temp.as_user(1);
@@ -173,6 +174,7 @@ select is(public.current_org_id(),'0a430000-0000-4000-8000-00000000000b'::uuid,'
 select is((public.current_access()->>'blocked')::boolean,false,'Block in A does not block in B');
 select is((select count(*)::int from public.search_customers('',false) c where c.id='c4300000-0000-4000-8000-00000000000b'),1,'Worker now sees B customer');
 select is((select count(*)::int from public.search_customers('',false) c where c.id='c4300000-0000-4000-8000-00000000000a'),0,'and no longer A customer');
+select is(public.company_profile()->'data'->>'bankAccount','•••• 2874','Office reads only the last four digits of the bank account');
 reset role;
 update public.account_access set blocked=false where user_id='a4300000-0000-4000-8000-000000000005';
 set local role authenticated;
@@ -201,6 +203,66 @@ select is(jsonb_array_length(public.my_organizations()),1,'Invited person belong
 reset role;
 select is((select org_id from public.org_members where user_id='a4300000-0000-4000-8000-000000000007'),'0a430000-0000-4000-8000-00000000000a'::uuid,'Membership stored in firm A');
 select is((select count(*)::int from public.access_audit_logs where target_user_id='a4300000-0000-4000-8000-000000000007' and org_id='0a430000-0000-4000-8000-00000000000a' and action='staff_users:INSERT'),1,'Audit entry belongs to firm A and keeps the old action name');
+-- Przegląd M0.1: admin A nie przejmuje osób innej firmy (rola, dostęp do klienta, blokada); nowe osoby tylko zaproszeniem.
+set local role authenticated;
+select pg_temp.as_user(1);
+select throws_ok($$select public.set_access_role('a4300000-0000-4000-8000-000000000003','office')$$,null,null,'A cannot give a role to the admin of B');
+select throws_ok($$select public.set_access_role('a4300000-0000-4000-8000-000000000006','technician')$$,null,null,'A cannot turn a portal client of B into its staff');
+select throws_ok($$select public.set_customer_access('a4300000-0000-4000-8000-000000000006','c4300000-0000-4000-8000-00000000000a','member')$$,null,null,'A cannot give a portal client of B access to its customer');
+select throws_ok($$select public.set_customer_access('a4300000-0000-4000-8000-000000000003','c4300000-0000-4000-8000-00000000000a','member')$$,null,null,'A cannot attach the admin of B to its customer');
+select throws_ok($$select public.set_access_blocked('a4300000-0000-4000-8000-000000000003',true)$$,null,null,'A cannot block the admin of B');
+select lives_ok($$select public.set_access_role('a4300000-0000-4000-8000-000000000002','office')$$,'A still changes roles of its own staff');
+select is((select count(*)::int from jsonb_array_elements(public.list_access_users('',1)->'users') u where u->>'id' in ('a4300000-0000-4000-8000-000000000003','a4300000-0000-4000-8000-000000000006')),0,'People of B do not appear on the A user list');
+select pg_temp.as_user(3);
+select is(public.current_org_id(),'0a430000-0000-4000-8000-00000000000b'::uuid,'Admin of B stays in firm B');
+select is(public.current_access()->>'role','admin','Admin of B keeps its role');
+select is(jsonb_array_length(public.my_organizations()),1,'Admin of B still belongs to one firm');
+select pg_temp.as_user(6);
+select is(public.my_organizations()->0->>'id','0a430000-0000-4000-8000-00000000000b','Portal client of B still belongs only to B');
+reset role;
+select is((select count(*)::int from public.org_members where org_id='0a430000-0000-4000-8000-00000000000a' and user_id in ('a4300000-0000-4000-8000-000000000003','a4300000-0000-4000-8000-000000000006')),0,'No A membership was created for people of B');
+select is((select count(*)::int from public.customer_memberships where user_id in ('a4300000-0000-4000-8000-000000000003','a4300000-0000-4000-8000-000000000006') and org_id='0a430000-0000-4000-8000-00000000000a'),0,'No A portal access was created for people of B');
+select is((select count(*)::int from public.account_access where user_id='a4300000-0000-4000-8000-000000000003'),0,'No block was stored for the admin of B');
+
+-- Lista osób A nie pokazuje kont z odwołanych zaproszeń.
+insert into auth.users(id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+values('a4300000-0000-4000-8000-000000000008','00000000-0000-0000-0000-000000000000','authenticated','authenticated','org-8@example.invalid','x',now(),now(),now());
+insert into public.access_invitations(org_id,email,role,created_by,status) values('0a430000-0000-4000-8000-00000000000a','org-8@example.invalid','office','a4300000-0000-4000-8000-000000000001','revoked');
+set local role authenticated;
+select pg_temp.as_user(1);
+select is((select count(*)::int from jsonb_array_elements(public.list_access_users('',1)->'users') u where u->>'id'='a4300000-0000-4000-8000-000000000008'),0,'Revoked invitation does not reveal an account');
+reset role;
+
+-- Worker poczty: blokada w A nie wyłącza e-maili z firmy B.
+update public.account_access set blocked=true where user_id='a4300000-0000-4000-8000-000000000005' and org_id='0a430000-0000-4000-8000-00000000000a';
+update public.org_active set org_id='0a430000-0000-4000-8000-00000000000b' where user_id='a4300000-0000-4000-8000-000000000005';
+select ok(not public.account_enabled_in('a4300000-0000-4000-8000-000000000005','0a430000-0000-4000-8000-00000000000a'),'Account is blocked in firm A');
+select ok(public.account_enabled_in('a4300000-0000-4000-8000-000000000005','0a430000-0000-4000-8000-00000000000b'),'Account is enabled in firm B');
+insert into public.crm_tasks(id,org_id,customer_id,fields) values('d2430000-0000-4000-8000-0000000000b5','0a430000-0000-4000-8000-00000000000b','c4300000-0000-4000-8000-00000000000b',
+ jsonb_build_object('title','Zadanie B dla 5','description','','kind','follow_up','dueOn',to_char((now() at time zone 'Europe/Warsaw')::date-1,'YYYY-MM-DD'),'contactId',null,'assigneeId','a4300000-0000-4000-8000-000000000005','state','todo','result',''));
+insert into public.notification_email_preferences(user_id,enabled,enabled_at,next_scan_at) values('a4300000-0000-4000-8000-000000000005',true,now()-interval '1 day',now()-interval '1 minute');
+set local role service_role;
+select set_config('request.jwt.claim.role','service_role',true),set_config('request.jwt.claim.sub','',true);
+select cmp_ok(public.prepare_notification_emails(array['org-5@example.invalid']),'>=',1,'Worker queues the B notification of a person blocked only in A');
+reset role;
+select is((select org_id from public.notification_email_queue where user_id='a4300000-0000-4000-8000-000000000005' limit 1),'0a430000-0000-4000-8000-00000000000b'::uuid,'Queued e-mail belongs to firm B');
+select set_config('request.jwt.claim.sub','',true);
+select ok(coalesce(public.email_job_eligible((select id from public.notification_email_queue where user_id='a4300000-0000-4000-8000-000000000005' limit 1)),false),'B e-mail stays eligible although the person is blocked in A');
+insert into public.account_access(org_id,user_id,blocked) values('0a430000-0000-4000-8000-00000000000b','a4300000-0000-4000-8000-000000000005',true);
+select set_config('request.jwt.claim.sub','',true);
+select ok(not coalesce(public.email_job_eligible((select id from public.notification_email_queue where user_id='a4300000-0000-4000-8000-000000000005' limit 1)),false),'Block in firm B stops the B e-mail');
+
+-- Mapa: pamięć geokodowania należy do firmy.
+set local role authenticated;
+select pg_temp.as_user(3);
+select lives_ok($$select public.save_geocode('leśna 2, reda',54.6,18.3)$$,'B stores coordinates');
+select pg_temp.as_user(1);
+select is(public.geocode_lookup(array['leśna 2, reda']),'{}'::jsonb,'A does not learn that B geocoded an address');
+select lives_ok($$select public.save_geocode('leśna 2, reda',1,1)$$,'A stores its own coordinates for the same address');
+select pg_temp.as_user(3);
+select is((public.geocode_lookup(array['leśna 2, reda'])->'leśna 2, reda'->>'lat')::numeric,54.6,'B coordinates are not overwritten by A');
+reset role;
+
 set local role anon;
 select is((select count(*)::int from public.customers),0,'Anonymous sees no customers');
 reset role;
