@@ -2,11 +2,12 @@
 /* Przełącznik firmy w ramie (M0.1, DECISIONS 2026-11-20: „Kranz HVACR ▾” to przełącznik organizacji).
    Widoczny tylko, gdy osoba należy do więcej niż jednej firmy; przy jednej firmie rama pokazuje zwykły przycisk profilu.
    Menu: strzałki lub J/K, Home/End, Enter/Spacja — przełącz, Esc — zamknij. Po przełączeniu dane ładują się od nowa
-   (przejście na /dashboard + router.refresh), bo każda lista należy do aktywnej firmy. Wyłącznie Tailwind na tokenach. */
+   (przejście na /dashboard + router.refresh), bo każda lista należy do aktywnej firmy. Wyłącznie Tailwind na tokenach.
+   Kilka kart: po powrocie do karty sprawdzamy aktywną firmę; jeśli zmieniono ją w innej karcie — odświeżenie z komunikatem. */
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { CaretDown, Check, CircleNotch, UserCircle } from '@phosphor-icons/react/ssr';
-import { apiErrorSchema, nextOrganizationIndex, organizationsSchema, type Organization } from '@hvac/api-client';
+import { apiErrorSchema, nextOrganizationIndex, organizationChanged, organizationsSchema, type Organization } from '@hvac/api-client';
 import { roleLabels, type AccessRole } from '@/lib/access/types';
 import { shell } from './app-shell-classes';
 
@@ -19,7 +20,7 @@ export function OrgSwitcher({ organizations, onProfile }: { organizations: Organ
   const menuId = useId();
   const trigger = useRef<HTMLButtonElement>(null), menu = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false), [highlight, setHighlight] = useState(-1);
-  const [pending, setPending] = useState<string | null>(null), [error, setError] = useState('');
+  const [pending, setPending] = useState<string | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const active = organizations.find(o => o.active) ?? organizations[0];
   const name = active?.name ?? 'Avero';
   const count = organizations.length + 1; // firmy + „Twój profil”
@@ -30,6 +31,28 @@ export function OrgSwitcher({ organizations, onProfile }: { organizations: Organ
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
+  // Inna karta mogła przełączyć firmę: dane tej strony należą wtedy do poprzedniej firmy, a zapis trafiłby do nowej.
+  const renderedId = active?.id;
+  useEffect(() => {
+    let busy = false, last = 0;
+    async function check() {
+      if (busy || document.visibilityState !== 'visible' || Date.now() - last < 3000) return;
+      busy = true; last = Date.now();
+      try {
+        const response = await fetch('/api/v1/me/organization', { cache: 'no-store', credentials: 'same-origin' });
+        if (!response.ok) return;
+        const list = organizationsSchema.parse(await response.json());
+        if (organizationChanged(renderedId, list)) {
+          setOpen(false);
+          setNotice(`Firmę zmieniono w innej karcie — pokazuję dane firmy ${list.find(o => o.active)?.name ?? ''}.`);
+          router.refresh();
+        }
+      } catch { /* sprawdzenie pomocnicze — brak sieci nie blokuje pracy */ } finally { busy = false; }
+    }
+    window.addEventListener('focus', check); document.addEventListener('visibilitychange', check);
+    return () => { window.removeEventListener('focus', check); document.removeEventListener('visibilitychange', check); };
+  }, [renderedId, router]);
+  useEffect(() => { if (!notice) return; const t = window.setTimeout(() => setNotice(''), 8000); return () => window.clearTimeout(t); }, [notice]);
   useEffect(() => { if (open && highlight >= 0) menu.current?.querySelectorAll<HTMLElement>('[data-menu-item]')[highlight]?.focus(); }, [open, highlight]);
 
   function show(at: 'active' | 'first' | 'last') {
@@ -78,6 +101,7 @@ export function OrgSwitcher({ organizations, onProfile }: { organizations: Organ
       <span className="min-w-0 truncate font-medium max-desktop:hidden">{name}</span>
       <CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden />
     </button>
+    {notice && <p role="status" className="absolute top-full left-0 z-70 m-0 mt-1 w-68 rounded-xl border border-edge bg-surface px-3 py-2 text-small leading-4 text-primary shadow-pop">{notice}</p>}
     {open && <div ref={menu} id={menuId} role="menu" aria-label="Firmy" aria-busy={pending ? true : undefined} onKeyDown={onMenuKey}
       className="absolute top-full left-0 z-70 mt-1 flex w-68 flex-col rounded-xl border border-edge bg-surface p-1 shadow-pop">
       <p className="m-0 px-2 pt-1 pb-1 text-small leading-4 text-tertiary">Firmy</p>
