@@ -13,7 +13,10 @@ export const bankAccountSchema=z.string().max(42).refine(validBankAccount,'Podaj
 /** Widok maskowany: tylko ostatnie 4 cyfry, np. „•••• 2874”. */
 export function maskBankAccount(value:string|undefined|null):string{const digits=(value??'').replace(/\D/g,'');return digits?'•••• '+digits.slice(-4):'';}
 export const companyProfileFieldsSchema=offerDocumentFieldsSchema.omit({issuedOn:true,validUntil:true}).extend({validityDays:z.number().int().min(1).max(365),bankAccount:bankAccountSchema.optional()}).strict();
-export const companyProfileSchema=z.object({version:z.number().int().nonnegative(),data:companyProfileFieldsSchema}).strict();
+/** Odczyt profilu: biuro dostaje numer rachunku zamaskowany przez company_profile() („•••• 2874”); zapis go nie przyjmuje. */
+export const maskedBankAccountSchema=z.string().regex(/^•••• \d{4}$/);
+export const companyProfileReadFieldsSchema=companyProfileFieldsSchema.extend({bankAccount:z.union([bankAccountSchema,maskedBankAccountSchema]).optional()}).strict();
+export const companyProfileSchema=z.object({version:z.number().int().nonnegative(),data:companyProfileReadFieldsSchema}).strict();
 export const companyProfileSaveSchema=z.object({version:z.number().int().min(0).max(2147483646).nullable(),data:companyProfileFieldsSchema}).strict();
 export type CompanyProfile=z.infer<typeof companyProfileSchema>;
 export type CompanyProfileFields=z.infer<typeof companyProfileFieldsSchema>;

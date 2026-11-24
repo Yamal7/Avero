@@ -16,3 +16,7 @@ export function nextOrganizationIndex(current:number,count:number,move:'next'|'p
  const from=current<0||current>=count?(move==='next'?-1:0):current;
  return (from+(move==='next'?1:-1)+count)%count;
 }
+/** Firmy do przełącznika w ramie pracownika: bez firm, w których osoba jest tylko klientem portalu (te obsługuje portal). */
+export function staffOrganizations(list:readonly Organization[]):Organization[]{return list.filter(o=>o.role!=='client');}
+/** Czy aktywna firma różni się od tej, z którą strona była renderowana (np. przełączono ją w innej karcie). */
+export function organizationChanged(renderedId:string|null|undefined,list:readonly Organization[]):boolean{const now=activeOrganization(list)?.id;return Boolean(now&&renderedId&&now!==renderedId);}
