@@ -12,7 +12,7 @@ Q=[("I '25",4,1),("II '25",6,3),("III '25",5,2),("IV '25",6,2),("I '26",2,1),("I
 assert sum(q[1] for q in Q)==29 and sum(q[2] for q in Q)==11
 QF=['I kw. 2025','II kw. 2025','III kw. 2025','IV kw. 2025','I kw. 2026','II kw. 2026','III kw. 2026','IV kw. 2026 (do 20 lis)']
 def qchart():
-    W,Hh,L,R,T,B=460,250,24,8,16,26; pw=W-L-R; ph=Hh-T-B; ymax=8; n=len(Q); step=pw/n; bw=28
+    W,Hh,L,R,T,B=720,220,24,8,16,26; pw=W-L-R; ph=Hh-T-B; ymax=8; n=len(Q); step=pw/n; bw=32
     Y=lambda v: T+ph-(v/ymax)*ph
     o=[f'<svg viewBox="0 0 {W} {Hh}" width="100%" role="img" aria-label="Złożone oferty i wygrane przetargi wg kwartału, 2025–2026" style="display:block">']
     for g in (2,4,6,8):
@@ -33,8 +33,8 @@ leg=('<div style="display:flex;gap:14px;font-size:12px;color:var(--text-secondar
      f'<span style="display:inline-flex;align-items:center;gap:6px"><span aria-hidden="true" style="width:10px;height:10px;border-radius:3px;background:{WON}"></span>Wygrane</span>'
      f'<span style="display:inline-flex;align-items:center;gap:6px"><span aria-hidden="true" style="width:10px;height:10px;border-radius:3px;background:{REST}"></span>Złożone bez wygranej</span></div>')
 def hbar(label,v,mx,right,tip,col=WON):
-    return (f'<div title="{tip}" style="display:grid;grid-template-columns:112px minmax(0,1fr) 92px;column-gap:10px;align-items:center;min-height:28px">'
-            f'<span class="ell" style="font-size:12px;color:var(--text-secondary)">{label}</span>'
+    return (f'<div title="{tip}" style="display:grid;grid-template-columns:128px minmax(0,1fr) 92px;column-gap:10px;align-items:center;min-height:28px">'
+            f'<span class="ell" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">{label}</span>'
             f'<span style="height:12px;border-radius:0 4px 4px 0;background:{col};width:{v/mx*100:.1f}%"></span>'
             f'<span class="num" style="text-align:right;font-size:12px">{right}</span></div>')
 def card(title,body,extra='',sel=False):
@@ -54,36 +54,58 @@ a('<div style="flex:1 1 auto;display:flex;align-items:stretch;min-height:0"><div
 a('<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)">'+sch(ic(TABLEI,12,'var(--text-tertiary)')+'z własnej tabeli Przetargi','Źródło: tabela Przetargi, widok Wszystkie · 56 rekordów (41 z importu 20 lis)')+
   '<span>Raport utworzył Pascal · widzą administrator i biuro</span></div>')
 a('<p style="margin:0;font-size:13px;line-height:20px;color:var(--text-secondary)">Od początku 2025 r. <span class="num" style="color:var(--text-primary);font-weight:500">56</span> przetargów, oferta złożona w <span class="num" style="color:var(--text-primary);font-weight:500">29</span>, wygrane <span class="num" style="color:var(--text-primary);font-weight:500">11</span> — <span class="num" style="color:var(--text-primary);font-weight:500">38 %</span> złożonych. Wartość wygranych <span class="num" style="color:var(--text-primary);font-weight:500">1 182 400 zł</span> netto (nasze ceny).</p>')
-a('<div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;align-items:start">')
-a(card('Złożone i wygrane wg kwartału',leg+qchart(),sch('liczba','Liczba rekordów'),sel=True))
-a('<div style="display:flex;flex-direction:column;gap:12px;min-width:0">')
-a(card('Skuteczność wg branży','<div style="display:flex;flex-direction:column;gap:2px">'+
-  hbar('Chłodnictwo',50,60,'3 z 6 · 50 %','Wygrane / złożone')+hbar('Klimatyzacja',43,60,'6 z 14 · 43 %','Wygrane / złożone')+
-  hbar('Wentylacja',25,60,'1 z 4 · 25 %','Wygrane / złożone')+hbar('Pompy ciepła',20,60,'1 z 5 · 20 %','Wygrane / złożone')+'</div>',sch('% złożonych','Pierwsza branża przetargu')))
-a(card('Dlaczego przegrywamy','<div style="display:flex;flex-direction:column;gap:2px">'+
-  hbar('Cena',9,9,'9','Pole „Powód” wymagane przy statusie Przegrany',col='var(--text-secondary)')+hbar('Brak referencji',3,9,'3','',col='var(--text-secondary)')+hbar('Termin realizacji',2,9,'2','',col='var(--text-secondary)')+
-  hbar('Błąd formalny',1,9,'1','PR-2025-019 — brak pełnomocnictwa',col='var(--text-secondary)')+hbar('Inne',3,9,'3','',col='var(--text-secondary)')+'</div>'
-  '<span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">4 z 9 przegranych ceną — o mniej niż 5 % od zwycięskiej oferty.</span>',sch('18 przegranych','Status Przegrany, 2025–2026')))
-a('</div></div></div>')
-# edytor wykresu
-def row2(k,v,tip=''): return f'<div title="{tip}" style="display:grid;grid-template-columns:88px minmax(0,1fr);column-gap:8px;align-items:center;min-height:32px;padding:0 8px"><span style="font-size:12px;color:var(--text-secondary)">{k}</span><span style="display:flex;flex-wrap:wrap;gap:4px;min-width:0">{v}</span></div>'
-def pl(t,tip=''): return f'<span title="{tip}" style="height:26px;display:inline-flex;align-items:center;gap:4px;padding:0 10px;border-radius:13px;background:var(--bg-surface);box-shadow:inset 0 0 0 1px var(--border-strong);font-size:12px;white-space:nowrap">{t}</span>'
+exec(open('design/tools/ui1.py').read())
+# Treść raportu jak dokument: sekcje bez kart, rozdzielone linią. Wybrany wykres — pionowa kreska akcentu po lewej.
+def sec(title,body,extra='',sel=False,pad='16px 0'):
+    mark=('<span aria-hidden="true" style="position:absolute;left:-12px;top:14px;bottom:14px;width:2px;border-radius:1px;background:var(--accent)"></span>' if sel else '')
+    ed=(f'<span style="font-size:12px;color:var(--accent)">edytujesz</span>' if sel else '')
+    return (f'<section aria-current="{"true" if sel else "false"}" style="position:relative;display:flex;flex-direction:column;gap:10px;padding:{pad};min-width:0">{mark}'
+            f'<div style="display:flex;align-items:center;gap:8px;min-height:24px"><span style="font-weight:500">{title}</span>{extra}{ed}{SP}{ib("Pokaż tabelę","Pokaż dane w tabeli",TABLEI,24)}</div>{body}</section>')
+HR='<div aria-hidden="true" style="height:1px;background:var(--edge)"></div>'
+a(sec('Złożone i wygrane wg kwartału','<div style="max-width:720px">'+leg+qchart()+'</div>','<span style="font-size:12px;color:var(--text-tertiary)">liczba przetargów</span>',sel=True))
+a(HR)
+a('<div style="display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);column-gap:24px;align-items:stretch">')
+a(sec('Skuteczność wg branży','<div style="display:flex;flex-direction:column;gap:2px">'+
+  hbar(u_kind('chł',12)+' Chłodnictwo',50,60,'3 z 6 · 50 %','Wygrane / złożone')+hbar(u_kind('klima',12)+' Klimatyzacja',43,60,'6 z 14 · 43 %','Wygrane / złożone')+
+  hbar(u_kind('went',12)+' Wentylacja',25,60,'1 z 4 · 25 %','Wygrane / złożone')+hbar(u_kind('pc',12)+' Pompy ciepła',20,60,'1 z 5 · 20 %','Wygrane / złożone')+'</div>',
+  '<span style="font-size:12px;color:var(--text-tertiary)">% złożonych</span>'))
+a('<div aria-hidden="true" style="background:var(--edge)"></div>')
+a(sec('Dlaczego przegrywamy','<div style="display:flex;flex-direction:column;gap:2px">'+
+  hbar('Cena',9,9,'9','Pole „Powód” wymagane przy statusie Przegrany',col='var(--text-tertiary)')+hbar('Brak referencji',3,9,'3','',col='var(--text-tertiary)')+hbar('Termin realizacji',2,9,'2','',col='var(--text-tertiary)')+
+  hbar('Błąd formalny',1,9,'1','PR-2025-019 — brak pełnomocnictwa',col='var(--text-tertiary)')+hbar('Inne',3,9,'3','',col='var(--text-tertiary)')+'</div>'
+  '<span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">4 z 9 przegranych ceną — o mniej niż 5 % od zwycięskiej oferty.</span>',
+  '<span style="font-size:12px;color:var(--text-tertiary)">18 przegranych</span>'))
+a('</div></div>')
+# --- panel: właściwości jak w Linear — etykieta i JEDNO pole wartości w tym samym wierszu
+CHEVD='<path d="m6 9 6 6 6-6"></path>'
 def segm(items,cur): return ('<span role="radiogroup" style="display:inline-flex;gap:2px;padding:2px;border-radius:10px;background:var(--bg-subtle)">'+''.join(f'<span role="radio" aria-checked="{"true" if i==cur else "false"}" style="height:24px;display:inline-flex;align-items:center;padding:0 8px;border-radius:8px;font-size:12px;white-space:nowrap;{"background:var(--bg-surface);font-weight:500" if i==cur else "color:var(--text-secondary)"}">{t}</span>' for i,t in enumerate(items))+'</span>')
-a('<aside aria-label="Ustawienia wykresu" style="flex:0 0 320px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;gap:16px;padding:14px 12px 24px">')
-a('<div style="display:flex;flex-direction:column;gap:4px;padding:0 8px"><span style="font-size:12px;color:var(--text-tertiary)">Wykres 1 z 3</span><h2 style="margin:0;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-0.01em">Złożone i wygrane wg kwartału</h2></div>')
-a('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Dane')+
-  row2('Tabela',pl(ic(GAVEL,12,'var(--text-tertiary)')+'Przetargi')+pl('widok Wszystkie'),'Raport korzysta z uprawnień oglądającego')+
-  row2('Pokaż',pl('Liczba rekordów'),'Albo suma / średnia pola Kwota lub Liczba')+
-  row2('Gdzie',pl('Status')+'<span style="font-size:12px;color:var(--text-secondary);align-self:center">jest</span>'+pl('Złożona, Wygrany, Przegrany'))+
-  row2('Oś',pl('Termin składania ofert')+pl('kwartały'))+
-  row2('Podział',pl('Status')+pl('Wygrany osobno'),'Najwyżej 4 grupy; reszta jako „pozostałe”')+'</section>')
-a('<section style="display:flex;flex-direction:column;gap:8px">'+ah3('Wygląd')+
-  '<div style="padding:0 8px;display:flex;flex-direction:column;gap:8px">'+segm(['Słupki','Skumulowane','Linia','Tabela'],1)+
-  '<span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">Kolory serii nadaje Avero w stałej kolejności; etykieta „wygrane/złożone” nad słupkiem.</span></div></section>')
-a('<section style="display:flex;flex-direction:column;gap:2px">'+ah3('Kto widzi')+
-  prop(LOCK,'Administrator i biuro','')+'<span style="padding:0 8px;font-size:12px;line-height:16px;color:var(--text-tertiary)">Technicy nie widzą raportu. Wykres z polem „Nasza cena” zobaczy tylko ten, kto widzi to pole.</span>'+'</section>')
+def fld(k,val,icon=None,col='slate',tip='',muted=False):
+    i=u_ci(icon,col,14) if icon else ''
+    c='var(--text-tertiary)' if muted else 'var(--text-primary)'
+    return (f'<div role="button" tabindex="0" class="sec" title="{tip}" style="display:grid;grid-template-columns:76px minmax(0,1fr) 14px;column-gap:8px;align-items:center;height:32px;padding:0 8px;border-radius:8px">'
+            f'<span style="font-size:12px;color:var(--text-secondary)">{k}</span>'
+            f'<span style="display:flex;align-items:center;gap:6px;min-width:0;color:{c}">{i}<span class="ell">{val}</span></span>{ic(CHEVD,12,"var(--text-tertiary)")}</div>')
+def grp(title,body,first=False):
+    bt='' if first else 'border-top:1px solid var(--edge);'
+    return (f'<section style="display:flex;flex-direction:column;gap:2px;padding:12px 0 8px;{bt}">'
+            f'<span style="padding:0 8px 6px;font-size:12px;color:var(--text-tertiary)">{title}</span>{body}</section>')
+a('<aside aria-label="Ustawienia wykresu" style="flex:0 0 320px;min-width:0;border-left:1px solid var(--edge);display:flex;flex-direction:column;padding:14px 12px 24px">')
+a('<div style="display:flex;flex-direction:column;gap:4px;padding:0 8px 12px"><span style="font-size:12px;color:var(--text-tertiary)">Wykres 1 z 3</span><h2 style="margin:0;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-0.01em">Złożone i wygrane wg kwartału</h2></div>')
+a(grp('Dane',
+  fld('Tabela','Przetargi · widok Wszystkie','gavel','violet','Raport korzysta z uprawnień oglądającego')+
+  fld('Pokaż','Liczba rekordów','hash','slate','Albo suma / średnia pola Kwota lub Liczba')+
+  fld('Filtr','Status: Złożona, Wygrany, Przegrany','flag','green','Status jest jednym z: Złożona, Wygrany, Przegrany')+
+  fld('Oś X','Termin składania ofert · kwartały','cal','blue')+
+  fld('Podział','Status · Wygrany osobno','layers','orange','Najwyżej 4 grupy; reszta jako „pozostałe”'),first=True))
+a(grp('Wygląd',
+  '<div style="padding:0 8px 4px">'+segm(['Słupki','Skumulowane','Linia','Tabela'],1)+'</div>'+
+  fld('Etykiety','wygrane / złożone nad słupkiem','tag','pink')+
+  '<span style="padding:4px 8px 0;font-size:12px;line-height:16px;color:var(--text-tertiary)">Kolory serii nadaje Avero w stałej kolejności.</span>'))
+a(grp('Dostęp',
+  fld('Widzą','Administrator i biuro','users','indigo','Technicy nie widzą raportu')+
+  '<span style="padding:4px 8px 0;font-size:12px;line-height:16px;color:var(--text-tertiary)">Wykres z polem „Nasza cena” zobaczy tylko ten, kto widzi to pole.</span>'))
 a('<div style="display:flex;gap:6px;margin-top:auto;padding:0 4px">'+
-  '<button type="button" class="sec" title="Dodaj wykres do raportu  N" style="flex:1 1 auto;height:32px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;background:var(--bg-subtle);font-size:12px;font-weight:500">'+ic(PLUS,14,'var(--text-secondary)')+'Wykres</button>'
+  '<button type="button" class="sec" title="Dodaj wykres do raportu  N" style="flex:1 1 auto;height:32px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;background:var(--bg-subtle);font-size:12px;font-weight:500;color:var(--text-primary)">'+ic(PLUS,14)+'Wykres</button>'+
   '<button type="button" class="pri" title="Zapisz raport  ⌘S" style="flex:1 1 auto;height:32px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:500">'+ic(CHECK,14)+'Zapisz raport</button></div>')
 a('</aside></div></sc-if>')
 block='\n'.join(H)+'\n'

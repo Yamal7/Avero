@@ -1178,6 +1178,114 @@
       "h": 1120,
       "expand": "fill",
       "title": "Komponent ekranów 2 (Main2) — ekrany od Zgłoszeń"
+    },
+    "Telefon-dzien.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · Mój dzień",
+      "w": 390,
+      "x": 7640,
+      "y": 55860
+    },
+    "Telefon-dzien-ciemny.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · Mój dzień · ciemny",
+      "w": 390,
+      "x": 8080,
+      "y": 55860
+    },
+    "Telefon-menu.dc.html": {
+      "h": 844,
+      "title": "Telefon technika · menu",
+      "w": 390,
+      "x": 8520,
+      "y": 55860
+    },
+    "Telefon-wizyta.dc.html": {
+      "h": 1300,
+      "title": "Telefon technika · wizyta (jak zadanie w Linear)",
+      "w": 390,
+      "x": 8960,
+      "y": 55860
+    },
+    "Klient-telefon.dc.html": {
+      "h": 960,
+      "title": "Klient · aplikacja · przegląd",
+      "w": 390,
+      "x": 9400,
+      "y": 55860
+    },
+    "Klient-telefon-ciemny.dc.html": {
+      "h": 960,
+      "title": "Klient · aplikacja · przegląd · ciemny",
+      "w": 390,
+      "x": 9840,
+      "y": 55860
+    },
+    "Klient-A-co-teraz.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek A „Co teraz”",
+      "w": 390,
+      "x": 7640,
+      "y": 57260
+    },
+    "Klient-A-co-teraz-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek A „Co teraz” · ciemny",
+      "w": 390,
+      "x": 8080,
+      "y": 57260
+    },
+    "Klient-B-urzadzenia.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B „Moje urządzenia”",
+      "w": 390,
+      "x": 8760,
+      "y": 57260
+    },
+    "Klient-B-urzadzenia-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B „Moje urządzenia” · ciemny",
+      "w": 390,
+      "x": 9200,
+      "y": 57260
+    },
+    "Klient-B-urzadzenie.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B · po skanie naklejki",
+      "w": 390,
+      "x": 9640,
+      "y": 57260
+    },
+    "Klient-B-urzadzenie-ciemny.dc.html": {
+      "h": 844,
+      "title": "Klient · kierunek B · po skanie naklejki · ciemny",
+      "w": 390,
+      "x": 10080,
+      "y": 57260
+    },
+    "Panel-zwiniety.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel zwinięty · Faktury",
+      "x": 0,
+      "y": 61400
+    },
+    "Panel-ukryty.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel ukryty · Faktury",
+      "x": 1520,
+      "y": 61400
+    },
+    "Panel-zwiniety-ciemny.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "w": 1440,
+      "title": "Lewy panel zwinięty · Firmy · ciemny",
+      "x": 3040,
+      "y": 61400
     }
   },
   "createdOnFiles": {
@@ -1483,7 +1591,22 @@
     "Sprawdzian-urzadzenie-ciemny.dc.html",
     "Sprawdzian-zlecenie.dc.html",
     "Sprawdzian-zlecenie-ciemny.dc.html",
-    "Main2.dc.html"
+    "Main2.dc.html",
+    "Telefon-dzien.dc.html",
+    "Telefon-dzien-ciemny.dc.html",
+    "Telefon-menu.dc.html",
+    "Telefon-wizyta.dc.html",
+    "Klient-telefon.dc.html",
+    "Klient-telefon-ciemny.dc.html",
+    "Klient-A-co-teraz.dc.html",
+    "Klient-A-co-teraz-ciemny.dc.html",
+    "Klient-B-urzadzenia.dc.html",
+    "Klient-B-urzadzenia-ciemny.dc.html",
+    "Klient-B-urzadzenie.dc.html",
+    "Klient-B-urzadzenie-ciemny.dc.html",
+    "Panel-zwiniety.dc.html",
+    "Panel-ukryty.dc.html",
+    "Panel-zwiniety-ciemny.dc.html"
   ],
   "pages": [],
   "title": "Avero — Mój dzień (dashboard)"

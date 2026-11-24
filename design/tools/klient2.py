@@ -27,60 +27,56 @@ def drow_(icon,col,name,where,info,infocol,action='',last=False):
 def pbtn(t,primary=False,icon=''):
     st='background:var(--accent);color:var(--on-accent)' if primary else 'background:var(--bg-subtle)'
     return f'<button type="button" class="{"pri" if primary else "sec"}" style="height:40px;display:inline-flex;align-items:center;gap:8px;padding:0 16px;border:0;border-radius:12px;{st};font-weight:500;white-space:nowrap">{ic(icon,16) if icon else ""}{t}</button>'
-H=['<div class="ko" style="width:100%;min-height:1240px">']
+H=['<div class="ko" style="width:100%;min-height:1000px;background:var(--bg-surface)">']
 a=H.append
 a('<header style="display:flex;align-items:center;gap:12px;height:64px;padding:0 40px;background:var(--bg-surface)">'+LOGO+'<span style="font-weight:600">Kranz HVACR</span>'
   '<nav style="display:flex;gap:4px;margin-left:24px">'+''.join(f'<a href="#" style="height:36px;display:inline-flex;align-items:center;padding:0 12px;border-radius:10px;{"background:var(--bg-subtle);font-weight:500" if i==0 else "color:var(--text-secondary)"}">{t}</a>' for i,t in enumerate(['Przegląd','Faktury','Urządzenia','Zgłoszenia','Umowa']))+'</nav>'
   '<span style="flex:1 1 auto"></span><span style="font-size:13px;color:var(--text-secondary)">Kancelaria Wit · Krzysztof Lis</span></header>')
-a('<main style="max-width:1120px;margin:0 auto;padding:36px 40px 64px;display:flex;flex-direction:column;gap:28px">')
-a('<div style="display:flex;align-items:flex-end;gap:16px"><div style="flex:1 1 auto;display:flex;flex-direction:column;gap:6px"><span style="color:var(--text-secondary)">Umowa serwisowa do 28 lutego 2027 · 4 urządzenia</span>'
+exec(open('design/tools/ui1.py').read())
+a('<style>.ko{'+';'.join(f'--ic-{k}:{v}' for k,v in IC_LIGHT.items())+'} .ko .r:hover{background:var(--bg-raised)}</style>')
+# Portal jak dokument: bez kart i kafelków. Sekcje = nagłówek + lista wierszy w jednej linii (36–44 px) z ikoną.
+a('<main style="max-width:1240px;margin:0 auto;padding:36px 40px 64px;display:flex;flex-direction:column;gap:32px">')
+a('<div style="display:flex;align-items:flex-end;gap:12px"><div style="flex:1 1 auto;display:flex;flex-direction:column;gap:6px"><span style="color:var(--text-secondary)">Umowa serwisowa do 28 lutego 2027 · 4 urządzenia</span>'
   '<h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;letter-spacing:-0.02em">Kancelaria Wit</h1></div>'+
   pbtn('Zamów usługę',icon=PLUSI)+pbtn('Zgłoś usterkę',True,WRENCHI)+'</div>')
-# trzy karty stanu
-a('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">')
-a(card('<span style="color:var(--text-secondary)">Do zapłaty</span><span class="num" style="font-size:24px;line-height:32px;font-weight:600;letter-spacing:-0.015em">0,00 zł</span>'
-       '<span style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--success)">'+ic(CHECK,14,'var(--success)')+'Wszystkie faktury opłacone · ostatnia wpłata 19 lis</span>'))
-a(card('<span style="color:var(--text-secondary)">Najbliższa wizyta</span><span style="font-size:18px;line-height:26px;font-weight:600">Poniedziałek 23 lis, 9:00–11:00</span>'
-       '<span style="font-size:13px;line-height:18px;color:var(--text-secondary)">Naprawa klimatyzatora w pokoju zarządu · Kacper Nowak · bezpłatnie, w ramach gwarancji</span>'))
-a(card('<span style="color:var(--text-secondary)">Wymaga terminu</span><span style="font-size:18px;line-height:26px;font-weight:600">Kontrola szczelności serwerowni</span>'
-       '<span style="display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;color:var(--warning)">'+ic(WARNI,14,'var(--warning)')+'Termin minął 17 lis — wybierz dzień wizyty</span>'
-       '<a href="#" style="align-self:flex-start;font-weight:500;font-size:13px">Wybierz termin →</a>'))
+def H2(t,right='',n=''):
+    nn=f'<span class="num" style="color:var(--text-tertiary);font-weight:400">{n}</span>' if n!='' else ''
+    return f'<div style="display:flex;align-items:center;gap:8px;height:32px;border-bottom:1px solid var(--edge)"><h2 style="margin:0;font-size:14px;line-height:20px;font-weight:600">{t}</h2>{nn}<span style="flex:1"></span>{right}</div>'
+def R(icon,col,title,mid='',right='',rcol='var(--text-secondary)',act='',tip='',mono=''):
+    return (f'<a href="#" class="r" title="{tip}" style="display:grid;grid-template-columns:16px minmax(0,2fr) 104px minmax(0,1fr) 100px 88px;column-gap:12px;align-items:center;height:44px;padding:0 8px;margin:0 -8px;border-radius:8px">{u_ci(icon,col,16)}'
+            f'<span class="ell">{title}</span><span class="mono ell" style="font-size:12px;color:var(--text-tertiary)">{mono}</span><span class="ell" style="font-size:13px;color:var(--text-secondary)">{mid}</span>'
+            f'<span class="num ell" style="text-align:right;font-size:13px;color:{rcol}">{right}</span><span style="display:flex;justify-content:flex-end">{act}</span></a>')
+def R2(icon,col,title,right,tip=''):
+    return f'<a href="#" class="r" title="{tip}" style="display:flex;align-items:center;gap:12px;height:44px;padding:0 8px;margin:0 -8px;border-radius:8px">{u_ci(icon,col,16)}<span class="ell" style="flex:1">{title}</span><span class="num" style="font-size:13px">{right}</span></a>'
+def ACT(t): return f'<span style="flex:0 0 auto;font-size:13px;font-weight:500;color:var(--accent)">{t}</span>'
+a('<div style="display:grid;grid-template-columns:minmax(0,1fr) 288px;column-gap:40px;align-items:start">')
+a('<div style="display:flex;flex-direction:column;gap:32px;min-width:0">')
+a('<section>'+H2('Teraz')+
+  R('cal','blue','Wizyta: naprawa klimatyzatora','Kacper Nowak · gwarancja','pn 23 lis, 9:00','var(--text-primary)',tip='Poniedziałek 23 listopada 2026, 9:00–11:00')+
+  R('alert','orange','Kontrola szczelności serwerowni','termin minął 17 lis','',act=ACT('Wybierz termin'))+
+  R('file','violet','Oferta: klimatyzacja sali konf.','ważna do 4 gru','33 579,00 zł','var(--text-primary)',act=ACT('Zobacz'),mono='OF-2026-114')+
+  R('check','green','Wszystkie faktury opłacone','ostatnia wpłata 19 lis','0,00 zł','var(--text-primary)')+'</section>')
+a('<section>'+H2('Zgłoszenia i reklamacje',lnk('Wszystkie (7)'))+
+  R('ret','red','Klimatyzator nie chłodzi (E7)','uznana · koszt 0 zł','naprawa 23 lis','var(--warning)',mono='RK-2026-017',tip='Zgłoszona → Diagnoza → Uznana → Naprawa 23 lis → Zakończona')+'</section>')
+a('<section>'+H2('Urządzenia',lnk('Historia wizyt'),4)+
+  R('snow','blue','Klimatyzacja serwerowni','R410A 3,2 kg · kontrola co 12 mies.','po terminie','var(--warning)',mono='UR-1988')+
+  R('snow','blue','Klimatyzator · pokój zarządu','gwarancja do 14 mar 2028','w naprawie',mono='UR-1990')+
+  R('snow','blue','Klimatyzator · sala konferencyjna','przegląd 11 mar','sprawny','var(--text-tertiary)',mono='UR-1991')+
+  R('snow','blue','Klimatyzator · recepcja','przegląd 11 mar','sprawny','var(--text-tertiary)',mono='UR-1992')+'</section>')
+a('<section>'+H2('Faktury',lnk('Pobierz wszystkie z 2026 (ZIP)'))+
+  R('receipt','green','Przegląd i naprawa · październik','zapłacona 19 lis','4 960,00 zł','var(--text-primary)',act=f'<span title="Pobierz PDF" style="display:inline-flex">{ic(DL,16,"var(--text-secondary)")}</span>',mono='FV/2026/11/006')+
+  R('receipt','green','Czyszczenie klimatyzacji · 3 jednostki','zapłacona 20 sie','1 230,00 zł','var(--text-primary)',act=f'<span title="Pobierz PDF" style="display:inline-flex">{ic(DL,16,"var(--text-secondary)")}</span>',mono='FV/2026/08/044')+
+  R('receipt','green','Umowa serwisowa · rok 2026/27','zapłacona 9 mar','5 658,00 zł','var(--text-primary)',act=f'<span title="Pobierz PDF" style="display:inline-flex">{ic(DL,16,"var(--text-secondary)")}</span>',mono='FV/2026/03/019')+'</section>')
 a('</div>')
-a('<div style="display:flex;gap:24px;align-items:flex-start">')
-# lewa kolumna
-a('<div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:28px">')
-a('<section style="display:flex;flex-direction:column;gap:12px">'+sec('Zgłoszenia i reklamacje',lnk('Wszystkie (7)'))+
-  card('<div style="display:flex;align-items:flex-start;gap:14px"><span style="width:36px;height:36px;flex:0 0 auto;border-radius:12px;background:var(--bg-raised);display:inline-flex;align-items:center;justify-content:center">'+ic(SHIELDI,18,'#C98A12')+'</span>'
-       '<span style="flex:1 1 auto;display:flex;flex-direction:column;gap:4px"><span style="display:flex;gap:8px;align-items:center"><span style="font-weight:500">Reklamacja RK-2026-017 · klimatyzator nie chłodzi (E7)</span></span>'
-       '<span style="font-size:13px;line-height:18px;color:var(--text-secondary)">Uznana 13 lis — uszkodzony silnik wentylatora jednostki zewnętrznej. Część dotarła, naprawa w poniedziałek 23 lis. Koszt dla Państwa: 0 zł.</span>'
-       '<span style="display:flex;gap:4px;padding-top:6px;flex-wrap:wrap">'+''.join(
-           f'<span style="height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:13px;background:var(--bg-raised);font-size:12px;{"font-weight:500" if i==3 else ""};color:{"var(--text-primary)" if i<=3 else "var(--text-tertiary)"}">{ic(CHECK,12,"var(--success)") if i<3 else ""}{t}</span>'
-           for i,t in enumerate(['Zgłoszona','Diagnoza','Uznana','Naprawa 23 lis','Zakończona']))+'</span></span></div>'))
-a('<section style="display:flex;flex-direction:column;gap:12px">'+sec('Faktury',lnk('Pobierz wszystkie z 2026 (ZIP)'))+
-  card(frow('FV/2026/11/006','Przegląd i naprawa · październik','18 paź','4 960,00','zapłacona 19 lis','var(--success)')+
-       frow('FV/2026/08/044','Czyszczenie klimatyzacji · 3 jednostki','12 sie','1 230,00','zapłacona 20 sie','var(--success)')+
-       frow('FV/2026/03/019','Umowa serwisowa · rok 2026/27','2 mar','5 658,00','zapłacona 9 mar','var(--success)',last=True),'padding:6px 20px')+'</section>')
-a('<section style="display:flex;flex-direction:column;gap:12px">'+sec('Urządzenia',lnk('Historia wizyt'))+
-  card(drow_(SNOWI,'#3B82D6','Klimatyzacja serwerowni · UR-1988','R410A 3,2 kg · kontrola szczelności co 12 mies.','kontrola po terminie','var(--warning)','<a href="#" style="font-size:13px;font-weight:500;padding-left:12px">Wybierz termin</a>')+
-       drow_(SNOWI,'#3B82D6','Klimatyzator · pokój zarządu · UR-1990','gwarancja producenta do 14 mar 2028','naprawa 23 lis','var(--text-secondary)')+
-       drow_(SNOWI,'#3B82D6','Klimatyzator · sala konferencyjna · UR-1991','przegląd w umowie · ostatni 11 mar','sprawny','var(--text-tertiary)')+
-       drow_(SNOWI,'#3B82D6','Klimatyzator · recepcja · UR-1992','przegląd w umowie · ostatni 11 mar','sprawny','var(--text-tertiary)',last=True),'padding:4px 20px')+'</section>')
-a('</div>')
-# prawa kolumna
-a('<aside style="flex:0 0 340px;display:flex;flex-direction:column;gap:16px">')
-a(card('<span style="font-weight:600">Umowa serwisowa</span>'
-       '<div style="display:flex;flex-direction:column;gap:8px;font-size:13px">'+''.join(f'<div style="display:flex;justify-content:space-between;gap:12px"><span style="color:var(--text-secondary)">{k}</span><span class="num" style="text-align:right">{v}</span></div>' for k,v in [
-           ('Okres','1 mar 2026 – 28 lut 2027'),('Przeglądy','2 w roku · 1 wykonany'),('Czas reakcji','do 8 h w dni robocze'),('Części','−10 % od cennika')])+'</div>'
-       '<a href="#" style="font-size:13px;color:var(--text-secondary)">Umowa (PDF)</a>'))
-a(card('<span style="font-weight:600">Oferta czeka na Państwa</span>'
-       '<span style="font-size:13px;line-height:18px;color:var(--text-secondary)">OF-2026-114 · Klimatyzacja sali konferencyjnej na 2. piętrze. Ważna do 4 grudnia.</span>'
-       '<span class="num" style="font-size:18px;line-height:26px;font-weight:600">33 579,00 zł <span style="font-size:13px;font-weight:400;color:var(--text-tertiary)">brutto</span></span>'+
-       pbtn('Zobacz ofertę')))
-a(card('<span style="font-weight:600">Zamów ponownie</span>'
-       '<div style="display:flex;flex-direction:column;gap:8px">'+''.join(
-           f'<a href="#" class="opt" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border-radius:12px;background:var(--bg-raised)"><span style="flex:1 1 auto;display:flex;flex-direction:column"><span style="font-weight:500">{t}</span><span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">{sub}</span></span><span class="num" style="font-size:13px;white-space:nowrap">{p}</span></a>'
-           for t,sub,p in [('Czyszczenie klimatyzacji','ostatnio 12 sie · 3 jednostki','od 180 zł / szt.'),('Dodatkowy przegląd','poza umową, w ciągu 5 dni roboczych','420 zł')])+'</div>'
-       '<span style="font-size:12px;line-height:16px;color:var(--text-tertiary)">Ceny netto z rabatem z umowy. Termin zaproponujemy w ciągu dnia roboczego.</span>'))
+# prawa kolumna: właściwości umowy + zamów ponownie — bez kart
+def KV(k,v): return f'<div style="display:flex;align-items:center;gap:12px;height:32px"><span style="width:108px;flex:0 0 auto;font-size:13px;color:var(--text-secondary)">{k}</span><span class="num ell" style="font-size:13px">{v}</span></div>'
+a('<aside style="display:flex;flex-direction:column;gap:32px">')
+a('<section>'+H2('Umowa serwisowa',lnk('PDF'))+'<div style="padding-top:6px">'+
+  KV('Okres','1 mar 2026 – 28 lut 2027')+KV('Przeglądy','2 w roku · 1 wykonany')+KV('Czas reakcji','do 8 h w dni robocze')+KV('Części','−10 % od cennika')+'</div></section>')
+a('<section>'+H2('Zamów ponownie')+
+  R2('wind','teal','Czyszczenie klimatyzacji','od 180 zł / szt.',tip='ostatnio 12 sie · 3 jednostki')+
+  R2('wrench','orange','Dodatkowy przegląd','420 zł',tip='poza umową, w ciągu 5 dni roboczych')+
+  '<p style="margin:8px 0 0;font-size:12px;line-height:16px;color:var(--text-tertiary)">Ceny netto z rabatem z umowy. Termin zaproponujemy w ciągu dnia roboczego.</p></section>')
 a('</aside></div>')
 a('<footer style="display:flex;gap:16px;font-size:12px;color:var(--text-tertiary)"><span>Kranz HVACR · biuro@kranz-hvacr.pl · +48 58 500 12 40</span><span style="flex:1 1 auto"></span><span>Link osobisty — nie przekazuj go dalej</span></footer>')
 a('</main></div>')
