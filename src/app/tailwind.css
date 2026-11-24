@@ -138,6 +138,8 @@
 
   /* Jeden próg jak w dotychczasowych arkuszach (max-width: 760px): max-desktop: = telefon */
   --breakpoint-desktop: 761px;
+  /* Panel szczegółów list (Zadania, Magazyn) przechodzi w nakładkę poniżej 1100 px (jak dotąd w precision.css) — max-panel: */
+  --breakpoint-panel: 1101px;
 }
 
 /* Czas przejść z tokenów (--dur-fast jest domyślny dla transition-*). */

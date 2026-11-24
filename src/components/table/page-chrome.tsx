@@ -72,4 +72,4 @@ export function PageLink({ href, children }: { href: string; children: ReactNode
 
 /** Pole szukania w pasku listy (28 px, ikona w polu, etykieta dla czytników). */
 export const searchFrameClasses = 'inline-flex h-7 items-center gap-2 rounded-sm bg-subtle px-2 text-small leading-4 text-secondary transition-shadow focus-within:field-ring focus-within:ring-accent max-desktop:h-11';
-export const searchInputClasses = 'm-0 h-full min-h-0 w-64 min-w-0 rounded-none border-0 bg-transparent p-0 font-sans text-small leading-4 text-primary shadow-none outline-0 placeholder:text-tertiary focus:shadow-none max-desktop:w-full';
+export const searchInputClasses = 'm-0 h-full min-h-0 min-w-0 rounded-none border-0 bg-transparent p-0 font-sans text-small leading-4 text-primary shadow-none outline-0 placeholder:text-tertiary focus:shadow-none max-desktop:flex-auto';

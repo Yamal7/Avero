@@ -121,7 +121,7 @@ export default async function Customers({ searchParams }: { searchParams: Promis
           <label className={searchFrameClasses}>
             <MagnifyingGlass size={14} className="shrink-0" aria-hidden />
             <span className="sr-only">Szukaj klienta, adresu lub kategorii</span>
-            <input id="customer-search" type="search" name="q" defaultValue={q} maxLength={200} placeholder="Szukaj klienta, adresu lub kategorii" className={searchInputClasses} />
+            <input id="customer-search" type="search" name="q" defaultValue={q} maxLength={200} placeholder="Szukaj klienta, adresu lub kategorii" className={cx(searchInputClasses, 'w-64')} />
           </label>
         </form>
         {cats.map(c => <input key={c} type="hidden" name="cat" value={c} form="customer-search-form" />)}
