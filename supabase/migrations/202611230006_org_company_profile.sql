@@ -40,3 +40,15 @@ declare current public.company_profiles%rowtype;begin
  end if;
  return public.company_profile();
 end;$$;
+
+-- Pełny numer rachunku widzi administrator (on go zmienia); biuro dostaje tylko 4 ostatnie cyfry.
+create or replace function public.company_profile() returns jsonb
+language plpgsql stable security definer set search_path='' as $$
+declare r jsonb;begin
+ if not public.can_manage_crm() then raise exception 'Office required' using errcode='42501';end if;
+ select jsonb_build_object('version',version,'data',data) into r from public.company_profiles where singleton;
+ if r is not null and coalesce(r->'data'->>'bankAccount','')<>'' and not public.is_admin() then
+  r:=jsonb_set(r,'{data,bankAccount}',to_jsonb('•••• '||right(regexp_replace(r->'data'->>'bankAccount','[^0-9]','','g'),4)));
+ end if;
+ return r;
+end;$$;
