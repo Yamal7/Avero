@@ -30,7 +30,7 @@ export function TableScroll({ layout, label, children, className }: { layout: Pi
       role="region"
       aria-label={`${label} — przewijanie w poziomie: ← / →`}
       onKeyDown={onKeyDown}
-      className={cx('min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent', className)}
+      className={cx('min-w-0 overflow-x-auto scrollbar-thin focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent', className)}
     >
       <div role="table" aria-label={label} style={{ minWidth: layout.minWidth }} className="flex flex-col">
         {children}

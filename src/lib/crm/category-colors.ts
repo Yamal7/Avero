@@ -12,3 +12,5 @@ export function categoryColorKey(name: string, chosen?: Record<string, string>):
 export const categoryColor = (name: string, chosen?: Record<string, string>) => categoryPalette[categoryColorKey(name, chosen)];
 export const categoryTint = (name: string, chosen?: Record<string, string>) => `color-mix(in srgb, ${categoryColor(name, chosen)} 16%, transparent 84%)`;
 export function colorMap(list: { name: string; color: string }[]) { return Object.fromEntries(list.filter(c => c.color).map(c => [c.name.toLowerCase(), c.color])); }
+/** Tło kategorii (tint 16 %) jako klasa Tailwinda na tokenach --ic-* (M0.3) — zmienia się z motywem. */
+export const categoryTintClass: Record<CategoryColorKey, string> = { blue: 'bg-ic-blue/16', teal: 'bg-ic-teal/16', violet: 'bg-ic-violet/16', orange: 'bg-ic-orange/16', green: 'bg-ic-green/16', amber: 'bg-ic-yellow/16', red: 'bg-ic-red/16', grey: 'bg-ic-slate/16' };

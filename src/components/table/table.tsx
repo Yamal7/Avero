@@ -58,19 +58,22 @@ type CellProps = Omit<HTMLAttributes<HTMLDivElement>, 'role'> & {
   align?: 'left' | 'right' | 'center';
   /** Komórka nagłówka (tło bez najechania). */
   header?: boolean;
+  /** Ucinanie treści (domyślnie). false — dla komórek z własnym menu rozwijanym (np. kategorie osoby). */
+  clip?: boolean;
   children?: ReactNode;
 };
 
 const justify = { left: 'justify-start text-left', right: 'justify-end text-right', center: 'justify-center text-center' };
 
-export function Cell({ layout, col, align = 'left', header = false, className, children, ...rest }: CellProps) {
+export function Cell({ layout, col, align = 'left', header = false, clip = true, className, children, ...rest }: CellProps) {
   const pin = pinProps(layout, col);
   return (
     <div
       role={header ? 'columnheader' : 'cell'}
       style={pin ? { left: pin.left } : undefined}
       className={cx(
-        'flex h-full min-w-0 items-center gap-2 overflow-hidden pr-3 first:rounded-l-md first:pl-2',
+        'flex h-full min-w-0 items-center gap-2 pr-3 first:rounded-l-md first:pl-2',
+        clip && 'overflow-hidden',
         justify[align],
         pin && pinnedBase,
         pin && (header ? 'bg-surface' : 'bg-surface group-hover/row:bg-subtle group-data-selected/row:bg-subtle transition-colors duration-fast'),
