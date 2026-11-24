@@ -155,3 +155,8 @@
 @utility field-ring {
   box-shadow: inset 0 0 0 1.5px var(--tw-ring-color, var(--accent));
 }
+
+/* Cienki pasek przewijania tabel (M0.3, DECISIONS 2026-11-22) — Tailwind nie ma tej właściwości. */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+}
