@@ -4,7 +4,6 @@
 
 -- Wyjątki bez org_id (lista pilnowana w supabase/tests/044_org_guard.sql i opisana w docs/STATUS.md):
 --  organizations, org_active — same firmy i wybór aktywnej firmy;
---  geocode_cache — globalna pamięć podręczna adres → współrzędne (dane publiczne OSM, bez danych klienta);
 --  user_preferences, notification_preferences, notification_email_preferences — ustawienia osobiste konta,
 --  zawsze czytane i zapisywane dla auth.uid().
 do $$
@@ -13,7 +12,7 @@ begin
  for t in
   select c.relname from pg_class c
   where c.relnamespace='public'::regnamespace and c.relkind='r'
-  and c.relname not in ('organizations','org_active','org_members','geocode_cache','user_preferences','notification_preferences','notification_email_preferences')
+  and c.relname not in ('organizations','org_active','org_members','user_preferences','notification_preferences','notification_email_preferences')
   order by c.relname
  loop
   execute format('alter table public.%I add column org_id uuid not null default %L constraint %I references public.organizations(id)',
@@ -50,8 +49,12 @@ language sql stable security definer set search_path='' as $$
 $$;
 alter table public.org_members alter column org_id set default public.org_default();
 
-grant execute on function public.current_org_id() to anon, authenticated, service_role, avero_rpc;
-grant execute on function public.org_default() to anon, authenticated, service_role, avero_rpc;
+-- Bez anon: anon nie ma żadnej polityki permissive, więc jego zapytania do tabel kończą się pustym wynikiem
+-- bez wywołania tych funkcji (sprawdzone testami 001–044).
+revoke all on function public.current_org_id() from public, anon;
+revoke all on function public.org_default() from public, anon;
+grant execute on function public.current_org_id() to authenticated, service_role, avero_rpc;
+grant execute on function public.org_default() to authenticated, service_role, avero_rpc;
 
 -- Domyślne org_id = aktywna firma, indeks, polityki. org_isolation (restrictive, dla wszystkich ról) zawęża każdy
 -- odczyt i zapis do aktywnej firmy — także wewnątrz funkcji RPC, bo działają jako avero_rpc bez BYPASSRLS.
@@ -69,7 +72,6 @@ begin
   execute format('create policy rpc_access on public.%I for all to avero_rpc using (true) with check (true)',t);
  end loop;
 end $$;
-create policy rpc_access on public.geocode_cache for all to avero_rpc using (true) with check (true);
 create policy rpc_access on public.user_preferences for all to avero_rpc using (true) with check (true);
 create policy rpc_access on public.notification_preferences for all to avero_rpc using (true) with check (true);
 create policy rpc_access on public.notification_email_preferences for all to avero_rpc using (true) with check (true);
@@ -90,6 +92,9 @@ drop index public.stock_locations_vehicle;
 create unique index stock_locations_vehicle on public.stock_locations(org_id,technician_id) where kind='vehicle' and active;
 alter table public.customer_category_colors drop constraint customer_category_colors_pkey, add primary key(org_id,key);
 alter table public.account_access drop constraint account_access_pkey, add primary key(org_id,user_id);
+-- Pamięć geokodowania też należy do firmy: firma nie nadpisuje cudzych współrzędnych ani nie sprawdza, czy ktoś
+-- inny geokodował adres. Istniejące wpisy → Kranz HVACR.
+alter table public.geocode_cache drop constraint geocode_cache_pkey, add primary key(org_id,query);
 create index account_access_user_idx on public.account_access(user_id);
 
 -- Uprawnienia avero_rpc: tabele i sekwencje public (także przyszłe, tworzone przez postgres w migracjach).
@@ -163,3 +168,13 @@ begin
   return new;
 end $$;
 revoke all on function public.validate_ticket_installation() from public, anon, authenticated;
+
+-- Pamięć geokodowania: klucz w obrębie firmy (odczyt geocode_lookup / geocode_pending filtruje org_isolation).
+create or replace function public.save_geocode(p_key text, p_lat double precision, p_lng double precision) returns void
+language plpgsql security definer set search_path='' as $$
+begin
+ if not public.can_manage_crm() then raise exception 'Office required' using errcode='42501';end if;
+ if p_key is null or length(p_key) not between 3 and 400 or p_key<>lower(p_key) or (p_lat is null)<>(p_lng is null) or p_lat not between -90 and 90 or p_lng not between -180 and 180 then raise exception 'Invalid geocode' using errcode='22023';end if;
+ insert into public.geocode_cache(query,latitude,longitude,failed) values(p_key,p_lat,p_lng,p_lat is null)
+ on conflict(org_id,query) do update set latitude=excluded.latitude,longitude=excluded.longitude,failed=excluded.failed,fetched_at=now();
+end;$$;
