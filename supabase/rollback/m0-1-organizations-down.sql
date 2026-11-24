@@ -16,7 +16,7 @@ do $$ begin
  end if;
 end $$;
 
--- 1. RPC przełącznika firm.
+-- 1. RPC przełącznika firm i helpery dostępu M0.1.
 drop function public.set_active_org(uuid);
 drop function public.my_organizations();
 
@@ -78,6 +78,7 @@ create unique index stock_locations_vehicle on public.stock_locations(technician
 alter table public.customer_category_colors drop constraint customer_category_colors_pkey, add primary key(key);
 drop index public.account_access_user_idx;
 alter table public.account_access drop constraint account_access_pkey, add primary key(user_id);
+alter table public.geocode_cache drop constraint geocode_cache_pkey, add primary key(query);
 drop trigger organizations_warehouse on public.organizations;
 drop function public.create_org_warehouse();
 
@@ -178,6 +179,31 @@ end;
 $function$
 ;
 
+CREATE OR REPLACE FUNCTION public.company_profile()
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$begin
+ if not public.can_manage_crm() then raise exception 'Office required' using errcode='42501';end if;
+ return(select jsonb_build_object('version',version,'data',data) from public.company_profiles where singleton);
+end;$function$
+;
+
+CREATE OR REPLACE FUNCTION public.email_job_eligible(p_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$declare q public.notification_email_queue%rowtype;old_sub text;result boolean;begin
+ select * into q from public.notification_email_queue where id=p_id;if not found then return false;end if;
+ if not public.account_enabled(q.user_id) or not exists(select 1 from public.staff_users where user_id=q.user_id and role in('admin','office','technician')) or not exists(select 1 from auth.users where id=q.user_id and email_confirmed_at is not null and lower(email)=lower(q.recipient)) or not exists(select 1 from public.notification_email_preferences where user_id=q.user_id and enabled) then return false;end if;
+ old_sub:=current_setting('request.jwt.claim.sub',true);perform set_config('request.jwt.claim.sub',q.user_id::text,true);
+ select exists(select 1 from public.app_notifications n join public.notification_sources() s on s.source_id=n.source_id and s.category=n.category and s.event_key=n.event_key where n.id=q.notification_id and n.user_id=q.user_id and s.active and not (n.read_at is not null) and (public.my_notification_preferences()->>n.category)::boolean) into result;
+ perform set_config('request.jwt.claim.sub',coalesce(old_sub,''),true);return result;
+end;$function$
+;
+
 CREATE OR REPLACE FUNCTION public.list_access_users(p_search text DEFAULT ''::text, p_page integer DEFAULT 1)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -245,6 +271,25 @@ declare v_period text:=to_char(now() at time zone 'Europe/Warsaw','YYYY/MM');n i
  end loop;
  delete from public.stock_drafts where id=p_id;
  return jsonb_build_object('id',p_id,'number',num);
+end;$function$
+;
+
+CREATE OR REPLACE FUNCTION public.prepare_notification_emails(p_allowed text[])
+ RETURNS integer
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$declare u record;old_sub text;added integer:=0;n integer;begin
+ perform public.assert_email_worker();if coalesce(cardinality(p_allowed),0) not between 1 and 100 then raise exception 'Explicit recipients required' using errcode='22023';end if;
+ old_sub:=current_setting('request.jwt.claim.sub',true);
+ for u in select p.user_id,p.enabled_at,a.email from public.notification_email_preferences p join auth.users a on a.id=p.user_id join public.staff_users s on s.user_id=p.user_id where p.enabled and p.next_scan_at<=now() and public.account_enabled(p.user_id) and a.email_confirmed_at is not null and lower(a.email)=any(p_allowed) and s.role in('admin','office','technician') order by p.next_scan_at,p.user_id limit 20 loop
+  if not pg_try_advisory_xact_lock(hashtextextended('notifications:'||u.user_id::text,0)) then continue;end if;
+  perform set_config('request.jwt.claim.sub',u.user_id::text,true);perform public.sync_my_notifications();
+  insert into public.notification_email_queue(notification_id,user_id,recipient,category)
+  select n.id,u.user_id,u.email,n.category from public.app_notifications n join public.notification_sources() s on s.source_id=n.source_id and s.category=n.category and s.event_key=n.event_key where n.user_id=u.user_id and n.created_at>=u.enabled_at and n.read_at is null and s.active and (public.my_notification_preferences()->>n.category)::boolean and not exists(select 1 from public.notification_email_queue q where q.notification_id=n.id) order by n.created_at,n.id limit 200 on conflict(notification_id) do nothing;
+  get diagnostics n=row_count;added:=added+n;update public.notification_email_preferences set next_scan_at=now()+interval '1 minute' where user_id=u.user_id;
+ end loop;
+ perform set_config('request.jwt.claim.sub',coalesce(old_sub,''),true);return added;
 end;$function$
 ;
 
@@ -317,6 +362,20 @@ declare target text:=coalesce(nullif(trim(p_rename),''),trim(p_name));begin
 end;$function$
 ;
 
+CREATE OR REPLACE FUNCTION public.save_geocode(p_key text, p_lat double precision, p_lng double precision)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+begin
+ if not public.can_manage_crm() then raise exception 'Office required' using errcode='42501';end if;
+ if p_key is null or length(p_key) not between 3 and 400 or p_key<>lower(p_key) or (p_lat is null)<>(p_lng is null) or p_lat not between -90 and 90 or p_lng not between -180 and 180 then raise exception 'Invalid geocode' using errcode='22023';end if;
+ insert into public.geocode_cache(query,latitude,longitude,failed) values(p_key,p_lat,p_lng,p_lat is null)
+ on conflict(query) do update set latitude=excluded.latitude,longitude=excluded.longitude,failed=excluded.failed,fetched_at=now();
+end;$function$
+;
+
 CREATE OR REPLACE FUNCTION public.set_access_blocked(p_user uuid, p_blocked boolean)
  RETURNS void
  LANGUAGE plpgsql
@@ -352,6 +411,29 @@ begin
 end $function$
 ;
 
+CREATE OR REPLACE FUNCTION public.set_customer_access(p_user uuid, p_customer uuid, p_kind text, p_remove boolean DEFAULT false)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+begin
+ perform public.assert_access_admin();
+ if p_kind not in ('member','technician') or p_kind is null or p_remove is null then raise exception 'Invalid assignment' using errcode='22023'; end if;
+ if not exists(select 1 from auth.users where id=p_user) then raise exception 'User not found' using errcode='P0001'; end if;
+ if not p_remove and not exists(select 1 from public.customers where id=p_customer and archived_at is null) then raise exception 'Active customer required' using errcode='P0001'; end if;
+ if p_kind='technician' then
+  if not exists(select 1 from public.staff_users where user_id=p_user and role='technician') then raise exception 'Technician role required' using errcode='P0001'; end if;
+  if p_remove then delete from public.staff_customer_assignments where user_id=p_user and customer_id=p_customer;
+  else insert into public.staff_customer_assignments(user_id,customer_id) values(p_user,p_customer) on conflict do nothing; end if;
+ else
+  if p_remove then delete from public.customer_memberships where user_id=p_user and customer_id=p_customer;
+  else insert into public.customer_memberships(user_id,customer_id,role) values(p_user,p_customer,'viewer') on conflict do nothing; end if;
+ end if;
+ if p_remove then update public.access_invitations set status='revoked' where status='pending' and customer_id=p_customer and email=(select lower(email) from auth.users where id=p_user); end if;
+end $function$
+;
+
 CREATE OR REPLACE FUNCTION public.validate_ticket_installation()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -365,7 +447,11 @@ begin
 end $function$
 ;
 
+
 grant execute on function public.validate_ticket_installation() to public, anon, authenticated;
+
+drop function public.org_knows_user(uuid);
+drop function public.account_enabled_in(uuid,uuid);
 
 -- Funkcje, w których M0.1 podmienił tylko auth.users → public.auth_user_directory.
 do $$ declare f record; begin

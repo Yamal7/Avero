@@ -94,7 +94,7 @@ if [ "$ROLLBACK" = 1 ]; then
 select concat_ws(', ',
  (select 'tabele: '||string_agg(relname,' ') from pg_class where relnamespace='public'::regnamespace and relname in ('organizations','org_active','org_members','org_doc_counters','auth_user_directory')),
  (select 'kolumny org_id: '||count(*) from information_schema.columns where table_schema='public' and column_name='org_id' having count(*)>0),
- (select 'funkcje: '||string_agg(proname,' ') from pg_proc where pronamespace='public'::regnamespace and proname in ('current_org_id','org_default','my_organizations','set_active_org','next_org_number','assign_org_number','valid_bank_account','create_org_warehouse')),
+ (select 'funkcje: '||string_agg(proname,' ') from pg_proc where pronamespace='public'::regnamespace and proname in ('current_org_id','org_default','my_organizations','set_active_org','next_org_number','assign_org_number','valid_bank_account','create_org_warehouse','org_knows_user','account_enabled_in')),
  (select 'polityki: '||count(*) from pg_policies where policyname in ('org_isolation','rpc_access','avero_rpc_read') having count(*)>0),
  (select 'rola avero_rpc' from pg_roles where rolname='avero_rpc'),
  (select 'właściciel funkcji ≠ postgres: '||count(*) from pg_proc where pronamespace='public'::regnamespace and pg_get_userbyid(proowner)<>'postgres' having count(*)>0));
