@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   bankAccountSchema, companyProfileSaveSchema, documentFromCompanyProfile, emptyCompanyProfile, maskBankAccount,
   organizationsSchema, setActiveOrganizationSchema, activeOrganization, nextOrganizationIndex,
+  staffOrganizations, organizationChanged, companyProfileSchema,
 } from '@hvac/api-client';
 
 const kranz = { id: '0a000000-0000-4000-8000-000000000001', name: 'Kranz HVACR', role: 'admin', active: true } as const;
@@ -31,6 +32,15 @@ describe('organizations', () => {
     expect(activeOrganization([{ ...second }, { ...kranz, active: false }])?.name).toBe('Chłodnictwo Bałtyk');
     expect(activeOrganization([])).toBeNull();
   });
+  it('keeps only staff firms in the staff frame switcher (portal firms live in the portal)', () => {
+    const portal = { id: '0a430000-0000-4000-8000-00000000000c', name: 'Hotel Bałtyk', role: 'client', active: false } as const;
+    expect(staffOrganizations([kranz, second, portal]).map(o => o.name)).toEqual(['Kranz HVACR', 'Chłodnictwo Bałtyk']);
+  });
+  it('detects that another tab switched the active firm', () => {
+    expect(organizationChanged(kranz.id, [kranz, second])).toBe(false);
+    expect(organizationChanged(kranz.id, [{ ...kranz, active: false }, { ...second, active: true }])).toBe(true);
+    expect(organizationChanged(kranz.id, [])).toBe(false);
+  });
   it('moves the menu highlight with wrap-around (J/K, strzałki, Home/End)', () => {
     expect(nextOrganizationIndex(0, 3, 'next')).toBe(1);
     expect(nextOrganizationIndex(2, 3, 'next')).toBe(0);
@@ -47,6 +57,12 @@ describe('bank account', () => {
   });
   it.each(['PL62 1090 1014 0000 0712 1981 2874', '1234', 'PL61 1090 1014 0000 0712 1981 287X', 'PL61\u00001090', 'x'.repeat(43)])('rejects %j', value => {
     expect(bankAccountSchema.safeParse(value).success).toBe(false);
+  });
+  it('reads the masked account sent to the office but never saves it', () => {
+    const data = { ...emptyCompanyProfile(), companyName: 'Kranz HVACR', companyAddress: 'Polna 1, 84-230 Rumia', bankAccount: '•••• 2874' };
+    expect(companyProfileSchema.safeParse({ version: 1, data }).success).toBe(true);
+    expect(companyProfileSaveSchema.safeParse({ version: 1, data }).success).toBe(false);
+    expect(maskBankAccount('•••• 2874')).toBe('•••• 2874');
   });
   it('masks all but the last four digits', () => {
     expect(maskBankAccount('PL61 1090 1014 0000 0712 1981 2874')).toBe('•••• 2874');
