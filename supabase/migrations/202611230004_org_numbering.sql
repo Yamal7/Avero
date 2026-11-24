@@ -100,7 +100,7 @@ declare v_period text:=to_char(now() at time zone 'Europe/Warsaw','YYYY/MM');n i
   if exists(select 1 from public.service_tickets where id=p_ticket and status='closed') then raise exception 'Ticket closed' using errcode='40001';end if;
   if not mgr and not exists(select 1 from public.stock_locations where id=p_from and kind='vehicle' and technician_id=auth.uid()) then raise exception 'Own vehicle only' using errcode='42501';end if;
  end if;
- perform pg_advisory_xact_lock(hashtext('stock'));
+ perform pg_advisory_xact_lock(hashtext('stock:'||public.current_org_id()::text));
  n:=public.next_org_number(public.current_org_id(),p_kind,v_period);
  num:=p_kind||'/'||v_period||'/'||lpad(n::text,3,'0');
  insert into public.stock_documents(id,number,kind,from_location,to_location,ticket_id,supplier,note,created_by,customer_id) values(p_id,num,p_kind,p_from,p_to,p_ticket,coalesce(trim(p_supplier),''),coalesce(trim(p_note),''),auth.uid(),p_customer);
@@ -134,7 +134,7 @@ declare main uuid;v record;lines jsonb;doc uuid;res jsonb:='[]';free numeric;nee
  if p_request is null then raise exception 'Invalid request' using errcode='22023';end if;
  select l.id into main from public.stock_locations l where l.kind='warehouse' and l.active order by l.created_at,l.id limit 1;
  if main is null then raise exception 'Main warehouse missing' using errcode='22023';end if;
- perform pg_advisory_xact_lock(hashtext('stock-refill'));
+ perform pg_advisory_xact_lock(hashtext('stock-refill:'||public.current_org_id()::text));
  for v in select l.id,l.name from public.stock_locations l where l.kind='vehicle' and l.active order by l.name loop
   doc:=md5(p_request::text||v.id::text)::uuid;
   if exists(select 1 from public.stock_documents where id=doc) then res:=res||jsonb_build_object('locationId',v.id,'number',(select number from public.stock_documents where id=doc));continue;end if;
