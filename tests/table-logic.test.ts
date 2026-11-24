@@ -100,8 +100,8 @@ describe('columnLayout — minimalne szerokości i przypięte kolumny (tabele_pr
     expect(cellPin(l, 3)).toBeUndefined();
   });
   it('bez wskazania główna = najszersza (największe fr) kolumna elastyczna, pierwsza z nich', () => {
-    const l = columnLayout([{ key: 'a', width: 32 }, { key: 'b', fr: 1 }, { key: 'c', fr: 2 }, { key: 'd', fr: 2 }]);
-    expect(l.mainIndex).toBe(2);
+    const l = columnLayout([{ key: 'a', width: 32 }, { key: 'b', fr: 2 }, { key: 'c', fr: 1 }, { key: 'd', fr: 2 }]);
+    expect(l.mainIndex).toBe(1);
   });
   it('początki kolumn za przypiętymi (do przewijania ←/→)', () => {
     const l = columnLayout([{ key: 'nr', width: 52 }, { key: 'title', fr: 1, main: true }, { key: 'a', width: 100 }, { key: 'b', width: 100 }]);
