@@ -1,12 +1,20 @@
 'use client';
-/* Magazyn — ported 1:1 from the design artboards "Magazyn · jasny", "wydanie na zlecenie (RW)" and "w samochodach". */
+/* Magazyn (M0.3, KRA-63): tabela pozycji i macierz „W samochodach” na wspólnej tabeli z src/components/table
+   (wiersz 36 px, indeks i nazwa przypięte, przewijanie ←/→), panel pozycji i okna dokumentów PZ / RW / MM / WZ w Tailwindzie.
+   Logika (dokumenty, szkice, rezerwacje, minimum na bus) bez zmian. */
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockRefillResultSchema, stockUnits, type StockDraft, type StockItem, type StockLocation, type StockMove, type StockOverview } from '@hvac/api-client';
 import { PersonAvatar } from '@/components/glyphs';
+import { Cell, GroupBar, HeaderCell, HeaderRow, Row, RowGroup, TableMessage } from '@/components/table/table';
+import { TableScroll } from '@/components/table/table-scroll';
+import { PageHead, Spacer, TablePage, Toolbar, ViewTabs } from '@/components/table/page-chrome';
+import { Button } from '@/components/ui/button';
+import { columnLayout } from '@/lib/table/columns';
 import { personName, taskNumber, ticketCode } from '@/lib/tasks/labels';
-import { Archive, ArrowLineDown, ArrowLineUp, ArrowsLeftRight, CaretDown, CaretRight, Cloud, Cube, Drop, FileText, Folder, Gauge, Hash, Lock, NotePencil, Plus, Rows, SidebarSimple, Truck, Warning, WarningCircle, X } from '@phosphor-icons/react/ssr';
+import { cx } from '@/lib/cx';
+import { Archive, ArrowLineDown, ArrowLineUp, ArrowsLeftRight, BookmarkSimple, Cloud, Cube, Drop, FileText, Folder, Gauge, Hash, Lock, NotePencil, Package, Plus, Rows, SidebarSimple, Sigma, Truck, Warning, WarningCircle, X } from '@phosphor-icons/react/ssr';
 
 export type StockTicket = { id: string; number: number; subject: string; customer: string; devices: { id: string; label: string }[] };
 export type StockTask = { id: string; number: number; title: string; customerId: string; customer: string };
@@ -22,10 +30,10 @@ const I = {
   out: <ArrowLineUp size={14} className="shrink-0 text-tertiary" aria-hidden />,
   in: <ArrowLineDown size={14} className="shrink-0 text-success" aria-hidden />,
   mm: <ArrowsLeftRight size={14} className="shrink-0" aria-hidden />,
-  drop: <Drop size={14} className="shrink-0" aria-hidden />,
-  cube: <Cube size={14} className="shrink-0" aria-hidden />,
-  cloud: <Cloud size={14} className="shrink-0" aria-hidden />,
-  gauge: <Gauge size={14} className="shrink-0" aria-hidden />,
+  drop: <Drop size={14} className="shrink-0 text-ic-blue" aria-hidden />,
+  cube: <Cube size={14} className="shrink-0 text-ic-teal" aria-hidden />,
+  cloud: <Cloud size={14} className="shrink-0 text-ic-green" aria-hidden />,
+  gauge: <Gauge size={14} className="shrink-0 text-ic-green" aria-hidden />,
   shelf: <Rows size={16} className="shrink-0 text-tertiary" aria-hidden />,
   folder: <Folder size={16} className="shrink-0 text-tertiary" aria-hidden />,
   hash: <Hash size={16} className="shrink-0 text-tertiary" aria-hidden />,
@@ -33,18 +41,32 @@ const I = {
   draft: <FileText size={14} className="shrink-0 text-tertiary" aria-hidden />,
   truck: <Truck size={14} className="shrink-0 text-tertiary" aria-hidden />,
 };
-const ib = (s: number): CSSProperties => ({ width: s, height: s, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color: 'var(--text-secondary)', padding: 0, minHeight: 0 });
-const chip: CSSProperties = { height: 22, display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 8px 0 6px', borderRadius: 11, background: 'var(--bg-subtle)', fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' };
-const tab = (on: boolean): CSSProperties => ({ height: 28, padding: '0 12px', borderRadius: 14, border: 0, background: on ? 'var(--bg-subtle)' : 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: on ? 500 : 400, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' });
-const sec: CSSProperties = { height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px 0 8px', border: 0, borderRadius: 8, background: 'var(--bg-subtle)', fontWeight: 500, minHeight: 0, color: 'var(--text-primary)' };
-const pri: CSSProperties = { ...sec, background: 'var(--accent)', color: 'var(--on-accent)' };
+/* Ikony nagłówków w kolorach --ic-* (konwencja z design/tools: indeks = #, pozycja = pomarańczowe pudełko). */
+const H = {
+  code: <Hash size={14} className="shrink-0 text-ic-slate" aria-hidden />,
+  name: <Package size={14} className="shrink-0 text-ic-orange" aria-hidden />,
+  state: <Lock size={14} className="shrink-0 text-ic-slate" aria-hidden />,
+  reserved: <BookmarkSimple size={14} className="shrink-0 text-ic-violet" aria-hidden />,
+  available: <Gauge size={14} className="shrink-0 text-ic-green" aria-hidden />,
+  move: <ArrowsLeftRight size={14} className="shrink-0 text-ic-blue" aria-hidden />,
+  base: <Cube size={14} className="shrink-0 text-ic-teal" aria-hidden />,
+  van: <Truck size={14} className="shrink-0 text-ic-indigo" aria-hidden />,
+  total: <Sigma size={14} className="shrink-0 text-ic-slate" aria-hidden />,
+};
+const chip = 'inline-flex h-6 items-center gap-1 rounded-pill bg-subtle px-2 text-small leading-4 whitespace-nowrap text-secondary no-underline';
+const field = 'm-0 block h-control min-h-0 w-full rounded-md border-0 bg-raised px-3 py-0 font-sans text-body leading-5 font-normal text-primary shadow-none outline-0 placeholder:text-tertiary focus:field-ring focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50';
+const label = 'm-0 flex flex-col gap-1 text-small leading-4 font-normal text-secondary';
+const note = 'm-0 text-small leading-4';
+const linkButton = 'm-0 inline-flex min-h-0 items-center self-start border-0 bg-transparent p-0 font-sans text-small leading-4 font-normal text-secondary hover:bg-transparent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent';
 const fmt = (v: number, unit: string) => `${unit === 'kg' || unit === 'l' ? v.toLocaleString('pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 3 }) : v.toLocaleString('pl-PL', { maximumFractionDigits: 3 })} ${unit}`;
 const day = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: 'Europe/Warsaw', day: 'numeric', month: 'short' }).format(new Date(v)).replace('.', '');
-const full = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: 'Europe/Warsaw', dateStyle: 'long', timeStyle: 'short' }).format(new Date(v));
+const full = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: 'Europe/Warsaw', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(v));
 const total = (i: StockItem) => Object.values(i.levels).reduce((a, b) => a + b, 0);
 const avail = (i: StockItem) => total(i) - i.reserved;
 const below = (i: StockItem) => i.minQuantity > 0 && avail(i) < i.minQuantity;
 const parseNum = (s: string) => { const n = Number(s.replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) ? n : NaN; };
+
+const itemsLayout = columnLayout([{ key: 'code', width: 84 }, { key: 'name', fr: 1, main: true }, { key: 'state', width: 88 }, { key: 'reserved', width: 80 }, { key: 'available', width: 104 }, { key: 'move', width: 72 }]);
 
 export function StockView({ data, view, tickets, tasks = [], technicians }: { data: StockOverview; view: View; tickets: StockTicket[]; tasks?: StockTask[]; technicians: { id: string; label: string }[] }) {
   const router = useRouter();
@@ -59,64 +81,63 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
   const belowCount = items.filter(below).length;
   const href = (v: View) => (v === 'all' ? '/dashboard/stock' : `/dashboard/stock?view=${v}`);
   function done(text: string) { setDialog(null); setNotice(text); router.refresh(); }
+  const layout = itemsLayout, n = layout.keys.length;
 
   return (
-    <main className="dk" style={{ flex: '1 1 auto', minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
-        <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}>{I.box}</span><span style={{ color: 'var(--text-secondary)' }}>Finanse i magazyn</span><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
-        <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Magazyn</h1><span style={{ flex: '1 1 auto' }} />
-        <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{items.length} pozycji · {belowCount} poniżej minimum</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, padding: '8px 12px 8px 16px' }}>
-        <div role="tablist" aria-label="Zapisane widoki" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {([['all', 'Wszystkie'], ['refrigerant', 'Czynniki chłodnicze'], ['below', 'Poniżej minimum'], ['vehicles', 'W samochodach']] as [View, string][]).map(([v, l]) => <Link key={v} role="tab" aria-selected={view === v} className="tab" href={href(v)} style={tab(view === v)}>{l}</Link>)}
-        </div>
-        <span style={{ flex: '1 1 auto' }} />
-        {view !== 'vehicles' && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} style={ib(28)}><SidebarSimple size={16} mirrored className="shrink-0" aria-hidden /></button>}
-        {manage && <button type="button" className="sec" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} style={{ ...sec, marginLeft: 4 }}><Plus size={14} className="shrink-0" aria-hidden />Pozycja</button>}
-        {data.drafts.map(d => <button key={d.id} type="button" className="sec" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} style={{ ...sec, fontWeight: 400, color: 'var(--text-secondary)' }}>{I.draft}Szkic {d.kind}</button>)}
-        {manage && <button type="button" className="sec" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} style={sec}>{I.in}Przyjęcie</button>}
-        {manage && <button type="button" className="sec" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} style={sec}>{I.out}WZ</button>}
-        <button type="button" className="pri" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} style={pri}><span style={{ display: 'inline-flex', transform: 'rotate(0deg)' }}>{I.out}</span>Wydanie</button>
-      </div>
-      {notice && <p role="status" style={{ margin: '0 20px 8px', fontSize: 12, color: 'var(--success)' }}>{notice}</p>}
+    <TablePage>
+      <PageHead icon={I.box} category="Finanse i magazyn" title="Magazyn">
+        <Spacer />
+        <span className="mr-1 text-small leading-4 text-tertiary tabular-nums">{items.length} pozycji · {belowCount} poniżej minimum</span>
+      </PageHead>
+      <Toolbar>
+        <ViewTabs label="Zapisane widoki" items={([['all', 'Wszystkie'], ['refrigerant', 'Czynniki chłodnicze'], ['below', 'Poniżej minimum'], ['vehicles', 'W samochodach']] as [View, string][]).map(([v, l]) => ({ label: l, href: href(v), active: view === v }))} />
+        <Spacer />
+        {view !== 'vehicles' && <Button variant="icon" size="sm" aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
+        {manage && <Button size="sm" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} className="ml-1" icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button>}
+        {data.drafts.map(d => <Button key={d.id} size="sm" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} className="font-normal text-secondary" icon={I.draft}>Szkic {d.kind}</Button>)}
+        {manage && <Button size="sm" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} icon={I.in}>Przyjęcie</Button>}
+        {manage && <Button size="sm" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} icon={I.out}>WZ</Button>}
+        <Button variant="pri" size="sm" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} icon={<ArrowLineUp size={14} className="shrink-0" aria-hidden />}>Wydanie</Button>
+      </Toolbar>
+      {notice && <p role="status" className={cx(note, 'mx-5 mb-2 text-success')}>{notice}</p>}
 
       {view === 'vehicles'
         ? <Vehicles items={items} main={main} vans={vans} manage={manage} onMM={(itemId, to) => setDialog({ kind: 'MM', itemId, from: main?.id, to })} onAddVan={() => setDialog({ kind: 'vehicle' })} onDone={done} onError={setNotice} />
         : (
-          <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'stretch', minHeight: 0 }} className="plan-split">
-            <div style={{ flex: '1 1 auto', minWidth: 0, padding: '0 12px 24px', overflowX: 'auto' }}>
-              <div style={{ minWidth: 600, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '84px minmax(0px, 1fr) 72px 64px 96px 72px', alignItems: 'center', columnGap: 12, height: 32, padding: '0 8px', fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}>
-                  <span>Indeks</span><span>Nazwa</span><span title="Stan zmienia się tylko dokumentem: PZ, RW, MM" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>{I.lock}<span>Stan</span></span><span style={{ textAlign: 'right' }}>Rezerw.</span><span style={{ textAlign: 'right' }}>Dostępne</span><span style={{ textAlign: 'right' }}>Ruch</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {groups.map(g => (
-                    <section key={g.c} style={{ display: 'flex', flexDirection: 'column' }}>
-                      <div className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, marginBottom: 4 }}>
-                        <button type="button" aria-expanded={!collapsed[g.c]} onClick={() => setCollapsed(s => ({ ...s, [g.c]: !s[g.c] }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
-                          <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: collapsed[g.c] ? 'rotate(-90deg)' : 'rotate(0deg)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
-                          <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stockCategories[g.c]}</h2><span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span>
-                        </button>
-                      </div>
-                      {!collapsed[g.c] && g.rows.map(i => {
-                        const t = total(i), a = avail(i), low = below(i), neg = a < 0, sel = i.id === selected?.id;
-                        return (
-                          <a key={i.id} href={`#${i.code.toLowerCase()}`} className={`row${sel ? ' sel' : ''}`} onClick={e => { e.preventDefault(); setSelectedId(i.id); setPanelOn(true); }} style={{ display: 'grid', gridTemplateColumns: '84px minmax(0px, 1fr) 72px 64px 96px 72px', alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
-                            <span className="mono ell" style={{ color: 'var(--text-tertiary)' }}>{i.code}</span>
-                            <span title={[i.container, i.gwp !== null ? `GWP ${i.gwp}` : ''].filter(Boolean).join(' · ') || undefined} style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}><span className="ell" style={{ fontWeight: 500 }}>{i.name}</span></span>
-                            <span className="num" style={{ textAlign: 'right' }}>{fmt(t, i.unit)}</span>
-                            <span className="num" title="Zarezerwowane na zlecenia" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, color: i.reserved ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</span>
-                            <span className="num" title={i.minQuantity ? `Minimum ${fmt(i.minQuantity, i.unit)}${low ? ' · poniżej minimum' : ''}` : undefined} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, color: neg ? 'var(--danger)' : 'var(--text-primary)', fontWeight: low || neg ? 500 : 400 }}>{neg ? I.err : low ? I.warn : null}<span>{fmt(a, i.unit)}</span></span>
-                            <span className="num" title={i.lastMove ? `Ostatni ruch ${full(i.lastMove.at)}` : 'Brak ruchów'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</span>
-                          </a>
-                        );
-                      })}
-                    </section>
-                  ))}
-                  {!groups.length && <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>{view === 'below' ? 'Wszystkie pozycje są powyżej minimum.' : manage ? 'Magazyn jest pusty. Dodaj pierwszą pozycję, a potem przyjmij ją dokumentem PZ.' : 'Magazyn jest pusty.'}</p>}
-                </div>
-              </div>
+          <div className="flex min-h-0 flex-auto items-stretch">
+            <div className="min-w-0 flex-auto px-3 pb-6">
+              <TableScroll layout={layout} label="Pozycje magazynowe">
+                <HeaderRow layout={layout} className="border-b-0">
+                  <HeaderCell layout={layout} col="code" icon={H.code}>Indeks</HeaderCell>
+                  <HeaderCell layout={layout} col="name" icon={H.name}>Nazwa</HeaderCell>
+                  <HeaderCell layout={layout} col="state" icon={H.state} align="right" title="Stan zmienia się tylko dokumentem: PZ, RW, MM">Stan</HeaderCell>
+                  <HeaderCell layout={layout} col="reserved" icon={H.reserved} align="right" title="Zarezerwowane na zlecenia">Rezerw.</HeaderCell>
+                  <HeaderCell layout={layout} col="available" icon={H.available} align="right">Dostępne</HeaderCell>
+                  <HeaderCell layout={layout} col="move" icon={H.move} align="right" title="Ostatni ruch">Ruch</HeaderCell>
+                </HeaderRow>
+                {groups.map(g => (
+                  <RowGroup key={g.c} label={stockCategories[g.c]}>
+                    <GroupBar columns={n} label={stockCategories[g.c]} count={g.rows.length} collapsed={!!collapsed[g.c]} onToggle={() => setCollapsed(s => ({ ...s, [g.c]: !s[g.c] }))} />
+                    {!collapsed[g.c] && <div className="mb-4 flex flex-col">{g.rows.map(i => {
+                      const t = total(i), a = avail(i), low = below(i), neg = a < 0, sel = i.id === selected?.id;
+                      const pick = () => { setSelectedId(i.id); setPanelOn(true); };
+                      return (
+                        <Row key={i.id} layout={layout} interactive selected={sel} onClick={e => { if ((e.target as HTMLElement).closest('a')) return; pick(); }}>
+                          <Cell layout={layout} col="code" className="font-mono text-small text-tertiary"><span className="truncate">{i.code}</span></Cell>
+                          <Cell layout={layout} col="name" title={[i.container, i.gwp !== null ? `GWP ${i.gwp}` : ''].filter(Boolean).join(' · ') || undefined}>
+                            <a href={`#${i.code.toLowerCase()}`} aria-current={sel ? 'true' : undefined} onClick={e => { e.preventDefault(); pick(); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{i.name}</a>
+                          </Cell>
+                          <Cell layout={layout} col="state" align="right" className="tabular-nums">{fmt(t, i.unit)}</Cell>
+                          <Cell layout={layout} col="reserved" align="right" title="Zarezerwowane na zlecenia" className={cx('gap-1 tabular-nums', i.reserved ? 'text-primary' : 'text-tertiary')}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</Cell>
+                          <Cell layout={layout} col="available" align="right" title={i.minQuantity ? `Minimum ${fmt(i.minQuantity, i.unit)}${low ? ' · poniżej minimum' : ''}` : undefined} className={cx('tabular-nums', neg ? 'text-danger' : 'text-primary', low || neg ? 'font-medium' : 'font-normal')}>{neg ? I.err : low ? I.warn : null}<span>{fmt(a, i.unit)}</span></Cell>
+                          <Cell layout={layout} col="move" align="right" title={i.lastMove ? `Ostatni ruch: ${full(i.lastMove.at)}` : 'Brak ruchów'} className="gap-1 text-small text-secondary tabular-nums">{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</Cell>
+                        </Row>
+                      );
+                    })}</div>}
+                  </RowGroup>
+                ))}
+                {!groups.length && <TableMessage columns={n} action={manage && view !== 'below' ? <Button size="sm" onClick={() => setDialog({ kind: 'item' })} icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button> : undefined}>{view === 'below' ? 'Wszystkie pozycje są powyżej minimum.' : manage ? 'Magazyn jest pusty. Dodaj pierwszą pozycję, a potem przyjmij ją dokumentem PZ.' : 'Magazyn jest pusty.'}</TableMessage>}
+              </TableScroll>
             </div>
             {selected && <ItemPanel item={selected} locations={data.locations} manage={manage} canIssue={manage || !!myVan} onClose={() => setPanelOn(false)} onDoc={kind => setDialog({ kind, itemId: selected.id })} onEdit={() => setDialog({ kind: 'item', item: selected })} tickets={tickets} tasks={tasks} onReserved={() => { setNotice('Zarezerwowano.'); router.refresh(); }} />}
           </div>
@@ -124,13 +145,13 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
       {dialog && dialog.kind === 'item' && <ItemDialog item={dialog.item} onClose={() => setDialog(null)} onDone={done} />}
       {dialog && dialog.kind === 'vehicle' && <VehicleDialog technicians={technicians.filter(t => !vans.some(v => v.technicianId === t.id))} onClose={() => setDialog(null)} onDone={done} />}
       {dialog && (dialog.kind === 'PZ' || dialog.kind === 'RW' || dialog.kind === 'MM' || dialog.kind === 'WZ') && <DocDialog key={dialog.draft?.id ?? dialog.kind} draft={dialog.draft} kind={dialog.kind} items={items} locations={data.locations} manage={manage} myVan={myVan} tickets={tickets} initialItem={dialog.itemId} initialFrom={dialog.from} initialTo={dialog.to} onClose={() => setDialog(null)} onDone={done} />}
-    </main>
+    </TablePage>
   );
 }
 
 function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, tickets, tasks, onReserved }: { item: StockItem; locations: StockLocation[]; manage: boolean; canIssue: boolean; onClose: () => void; onDoc: (k: DocKind) => void; onEdit: () => void; tickets: StockTicket[]; tasks: StockTask[]; onReserved: () => void }) {
-  const [moves, setMoves] = useState<StockMove[] | null>(null), [reserve, setReserve] = useState(false), [rTicket, setRTicket] = useState(''), [rQty, setRQty] = useState(''), [err, setErr] = useState('');
-  useEffect(() => { setMoves(null); const c = new AbortController(); fetch(`/api/v1/stock/items/${item.id}/moves`, { cache: 'no-store', signal: c.signal }).then(r => (r.ok ? r.json() : [])).then(b => { const p = stockMovesSchema.safeParse(b); if (p.success) setMoves(p.data); }).catch(() => {}); return () => c.abort(); }, [item.id, item.lastMove?.at]);
+  const [moves, setMoves] = useState<StockMove[] | null>(null), [movesError, setMovesError] = useState(false), [reserve, setReserve] = useState(false), [rTicket, setRTicket] = useState(''), [rQty, setRQty] = useState(''), [err, setErr] = useState('');
+  useEffect(() => { setMoves(null); setMovesError(false); const c = new AbortController(); fetch(`/api/v1/stock/items/${item.id}/moves`, { cache: 'no-store', signal: c.signal }).then(r => (r.ok ? r.json() : Promise.reject(new Error('moves')))).then(b => { const p = stockMovesSchema.safeParse(b); if (p.success) setMoves(p.data); else setMovesError(true); }).catch(() => { if (!c.signal.aborted) setMovesError(true); }); return () => c.abort(); }, [item.id, item.lastMove?.at]);
   const t = total(item), a = avail(item), low = below(item);
   async function doReserve() {
     const q = parseNum(rQty); if (!rTicket || !(q > 0)) { setErr('Wybierz zgłoszenie albo zadanie i ilość.'); return; }
@@ -139,64 +160,70 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
     if (!r.ok) { setErr((await r.json()).error?.message || 'Nie udało się zarezerwować.'); return; }
     setReserve(false); setRQty(''); setErr(''); onReserved();
   }
-  const prop = (icon: ReactNode, value: ReactNode, title: string) => <div title={title} style={{ minHeight: 32, display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 8 }}>{icon}<span className="ell">{value}</span></div>;
+  const prop = (icon: ReactNode, value: ReactNode, title: string) => <div title={title} className="flex min-h-8 items-center gap-3 rounded-sm px-2 py-1">{icon}<span className="min-w-0 truncate">{value}</span></div>;
+  const docButton = 'bg-surface';
   return (
-    <aside aria-label={`Pozycja magazynowa ${item.code}`} className="tl-panel" style={{ flex: '0 0 400px', minWidth: 0, borderLeft: '1px solid var(--edge)', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 44, padding: '0 8px 0 20px' }}>
-        <span className="mono" style={{ color: 'var(--text-tertiary)' }}>{item.code}</span><span style={{ flex: '1 1 auto' }} />
-        {manage && <button type="button" className="ib" aria-label="Edytuj pozycję" title="Edytuj" onClick={onEdit} style={ib(24)}><NotePencil size={16} className="shrink-0" aria-hidden /></button>}
-        <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={onClose} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button>
+    <aside aria-label={`Pozycja magazynowa ${item.code}`} className="flex w-100 min-w-0 flex-none flex-col border-l border-edge max-panel:fixed max-panel:inset-y-0 max-panel:right-0 max-panel:z-40 max-panel:w-full max-panel:max-w-110 max-panel:overflow-y-auto max-panel:bg-surface max-panel:shadow-modal">
+      <div className="flex h-11 items-center gap-1 pr-2 pl-5">
+        <span className="font-mono text-small text-tertiary">{item.code}</span><Spacer />
+        {manage && <Button variant="icon" size="sm" aria-label="Edytuj pozycję" title="Edytuj" onClick={onEdit} icon={<NotePencil size={16} className="shrink-0" aria-hidden />} />}
+        <Button variant="icon" size="sm" aria-label="Zamknij panel" title="Zamknij" onClick={onClose} icon={<X size={16} className="shrink-0" aria-hidden />} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 20px 16px' }}>
-        <h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600, letterSpacing: '-0.01em' }}>{item.name}</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {item.refrigerantClass && <span title={`Czynnik chłodniczy ${item.refrigerantClass}`} style={chip}>{I.drop}<span>{item.refrigerantClass}</span></span>}
-          {item.container && <span title={item.container} style={chip}>{I.cube}<span>{item.container}</span></span>}
-          {item.gwp !== null && <span title={`Współczynnik GWP ${item.gwp}`} style={chip}>{I.cloud}<span>GWP {item.gwp}</span></span>}
+      <div className="flex flex-col gap-2 px-5 pt-1 pb-4">
+        <h2 className="m-0 font-sans text-heading leading-6 font-semibold tracking-tight text-primary">{item.name}</h2>
+        <div className="flex flex-wrap gap-1">
+          {item.refrigerantClass && <span title={`Czynnik chłodniczy ${item.refrigerantClass}`} className={chip}>{I.drop}<span>{item.refrigerantClass}</span></span>}
+          {item.container && <span title={item.container} className={chip}>{I.cube}<span>{item.container}</span></span>}
+          {item.gwp !== null && <span title={`Współczynnik GWP ${item.gwp}`} className={chip}>{I.cloud}<span>GWP {item.gwp}</span></span>}
         </div>
       </div>
-      <section aria-label="Stan" title="Stan zmienia tylko dokument: PZ, RW, WZ, MM" style={{ margin: '0 20px 16px', padding: 12, display: 'flex', flexDirection: 'column', gap: 12, borderRadius: 12, background: 'var(--bg-raised)' }}>
-        <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0px, 1fr))', gap: 8 }}>
-          {[['Stan', I.cube, fmt(t, item.unit), null], ['Rezerwacja', I.lock, fmt(item.reserved, item.unit), null], ['Dostępne', I.gauge, fmt(a, item.unit), a < 0 ? I.err : low ? I.warn : null]].map(([l, ic, v, w]) => (
-            <div key={l as string}><dt style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}>{ic}{l}</dt><dd className="num" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, lineHeight: '22px', fontWeight: 600 }}>{w}{v}</dd></div>
+      <section aria-label="Stan" title="Stan zmienia tylko dokument: PZ, RW, WZ, MM" className="mx-5 mb-4 flex flex-col gap-3 rounded-lg bg-raised p-3">
+        <dl className="m-0 grid grid-cols-3 gap-2">
+          {([['Stan', I.cube, fmt(t, item.unit), null], ['Rezerwacja', I.lock, fmt(item.reserved, item.unit), null], ['Dostępne', I.gauge, fmt(a, item.unit), a < 0 ? I.err : low ? I.warn : null]] as [string, ReactNode, string, ReactNode][]).map(([l, ic, v, w]) => (
+            <div key={l}><dt className="flex items-center gap-1 text-small leading-4 text-secondary">{ic}{l}</dt><dd className="m-0 flex items-center gap-1 text-heading leading-6 font-semibold tabular-nums">{w}{v}</dd></div>
           ))}
         </dl>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {item.minQuantity > 0 && <span title={low ? `Brakuje ${fmt(item.minQuantity - a, item.unit)}` : 'Minimalny stan'} style={{ ...chip, background: 'var(--bg-surface)' }}>{I.gauge}min {fmt(item.minQuantity, item.unit)}</span>}
-          {item.reservations.map(r => <Link key={r.id} href={r.ticketId ? `/dashboard/service/${r.ticketId}` : `/dashboard/customers/${r.taskCustomerId}?tab=tasks&filter=all#crm-${r.taskId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} style={{ ...chip, background: 'var(--bg-surface)' }}>{I.lock}{r.ticketNumber !== null ? ticketCode(r.ticketNumber) : r.taskNumber !== null ? taskNumber(r.taskNumber) : 'Rezerwacja'}</Link>)}
+        <div className="flex flex-wrap gap-1">
+          {item.minQuantity > 0 && <span title={low ? `Brakuje ${fmt(item.minQuantity - a, item.unit)}` : 'Minimalny stan'} className={cx(chip, 'bg-surface')}>{I.gauge}min {fmt(item.minQuantity, item.unit)}</span>}
+          {item.reservations.map(r => <Link key={r.id} href={r.ticketId ? `/dashboard/service/${r.ticketId}` : `/dashboard/customers/${r.taskCustomerId}?tab=tasks&filter=all#crm-${r.taskId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} className={cx(chip, 'bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-accent')}>{I.lock}{r.ticketNumber !== null ? ticketCode(r.ticketNumber) : r.taskNumber !== null ? taskNumber(r.taskNumber) : 'Rezerwacja'}</Link>)}
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {manage && <button type="button" onClick={() => onDoc('PZ')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.in}PZ</button>}
-          {canIssue && <button type="button" onClick={() => onDoc('RW')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.out}RW</button>}
-          {manage && <button type="button" onClick={() => onDoc('MM')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.mm}MM</button>}
-          {manage && <button type="button" title="Wydanie zewnętrzne" onClick={() => onDoc('WZ')} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.out}WZ</button>}
-          {manage && <button type="button" onClick={() => setReserve(v => !v)} style={{ ...sec, background: 'var(--bg-surface)', height: 28 }}>{I.lock}Rezerwuj</button>}
+        <div className="flex flex-wrap gap-1">
+          {manage && <Button size="sm" className={docButton} onClick={() => onDoc('PZ')} icon={I.in}>PZ</Button>}
+          {canIssue && <Button size="sm" className={docButton} onClick={() => onDoc('RW')} icon={I.out}>RW</Button>}
+          {manage && <Button size="sm" className={docButton} onClick={() => onDoc('MM')} icon={I.mm}>MM</Button>}
+          {manage && <Button size="sm" className={docButton} title="Wydanie zewnętrzne" onClick={() => onDoc('WZ')} icon={I.out}>WZ</Button>}
+          {manage && <Button size="sm" className={docButton} aria-expanded={reserve} onClick={() => setReserve(v => !v)} icon={I.lock}>Rezerwuj</Button>}
         </div>
-        {reserve && <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}><select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} style={{ flex: '1 1 auto', minWidth: 0, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', font: 'inherit', fontSize: 12 }}><option value="">Zgłoszenie lub zadanie…</option><optgroup label="Zgłoszenia">{tickets.map(t => <option key={t.id} value={`ticket:${t.id}`}>{ticketCode(t.number)} · {t.subject}</option>)}</optgroup>{tasks.length > 0 && <optgroup label="Zadania">{tasks.map(t => <option key={t.id} value={`task:${t.id}`}>{taskNumber(t.number)} · {t.title} · {t.customer}</option>)}</optgroup>}</select><input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} style={{ width: 64, height: 28, minHeight: 0, borderRadius: 8, border: 0, background: 'var(--bg-surface)', textAlign: 'right', font: 'inherit', fontSize: 12, padding: '0 6px' }} /><button type="button" className="pri" onClick={() => void doReserve()} style={{ ...pri, height: 28 }}>OK</button></div>}
-        {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
+        {reserve && <div className="flex items-center gap-1">
+          <select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} className={cx(field, 'h-7 min-w-0 flex-auto rounded-sm bg-surface text-small')}><option value="">Zgłoszenie lub zadanie…</option><optgroup label="Zgłoszenia">{tickets.map(t => <option key={t.id} value={`ticket:${t.id}`}>{ticketCode(t.number)} · {t.subject}</option>)}</optgroup>{tasks.length > 0 && <optgroup label="Zadania">{tasks.map(t => <option key={t.id} value={`task:${t.id}`}>{taskNumber(t.number)} · {t.title} · {t.customer}</option>)}</optgroup>}</select>
+          <input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} className={cx(field, 'h-7 w-16 flex-none rounded-sm bg-surface px-2 text-right text-small')} />
+          <Button variant="pri" size="sm" onClick={() => void doReserve()}>OK</Button>
+        </div>}
+        {err && <p role="alert" className={cx(note, 'text-danger')}>{err}</p>}
       </section>
-      <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column' }}>
+      <div className="flex flex-col px-3">
         {item.minQuantity > 0 && prop(I.min, `Minimum ${fmt(item.minQuantity, item.unit)}`, 'Minimalny stan')}
-        {item.bin && prop(I.shelf, <span className="mono">{item.bin}</span>, 'Lokalizacja na półce')}
+        {item.bin && prop(I.shelf, <span className="font-mono">{item.bin}</span>, 'Lokalizacja na półce')}
         {prop(I.folder, stockCategories[item.category], 'Kategoria')}
-        {prop(I.hash, <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{item.unit}{item.unitLocked && I.lock}</span>, item.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : 'Jednostka')}
+        {prop(I.hash, <span className="inline-flex items-center gap-1">{item.unit}{item.unitLocked && I.lock}</span>, item.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : 'Jednostka')}
         {Object.entries(item.levels).length > 0 && prop(I.truck, Object.entries(item.levels).map(([loc, q]) => `${locations.find(l => l.id === loc)?.name ?? 'Inne'}: ${fmt(q, item.unit)}`).join(' · '), 'Stan wg miejsc')}
       </div>
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '20px 20px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 28 }}><h3 style={{ flex: '1 1 auto', margin: 0, fontSize: 12, lineHeight: '16px', fontWeight: 500, color: 'var(--text-secondary)' }}>Ruchy</h3></div>
-        <ol style={{ margin: '0 -8px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
-          {moves === null && <li style={{ padding: '0 8px', fontSize: 12, color: 'var(--text-tertiary)' }}>Wczytywanie…</li>}
+      <section className="flex flex-col gap-1 px-5 pt-5 pb-6">
+        <div className="flex h-7 items-center gap-2"><h3 className="m-0 flex-auto font-sans text-small leading-4 font-medium text-secondary">Ruchy</h3></div>
+        <ol className="-mx-2 m-0 flex list-none flex-col p-0">
+          {moves === null && !movesError && [0, 1, 2].map(k => <li key={k} aria-hidden="true" className="flex h-row items-center gap-2 px-2"><span className="block h-3 w-28 rounded-xs bg-subtle motion-safe:animate-pulse" /><span className="block h-3 flex-auto rounded-xs bg-subtle motion-safe:animate-pulse" /></li>)}
+          {movesError && <li role="alert" className={cx(note, 'px-2 text-danger')}>Nie udało się wczytać ruchów. Zamknij i otwórz panel ponownie.</li>}
           {moves?.map(m => (
-            <li key={m.id}><div className="row" title={`${m.authorLabel ?? ''} · ${locations.find(l => l.id === m.locationId)?.name ?? ''}`} style={{ display: 'grid', gridTemplateColumns: '16px 112px minmax(0px, 1fr) auto 16px 44px', columnGap: 8, alignItems: 'center', height: 36, padding: '0 8px', borderRadius: 10 }}>
-              <span style={{ display: 'inline-flex' }}>{m.kind === 'MM' ? I.mm : m.delta > 0 ? I.in : I.out}</span>
-              <span className="mono ell" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{m.number}</span>
-              <span className="ell" title={m.cylinder ? `Butla ${m.cylinder}` : undefined}>{m.ticketNumber ? <Link href={`/dashboard/service/${m.ticketId}`}>{ticketCode(m.ticketNumber)}</Link> : m.kind === 'PZ' ? (m.supplier || 'Dostawa') : m.kind === 'WZ' ? (m.supplier || 'Wydanie zewnętrzne') : locations.find(l => l.id === m.locationId)?.name}{m.cylinder && <span className="mono" style={{ marginLeft: 6, fontSize: 11, color: 'var(--text-tertiary)' }}>{m.cylinder}</span>}</span>
-              <span className="num" style={{ fontWeight: 500 }}>{m.delta > 0 ? '+' : '−'}{fmt(Math.abs(m.delta), item.unit)}</span>
+            <li key={m.id} title={`${m.authorLabel ?? ''} · ${locations.find(l => l.id === m.locationId)?.name ?? ''}`} className="flex h-row items-center gap-2 rounded-md px-2 transition-colors hover:bg-subtle">
+              <span className="inline-flex w-4 shrink-0">{m.kind === 'MM' ? I.mm : m.delta > 0 ? I.in : I.out}</span>
+              <span className="w-28 shrink-0 truncate font-mono text-micro text-tertiary">{m.number}</span>
+              <span className="min-w-0 flex-auto truncate" title={m.cylinder ? `Butla ${m.cylinder}` : undefined}>{m.ticketNumber ? <Link href={`/dashboard/service/${m.ticketId}`} className="text-primary no-underline hover:underline">{ticketCode(m.ticketNumber)}</Link> : m.kind === 'PZ' ? (m.supplier || 'Dostawa') : m.kind === 'WZ' ? (m.supplier || 'Wydanie zewnętrzne') : locations.find(l => l.id === m.locationId)?.name}{m.cylinder && <span className="ml-2 font-mono text-micro text-tertiary">{m.cylinder}</span>}</span>
+              <span className="shrink-0 font-medium tabular-nums">{m.delta > 0 ? '+' : '−'}{fmt(Math.abs(m.delta), item.unit)}</span>
               <PersonAvatar id={m.authorId} label={m.authorLabel ?? '?'} size={16} />
-              <span className="num" title={full(m.at)} style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-tertiary)' }}>{day(m.at)}</span>
-            </div></li>
+              <span title={full(m.at)} className="w-11 shrink-0 text-right text-small leading-4 text-tertiary tabular-nums">{day(m.at)}</span>
+            </li>
           ))}
-          {moves?.length === 0 && <li style={{ padding: '0 8px', fontSize: 12, color: 'var(--text-secondary)' }}>Brak ruchów. Pierwszy ruch to przyjęcie PZ.</li>}
+          {moves?.length === 0 && <li className={cx(note, 'px-2 text-secondary')}>Brak ruchów. Pierwszy ruch to przyjęcie PZ.</li>}
         </ol>
       </section>
     </aside>
@@ -209,7 +236,8 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
   const short = (i: StockItem, v: StockLocation) => Math.max(0, (i.vehicleMins[v.id] ?? 0) - (i.levels[v.id] ?? 0));
   const shortages = vans.map(v => carried.filter(i => short(i, v) > 0).length), totalShort = shortages.reduce((a, b) => a + b, 0);
   const [editing, setEditing] = useState<string | null>(null), [draft, setDraft] = useState(''), [busy, setBusy] = useState(false), request = useRef<string | null>(null);
-  const cols = `84px minmax(0px, 1fr) 96px ${vans.map(() => '112px').join(' ')} 92px`;
+  const layout = useMemo(() => columnLayout([{ key: 'code', width: 84 }, { key: 'name', fr: 1, main: true }, { key: 'base', width: 96 }, ...vans.map(v => ({ key: `van-${v.id}`, width: 112 })), { key: 'total', width: 92 }]), [vans]);
+  const n = layout.keys.length;
   const groups = (Object.keys(stockCategories) as (keyof typeof stockCategories)[]).map(c => ({ c, rows: carried.filter(i => i.category === c) })).filter(g => g.rows.length);
   async function saveMin(i: StockItem, v: StockLocation) {
     const n = draft.trim() === '' ? 0 : parseNum(draft); setEditing(null);
@@ -227,50 +255,57 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
       onDone(docs.length ? `Zaksięgowano ${docs.map(d => d.number).join(', ')}.` : 'W bazie nie ma towaru na uzupełnienie braków.');
     } catch (e) { onError(e instanceof Error ? e.message : 'Nie udało się uzupełnić braków.'); } finally { setBusy(false); }
   }
+  const braki = (k: number) => `${k} ${k === 1 ? 'brak' : k < 5 ? 'braki' : 'braków'}`;
   return (
-    <div style={{ flex: '1 1 auto', minWidth: 0, padding: '0 12px 24px', overflowX: 'auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px 8px' }}>
-        {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" style={{ ...chip, padding: '0 8px 0 6px' }}>{I.warn}{totalShort} {totalShort === 1 ? 'brak' : totalShort < 5 ? 'braki' : 'braków'}</span>}
-        <span style={{ flex: '1 1 auto' }} />
-        {manage && <button type="button" className="sec" onClick={onAddVan} style={sec}><Plus size={14} className="shrink-0" aria-hidden />Samochód</button>}
-        {manage && totalShort > 0 && <button type="button" className="pri" disabled={busy} title="Jedno przesunięcie MM z bazy do każdego samochodu z brakami" onClick={() => void refill()} style={{ ...pri, opacity: busy ? 0.6 : 1 }}>{I.mm}{busy ? 'Księgowanie…' : `Uzupełnij braki (${totalShort})`}</button>}
+    <div className="min-w-0 flex-auto px-3 pb-6">
+      <div className="flex items-center gap-2 px-2 pb-2">
+        {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" className={chip}>{I.warn}{braki(totalShort)}</span>}
+        <Spacer />
+        {manage && <Button size="sm" onClick={onAddVan} icon={<Plus size={14} className="shrink-0" aria-hidden />}>Samochód</Button>}
+        {manage && totalShort > 0 && <Button variant="pri" size="sm" loading={busy} title="Jedno przesunięcie MM z bazy do każdego samochodu z brakami" onClick={() => void refill()} icon={I.mm}>{busy ? 'Księgowanie…' : `Uzupełnij braki (${totalShort})`}</Button>}
       </div>
-      {!vans.length ? <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>{manage ? 'Nie ma jeszcze samochodów. Dodaj samochód technika, a potem przesuń do niego towar dokumentem MM.' : 'Biuro nie dodało jeszcze samochodów.'}</p> : (
-        <div style={{ minWidth: 480 + vans.length * 124, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 32, padding: '0 8px', fontSize: 12, color: 'var(--text-secondary)' }}>
-            <span>Indeks</span><span>Nazwa</span><span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>{I.cube}Baza</span>
-            {vans.map(v => <span key={v.id} title={`${v.name}${v.plate ? ` · ${v.plate}` : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>{I.truck}<PersonAvatar id={v.technicianId!} label={v.technicianLabel ?? v.name} /></span>)}
-            <span style={{ textAlign: 'right' }}>Razem</span>
-          </div>
+      {!vans.length ? <p className="m-0 px-2 py-4 text-secondary">{manage ? 'Nie ma jeszcze samochodów. Dodaj samochód technika, a potem przesuń do niego towar dokumentem MM.' : 'Biuro nie dodało jeszcze samochodów.'}</p> : (
+        <TableScroll layout={layout} label="Stany w samochodach">
+          <HeaderRow layout={layout} className="border-b-0">
+            <HeaderCell layout={layout} col="code" icon={H.code}>Indeks</HeaderCell>
+            <HeaderCell layout={layout} col="name" icon={H.name}>Nazwa</HeaderCell>
+            <HeaderCell layout={layout} col="base" icon={H.base} align="right" title="Magazyn główny">Baza</HeaderCell>
+            {vans.map(v => <Cell key={v.id} layout={layout} col={`van-${v.id}`} header align="right" title={`${v.name}${v.plate ? ` · ${v.plate}` : ''}`} aria-label={v.name} className="gap-1">{H.van}<PersonAvatar id={v.technicianId!} label={v.technicianLabel ?? v.name} /></Cell>)}
+            <HeaderCell layout={layout} col="total" icon={H.total} align="right">Razem</HeaderCell>
+          </HeaderRow>
           {groups.map(g => (
-            <section key={g.c} style={{ display: 'flex', flexDirection: 'column', marginTop: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 36, padding: '0 10px' }}><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span><h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{stockCategories[g.c]}</h2><span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span></div>
+            <RowGroup key={g.c} label={stockCategories[g.c]}>
+              <GroupBar columns={n} label={stockCategories[g.c]} count={g.rows.length} />
               {g.rows.map(i => (
-                <div key={i.id} className="row" style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
-                  <span className="mono ell" style={{ color: 'var(--text-tertiary)' }}>{i.code}</span><span className="ell" style={{ fontWeight: 500 }}>{i.name}</span>
-                  <span className="num" style={{ textAlign: 'right', color: main && i.levels[main.id] ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{main && i.levels[main.id] ? fmt(i.levels[main.id], i.unit) : '—'}</span>
+                <Row key={i.id} layout={layout}>
+                  <Cell layout={layout} col="code" className="font-mono text-small text-tertiary"><span className="truncate">{i.code}</span></Cell>
+                  <Cell layout={layout} col="name"><span className="truncate font-medium">{i.name}</span></Cell>
+                  <Cell layout={layout} col="base" align="right" className={cx('tabular-nums', main && i.levels[main.id] ? 'text-primary' : 'text-tertiary')}>{main && i.levels[main.id] ? fmt(i.levels[main.id], i.unit) : '—'}</Cell>
                   {vans.map(v => {
-                    const q = i.levels[v.id] ?? 0, min = i.vehicleMins[v.id] ?? 0, miss = short(i, v), key = `${i.id}:${v.id}`;
-                    if (editing === key) return <span key={v.id} style={{ display: 'flex', justifyContent: 'flex-end' }}><input autoFocus aria-label={`Minimum ${i.code} w ${v.name}`} inputMode="decimal" value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => void saveMin(i, v)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(null); }} placeholder="min" style={{ width: 72, height: 28, minHeight: 0, padding: '0 8px', border: 0, borderRadius: 8, background: 'var(--bg-raised)', textAlign: 'right', font: 'inherit', fontSize: 12 }} /></span>;
+                    const q = i.levels[v.id] ?? 0, min = i.vehicleMins[v.id] ?? 0, miss = short(i, v), key = `${i.id}:${v.id}`, col = `van-${v.id}`;
+                    if (editing === key) return <Cell key={v.id} layout={layout} col={col} align="right"><input autoFocus aria-label={`Minimum ${i.code} w ${v.name}`} inputMode="decimal" value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => void saveMin(i, v)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(null); }} placeholder="min" className={cx(field, 'h-7 w-18 rounded-sm px-2 text-right text-small')} /></Cell>;
                     const title = `${v.name}: ${fmt(q, i.unit)}${min ? ` · minimum ${fmt(min, i.unit)}` : ' · bez minimum'}${miss ? ` · brakuje ${fmt(miss, i.unit)}` : ''}${manage ? ' · kliknij dwukrotnie, aby ustawić minimum' : ''}`;
                     return (
-                      <span key={v.id} className="num" title={title} onDoubleClick={() => { if (manage) { setEditing(key); setDraft(min ? String(min).replace('.', ',') : ''); } }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, color: q || miss ? 'var(--text-primary)' : 'var(--text-tertiary)', fontWeight: miss ? 500 : 400, cursor: manage ? 'cell' : undefined }}>
-                        {miss ? (manage ? <button type="button" title={`Uzupełnij ${v.name} z bazy (MM)`} onClick={() => onMM(i.id, v.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: 0, border: 0, background: 'transparent', font: 'inherit', fontWeight: 500, color: 'inherit', minHeight: 0 }}>{I.warn}{fmt(q, i.unit)}</button> : <>{I.warn}{fmt(q, i.unit)}</>) : q ? fmt(q, i.unit) : '—'}
-                        {min > 0 && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-tertiary)' }}>/{min.toLocaleString('pl-PL', { maximumFractionDigits: 3 })}</span>}
-                      </span>);
+                      <Cell key={v.id} layout={layout} col={col} align="right" title={title} onDoubleClick={() => { if (manage) { setEditing(key); setDraft(min ? String(min).replace('.', ',') : ''); } }} className={cx('tabular-nums', q || miss ? 'text-primary' : 'text-tertiary', miss ? 'font-medium' : 'font-normal', manage && 'cursor-cell')}>
+                        {miss ? (manage ? <button type="button" title={`Uzupełnij ${v.name} z bazy (MM)`} onClick={() => onMM(i.id, v.id)} className="m-0 inline-flex min-h-0 items-center gap-1 rounded-xs border-0 bg-transparent p-0 font-sans text-body leading-5 font-medium text-primary hover:bg-transparent hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{I.warn}{fmt(q, i.unit)}</button> : <>{I.warn}{fmt(q, i.unit)}</>) : q ? fmt(q, i.unit) : '—'}
+                        {min > 0 && <span className="text-micro font-normal text-tertiary">/{min.toLocaleString('pl-PL', { maximumFractionDigits: 3 })}</span>}
+                      </Cell>);
                   })}
-                  <span className="num" style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>{fmt(total(i), i.unit)}</span>
-                </div>
+                  <Cell layout={layout} col="total" align="right" className="text-secondary tabular-nums">{fmt(total(i), i.unit)}</Cell>
+                </Row>
               ))}
-            </section>
+            </RowGroup>
           ))}
-          <div style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center', columnGap: 12, height: 40, padding: '0 8px', marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
-            <span /><span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{I.mm}Do uzupełnienia</span><span />
-            {shortages.map((n, k) => <span key={vans[k].id} className="num" style={{ textAlign: 'right', color: n ? 'var(--text-primary)' : 'var(--text-tertiary)', fontWeight: n ? 500 : 400 }}>{n ? `${n} ${n === 1 ? 'brak' : n < 5 ? 'braki' : 'braków'}` : '—'}</span>)}<span />
-          </div>
-          {manage && <p style={{ margin: '4px 8px 0', fontSize: 12, color: 'var(--text-tertiary)' }}>Minimum dla samochodu ustawisz, klikając dwukrotnie komórkę. Liczba po ukośniku to minimum.</p>}
-        </div>
+          <Row layout={layout} className="mt-2 text-small text-secondary">
+            <Cell layout={layout} col="code" />
+            <Cell layout={layout} col="name" className="gap-1">{I.mm}Do uzupełnienia</Cell>
+            <Cell layout={layout} col="base" />
+            {shortages.map((k, idx) => <Cell key={vans[idx]!.id} layout={layout} col={`van-${vans[idx]!.id}`} align="right" className={cx('tabular-nums', k ? 'font-medium text-primary' : 'text-tertiary')}>{k ? braki(k) : '—'}</Cell>)}
+            <Cell layout={layout} col="total" />
+          </Row>
+        </TableScroll>
       )}
+      {manage && vans.length > 0 && <p className={cx(note, 'mx-2 mt-1 text-tertiary')}>Minimum dla samochodu ustawisz, klikając dwukrotnie komórkę. Liczba po ukośniku to minimum.</p>}
     </div>
   );
 }
@@ -278,16 +313,14 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
 function Modal({ title, sub, children, onClose }: { title: string; sub?: string; children: ReactNode; onClose: () => void }) {
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [onClose]);
   return (
-    <div role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} style={{ position: 'fixed', inset: 0, zIndex: 80, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '96px 16px 16px', background: 'var(--scrim)' }}>
-      <div role="dialog" aria-modal="true" aria-label={title} style={{ width: 'min(580px, 100%)', maxHeight: 'calc(100dvh - 120px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, padding: 20, borderRadius: 16, background: 'var(--bg-surface)', boxShadow: 'var(--shadow-modal)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600 }}>{title}</h2>{sub && <span className="mono" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{sub}</span>}<span style={{ flex: '1 1 auto' }} /><button type="button" className="ib" aria-label="Zamknij" onClick={onClose} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button></div>
+    <div role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} className="fixed inset-0 z-80 flex items-start justify-center bg-scrim px-4 pt-24 pb-4">
+      <div role="dialog" aria-modal="true" aria-label={title} className="flex max-h-full w-full max-w-145 flex-col gap-3 overflow-y-auto rounded-xl bg-surface p-5 font-sans text-body leading-5 text-primary shadow-modal">
+        <div className="flex items-center gap-2"><h2 className="m-0 font-sans text-heading leading-6 font-semibold text-primary">{title}</h2>{sub && <span className="font-mono text-micro text-tertiary">{sub}</span>}<Spacer /><Button variant="icon" size="sm" aria-label="Zamknij" title="Zamknij" shortcut="Esc" onClick={onClose} icon={<X size={16} className="shrink-0" aria-hidden />} /></div>
         {children}
       </div>
     </div>
   );
 }
-const field: CSSProperties = { width: '100%', height: 32, minHeight: 0, padding: '0 10px', border: 0, borderRadius: 10, background: 'var(--bg-raised)', font: 'inherit', color: 'var(--text-primary)', boxShadow: 'none' };
-const label: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--text-secondary)', margin: 0 };
 
 function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, initialItem, initialFrom, initialTo, onClose, onDone }: { kind: DocKind; draft?: StockDraft; items: StockItem[]; locations: StockLocation[]; manage: boolean; myVan?: StockLocation; tickets: StockTicket[]; initialItem?: string; initialFrom?: string; initialTo?: string; onClose: () => void; onDone: (t: string) => void }) {
   const main = locations.find(l => l.kind === 'warehouse');
@@ -330,51 +363,51 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zaksięgować.'); } finally { setBusy(false); }
   }
   const title = kind === 'PZ' ? 'Przyjęcie do magazynu' : kind === 'RW' ? 'Wydanie na zlecenie' : kind === 'WZ' ? 'Wydanie zewnętrzne' : 'Przesunięcie między magazynami';
-  const locSelect = (value: string, set: (v: string) => void, opts: StockLocation[], aria: string) => <select aria-label={aria} value={value} onChange={e => set(e.target.value)} style={field}>{opts.map(l => <option key={l.id} value={l.id}>{l.name}{item ? ` · ${fmt(item.levels[l.id] ?? 0, item.unit)}` : ''}</option>)}</select>;
+  const locSelect = (value: string, set: (v: string) => void, opts: StockLocation[], aria: string) => <select aria-label={aria} value={value} onChange={e => set(e.target.value)} className={field}>{opts.map(l => <option key={l.id} value={l.id}>{l.name}{item ? ` · ${fmt(item.levels[l.id] ?? 0, item.unit)}` : ''}</option>)}</select>;
   return (
     <Modal title={title} sub={draft ? `${kind} · szkic` : kind} onClose={onClose}>
-      {kind === 'RW' && <select aria-label="Zlecenie" value={ticketId} onChange={e => setTicketId(e.target.value)} style={field}>{!tickets.length && <option value="">Brak otwartych zgłoszeń</option>}{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject} · {t.customer}</option>)}</select>}
-      {kind === 'RW' && ticket && ticket.devices.length > 0 && <select aria-label="Urządzenie" value={deviceId} onChange={e => setDeviceId(e.target.value)} style={field}><option value="">Urządzenie (opcjonalnie)</option>{ticket.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}</select>}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <select aria-label="Pozycja" value={itemId} onChange={e => setItemId(e.target.value)} style={field}>{items.map(i => <option key={i.id} value={i.id}>{i.code} · {i.name}</option>)}</select>
+      {kind === 'RW' && <select aria-label="Zlecenie" value={ticketId} onChange={e => setTicketId(e.target.value)} className={field}>{!tickets.length && <option value="">Brak otwartych zgłoszeń</option>}{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject} · {t.customer}</option>)}</select>}
+      {kind === 'RW' && ticket && ticket.devices.length > 0 && <select aria-label="Urządzenie" value={deviceId} onChange={e => setDeviceId(e.target.value)} className={field}><option value="">Urządzenie (opcjonalnie)</option>{ticket.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}</select>}
+      <div className="grid grid-cols-2 gap-2">
+        <select aria-label="Pozycja" value={itemId} onChange={e => setItemId(e.target.value)} className={field}>{items.map(i => <option key={i.id} value={i.id}>{i.code} · {i.name}</option>)}</select>
         {kind === 'PZ' ? locSelect(to, setTo, locations, 'Do magazynu') : locSelect(from, setFrom, fromOptions, 'Z magazynu')}
       </div>
-      {kind === 'MM' && <label style={label}>Do{locSelect(to, setTo, locations.filter(l => l.id !== from), 'Do magazynu')}</label>}
+      {kind === 'MM' && <label className={label}>Do{locSelect(to, setTo, locations.filter(l => l.id !== from), 'Do magazynu')}</label>}
       {useWeigh ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 12, borderRadius: 12, background: 'var(--bg-raised)' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}><span style={{ flex: '1 1 auto', fontSize: 12, color: 'var(--text-secondary)' }}>Ważenie butli</span><button type="button" onClick={() => setWeigh(false)} style={{ padding: 0, border: 0, background: 'transparent', fontSize: 12, color: 'var(--text-secondary)', minHeight: 0 }}>Wpisz ilość ręcznie</button></div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
-            <label style={label}>Masa przed<input inputMode="decimal" value={before} onChange={e => setBefore(e.target.value)} placeholder="0,00" style={{ ...field, background: 'var(--bg-surface)', textAlign: 'right' }} /></label>
-            <label style={label}>Masa po<input inputMode="decimal" value={after} onChange={e => setAfter(e.target.value)} placeholder="0,00" style={{ ...field, background: 'var(--bg-surface)', textAlign: 'right' }} /></label>
-            <span style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>Ilość wydana<span className="num" style={{ height: 32, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 15, fontWeight: 600, color: amount > 0 ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{amount > 0 ? fmt(Math.round(amount * 1000) / 1000, 'kg') : '—'}</span></span>
+        <div className="flex flex-col gap-3 rounded-lg bg-raised p-3">
+          <div className="flex items-center"><span className="flex-auto text-small leading-4 text-secondary">Ważenie butli</span><button type="button" onClick={() => setWeigh(false)} className={linkButton}>Wpisz ilość ręcznie</button></div>
+          <div className="grid grid-cols-3 items-end gap-3">
+            <label className={label}>Masa przed<input inputMode="decimal" value={before} onChange={e => setBefore(e.target.value)} placeholder="0,00" className={cx(field, 'bg-surface text-right')} /></label>
+            <label className={label}>Masa po<input inputMode="decimal" value={after} onChange={e => setAfter(e.target.value)} placeholder="0,00" className={cx(field, 'bg-surface text-right')} /></label>
+            <span className="flex flex-col gap-1 text-small leading-4 text-secondary">Ilość wydana<span className={cx('flex h-control items-center justify-end text-heading leading-6 font-semibold tabular-nums', amount > 0 ? 'text-primary' : 'text-tertiary')}>{amount > 0 ? fmt(Math.round(amount * 1000) / 1000, 'kg') : '—'}</span></span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}><span style={{ flex: '1 1 auto', fontSize: 12, color: 'var(--text-secondary)' }}>Rodzaj operacji</span>
-            <div role="group" aria-label="Rodzaj operacji" style={{ display: 'inline-flex', gap: 2, padding: 2, borderRadius: 8, background: 'var(--bg-subtle)' }}>{([['fill', 'Napełnienie'], ['topup', 'Uzupełnienie'], ['other', 'Inne']] as const).map(([v, l]) => <button key={v} type="button" aria-pressed={op === v} onClick={() => setOp(v)} style={{ height: 24, padding: '0 10px', border: 0, borderRadius: 6, background: op === v ? 'var(--bg-surface)' : 'transparent', color: op === v ? 'var(--text-primary)' : 'var(--text-secondary)', fontSize: 12, fontWeight: op === v ? 500 : 400, minHeight: 0 }}>{l}</button>)}</div>
+          <div className="flex items-center"><span className="flex-auto text-small leading-4 text-secondary">Rodzaj operacji</span>
+            <div role="group" aria-label="Rodzaj operacji" className="inline-flex gap-1 rounded-sm bg-subtle p-1">{([['fill', 'Napełnienie'], ['topup', 'Uzupełnienie'], ['other', 'Inne']] as const).map(([v, l]) => <button key={v} type="button" aria-pressed={op === v} onClick={() => setOp(v)} className={cx('m-0 h-6 min-h-0 rounded-xs border-0 px-2 py-0 font-sans text-small leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent', op === v ? 'bg-surface font-medium text-primary hover:bg-surface' : 'bg-transparent font-normal text-secondary hover:bg-transparent hover:text-primary')}>{l}</button>)}</div>
           </div>
         </div>
       ) : (
-        <label style={label}>Ilość ({item?.unit ?? ''}){kind === 'RW' && isGas && <button type="button" onClick={() => setWeigh(true)} style={{ alignSelf: 'flex-start', padding: 0, border: 0, background: 'transparent', fontSize: 12, color: 'var(--text-secondary)', minHeight: 0 }}>Ważenie butli</button>}<input inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" style={{ ...field, textAlign: 'right' }} /></label>
+        <label className={label}>Ilość ({item?.unit ?? ''}){kind === 'RW' && isGas && <button type="button" onClick={() => setWeigh(true)} className={linkButton}>Ważenie butli</button>}<input inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" className={cx(field, 'text-right')} /></label>
       )}
-      {isGas && <label style={label}>Numer butli<input value={cylinder} maxLength={40} onChange={e => setCylinder(e.target.value)} placeholder="np. B-0417" style={{ ...field, fontFamily: 'var(--font-mono)' }} /></label>}
-      {kind === 'WZ' && <label style={label}>Odbiorca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="Firma lub osoba, nr dokumentu sprzedaży" style={field} /></label>}
-      {kind === 'PZ' && <label style={label}>Dostawca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="np. hurtownia, nr faktury" style={field} /></label>}
+      {isGas && <label className={label}>Numer butli<input value={cylinder} maxLength={40} onChange={e => setCylinder(e.target.value)} placeholder="np. B-0417" className={cx(field, 'font-mono')} /></label>}
+      {kind === 'WZ' && <label className={label}>Odbiorca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="Firma lub osoba, nr dokumentu sprzedaży" className={field} /></label>}
+      {kind === 'PZ' && <label className={label}>Dostawca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="np. hurtownia, nr faktury" className={field} /></label>}
       {item && amount > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Po zatwierdzeniu</span>
-          {kind !== 'PZ' && from && <Row l={locations.find(l => l.id === from)?.name ?? ''} v={`${fmt(fromLevel, item.unit)} → ${fmt(Math.round((fromLevel - amount) * 1000) / 1000, item.unit)}`} warn={fromLevel - amount < 0} />}
-          {kind !== 'RW' && kind !== 'WZ' && to && <Row l={locations.find(l => l.id === to)?.name ?? ''} v={`${fmt(toLevel, item.unit)} → ${fmt(Math.round((toLevel + amount) * 1000) / 1000, item.unit)}`} />}
-          {kind === 'RW' && item.reservations.some(r => r.ticketId === ticketId) && <Row l={`Rezerwacja ${ticket ? ticketCode(ticket.number) : ''}`} v="zamknięta" />}
-          {kind === 'RW' && <Row l="Materiały zlecenia" v="dopisane z numerem RW" />}
-          {kind === 'RW' && item.gwp !== null && <Row l="CO₂e" v={`+${(Math.round(amount * item.gwp) / 1000).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} t`} />}
+        <div className="flex flex-col gap-2">
+          <span className="text-small leading-4 text-secondary">Po zatwierdzeniu</span>
+          {kind !== 'PZ' && from && <Line l={locations.find(l => l.id === from)?.name ?? ''} v={`${fmt(fromLevel, item.unit)} → ${fmt(Math.round((fromLevel - amount) * 1000) / 1000, item.unit)}`} warn={fromLevel - amount < 0} />}
+          {kind !== 'RW' && kind !== 'WZ' && to && <Line l={locations.find(l => l.id === to)?.name ?? ''} v={`${fmt(toLevel, item.unit)} → ${fmt(Math.round((toLevel + amount) * 1000) / 1000, item.unit)}`} />}
+          {kind === 'RW' && item.reservations.some(r => r.ticketId === ticketId) && <Line l={`Rezerwacja ${ticket ? ticketCode(ticket.number) : ''}`} v="zamknięta" />}
+          {kind === 'RW' && <Line l="Materiały zlecenia" v="dopisane z numerem RW" />}
+          {kind === 'RW' && item.gwp !== null && <Line l="CO₂e" v={`+${(Math.round(amount * item.gwp) / 1000).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} t`} />}
         </div>
       )}
-      <textarea aria-label="Uwagi" rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="Uwagi" style={{ ...field, height: 'auto', padding: '8px 10px', resize: 'none' }} />
-      {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{draft && <button type="button" className="ghost" disabled={busy} onClick={() => void dropDraft()} style={{ height: 32, padding: '0 10px', border: 0, borderRadius: 10, background: 'transparent', color: 'var(--text-secondary)', minHeight: 0 }}>Usuń szkic</button>}<span style={{ flex: '1 1 auto' }} /><button type="button" className="sec" title="Anuluj  Esc" onClick={onClose} style={{ ...sec, height: 32, padding: '0 12px' }}>Anuluj</button><button type="button" className="sec" disabled={busy} title="Zapisz bez księgowania" onClick={() => void saveDraft()} style={{ ...sec, height: 32, padding: '0 12px' }}>Zapisz szkic</button><button type="button" className="pri" title="Zatwierdź  ⌘↵" disabled={!valid || busy} onClick={() => void submit()} style={{ ...pri, height: 32, padding: '0 12px', opacity: !valid || busy ? 0.6 : 1 }}>{busy ? 'Księgowanie…' : kind === 'RW' || kind === 'WZ' ? `Wydaj${item && amount > 0 ? ` ${fmt(Math.round(amount * 1000) / 1000, item.unit)}` : ''}` : kind === 'PZ' ? 'Przyjmij' : 'Przesuń'}</button></div>
+      <textarea aria-label="Uwagi" rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="Uwagi" className={cx(field, 'h-auto resize-none py-2')} />
+      {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
+      <div className="flex items-center gap-2">{draft && <Button variant="ghost" disabled={busy} onClick={() => void dropDraft()}>Usuń szkic</Button>}<Spacer /><Button title="Anuluj" shortcut="Esc" onClick={onClose}>Anuluj</Button><Button disabled={busy} title="Zapisz bez księgowania" onClick={() => void saveDraft()}>Zapisz szkic</Button><Button variant="pri" title="Zatwierdź" shortcut="⌘↵" disabled={!valid} loading={busy} onClick={() => void submit()}>{busy ? 'Księgowanie…' : kind === 'RW' || kind === 'WZ' ? `Wydaj${item && amount > 0 ? ` ${fmt(Math.round(amount * 1000) / 1000, item.unit)}` : ''}` : kind === 'PZ' ? 'Przyjmij' : 'Przesuń'}</Button></div>
     </Modal>
   );
 }
-function Row({ l, v, warn }: { l: string; v: string; warn?: boolean }) { return <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}><span style={{ flex: '1 1 auto', color: 'var(--text-secondary)' }}>{l}</span><span className="num" style={{ color: warn ? 'var(--danger)' : 'var(--text-primary)' }}>{v}</span></div>; }
+function Line({ l, v, warn }: { l: string; v: string; warn?: boolean }) { return <div className="flex items-center gap-2 text-small leading-4"><span className="flex-auto text-secondary">{l}</span><span className={cx('tabular-nums', warn ? 'text-danger' : 'text-primary')}>{v}</span></div>; }
 
 function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () => void; onDone: (t: string) => void }) {
   const [f, setF] = useState({ code: item?.code ?? '', name: item?.name ?? '', category: item?.category ?? 'parts', unit: item?.unit ?? 'szt.', min: item ? String(item.minQuantity).replace('.', ',') : '0', bin: item?.bin ?? '', cls: item?.refrigerantClass ?? '', gwp: item?.gwp?.toString() ?? '', container: item?.container ?? '' }), [err, setErr] = useState(''), [busy, setBusy] = useState(false);
@@ -390,23 +423,23 @@ function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () =
   }
   return (
     <Modal title={item ? 'Edycja pozycji' : 'Nowa pozycja'} onClose={onClose}>
-      <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8 }}>
-        <label style={label}>Indeks<input value={f.code} maxLength={32} onChange={set('code')} placeholder="CZ-R32" style={{ ...field, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }} /></label>
-        <label style={label}>Nazwa<input value={f.name} maxLength={160} onChange={set('name')} placeholder="R32" style={field} /></label>
+      <div className="grid grid-cols-3 gap-2">
+        <label className={label}>Indeks<input value={f.code} maxLength={32} onChange={set('code')} placeholder="CZ-R32" className={cx(field, 'font-mono uppercase')} /></label>
+        <label className={cx(label, 'col-span-2')}>Nazwa<input value={f.name} maxLength={160} onChange={set('name')} placeholder="R32" className={field} /></label>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 100px', gap: 8 }}>
-        <label style={label}>Kategoria<select value={f.category} onChange={set('category')} style={field}>{Object.entries(stockCategories).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-        <label style={label} title={item?.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : undefined}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>Jednostka{item?.unitLocked && I.lock}</span><select value={f.unit} disabled={item?.unitLocked} onChange={set('unit')} style={{ ...field, opacity: item?.unitLocked ? 0.7 : 1 }}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
-        <label style={label}>Minimum<input inputMode="decimal" value={f.min} onChange={set('min')} style={{ ...field, textAlign: 'right' }} /></label>
-        <label style={label}>Półka<input value={f.bin} maxLength={20} onChange={set('bin')} placeholder="C-01" style={field} /></label>
+      <div className="grid grid-cols-4 gap-2">
+        <label className={label}>Kategoria<select value={f.category} onChange={set('category')} className={field}>{Object.entries(stockCategories).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+        <label className={label} title={item?.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : undefined}><span className="inline-flex items-center gap-1">Jednostka{item?.unitLocked && I.lock}</span><select value={f.unit} disabled={item?.unitLocked} onChange={set('unit')} className={field}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
+        <label className={label}>Minimum<input inputMode="decimal" value={f.min} onChange={set('min')} className={cx(field, 'text-right')} /></label>
+        <label className={label}>Półka<input value={f.bin} maxLength={20} onChange={set('bin')} placeholder="C-01" className={field} /></label>
       </div>
-      {gas && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-        <label style={label}>Rodzaj<input value={f.cls} maxLength={20} onChange={set('cls')} placeholder="HFC" style={field} /></label>
-        <label style={label}>GWP<input inputMode="numeric" value={f.gwp} onChange={set('gwp')} placeholder="675" style={{ ...field, textAlign: 'right' }} /></label>
-        <label style={label}>Opakowanie<input value={f.container} maxLength={40} onChange={set('container')} placeholder="butla 9 kg" style={field} /></label>
+      {gas && <div className="grid grid-cols-3 gap-2">
+        <label className={label}>Rodzaj<input value={f.cls} maxLength={20} onChange={set('cls')} placeholder="HFC" className={field} /></label>
+        <label className={label}>GWP<input inputMode="numeric" value={f.gwp} onChange={set('gwp')} placeholder="675" className={cx(field, 'text-right')} /></label>
+        <label className={label}>Opakowanie<input value={f.container} maxLength={40} onChange={set('container')} placeholder="butla 9 kg" className={field} /></label>
       </div>}
-      {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}><button type="button" className="sec" onClick={onClose} style={{ ...sec, height: 32, padding: '0 12px' }}>Anuluj</button><button type="button" className="pri" disabled={busy || !f.code || !f.name} onClick={() => void save()} style={{ ...pri, height: 32, padding: '0 12px' }}>{busy ? 'Zapisywanie…' : 'Zapisz'}</button></div>
+      {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
+      <div className="flex justify-end gap-2"><Button onClick={onClose}>Anuluj</Button><Button variant="pri" disabled={!f.code || !f.name} loading={busy} onClick={() => void save()}>{busy ? 'Zapisywanie…' : 'Zapisz'}</Button></div>
     </Modal>
   );
 }
@@ -421,12 +454,12 @@ function VehicleDialog({ technicians, onClose, onDone }: { technicians: { id: st
   }
   return (
     <Modal title="Samochód technika" onClose={onClose}>
-      {!technicians.length ? <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Każdy aktywny technik ma już samochód.</p> : <>
-        <label style={label}>Technik<select value={tech} onChange={e => setTech(e.target.value)} style={field}>{technicians.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: 8 }}><label style={label}>Nazwa<input value={name} maxLength={80} onChange={e => setName(e.target.value)} placeholder={def} style={field} /></label><label style={label}>Rejestracja<input value={plate} maxLength={20} onChange={e => setPlate(e.target.value)} placeholder="GD 2N551" style={field} /></label></div>
+      {!technicians.length ? <p className="m-0 text-secondary">Każdy aktywny technik ma już samochód.</p> : <>
+        <label className={label}>Technik<select value={tech} onChange={e => setTech(e.target.value)} className={field}>{technicians.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+        <div className="grid grid-cols-3 gap-2"><label className={cx(label, 'col-span-2')}>Nazwa<input value={name} maxLength={80} onChange={e => setName(e.target.value)} placeholder={def} className={field} /></label><label className={label}>Rejestracja<input value={plate} maxLength={20} onChange={e => setPlate(e.target.value)} placeholder="GD 2N551" className={field} /></label></div>
       </>}
-      {err && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{err}</p>}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}><button type="button" className="sec" onClick={onClose} style={{ ...sec, height: 32, padding: '0 12px' }}>Anuluj</button>{technicians.length > 0 && <button type="button" className="pri" disabled={!tech} onClick={() => void save()} style={{ ...pri, height: 32, padding: '0 12px' }}>Dodaj</button>}</div>
+      {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
+      <div className="flex justify-end gap-2"><Button onClick={onClose}>Anuluj</Button>{technicians.length > 0 && <Button variant="pri" disabled={!tech} onClick={() => void save()}>Dodaj</Button>}</div>
     </Modal>
   );
 }
