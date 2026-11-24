@@ -8,7 +8,10 @@
 --  i blokady we wszystkich firmach osoby;
 --  worker poczty (service_role, bez użytkownika): prepare_/claim_/bind_/finish_notification_email,
 --  notification_email_checks, finish_notification_email_check, assert_email_worker, email_job_eligible —
---  podszywają się pod odbiorcę (request.jwt.claim.sub), a funkcje, które wołają, filtrują już po jego firmie;
+--  czytają kolejkę i preferencje wszystkich firm. Tylko prepare_notification_emails i email_job_eligible na czas
+--  wywołania ustawiają request.jwt.claim.sub na odbiorcę; wtedy sync_my_notifications, notification_sources
+--  i my_notification_preferences (avero_rpc) widzą wyłącznie aktywną firmę odbiorcy. Blokadę konta sprawdzają
+--  w firmie powiadomienia (account_enabled_in, krok 5);
 --  accept_access_invitation, read_my_invitation — osoba zaproszona nie należy jeszcze do firmy zaproszenia;
 --  funkcje wyzwalaczy (returns trigger) — działają na wierszu, który przeszedł już przez politykę.
 -- Nowa funkcja security definer w kolejnych migracjach: dopisz `alter function … owner to avero_rpc;`
@@ -19,7 +22,7 @@ begin
  for f in
   select p.oid::regprocedure from pg_proc p
   where p.pronamespace='public'::regnamespace and p.prosecdef and p.prorettype<>'trigger'::regtype
-  and p.proname not in ('current_org_id','org_default','my_organizations','set_active_org','account_enabled',
+  and p.proname not in ('current_org_id','org_default','my_organizations','set_active_org','account_enabled','account_enabled_in',
    'accept_access_invitation','read_my_invitation',
    'prepare_notification_emails','claim_notification_email','bind_notification_email','finish_notification_email',
    'notification_email_checks','finish_notification_email_check','assert_email_worker','email_job_eligible')
