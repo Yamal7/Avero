@@ -25,3 +25,5 @@ export * from './notification-email';
 export * from './service-job';
 
 export * from './stock';
+
+export * from './organizations';
