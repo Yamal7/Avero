@@ -40,7 +40,7 @@ describe('wspólne elementy (src/components/ui) — tylko klasy na tokenach', ()
     const missing: string[] = [];
     for (const token of tokens) if ((await compiler()).build([token]) === empty) missing.push(token);
     expect(missing).toEqual([]);
-  });
+  }, 30_000); // kompiluje Tailwinda osobno dla każdej klasy — na runnerze CI trwa dłużej niż domyślne 5 s
 
   it('przycisk główny ma akcent i fokus pierścieniem --accent; wyłączony nie reaguje na hover', () => {
     const pri = buttonClasses({ variant: 'pri' });
@@ -69,5 +69,5 @@ describe('wspólne elementy (src/components/ui) — tylko klasy na tokenach', ()
     const missing: string[] = [];
     for (const token of candidates) if ((await compiler()).build([token]) === empty) missing.push(token);
     expect(missing).toEqual([]);
-  });
+  }, 30_000);
 });

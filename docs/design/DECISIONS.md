@@ -2,6 +2,18 @@
 
 Najnowsze na górze. Każda decyzja: data, co, dlaczego. Zmiana decyzji = nowy wpis, stary zostaje.
 
+## 2026-11-23 Lewy panel zwijany; Skrzynka, Planowanie i Ustawienia bez zmian
+- **Lewy panel ma trzy stany** (zatwierdzone): rozwinięty 232 px → zwinięty 52 px (same ikony, nazwa w podpowiedzi, nagłówki grup jako linia, licznik jako kropka akcentu) → ukryty (główny obszar na całą szerokość, odstęp 8 px). Przełącza przycisk z ikoną panelu w górnym pasku, obok przełącznika firmy, i skrót `[`. W stanie ukrytym najechanie na lewą krawędź (8 px) wysuwa panel nad treścią (opis, nie rysowane). Stan zapamiętany dla użytkownika. Makiety: prop `pasek` ramy, plansze `Panel-zwiniety`, `Panel-ukryty`, `Panel-zwiniety-ciemny`. Do kodu: KRA-68 (M0.6).
+- **Skrzynka, Planowanie i Ustawienia zostają w dwóch liniach** (wybór właściciela po porównaniu). Wariant „jedna linia” (wiersz 40 px w Skrzynce bez fragmentu treści, karty planowania z samym tytułem, opis obok tytułu w Ustawieniach) odrzucony; prop `wiersze` i plansze `Linia-*` usunięte z kanwy. Zasada jednej linii obowiązuje w tabelach (M0.3), nie w listach wątków, siatce planowania i wierszach ustawień.
+- Główny ekran Raportów, portal klienta i aplikacje na telefon bez zmian (odłożone).
+
+## 2026-11-22 (wieczór) Mniej „widgetów”, aplikacje na telefon jak Linear mobile
+- **Karta podglądu firmy nad tabelą:** komórka z otwartą kartą (najechanie, fokus) dostaje wyższą warstwę niż przypięte kolumny kolejnych wierszy; obszar przewijania nie może tworzyć bloku zawierającego dla karty (bez `contain`/`container-type`), więc karta nie jest ucinana. W kodzie: Popover w portalu. Paski grup trzymają etykietę w widocznej części (przyklejony środek paska).
+- **Raport z własnej tabeli bez kart:** sekcje rozdzielone linią, wybrany wykres — kreska akcentu. Panel ustawień jak właściwości zadania w Linear: etykieta i jedno pole wartości w tym samym wierszu, grupy Dane / Wygląd / Dostęp (`18-wlasne-tabele.md`).
+- **Portal klienta bez kart i kafelków:** sekcja „Teraz” w miejsce trzech kart stanu, listy w jednej linii z kolorową ikoną, prawa kolumna jako lista właściwości (`24-portal-klienta.md`).
+- **Aplikacje na telefon (technik, klient) według wzoru Linear mobile:** duży tytuł, kapsułki zakresu, listy 56 px z ikoną stanu i priorytetu, pływający pasek kart + osobny okrągły przycisk akcji, menu jako arkusz, wizyta jak zadanie (właściwości, kroki, części, aktywność) — `26-aplikacje-telefon.md`.
+- Zasada ogólna: kartę / kafelek z tłem stosujemy tylko dla rzeczy, którą da się przesunąć lub otworzyć jako całość (karta na tablicy, podgląd firmy). Grupy treści oddzielamy nagłówkiem i linią.
+
 ## 2026-11-22 (Tabele: przewijanie w poziomie z przypiętą kolumną, jak w Attio)
 - Gdy kolumny się nie mieszczą (np. przy otwartym panelu szczegółów), **tabela przewija się w poziomie** — nie ściskamy kolumn i nie chowamy ich automatycznie. Kolumny elastyczne mają minimum: główna (tytuł / nazwa) 220 px, pozostałe 112–176 px.
 - **Przypięte są kolumny do głównej włącznie** (stan / nr / ikona / tytuł) — `position: sticky` z tłem powierzchni (zaznaczony i najechany wiersz: `--bg-subtle`), cienka linia `--edge` po prawej stronie ostatniej przypiętej kolumny. Nagłówek przewija się razem z wierszami, paski grup (np. „Do pierwszego kontaktu”) zostają w widocznej części.

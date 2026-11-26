@@ -108,6 +108,20 @@ while True:
             seg = seg[:st] + tag2 + seg[se:]
         seg = seg.replace(f'grid-template-columns:{gm.group(1)}', f'grid-template-columns:{g2}', 1)
         new = new[:r0] + seg + new[r1:]
+    # paski grup (dzieci bez role=row): treść w przyklejonym spanie, żeby etykieta grupy nie uciekała w bok
+    def wrap_groups(h):
+        hd = TAG.match(h, 0)
+        inner_a = hd.end(); inner_b = len(h) - len('</div>')
+        out = []; last = inner_a
+        for st, se, en in children(h, inner_a, inner_b):
+            tag = h[st:se]
+            if 'role="row"' in tag or not tag.startswith('<div'):
+                continue
+            out.append((se, en - len('</div>')))
+        for se, ce in reversed(out):
+            h = h[:se] + '<span class="gsticky">' + h[se:ce] + '</span>' + h[ce:]
+        return h
+    new = wrap_groups(new)
     # wrap content
     h = TAG.match(new, 0)
     open_tag = h.group(0)
@@ -118,9 +132,11 @@ while True:
     n_tables += 1
     pos = i + len(new)
 
-CSS = ('.av .tx{scrollbar-width:thin;container-type:inline-size;max-width:100%}'
+CSS = ('.av .tx{scrollbar-width:thin;max-width:100%}'
        '.av .tx .pin-l{box-shadow:1px 0 0 var(--edge)}'
-       '.av .tx>div>div:not([role=row]){position:sticky;left:0;width:100cqw;box-sizing:border-box}'
+       '.av .tx .gsticky{position:sticky;left:10px;display:inline-flex;align-items:center;gap:8px;min-width:0}'
+       '.av .tx .pin:hover,.av .tx .pin:focus-within,.av .tx .pin:has(.hc.open),.av .tx [role=row]:hover>[role=cell]:has(.lg),.av .tx [role=cell]:has(.hc.open){z-index:30;position:relative}'
+       '.av .tx .pin:has(.hc.open),.av .tx .pin:hover,.av .tx .pin:focus-within{position:sticky}'
        '.av .tx .pin{z-index:2;background:var(--bg-surface)}'
        '.av .tx [role=row][aria-selected=true] .pin,.av .tx .row:hover .pin{background:var(--bg-subtle)}'
        '.av .tx [role=row]:not(.row) .pin{background:var(--bg-surface)}'
