@@ -28,6 +28,8 @@ export type CustomerCard = {
 const offGrid = { card: 'gap-2.5', head: 'gap-2.5', rows: 'gap-1.5', foot: 'gap-1.5' };
 /* eslint-enable avero/tailwind-tokens */
 
+export const customerLogoBase = 'inline-flex min-w-0 items-center gap-2 rounded-xs text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent';
+
 const OPEN_DELAY = 350, CLOSE_DELAY = 120, WIDTH = 280;
 
 function CardRow({ icon, children, title }: { icon: ReactNode; children: ReactNode; title?: string }) {
@@ -106,7 +108,7 @@ export function CustomerLogo({ name, kind = 'company', href, card, showName = fa
         onFocus={e => { if (e.currentTarget.matches(':focus-visible')) show(0); }}
         onBlur={() => hide(0)}
         onClick={e => e.stopPropagation()}
-        className={cx('inline-flex min-w-0 items-center gap-2 rounded-xs text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent', className)}
+        className={cx(customerLogoBase, className)}
       >
         <Logo name={name} kind={kind} />
         {showName && <span className="min-w-0 truncate font-medium hover:underline">{name}</span>}

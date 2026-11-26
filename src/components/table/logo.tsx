@@ -15,12 +15,14 @@ const tone: Record<BrandColor, string> = {
   indigo: 'bg-ic-indigo text-on-accent',
 };
 
+export const logoBase = 'inline-flex shrink-0 select-none items-center justify-center font-sans font-semibold leading-none';
+
 export function Logo({ name, kind = 'company', size = 20, className }: { name: string; kind?: LogoKind; size?: 20 | 32; className?: string }) {
   return (
     <span
       aria-hidden="true"
       className={cx(
-        'inline-flex shrink-0 select-none items-center justify-center font-sans font-semibold leading-none',
+        logoBase,
         size === 20 ? 'size-5 text-micro' : 'size-8 text-small',
         kind === 'person' ? 'rounded-pill' : size === 20 ? 'rounded-xs' : 'rounded-sm',
         tone[brandColor(name)],

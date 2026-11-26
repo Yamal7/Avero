@@ -8,6 +8,8 @@ import type { TableLayout } from '@/lib/table/columns';
 import { arrowScrollTarget } from '@/lib/table/scroll';
 import { cx } from '@/lib/cx';
 
+export const scrollBase = 'min-w-0 overflow-x-auto scrollbar-thin focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent';
+
 const editable = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 
 export function TableScroll({ layout, label, children, className }: { layout: Pick<TableLayout, 'minWidth' | 'pinnedWidth' | 'starts'>; label: string; children: ReactNode; className?: string }) {
@@ -30,9 +32,9 @@ export function TableScroll({ layout, label, children, className }: { layout: Pi
       role="region"
       aria-label={`${label} — przewijanie w poziomie: ← / →`}
       onKeyDown={onKeyDown}
-      className={cx('min-w-0 overflow-x-auto scrollbar-thin focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent', className)}
+      className={cx(scrollBase, className)}
     >
-      <div role="table" aria-label={label} style={{ minWidth: layout.minWidth }} className="flex flex-col">
+      <div role="table" aria-label={label} style={{ minWidth: layout.minWidth }} className="flex flex-col font-sans text-body leading-5 text-primary">
         {children}
       </div>
     </div>

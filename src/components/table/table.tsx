@@ -15,6 +15,15 @@ type Layout = Pick<TableLayout, 'keys' | 'template' | 'pinnedLeft' | 'mainIndex'
 
 const pinnedBase = 'sticky z-10';
 
+/* Klasy bazowe nie zawierają właściwości nadpisywanych przy użyciu (odstęp, kolor i rozmiar tekstu, linia) —
+   te są parametrami albo dziedziczą się z tabeli (TableScroll: font-sans text-body leading-5 text-primary).
+   `cx` tylko skleja klasy, więc dwie klasy tej samej właściwości dawałyby wynik zależny od kolejności w arkuszu
+   (test: tests/class-conflicts.test.ts). */
+export const rowBase = 'group/row grid h-row min-w-0 items-center whitespace-nowrap transition-colors duration-fast';
+export const cellBase = 'flex h-full min-w-0 items-center pr-3 first:rounded-l-md first:pl-2';
+export const headerRowBase = 'grid h-row min-w-0 items-center bg-surface text-small leading-4 whitespace-nowrap text-secondary';
+const cellGap = { 0: '', 1: 'gap-1', 2: 'gap-2' } as const;
+
 const pinProps = (layout: Layout, col: string) => cellPin(layout, columnIndex(layout, col));
 
 type RowProps = Omit<HTMLAttributes<HTMLDivElement>, 'role'> & {
@@ -37,7 +46,7 @@ export function Row({ layout, selected = false, disabled = false, lines = false,
       data-selected={selected || undefined}
       style={{ gridTemplateColumns: layout.template }}
       className={cx(
-        'group/row grid h-row min-w-0 items-center font-sans text-body leading-5 whitespace-nowrap text-primary transition-colors duration-fast',
+        rowBase,
         lines ? 'border-b border-edge' : 'rounded-md',
         selected ? 'bg-subtle' : !disabled && 'hover:bg-subtle',
         interactive && !disabled && 'cursor-pointer',
@@ -60,19 +69,22 @@ type CellProps = Omit<HTMLAttributes<HTMLDivElement>, 'role'> & {
   header?: boolean;
   /** Ucinanie treści (domyślnie). false — dla komórek z własnym menu rozwijanym (np. kategorie osoby). */
   clip?: boolean;
+  /** Odstęp między elementami komórki: 2 = 8 px (domyślnie), 1 = 4 px (ikona + liczba, kapsułki). */
+  gap?: 0 | 1 | 2;
   children?: ReactNode;
 };
 
 const justify = { left: 'justify-start text-left', right: 'justify-end text-right', center: 'justify-center text-center' };
 
-export function Cell({ layout, col, align = 'left', header = false, clip = true, className, children, ...rest }: CellProps) {
+export function Cell({ layout, col, align = 'left', header = false, clip = true, gap = 2, className, children, ...rest }: CellProps) {
   const pin = pinProps(layout, col);
   return (
     <div
       role={header ? 'columnheader' : 'cell'}
       style={pin ? { left: pin.left } : undefined}
       className={cx(
-        'flex h-full min-w-0 items-center gap-2 pr-3 first:rounded-l-md first:pl-2',
+        cellBase,
+        cellGap[gap],
         clip && 'overflow-hidden',
         justify[align],
         pin && pinnedBase,
@@ -88,9 +100,9 @@ export function Cell({ layout, col, align = 'left', header = false, clip = true,
 }
 
 /** Wiersz nagłówka: 36 px, tekst 12 px szary, ikony kolumn w kolorach --ic-* (podaje ekran). */
-export function HeaderRow({ layout, children, className }: { layout: Layout; children: ReactNode; className?: string }) {
+export function HeaderRow({ layout, children, line = true, className }: { layout: Layout; children: ReactNode; /** Linia --edge pod nagłówkiem. */ line?: boolean; className?: string }) {
   return (
-    <div role="row" style={{ gridTemplateColumns: layout.template }} className={cx('grid h-row min-w-0 items-center border-b border-edge bg-surface font-sans text-small leading-4 whitespace-nowrap text-secondary', className)}>
+    <div role="row" style={{ gridTemplateColumns: layout.template }} className={cx(headerRowBase, line && 'border-b border-edge', className)}>
       {children}
     </div>
   );
@@ -99,7 +111,7 @@ export function HeaderRow({ layout, children, className }: { layout: Layout; chi
 /** Komórka nagłówka: ikona (np. <MapPin className="text-ic-red" />) + etykieta; sama ikona wymaga `label` (podpowiedź i czytnik). */
 export function HeaderCell({ layout, col, icon, label, align = 'left', title, children }: { layout: Layout; col: string; icon?: ReactNode; label?: string; align?: 'left' | 'right' | 'center'; title?: string; children?: ReactNode }) {
   return (
-    <Cell layout={layout} col={col} header align={align} title={title ?? label} aria-label={children ? undefined : label} className="gap-1">
+    <Cell layout={layout} col={col} header align={align} title={title ?? label} aria-label={children ? undefined : label} gap={1}>
       {icon}
       {children && <span className="min-w-0 truncate">{children}</span>}
     </Cell>

@@ -6,9 +6,14 @@ import { CaretRight } from '@phosphor-icons/react/ssr';
 import { pillClasses } from '@/components/ui/pill';
 import { cx } from '@/lib/cx';
 
+export const pageBase = 'dk flex min-h-full flex-auto flex-col bg-surface font-sans text-body leading-5 text-primary';
+export const toolbarBase = 'flex flex-wrap items-center gap-1 py-2 pr-3 pl-4 max-desktop:pl-3';
+/** Bez marginesów — podaje je miejsce użycia (className). */
+export const segmentedBase = 'inline-flex items-center gap-1 rounded-md bg-subtle p-1';
+
 /** Korzeń ekranu. Klasa `dk` zostaje jako zaczepienie: wyłącza reguły !important dla h1/h2 i przyciski z globals.css (precision.css). */
 export function TablePage({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cx('dk flex min-h-full flex-auto flex-col bg-surface font-sans text-body leading-5 text-primary', className)}>{children}</main>;
+  return <main className={cx(pageBase, className)}>{children}</main>;
 }
 
 export function PageHead({ icon, category, title, children }: { icon?: ReactNode; category: string; title: string; children?: ReactNode }) {
@@ -24,7 +29,7 @@ export function PageHead({ icon, category, title, children }: { icon?: ReactNode
 }
 
 export function Toolbar({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cx('flex flex-wrap items-center gap-1 py-2 pr-3 pl-4 max-desktop:pl-3', className)}>{children}</div>;
+  return <div className={cx(toolbarBase, className)}>{children}</div>;
 }
 
 export const Spacer = () => <span className="flex-auto" />;
@@ -41,7 +46,7 @@ export function ViewTabs({ label, items }: { label: string; items: { label: stri
 /** Przełącznik segmentowy (Firmy / Osoby, Lista / Tablica): wybrany segment na tle powierzchni. */
 export function Segmented({ label, items, className }: { label: string; items: { key: string; href: string; active: boolean; children: ReactNode; title?: string; ariaLabel?: string }[]; className?: string }) {
   return (
-    <nav aria-label={label} className={cx('inline-flex items-center gap-1 rounded-md bg-subtle p-1', className)}>
+    <nav aria-label={label} className={cx(segmentedBase, className)}>
       {items.map(i => (
         <Link
           key={i.key}
