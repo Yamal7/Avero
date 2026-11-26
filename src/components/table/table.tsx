@@ -49,8 +49,7 @@ export function Row({ layout, selected = false, disabled = false, lines = false,
         rowBase,
         lines ? 'border-b border-edge' : 'rounded-md',
         selected ? 'bg-subtle' : !disabled && 'hover:bg-subtle',
-        interactive && !disabled && 'cursor-pointer',
-        disabled && 'cursor-not-allowed opacity-50',
+        disabled ? 'cursor-not-allowed opacity-50' : interactive && 'cursor-pointer',
         className,
       )}
       {...rest}
@@ -156,15 +155,16 @@ export function TableMessage({ columns, kind = 'empty', children, action }: { co
 }
 
 /** Wiersze w trakcie ładowania: szare paski w kolumnach (bez spinnera). */
-export function TableSkeleton({ layout, rows = 6, lines = false }: { layout: Layout; rows?: number; lines?: boolean }) {
+/** `inTable` — w środku TableScroll (role="table"); poza tabelą (loading.tsx) wiersze mają role="presentation". */
+export function TableSkeleton({ layout, rows = 6, lines = false, inTable = false }: { layout: Layout; rows?: number; lines?: boolean; inTable?: boolean }) {
   return (
     <>
       {Array.from({ length: rows }, (_, r) => (
-        <div key={r} role="row" aria-hidden="true" style={{ gridTemplateColumns: layout.template }} className={cx('grid h-row items-center', lines && 'border-b border-edge')}>
+        <div key={r} role={inTable ? 'row' : 'presentation'} aria-hidden="true" style={{ gridTemplateColumns: layout.template }} className={cx('grid h-row items-center', lines && 'border-b border-edge')}>
           {layout.keys.map((k, i) => {
             const pin = cellPin(layout, i);
             return (
-              <div key={k} role="cell" style={pin ? { left: pin.left } : undefined} className={cx('flex h-full items-center pr-3 first:pl-2', pin && 'sticky z-10 bg-surface', pin?.edge && 'border-r border-edge')}>
+              <div key={k} role={inTable ? 'cell' : 'presentation'} style={pin ? { left: pin.left } : undefined} className={cx('flex h-full items-center pr-3 first:pl-2', pin && 'sticky z-10 bg-surface', pin?.edge && 'border-r border-edge')}>
                 <span className={cx('block h-3 rounded-xs bg-subtle motion-safe:animate-pulse', i === layout.mainIndex ? 'w-32' : 'w-full max-w-16')} />
               </div>
             );

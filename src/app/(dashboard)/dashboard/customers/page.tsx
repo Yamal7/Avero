@@ -156,7 +156,7 @@ function CustomerTable({ data, people, archived, filtered, colors, now, page, hr
           return (
             <Row key={c.id} layout={layout} lines>
               <Cell layout={layout} col="name"><CustomerLogo name={c.name} kind={people ? 'person' : 'company'} href={`/dashboard/customers/${c.id}`} card={card} showName /></Cell>
-              <Cell layout={layout} col="categories" className="gap-1">
+              <Cell layout={layout} col="categories" gap={1}>
                 {shown.map(cat => <span key={cat} className={cx('inline-flex h-5 items-center rounded-xs px-2 text-small leading-4 whitespace-nowrap text-primary', categoryTintClass[categoryColorKey(cat, colors)])}>{cat}</span>)}
                 {more.length > 0 && <span title={more.join(', ')} className="inline-flex h-5 items-center rounded-xs bg-subtle px-2 text-small leading-4 text-secondary tabular-nums">+{more.length}</span>}
                 {!c.categories.length && <Dash />}
@@ -170,7 +170,7 @@ function CustomerTable({ data, people, archived, filtered, colors, now, page, hr
             </Row>
           );
         })}
-        {data && !data.items.length && <TableMessage columns={n} action={filtered ? <Link href={`/dashboard/customers?kind=${people ? 'individual' : 'company'}`} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Wyczyść filtry</Link> : !archived && !people ? <Link href="/dashboard/customers/new" title="Nowa firma" className={buttonClasses({ variant: 'sec', size: 'sm' })}>Dodaj firmę</Link> : undefined}>
+        {data && !data.items.length && <TableMessage columns={n} action={filtered ? <Link href={`/dashboard/customers?${new URLSearchParams({ kind: people ? 'individual' : 'company', ...(archived ? { archived: '1' } : {}) })}`} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Wyczyść filtry</Link> : !archived && !people ? <Link href="/dashboard/customers/new" title="Nowa firma" className={buttonClasses({ variant: 'sec', size: 'sm' })}>Dodaj firmę</Link> : undefined}>
           {filtered ? 'Nic nie pasuje do wyszukiwania ani filtrów.' : archived ? 'Brak zarchiwizowanych rekordów.' : people ? 'Nie ma jeszcze osób prywatnych.' : 'Nie ma jeszcze firm. Dodaj pierwszą firmę, a potem jej lokalizację i urządzenia.'}
         </TableMessage>}
       </TableScroll>

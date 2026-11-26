@@ -53,8 +53,19 @@ const H = {
   van: <Truck size={14} className="shrink-0 text-ic-indigo" aria-hidden />,
   total: <Sigma size={14} className="shrink-0 text-ic-slate" aria-hidden />,
 };
-const chip = 'inline-flex h-6 items-center gap-1 rounded-pill bg-subtle px-2 text-small leading-4 whitespace-nowrap text-secondary no-underline';
-const field = 'm-0 block h-control min-h-0 w-full rounded-md border-0 bg-raised px-3 py-0 font-sans text-body leading-5 font-normal text-primary shadow-none outline-0 placeholder:text-tertiary focus:field-ring focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50';
+/* Zestawy klas bez właściwości nadpisywanych przy użyciu: tło, rozmiar, szerokość i krój są parametrami
+   (cx tylko skleja klasy — dwie klasy tej samej właściwości dawałyby wynik zależny od arkusza; tests/class-conflicts.test.ts). */
+const chip = (bg: 'bg-subtle' | 'bg-surface' = 'bg-subtle') => cx('inline-flex h-6 items-center gap-1 rounded-pill px-2 text-small leading-4 whitespace-nowrap text-secondary no-underline', bg);
+const fieldBase = 'm-0 block min-h-0 border-0 leading-5 font-normal text-primary shadow-none outline-0 placeholder:text-tertiary focus:field-ring focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50';
+/** Pole formularza: md = 32 px (okna), sm = 28 px (w wierszu); `width` — klasa szerokości (domyślnie w-full); multiline — textarea. */
+const field = ({ size = 'md', width = 'w-full', surface = false, mono = false, multiline = false }: { size?: 'md' | 'sm'; width?: string; surface?: boolean; mono?: boolean; multiline?: boolean } = {}) => cx(
+  fieldBase,
+  multiline ? 'h-auto py-2' : size === 'md' ? 'h-control py-0' : 'h-7 py-0',
+  size === 'md' ? 'rounded-md px-3 text-body' : 'rounded-sm px-2 text-small',
+  width,
+  surface ? 'bg-surface' : 'bg-raised',
+  mono ? 'font-mono' : 'font-sans',
+);
 const label = 'm-0 flex flex-col gap-1 text-small leading-4 font-normal text-secondary';
 const note = 'm-0 text-small leading-4';
 const linkButton = 'm-0 inline-flex min-h-0 items-center self-start border-0 bg-transparent p-0 font-sans text-small leading-4 font-normal text-secondary hover:bg-transparent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent';
@@ -94,7 +105,7 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
         <Spacer />
         {view !== 'vehicles' && <Button variant="icon" size="sm" aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
         {manage && <Button size="sm" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} className="ml-1" icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button>}
-        {data.drafts.map(d => <Button key={d.id} size="sm" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} className="font-normal text-secondary" icon={I.draft}>Szkic {d.kind}</Button>)}
+        {data.drafts.map(d => <Button key={d.id} size="sm" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} variant="ghost" icon={I.draft}>Szkic {d.kind}</Button>)}
         {manage && <Button size="sm" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} icon={I.in}>Przyjęcie</Button>}
         {manage && <Button size="sm" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} icon={I.out}>WZ</Button>}
         <Button variant="pri" size="sm" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} icon={<ArrowLineUp size={14} className="shrink-0" aria-hidden />}>Wydanie</Button>
@@ -128,9 +139,9 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
                             <a href={`#${i.code.toLowerCase()}`} aria-current={sel ? 'true' : undefined} onClick={e => { e.preventDefault(); pick(); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{i.name}</a>
                           </Cell>
                           <Cell layout={layout} col="state" align="right" className="tabular-nums">{fmt(t, i.unit)}</Cell>
-                          <Cell layout={layout} col="reserved" align="right" title="Zarezerwowane na zlecenia" className={cx('gap-1 tabular-nums', i.reserved ? 'text-primary' : 'text-tertiary')}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</Cell>
+                          <Cell gap={1} layout={layout} col="reserved" align="right" title="Zarezerwowane na zlecenia" className={cx('tabular-nums', i.reserved ? 'text-primary' : 'text-tertiary')}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</Cell>
                           <Cell layout={layout} col="available" align="right" title={i.minQuantity ? `Minimum ${fmt(i.minQuantity, i.unit)}${low ? ' · poniżej minimum' : ''}` : undefined} className={cx('tabular-nums', neg ? 'text-danger' : 'text-primary', low || neg ? 'font-medium' : 'font-normal')}>{neg ? I.err : low ? I.warn : null}<span>{fmt(a, i.unit)}</span></Cell>
-                          <Cell layout={layout} col="move" align="right" title={i.lastMove ? `Ostatni ruch: ${full(i.lastMove.at)}` : 'Brak ruchów'} className="gap-1 text-small text-secondary tabular-nums">{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</Cell>
+                          <Cell gap={1} layout={layout} col="move" align="right" title={i.lastMove ? `Ostatni ruch: ${full(i.lastMove.at)}` : 'Brak ruchów'} className="text-small text-secondary tabular-nums">{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</Cell>
                         </Row>
                       );
                     })}</div>}
@@ -161,7 +172,6 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
     setReserve(false); setRQty(''); setErr(''); onReserved();
   }
   const prop = (icon: ReactNode, value: ReactNode, title: string) => <div title={title} className="flex min-h-8 items-center gap-3 rounded-sm px-2 py-1">{icon}<span className="min-w-0 truncate">{value}</span></div>;
-  const docButton = 'bg-surface';
   return (
     <aside aria-label={`Pozycja magazynowa ${item.code}`} className="flex w-100 min-w-0 flex-none flex-col border-l border-edge max-panel:fixed max-panel:inset-y-0 max-panel:right-0 max-panel:z-40 max-panel:w-full max-panel:max-w-110 max-panel:overflow-y-auto max-panel:bg-surface max-panel:shadow-modal">
       <div className="flex h-11 items-center gap-1 pr-2 pl-5">
@@ -172,9 +182,9 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
       <div className="flex flex-col gap-2 px-5 pt-1 pb-4">
         <h2 className="m-0 font-sans text-heading leading-6 font-semibold tracking-tight text-primary">{item.name}</h2>
         <div className="flex flex-wrap gap-1">
-          {item.refrigerantClass && <span title={`Czynnik chłodniczy ${item.refrigerantClass}`} className={chip}>{I.drop}<span>{item.refrigerantClass}</span></span>}
-          {item.container && <span title={item.container} className={chip}>{I.cube}<span>{item.container}</span></span>}
-          {item.gwp !== null && <span title={`Współczynnik GWP ${item.gwp}`} className={chip}>{I.cloud}<span>GWP {item.gwp}</span></span>}
+          {item.refrigerantClass && <span title={`Czynnik chłodniczy ${item.refrigerantClass}`} className={chip()}>{I.drop}<span>{item.refrigerantClass}</span></span>}
+          {item.container && <span title={item.container} className={chip()}>{I.cube}<span>{item.container}</span></span>}
+          {item.gwp !== null && <span title={`Współczynnik GWP ${item.gwp}`} className={chip()}>{I.cloud}<span>GWP {item.gwp}</span></span>}
         </div>
       </div>
       <section aria-label="Stan" title="Stan zmienia tylko dokument: PZ, RW, WZ, MM" className="mx-5 mb-4 flex flex-col gap-3 rounded-lg bg-raised p-3">
@@ -184,19 +194,19 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
           ))}
         </dl>
         <div className="flex flex-wrap gap-1">
-          {item.minQuantity > 0 && <span title={low ? `Brakuje ${fmt(item.minQuantity - a, item.unit)}` : 'Minimalny stan'} className={cx(chip, 'bg-surface')}>{I.gauge}min {fmt(item.minQuantity, item.unit)}</span>}
-          {item.reservations.map(r => <Link key={r.id} href={r.ticketId ? `/dashboard/service/${r.ticketId}` : `/dashboard/customers/${r.taskCustomerId}?tab=tasks&filter=all#crm-${r.taskId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} className={cx(chip, 'bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-accent')}>{I.lock}{r.ticketNumber !== null ? ticketCode(r.ticketNumber) : r.taskNumber !== null ? taskNumber(r.taskNumber) : 'Rezerwacja'}</Link>)}
+          {item.minQuantity > 0 && <span title={low ? `Brakuje ${fmt(item.minQuantity - a, item.unit)}` : 'Minimalny stan'} className={chip('bg-surface')}>{I.gauge}min {fmt(item.minQuantity, item.unit)}</span>}
+          {item.reservations.map(r => <Link key={r.id} href={r.ticketId ? `/dashboard/service/${r.ticketId}` : `/dashboard/customers/${r.taskCustomerId}?tab=tasks&filter=all#crm-${r.taskId}`} title={`Rezerwacja ${fmt(r.quantity, item.unit)}`} className={cx(chip('bg-surface'), 'hover:text-primary focus-visible:outline-2 focus-visible:outline-accent')}>{I.lock}{r.ticketNumber !== null ? ticketCode(r.ticketNumber) : r.taskNumber !== null ? taskNumber(r.taskNumber) : 'Rezerwacja'}</Link>)}
         </div>
         <div className="flex flex-wrap gap-1">
-          {manage && <Button size="sm" className={docButton} onClick={() => onDoc('PZ')} icon={I.in}>PZ</Button>}
-          {canIssue && <Button size="sm" className={docButton} onClick={() => onDoc('RW')} icon={I.out}>RW</Button>}
-          {manage && <Button size="sm" className={docButton} onClick={() => onDoc('MM')} icon={I.mm}>MM</Button>}
-          {manage && <Button size="sm" className={docButton} title="Wydanie zewnętrzne" onClick={() => onDoc('WZ')} icon={I.out}>WZ</Button>}
-          {manage && <Button size="sm" className={docButton} aria-expanded={reserve} onClick={() => setReserve(v => !v)} icon={I.lock}>Rezerwuj</Button>}
+          {manage && <Button variant="raised" size="sm" onClick={() => onDoc('PZ')} icon={I.in}>PZ</Button>}
+          {canIssue && <Button variant="raised" size="sm" onClick={() => onDoc('RW')} icon={I.out}>RW</Button>}
+          {manage && <Button variant="raised" size="sm" onClick={() => onDoc('MM')} icon={I.mm}>MM</Button>}
+          {manage && <Button variant="raised" size="sm" title="Wydanie zewnętrzne" onClick={() => onDoc('WZ')} icon={I.out}>WZ</Button>}
+          {manage && <Button variant="raised" size="sm" aria-expanded={reserve} onClick={() => setReserve(v => !v)} icon={I.lock}>Rezerwuj</Button>}
         </div>
         {reserve && <div className="flex items-center gap-1">
-          <select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} className={cx(field, 'h-7 min-w-0 flex-auto rounded-sm bg-surface text-small')}><option value="">Zgłoszenie lub zadanie…</option><optgroup label="Zgłoszenia">{tickets.map(t => <option key={t.id} value={`ticket:${t.id}`}>{ticketCode(t.number)} · {t.subject}</option>)}</optgroup>{tasks.length > 0 && <optgroup label="Zadania">{tasks.map(t => <option key={t.id} value={`task:${t.id}`}>{taskNumber(t.number)} · {t.title} · {t.customer}</option>)}</optgroup>}</select>
-          <input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} className={cx(field, 'h-7 w-16 flex-none rounded-sm bg-surface px-2 text-right text-small')} />
+          <select aria-label="Zgłoszenie" value={rTicket} onChange={e => setRTicket(e.target.value)} className={field({ size: 'sm', width: 'min-w-0 flex-auto', surface: true })}><option value="">Zgłoszenie lub zadanie…</option><optgroup label="Zgłoszenia">{tickets.map(t => <option key={t.id} value={`ticket:${t.id}`}>{ticketCode(t.number)} · {t.subject}</option>)}</optgroup>{tasks.length > 0 && <optgroup label="Zadania">{tasks.map(t => <option key={t.id} value={`task:${t.id}`}>{taskNumber(t.number)} · {t.title} · {t.customer}</option>)}</optgroup>}</select>
+          <input aria-label="Ilość" inputMode="decimal" placeholder={item.unit} value={rQty} onChange={e => setRQty(e.target.value)} className={cx(field({ size: 'sm', width: 'w-16 flex-none', surface: true }), 'text-right')} />
           <Button variant="pri" size="sm" onClick={() => void doReserve()}>OK</Button>
         </div>}
         {err && <p role="alert" className={cx(note, 'text-danger')}>{err}</p>}
@@ -259,7 +269,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
   return (
     <div className="min-w-0 flex-auto px-3 pb-6">
       <div className="flex items-center gap-2 px-2 pb-2">
-        {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" className={chip}>{I.warn}{braki(totalShort)}</span>}
+        {totalShort > 0 && <span title="Pozycje poniżej minimum ustalonego dla samochodu" className={chip()}>{I.warn}{braki(totalShort)}</span>}
         <Spacer />
         {manage && <Button size="sm" onClick={onAddVan} icon={<Plus size={14} className="shrink-0" aria-hidden />}>Samochód</Button>}
         {manage && totalShort > 0 && <Button variant="pri" size="sm" loading={busy} title="Jedno przesunięcie MM z bazy do każdego samochodu z brakami" onClick={() => void refill()} icon={I.mm}>{busy ? 'Księgowanie…' : `Uzupełnij braki (${totalShort})`}</Button>}
@@ -270,7 +280,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
             <HeaderCell layout={layout} col="code" icon={H.code}>Indeks</HeaderCell>
             <HeaderCell layout={layout} col="name" icon={H.name}>Nazwa</HeaderCell>
             <HeaderCell layout={layout} col="base" icon={H.base} align="right" title="Magazyn główny">Baza</HeaderCell>
-            {vans.map(v => <Cell key={v.id} layout={layout} col={`van-${v.id}`} header align="right" title={`${v.name}${v.plate ? ` · ${v.plate}` : ''}`} aria-label={v.name} className="gap-1">{H.van}<PersonAvatar id={v.technicianId!} label={v.technicianLabel ?? v.name} /></Cell>)}
+            {vans.map(v => <Cell key={v.id} layout={layout} col={`van-${v.id}`} header align="right" title={`${v.name}${v.plate ? ` · ${v.plate}` : ''}`} aria-label={v.name} gap={1}>{H.van}<PersonAvatar id={v.technicianId!} label={v.technicianLabel ?? v.name} /></Cell>)}
             <HeaderCell layout={layout} col="total" icon={H.total} align="right">Razem</HeaderCell>
           </HeaderRow>
           {groups.map(g => (
@@ -283,7 +293,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
                   <Cell layout={layout} col="base" align="right" className={cx('tabular-nums', main && i.levels[main.id] ? 'text-primary' : 'text-tertiary')}>{main && i.levels[main.id] ? fmt(i.levels[main.id], i.unit) : '—'}</Cell>
                   {vans.map(v => {
                     const q = i.levels[v.id] ?? 0, min = i.vehicleMins[v.id] ?? 0, miss = short(i, v), key = `${i.id}:${v.id}`, col = `van-${v.id}`;
-                    if (editing === key) return <Cell key={v.id} layout={layout} col={col} align="right"><input autoFocus aria-label={`Minimum ${i.code} w ${v.name}`} inputMode="decimal" value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => void saveMin(i, v)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(null); }} placeholder="min" className={cx(field, 'h-7 w-18 rounded-sm px-2 text-right text-small')} /></Cell>;
+                    if (editing === key) return <Cell key={v.id} layout={layout} col={col} align="right"><input autoFocus aria-label={`Minimum ${i.code} w ${v.name}`} inputMode="decimal" value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => void saveMin(i, v)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(null); }} placeholder="min" className={cx(field({ size: 'sm', width: 'w-18' }), 'text-right')} /></Cell>;
                     const title = `${v.name}: ${fmt(q, i.unit)}${min ? ` · minimum ${fmt(min, i.unit)}` : ' · bez minimum'}${miss ? ` · brakuje ${fmt(miss, i.unit)}` : ''}${manage ? ' · kliknij dwukrotnie, aby ustawić minimum' : ''}`;
                     return (
                       <Cell key={v.id} layout={layout} col={col} align="right" title={title} onDoubleClick={() => { if (manage) { setEditing(key); setDraft(min ? String(min).replace('.', ',') : ''); } }} className={cx('tabular-nums', q || miss ? 'text-primary' : 'text-tertiary', miss ? 'font-medium' : 'font-normal', manage && 'cursor-cell')}>
@@ -298,7 +308,7 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
           ))}
           <Row layout={layout} className="mt-2 text-small text-secondary">
             <Cell layout={layout} col="code" />
-            <Cell layout={layout} col="name" className="gap-1">{I.mm}Do uzupełnienia</Cell>
+            <Cell layout={layout} col="name" gap={1}>{I.mm}Do uzupełnienia</Cell>
             <Cell layout={layout} col="base" />
             {shortages.map((k, idx) => <Cell key={vans[idx]!.id} layout={layout} col={`van-${vans[idx]!.id}`} align="right" className={cx('tabular-nums', k ? 'font-medium text-primary' : 'text-tertiary')}>{k ? braki(k) : '—'}</Cell>)}
             <Cell layout={layout} col="total" />
@@ -363,13 +373,13 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zaksięgować.'); } finally { setBusy(false); }
   }
   const title = kind === 'PZ' ? 'Przyjęcie do magazynu' : kind === 'RW' ? 'Wydanie na zlecenie' : kind === 'WZ' ? 'Wydanie zewnętrzne' : 'Przesunięcie między magazynami';
-  const locSelect = (value: string, set: (v: string) => void, opts: StockLocation[], aria: string) => <select aria-label={aria} value={value} onChange={e => set(e.target.value)} className={field}>{opts.map(l => <option key={l.id} value={l.id}>{l.name}{item ? ` · ${fmt(item.levels[l.id] ?? 0, item.unit)}` : ''}</option>)}</select>;
+  const locSelect = (value: string, set: (v: string) => void, opts: StockLocation[], aria: string) => <select aria-label={aria} value={value} onChange={e => set(e.target.value)} className={field()}>{opts.map(l => <option key={l.id} value={l.id}>{l.name}{item ? ` · ${fmt(item.levels[l.id] ?? 0, item.unit)}` : ''}</option>)}</select>;
   return (
     <Modal title={title} sub={draft ? `${kind} · szkic` : kind} onClose={onClose}>
-      {kind === 'RW' && <select aria-label="Zlecenie" value={ticketId} onChange={e => setTicketId(e.target.value)} className={field}>{!tickets.length && <option value="">Brak otwartych zgłoszeń</option>}{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject} · {t.customer}</option>)}</select>}
-      {kind === 'RW' && ticket && ticket.devices.length > 0 && <select aria-label="Urządzenie" value={deviceId} onChange={e => setDeviceId(e.target.value)} className={field}><option value="">Urządzenie (opcjonalnie)</option>{ticket.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}</select>}
+      {kind === 'RW' && <select aria-label="Zlecenie" value={ticketId} onChange={e => setTicketId(e.target.value)} className={field()}>{!tickets.length && <option value="">Brak otwartych zgłoszeń</option>}{tickets.map(t => <option key={t.id} value={t.id}>{ticketCode(t.number)} · {t.subject} · {t.customer}</option>)}</select>}
+      {kind === 'RW' && ticket && ticket.devices.length > 0 && <select aria-label="Urządzenie" value={deviceId} onChange={e => setDeviceId(e.target.value)} className={field()}><option value="">Urządzenie (opcjonalnie)</option>{ticket.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}</select>}
       <div className="grid grid-cols-2 gap-2">
-        <select aria-label="Pozycja" value={itemId} onChange={e => setItemId(e.target.value)} className={field}>{items.map(i => <option key={i.id} value={i.id}>{i.code} · {i.name}</option>)}</select>
+        <select aria-label="Pozycja" value={itemId} onChange={e => setItemId(e.target.value)} className={field()}>{items.map(i => <option key={i.id} value={i.id}>{i.code} · {i.name}</option>)}</select>
         {kind === 'PZ' ? locSelect(to, setTo, locations, 'Do magazynu') : locSelect(from, setFrom, fromOptions, 'Z magazynu')}
       </div>
       {kind === 'MM' && <label className={label}>Do{locSelect(to, setTo, locations.filter(l => l.id !== from), 'Do magazynu')}</label>}
@@ -377,8 +387,8 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
         <div className="flex flex-col gap-3 rounded-lg bg-raised p-3">
           <div className="flex items-center"><span className="flex-auto text-small leading-4 text-secondary">Ważenie butli</span><button type="button" onClick={() => setWeigh(false)} className={linkButton}>Wpisz ilość ręcznie</button></div>
           <div className="grid grid-cols-3 items-end gap-3">
-            <label className={label}>Masa przed<input inputMode="decimal" value={before} onChange={e => setBefore(e.target.value)} placeholder="0,00" className={cx(field, 'bg-surface text-right')} /></label>
-            <label className={label}>Masa po<input inputMode="decimal" value={after} onChange={e => setAfter(e.target.value)} placeholder="0,00" className={cx(field, 'bg-surface text-right')} /></label>
+            <label className={label}>Masa przed<input inputMode="decimal" value={before} onChange={e => setBefore(e.target.value)} placeholder="0,00" className={cx(field({ surface: true }), 'text-right')} /></label>
+            <label className={label}>Masa po<input inputMode="decimal" value={after} onChange={e => setAfter(e.target.value)} placeholder="0,00" className={cx(field({ surface: true }), 'text-right')} /></label>
             <span className="flex flex-col gap-1 text-small leading-4 text-secondary">Ilość wydana<span className={cx('flex h-control items-center justify-end text-heading leading-6 font-semibold tabular-nums', amount > 0 ? 'text-primary' : 'text-tertiary')}>{amount > 0 ? fmt(Math.round(amount * 1000) / 1000, 'kg') : '—'}</span></span>
           </div>
           <div className="flex items-center"><span className="flex-auto text-small leading-4 text-secondary">Rodzaj operacji</span>
@@ -386,11 +396,11 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
           </div>
         </div>
       ) : (
-        <label className={label}>Ilość ({item?.unit ?? ''}){kind === 'RW' && isGas && <button type="button" onClick={() => setWeigh(true)} className={linkButton}>Ważenie butli</button>}<input inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" className={cx(field, 'text-right')} /></label>
+        <label className={label}>Ilość ({item?.unit ?? ''}){kind === 'RW' && isGas && <button type="button" onClick={() => setWeigh(true)} className={linkButton}>Ważenie butli</button>}<input inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" className={cx(field(), 'text-right')} /></label>
       )}
-      {isGas && <label className={label}>Numer butli<input value={cylinder} maxLength={40} onChange={e => setCylinder(e.target.value)} placeholder="np. B-0417" className={cx(field, 'font-mono')} /></label>}
-      {kind === 'WZ' && <label className={label}>Odbiorca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="Firma lub osoba, nr dokumentu sprzedaży" className={field} /></label>}
-      {kind === 'PZ' && <label className={label}>Dostawca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="np. hurtownia, nr faktury" className={field} /></label>}
+      {isGas && <label className={label}>Numer butli<input value={cylinder} maxLength={40} onChange={e => setCylinder(e.target.value)} placeholder="np. B-0417" className={field({ mono: true })} /></label>}
+      {kind === 'WZ' && <label className={label}>Odbiorca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="Firma lub osoba, nr dokumentu sprzedaży" className={field()} /></label>}
+      {kind === 'PZ' && <label className={label}>Dostawca<input value={supplier} maxLength={120} onChange={e => setSupplier(e.target.value)} placeholder="np. hurtownia, nr faktury" className={field()} /></label>}
       {item && amount > 0 && (
         <div className="flex flex-col gap-2">
           <span className="text-small leading-4 text-secondary">Po zatwierdzeniu</span>
@@ -401,7 +411,7 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
           {kind === 'RW' && item.gwp !== null && <Line l="CO₂e" v={`+${(Math.round(amount * item.gwp) / 1000).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} t`} />}
         </div>
       )}
-      <textarea aria-label="Uwagi" rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="Uwagi" className={cx(field, 'h-auto resize-none py-2')} />
+      <textarea aria-label="Uwagi" rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="Uwagi" className={cx(field({ multiline: true }), 'resize-none')} />
       {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
       <div className="flex items-center gap-2">{draft && <Button variant="ghost" disabled={busy} onClick={() => void dropDraft()}>Usuń szkic</Button>}<Spacer /><Button title="Anuluj" shortcut="Esc" onClick={onClose}>Anuluj</Button><Button disabled={busy} title="Zapisz bez księgowania" onClick={() => void saveDraft()}>Zapisz szkic</Button><Button variant="pri" title="Zatwierdź" shortcut="⌘↵" disabled={!valid} loading={busy} onClick={() => void submit()}>{busy ? 'Księgowanie…' : kind === 'RW' || kind === 'WZ' ? `Wydaj${item && amount > 0 ? ` ${fmt(Math.round(amount * 1000) / 1000, item.unit)}` : ''}` : kind === 'PZ' ? 'Przyjmij' : 'Przesuń'}</Button></div>
     </Modal>
@@ -423,20 +433,20 @@ function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () =
   }
   return (
     <Modal title={item ? 'Edycja pozycji' : 'Nowa pozycja'} onClose={onClose}>
-      <div className="grid grid-cols-3 gap-2">
-        <label className={label}>Indeks<input value={f.code} maxLength={32} onChange={set('code')} placeholder="CZ-R32" className={cx(field, 'font-mono uppercase')} /></label>
-        <label className={cx(label, 'col-span-2')}>Nazwa<input value={f.name} maxLength={160} onChange={set('name')} placeholder="R32" className={field} /></label>
+      <div className="flex gap-2">
+        <label className={cx(label, 'w-35 shrink-0')}>Indeks<input value={f.code} maxLength={32} onChange={set('code')} placeholder="CZ-R32" className={cx(field({ mono: true }), 'uppercase')} /></label>
+        <label className={cx(label, 'min-w-0 flex-auto')}>Nazwa<input value={f.name} maxLength={160} onChange={set('name')} placeholder="R32" className={field()} /></label>
       </div>
-      <div className="grid grid-cols-4 gap-2">
-        <label className={label}>Kategoria<select value={f.category} onChange={set('category')} className={field}>{Object.entries(stockCategories).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-        <label className={label} title={item?.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : undefined}><span className="inline-flex items-center gap-1">Jednostka{item?.unitLocked && I.lock}</span><select value={f.unit} disabled={item?.unitLocked} onChange={set('unit')} className={field}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
-        <label className={label}>Minimum<input inputMode="decimal" value={f.min} onChange={set('min')} className={cx(field, 'text-right')} /></label>
-        <label className={label}>Półka<input value={f.bin} maxLength={20} onChange={set('bin')} placeholder="C-01" className={field} /></label>
+      <div className="flex gap-2">
+        <label className={cx(label, 'min-w-0 flex-auto')}>Kategoria<select value={f.category} onChange={set('category')} className={field()}>{Object.entries(stockCategories).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+        <label className={cx(label, 'w-25 shrink-0')} title={item?.unitLocked ? 'Jednostka zablokowana: pozycja ma już ruchy' : undefined}><span className="inline-flex items-center gap-1">Jednostka{item?.unitLocked && I.lock}</span><select value={f.unit} disabled={item?.unitLocked} onChange={set('unit')} className={field()}>{stockUnits.map(u => <option key={u}>{u}</option>)}</select></label>
+        <label className={cx(label, 'w-30 shrink-0')}>Minimum<input inputMode="decimal" value={f.min} onChange={set('min')} className={cx(field(), 'text-right')} /></label>
+        <label className={cx(label, 'w-25 shrink-0')}>Półka<input value={f.bin} maxLength={20} onChange={set('bin')} placeholder="C-01" className={field()} /></label>
       </div>
       {gas && <div className="grid grid-cols-3 gap-2">
-        <label className={label}>Rodzaj<input value={f.cls} maxLength={20} onChange={set('cls')} placeholder="HFC" className={field} /></label>
-        <label className={label}>GWP<input inputMode="numeric" value={f.gwp} onChange={set('gwp')} placeholder="675" className={cx(field, 'text-right')} /></label>
-        <label className={label}>Opakowanie<input value={f.container} maxLength={40} onChange={set('container')} placeholder="butla 9 kg" className={field} /></label>
+        <label className={label}>Rodzaj<input value={f.cls} maxLength={20} onChange={set('cls')} placeholder="HFC" className={field()} /></label>
+        <label className={label}>GWP<input inputMode="numeric" value={f.gwp} onChange={set('gwp')} placeholder="675" className={cx(field(), 'text-right')} /></label>
+        <label className={label}>Opakowanie<input value={f.container} maxLength={40} onChange={set('container')} placeholder="butla 9 kg" className={field()} /></label>
       </div>}
       {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
       <div className="flex justify-end gap-2"><Button onClick={onClose}>Anuluj</Button><Button variant="pri" disabled={!f.code || !f.name} loading={busy} onClick={() => void save()}>{busy ? 'Zapisywanie…' : 'Zapisz'}</Button></div>
@@ -455,8 +465,8 @@ function VehicleDialog({ technicians, onClose, onDone }: { technicians: { id: st
   return (
     <Modal title="Samochód technika" onClose={onClose}>
       {!technicians.length ? <p className="m-0 text-secondary">Każdy aktywny technik ma już samochód.</p> : <>
-        <label className={label}>Technik<select value={tech} onChange={e => setTech(e.target.value)} className={field}>{technicians.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
-        <div className="grid grid-cols-3 gap-2"><label className={cx(label, 'col-span-2')}>Nazwa<input value={name} maxLength={80} onChange={e => setName(e.target.value)} placeholder={def} className={field} /></label><label className={label}>Rejestracja<input value={plate} maxLength={20} onChange={e => setPlate(e.target.value)} placeholder="GD 2N551" className={field} /></label></div>
+        <label className={label}>Technik<select value={tech} onChange={e => setTech(e.target.value)} className={field()}>{technicians.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+        <div className="flex gap-2"><label className={cx(label, 'min-w-0 flex-auto')}>Nazwa<input value={name} maxLength={80} onChange={e => setName(e.target.value)} placeholder={def} className={field()} /></label><label className={cx(label, 'w-40 shrink-0')}>Rejestracja<input value={plate} maxLength={20} onChange={e => setPlate(e.target.value)} placeholder="GD 2N551" className={field()} /></label></div>
       </>}
       {err && <p role="alert" className="m-0 text-small leading-4 text-danger">{err}</p>}
       <div className="flex justify-end gap-2"><Button onClick={onClose}>Anuluj</Button>{technicians.length > 0 && <Button variant="pri" disabled={!tech} onClick={() => void save()}>Dodaj</Button>}</div>
