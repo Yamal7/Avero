@@ -1,14 +1,22 @@
 'use client';
-/* Zadania — list + record panel, ported 1:1 from the design artboard "Zadania · jasny" (inline styles copied from the rendered design). */
+/* Zadania — lista w jednej linii + panel zadania (M0.3, KRA-63): wspólna tabela z src/components/table
+   (wiersz 36 px, kolumny do tytułu przypięte, przewijanie ←/→, klient jako logo z kartą podglądu). Tailwind na tokenach. */
 import Link from 'next/link';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { crmTaskCommentSchema, crmTaskCommentsSchema, crmTaskLinkOptionsSchema, crmTaskMetaSchema, taskPlanChangeSchema, taskPlanContextSchema, type CrmTaskLink, crmTaskProgressSchema, crmTaskSchema, type CrmTaskComment, type MyTask, type MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
 import { SavedViewPills, ViewOptions, useCollectionView, type ViewState } from './collection-view';
 import { PriorityIcon, StatusIcon } from '@/components/glyphs';
+import { CustomerLogo } from '@/components/table/customer-logo';
+import { Cell, GroupBar, Row, RowGroup, TableMessage } from '@/components/table/table';
+import { TableScroll } from '@/components/table/table-scroll';
+import { Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
+import { Button, buttonClasses } from '@/components/ui/button';
+import { columnLayout, type ColumnSpec } from '@/lib/table/columns';
 import { isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from '@/lib/tasks/labels';
-import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, CaretDown, FunnelSimple, LinkIcon, Plus, SidebarSimple, SlidersHorizontal, X } from '@phosphor-icons/react/ssr';
+import { cx } from '@/lib/cx';
+import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, FunnelSimple, LinkIcon, Plus, SidebarSimple, SlidersHorizontal, X } from '@phosphor-icons/react/ssr';
 
 type Task = MyTask;
 type State = Task['state'];
@@ -22,26 +30,39 @@ const groupOrder: State[] = ['in_progress', 'review', 'todo', 'backlog', 'done',
 type Progress = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
 const progressStates: Progress[] = ['backlog', 'todo', 'in_progress', 'review', 'done'];
 
-/* ── shared inline styles from the design ── */
-const ib = (size: number, color = 'var(--text-secondary)'): CSSProperties => ({ width: size, height: size, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 0, borderRadius: '50%', background: 'transparent', color, padding: 0 });
-const capd: CSSProperties = { height: 28, display: 'inline-flex', flexDirection: 'row', alignItems: 'center', gap: 6, padding: '0 10px 0 8px', margin: 0, border: 0, borderRadius: 14, maxWidth: '100%', fontSize: 13, lineHeight: '20px', fontWeight: 400, color: 'var(--text-primary)' };
-const pickerStyle: CSSProperties = { position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', minHeight: 0 };
-const avatar = (size: number, font: number): CSSProperties => ({ width: size, height: size, borderRadius: '50%', background: 'var(--bg-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: font, lineHeight: '10px', fontWeight: 600, color: 'var(--text-secondary)', flex: '0 0 auto' });
+/* Kropki etykiet w kolorach ikon (--ic-*); wartości rgb z labels.ts przechodzą na tokeny zmieniające się z motywem. */
+const labelDot: Record<TaskLabel, string> = { purchasing: 'bg-ic-orange', offers: 'bg-ic-indigo', fgas: 'bg-ic-teal', documents: 'bg-ic-slate', customers: 'bg-ic-blue', warranty: 'bg-ic-violet', contracts: 'bg-ic-blue', tools: 'bg-ic-slate', internal: 'bg-ic-slate' };
+const Dot = ({ label, small = false }: { label: TaskLabel; small?: boolean }) => <span aria-hidden="true" className={cx('inline-block shrink-0 rounded-pill', small ? 'size-1.5' : 'size-2', labelDot[label])} />;
+const avatarClasses = (size: 16 | 20, bg: 'bg-subtle' | 'bg-surface' = 'bg-subtle') => cx('inline-flex shrink-0 items-center justify-center rounded-pill font-semibold leading-none text-secondary', size === 16 ? 'size-4 text-micro' : 'size-5 text-micro', bg);
+/* Kapsułka właściwości w panelu (28 px, pełne zaokrąglenie); wybór przez niewidoczny <select> na całej kapsułce. */
+const capsuleBase = 'relative m-0 inline-flex h-7 flex-row max-w-full min-w-0 items-center gap-2 rounded-pill bg-subtle py-0 font-sans text-body leading-5 transition-colors focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-accent';
+const capsulePad = { default: 'pr-3 pl-2', avatar: 'pr-3 pl-1', icon: 'w-7 justify-center px-0', wide: 'px-3' } as const;
+/** Kapsułka: wcięcie, kolor i grubość tekstu są parametrami (nie doklejanymi klasami), bo cx nie rozstrzyga konfliktów klas. */
+const capsule = ({ pad = 'default', color = 'text-primary', weight = 'font-normal', editable = true, pointer = true }: { pad?: keyof typeof capsulePad; color?: string; weight?: 'font-normal' | 'font-medium'; editable?: boolean; pointer?: boolean } = {}) =>
+  cx(capsuleBase, capsulePad[pad], color, weight, editable && 'hover:bg-border', pointer ? 'cursor-pointer' : 'cursor-default');
+const picker = 'absolute inset-0 m-0 size-full min-h-0 cursor-pointer appearance-none border-0 p-0 opacity-0 disabled:cursor-not-allowed';
+const note = 'm-0 text-small leading-4';
 
 const addDays = (day: string, n: number) => { const d = new Date(day + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const short = (day: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, day: 'numeric', month: 'short' }).format(new Date(day + 'T12:00:00Z')).replace('.', '');
 const longDay = (day: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(day + 'T12:00:00Z'));
-const stamp = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, dateStyle: 'long', timeStyle: 'short' }).format(new Date(v));
+const stamp = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(v));
 const stampShort = (v: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, day: 'numeric', month: 'short' }).format(new Date(v)).replace('.', '');
 const initials = (label: string) => label.split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0]!.toUpperCase()).join('') || '?';
 const open = (t: Task) => isOpenTask(t.state);
 function dueLabel(t: Task, today: string) {
-  if (open(t) && t.dueOn < today) return { text: short(t.dueOn), title: 'Po terminie', icon: <CalendarX size={14} className="shrink-0 text-danger" aria-hidden />, color: 'var(--danger)', weight: 500 };
-  if (t.dueOn === today) return { text: 'Dziś', title: 'Termin dziś', icon: <CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />, color: 'var(--text-primary)', weight: 500 };
-  if (t.dueOn === addDays(today, 1)) return { text: 'Jutro', title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'var(--text-secondary)', weight: 400 };
-  return { text: short(t.dueOn), title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'var(--text-secondary)', weight: 400 };
+  if (open(t) && t.dueOn < today) return { text: short(t.dueOn), title: 'Po terminie', icon: <CalendarX size={14} className="shrink-0 text-danger" aria-hidden />, color: 'text-danger', weight: 'font-medium' as const };
+  if (t.dueOn === today) return { text: 'Dziś', title: 'Termin dziś', icon: <CalendarDot size={14} className="shrink-0 text-warning" aria-hidden />, color: 'text-primary', weight: 'font-medium' as const };
+  if (t.dueOn === addDays(today, 1)) return { text: 'Jutro', title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'text-secondary', weight: 'font-normal' as const };
+  return { text: short(t.dueOn), title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'text-secondary', weight: 'font-normal' as const };
 }
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
+/* Wszystkie możliwe kolumny; widoczne wybiera Opcje widoku. Do tytułu (główna) przypięte. */
+const allColumns: (ColumnSpec & { view?: string })[] = [
+  { key: 'priority', width: 14, view: 'priority' }, { key: 'number', width: 56, view: 'number' }, { key: 'status', width: 14 },
+  { key: 'title', fr: 1, main: true }, { key: 'customer', width: 20, view: 'customer' }, { key: 'label', width: 112, view: 'label' },
+  { key: 'due', width: 76, view: 'due' }, { key: 'assignee', width: 20, view: 'assignee' },
+];
 
 export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, search, board, footer, canPlan = false }: { canPlan?: boolean; data: MyTasks; header: ReactNode; toolbarTabs: ReactNode; toolbarExtra?: ReactNode; layoutSwitch: ReactNode; search: ReactNode; board?: ReactNode; footer?: ReactNode }) {
   const router = useRouter();
@@ -82,12 +103,12 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
   const assignees = [...new Map(items.map(t => [t.assigneeId, t.assigneeLabel])).entries()];
   const groups: Group[] = (vs.group === 'none' ? [{ key: 'all', label: 'Wszystkie zadania', icon: null, test: () => true }]
     : vs.group === 'priority' ? (Object.keys(priorityRank) as Priority[]).map(p => ({ key: `p-${p}`, label: priorityLabel[p], icon: <PriorityIcon priority={p} />, test: (t: Task) => t.priority === p }))
-    : vs.group === 'label' ? [...(Object.keys(taskLabels) as TaskLabel[]).map(l => ({ key: `l-${l}`, label: taskLabels[l].name, icon: <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: taskLabels[l].color }} />, test: (t: Task) => t.label === l })), { key: 'l-none', label: 'Bez etykiety', icon: null, test: (t: Task) => !t.label }]
-    : vs.group === 'assignee' ? assignees.map(([id, label]) => ({ key: `a-${id}`, label, icon: <span aria-hidden="true" style={avatar(16, 8)}>{initials(label)}</span>, test: (t: Task) => t.assigneeId === id }))
+    : vs.group === 'label' ? [...(Object.keys(taskLabels) as TaskLabel[]).map(l => ({ key: `l-${l}`, label: taskLabels[l].name, icon: <Dot label={l} />, test: (t: Task) => t.label === l })), { key: 'l-none', label: 'Bez etykiety', icon: null, test: (t: Task) => !t.label }]
+    : vs.group === 'assignee' ? assignees.map(([id, label]) => ({ key: `a-${id}`, label, icon: <span aria-hidden="true" className={avatarClasses(16)}>{initials(label)}</span>, test: (t: Task) => t.assigneeId === id }))
     : groupOrder.map(st => ({ key: st, label: stateLabel[st], icon: <StatusIcon state={st} />, test: (t: Task) => t.state === st })))
     .map(g => ({ key: g.key, label: g.label, icon: g.icon, rows: shownItems.filter(g.test) }))
     .filter(g => g.rows.length || (vs.showEmpty && (vs.showDone || !['done', 'cancelled'].includes(g.key))));
-  const grid = [col('priority') && '14px', col('number') && '56px', '14px', 'minmax(0px, 1fr)', col('label') && 'auto', col('due') && '76px', col('assignee') && '20px'].filter(Boolean).join(' ');
+  const layout = columnLayout(allColumns.filter(c => !c.view || col(c.view)));
   const visible = groups.flatMap(g => collapsed[g.key] ? [] : g.rows);
 
   useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
@@ -163,123 +184,117 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
   }
   async function copyLink() { if (!selected) return; try { await navigator.clipboard.writeText(new URL(myTaskCustomerHref(selected), location.origin).toString()); setCopied(true); } catch { setError('Nie udało się skopiować linku.'); } }
 
+  const n = layout.keys.length;
   return (
-    <main className="dk" style={{ flex: '1 1 auto', minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
+    <TablePage>
       {header}
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, padding: '8px 12px 8px 16px' }}>
+      <Toolbar>
         {toolbarTabs}
         <SavedViewPills view={view} />
-        <span style={{ flex: '1 1 auto' }} />
+        <Spacer />
         {showSearch && search}
-        <button type="button" className={`ib${showSearch ? ' on' : ''}`} aria-label="Filtruj" title="Szukaj zadania lub klienta  F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} style={ib(28)}><FunnelSimple size={16} className="shrink-0" aria-hidden /></button>
+        <Button variant="icon" size="sm" aria-label="Filtruj" title="Szukaj zadania lub klienta" shortcut="F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} icon={<FunnelSimple size={16} className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />
         {layoutSwitch}
-        {!board && <span style={{ position: 'relative', display: 'inline-flex' }}>
-          <button type="button" data-view-options-trigger className={`ib${optionsOpen ? ' on' : ''}`} aria-label="Opcje widoku" title="Opcje widoku  V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} style={ib(28)}><SlidersHorizontal size={16} className="shrink-0" aria-hidden /></button>
+        {!board && <span className="relative inline-flex">
+          <Button variant="icon" size="sm" data-view-options-trigger aria-label="Opcje widoku" title="Opcje widoku" shortcut="V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} icon={<SlidersHorizontal size={16} className="shrink-0" aria-hidden />} className="aria-expanded:bg-subtle aria-expanded:text-primary" />
           {optionsOpen && <ViewOptions view={view} onClose={() => setOptionsOpen(false)}
             groups={[{ value: 'status', label: 'Status' }, { value: 'priority', label: 'Priorytet' }, { value: 'label', label: 'Etykieta' }, { value: 'assignee', label: 'Osoba' }, { value: 'none', label: 'Bez grupowania' }]}
             sorts={[{ value: 'priority', label: 'Priorytet' }, { value: 'due', label: 'Termin' }, { value: 'number', label: 'Numer' }, { value: 'created', label: 'Utworzone' }]}
             columns={[{ value: 'priority', label: 'Priorytet' }, { value: 'number', label: 'Numer' }, { value: 'customer', label: 'Klient' }, { value: 'label', label: 'Etykieta' }, { value: 'due', label: 'Termin' }, { value: 'assignee', label: 'Osoba' }]}
-            filters={[{ key: 'priority', label: 'priorytet', options: (Object.keys(priorityRank) as Priority[]).map(p => ({ value: p, label: priorityLabel[p] })) }, { key: 'label', label: 'etykieta', options: (Object.keys(taskLabels) as TaskLabel[]).map(l => ({ value: l, label: taskLabels[l].name, dot: <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[l].color }} /> })) }]} />}
+            filters={[{ key: 'priority', label: 'priorytet', options: (Object.keys(priorityRank) as Priority[]).map(p => ({ value: p, label: priorityLabel[p] })) }, { key: 'label', label: 'etykieta', options: (Object.keys(taskLabels) as TaskLabel[]).map(l => ({ value: l, label: taskLabels[l].name, dot: <Dot label={l} small /> })) }]} />}
         </span>}
-        {!board && <button type="button" className={`ib${panelOn ? ' on' : ''}`} aria-label="Panel szczegółów" title="Panel szczegółów  ]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} style={ib(28)}><SidebarSimple size={16} mirrored className="shrink-0" aria-hidden /></button>}
+        {!board && <Button variant="icon" size="sm" aria-label="Panel szczegółów" title="Panel szczegółów" shortcut="]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
         {toolbarExtra}
-      </div>
-      {board ?? <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'stretch', minHeight: 0 }}>
-        <div style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16, padding: '4px 12px 24px' }}>
-          {notice && <p role="status" style={{ margin: '0 8px', fontSize: 12, color: 'var(--success)' }}>{notice}</p>}
-          {items.length === 0 && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, padding: '16px 8px', color: 'var(--text-secondary)' }}><span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Brak zadań w tym widoku</span><span>Wybierz inny widok lub zmień wyszukiwanie. Nowe zadanie dodasz w karcie klienta.</span></div>}
-          {items.length > 0 && !groups.length && <p style={{ margin: 0, padding: '16px 8px', color: 'var(--text-secondary)' }}>Żadne zadanie nie pasuje do filtrów widoku. Zmień je w Opcjach widoku albo przywróć domyślne.</p>}
-          {items.length > 0 && groups.map(g => {
-            const isCollapsed = !!collapsed[g.key];
-            return (
-              <section key={g.key} style={{ display: 'flex', flexDirection: 'column' }}>
-                <div className="grp" style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36, padding: '0 6px 0 4px', borderRadius: 10, marginBottom: 4 }}>
-                  <button type="button" aria-expanded={!isCollapsed} onClick={() => setCollapsed(c => ({ ...c, [g.key]: !isCollapsed }))} style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, height: 28, padding: '0 6px', border: 0, borderRadius: 8, background: 'transparent', textAlign: 'left' }}>
-                    <span className="caret" style={{ display: 'inline-flex', color: 'var(--text-tertiary)', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}><CaretDown size={14} className="shrink-0" aria-hidden /></span>
-                    {g.icon}
-                    <h2 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>{g.label}</h2>
-                    <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{g.rows.length}</span>
-                  </button>
-                </div>
-                {!isCollapsed && <div style={{ overflowX: 'auto', margin: '0 -8px' }}><div style={{ minWidth: 600 }}>
-                  {g.rows.map(t => {
-                    const due = dueLabel(t, data.today), sel = t.id === selected?.id;
-                    return (
-                      <a key={t.id} id={`task-${t.id}`} href={myTaskCustomerHref(t)} className={`row${sel ? ' sel' : ''}`} aria-current={sel ? 'true' : undefined}
-                        onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); select(t); }}
-                        style={{ display: 'grid', gridTemplateColumns: grid, alignItems: 'center', columnGap: 12, height: 36, padding: '0 8px', borderRadius: 10 }}>
-                        {col('priority') && <span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} style={{ display: 'inline-flex', alignItems: 'center' }}><PriorityIcon priority={t.priority} /></span>}
-                        {col('number') && <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(t.number)}</span>}
-                        <span role="img" aria-label={stateLabel[t.state]} title={stateLabel[t.state]} style={{ display: 'inline-flex', alignItems: 'center' }}><StatusIcon state={t.state} /></span>
-                        <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
-                          <span className="ell" style={{ flex: '0 1 auto', fontWeight: 500 }}>{t.title}</span>
-                          {t.link && <span className="mono" title={`${linkKind[t.link.kind]}: ${t.link.title}`} style={{ flex: '0 0 auto', fontSize: 11, color: 'var(--text-tertiary)' }}>{t.link.code}</span>}
-                          {col('customer') && <span className="ell" style={{ flex: '0 10000 auto', fontSize: 12, color: 'var(--text-tertiary)' }}>{t.customerName}</span>}
-                        </span>
-                        {col('label') && <span style={{ display: 'flex', justifyContent: 'flex-end' }}>{t.label && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 20, padding: '0 6px', borderRadius: 6, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', background: 'var(--bg-subtle)' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: taskLabels[t.label].color }} />{taskLabels[t.label].name}</span>}</span>}
-                        {col('due') && <span className="num" title={`${due.title}: ${longDay(t.dueOn)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, fontSize: 12, color: due.color, fontWeight: due.weight }}>{due.icon}<span>{due.text}</span></span>}
-                        {col('assignee') && <span style={{ display: 'flex', justifyContent: 'flex-end' }}><span title={t.assigneeLabel} style={avatar(20, 9)}>{initials(t.assigneeLabel)}</span></span>}
-                      </a>
-                    );
-                  })}
-                </div></div>}
-              </section>
-            );
-          })}
+      </Toolbar>
+      {board ?? <div className="flex min-h-0 flex-auto items-stretch">
+        <div className="flex min-w-0 flex-auto flex-col gap-4 px-3 pt-1 pb-6">
+          {notice && <p role="status" className={cx(note, 'mx-2 text-success')}>{notice}</p>}
+          <TableScroll layout={layout} label="Zadania">
+            {items.length === 0 && <TableMessage columns={n}>Brak zadań w tym widoku. Wybierz inny widok lub zmień wyszukiwanie — nowe zadanie dodasz w karcie klienta.</TableMessage>}
+            {items.length > 0 && !groups.length && <TableMessage columns={n} action={<Button size="sm" onClick={view.reset} disabled={view.isDefault}>Przywróć domyślne</Button>}>Żadne zadanie nie pasuje do filtrów widoku.</TableMessage>}
+            {items.length > 0 && groups.map(g => {
+              const isCollapsed = !!collapsed[g.key];
+              return (
+                <RowGroup key={g.key} label={g.label}>
+                  <GroupBar columns={n} label={g.label} count={g.rows.length} icon={g.icon} collapsed={isCollapsed} onToggle={() => setCollapsed(c => ({ ...c, [g.key]: !isCollapsed }))} />
+                  {!isCollapsed && <div className="mb-4 flex flex-col">
+                    {g.rows.map(t => {
+                      const due = dueLabel(t, data.today), sel = t.id === selected?.id;
+                      return (
+                        <Row key={t.id} id={`task-${t.id}`} layout={layout} interactive selected={sel} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey || (e.target as HTMLElement).closest('a')) return; select(t); }}>
+                          {col('priority') && <Cell layout={layout} col="priority"><span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} className="inline-flex"><PriorityIcon priority={t.priority} /></span></Cell>}
+                          {col('number') && <Cell layout={layout} col="number" className="font-mono text-small text-tertiary">{taskNumber(t.number)}</Cell>}
+                          <Cell layout={layout} col="status"><span role="img" aria-label={stateLabel[t.state]} title={stateLabel[t.state]} className="inline-flex"><StatusIcon state={t.state} /></span></Cell>
+                          <Cell layout={layout} col="title">
+                            <a href={myTaskCustomerHref(t)} aria-current={sel ? 'true' : undefined} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); select(t); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{t.title}</a>
+                            {t.link && <span title={`${linkKind[t.link.kind]}: ${t.link.title}`} className="shrink-0 font-mono text-micro text-tertiary">{t.link.code}</span>}
+                          </Cell>
+                          {col('customer') && <Cell layout={layout} col="customer"><CustomerLogo name={t.customerName} href={`/dashboard/customers/${t.customerId}`} /></Cell>}
+                          {col('label') && <Cell layout={layout} col="label" align="right">{t.label && <span className="inline-flex h-5 items-center gap-1 rounded-xs bg-subtle px-2 text-small leading-4 whitespace-nowrap text-secondary"><Dot label={t.label} small />{taskLabels[t.label].name}</span>}</Cell>}
+                          {col('due') && <Cell gap={1} layout={layout} col="due" align="right" title={`${due.title}: ${longDay(t.dueOn)}`} className={cx('text-small tabular-nums', due.color, due.weight)}>{due.icon}<span>{due.text}</span></Cell>}
+                          {col('assignee') && <Cell layout={layout} col="assignee" align="right"><span title={t.assigneeLabel} className={avatarClasses(20)}>{initials(t.assigneeLabel)}</span></Cell>}
+                        </Row>
+                      );
+                    })}
+                  </div>}
+                </RowGroup>
+              );
+            })}
+          </TableScroll>
         </div>
         {selected && (
-          <aside ref={panelRef} aria-label={`Szczegóły zadania: ${selected.title}`} className="tl-panel" style={{ flex: '0 0 400px', minWidth: 0, borderLeft: '1px solid var(--edge)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 44, padding: '0 8px 0 20px' }}>
-              <span className="num" style={{ color: 'var(--text-tertiary)' }}>{taskNumber(selected.number)}</span>
-              <span style={{ flex: '1 1 auto' }} />
-              <button type="button" className="ib" aria-label="Kopiuj link" title={copied ? 'Skopiowano' : 'Kopiuj link'} onClick={copyLink} style={ib(24)}><LinkIcon size={16} className="shrink-0" aria-hidden /></button>
-              <Link className="ib" href={myTaskCustomerHref(selected)} aria-label="Otwórz w karcie klienta" title="Otwórz w karcie klienta" style={ib(24)}><BuildingOffice size={16} className="shrink-0" aria-hidden /></Link>
-              <button type="button" className="ib" aria-label="Zamknij panel" title="Zamknij  Esc" onClick={() => setPanelOn(false)} style={ib(24)}>{<X size={16} className="shrink-0" aria-hidden />}</button>
+          <aside ref={panelRef} aria-label={`Szczegóły zadania: ${selected.title}`} className="flex w-100 min-w-0 flex-none flex-col border-l border-edge max-panel:fixed max-panel:inset-y-0 max-panel:right-0 max-panel:z-40 max-panel:w-full max-panel:max-w-110 max-panel:overflow-y-auto max-panel:bg-surface max-panel:shadow-modal">
+            <div className="flex h-11 items-center gap-1 pr-2 pl-5">
+              <span className="font-mono text-small text-tertiary">{taskNumber(selected.number)}</span>
+              <Spacer />
+              <Button variant="icon" size="sm" aria-label="Kopiuj link" title={copied ? 'Skopiowano' : 'Kopiuj link'} onClick={copyLink} icon={<LinkIcon size={16} className="shrink-0" aria-hidden />} />
+              <Link href={myTaskCustomerHref(selected)} aria-label="Otwórz w karcie klienta" title="Otwórz w karcie klienta" className={buttonClasses({ variant: 'icon', size: 'sm' })}><BuildingOffice size={16} className="shrink-0" aria-hidden /></Link>
+              <Button variant="icon" size="sm" aria-label="Zamknij panel" title="Zamknij" shortcut="Esc" onClick={() => setPanelOn(false)} icon={<X size={16} className="shrink-0" aria-hidden />} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 20px 16px' }}>
-              <h2 style={{ margin: 0, fontSize: 15, lineHeight: '22px', fontWeight: 600, letterSpacing: '-0.01em' }}>{selected.title}</h2>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>{selected.description || 'Brak dodatkowego opisu.'}</p>
+            <div className="flex flex-col gap-2 px-5 pt-1 pb-4">
+              <h2 className="m-0 font-sans text-heading leading-6 font-semibold tracking-tight text-primary">{selected.title}</h2>
+              <p className="m-0 whitespace-pre-wrap text-secondary">{selected.description || 'Brak dodatkowego opisu.'}</p>
             </div>
-            <div aria-label="Właściwości zadania" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '0 20px 16px' }}>
-              <label className="capd" title="Status  S" style={{ ...capd, position: 'relative', cursor: selected.state === 'cancelled' ? 'default' : 'pointer' }}><StatusIcon state={selected.state} />{stateLabel[selected.state]}{selected.state !== 'cancelled' && <select aria-label="Status" value={selected.state} disabled={busy || conflict} onChange={e => void saveState(e.target.value as Progress)} style={pickerStyle}>{progressStates.map(k => <option key={k} value={k}>{stateLabel[k]}</option>)}</select>}</label>
-              <label className="capd" title="Priorytet" style={{ ...capd, position: 'relative', cursor: 'pointer' }}><PriorityIcon priority={selected.priority} />{priorityLabel[selected.priority]}<select aria-label="Priorytet" value={selected.priority} disabled={busy} onChange={e => void saveMeta(e.target.value as Priority, selected.label)} style={pickerStyle}>{(Object.keys(priorityLabel) as Priority[]).map(k => <option key={k} value={k}>{priorityLabel[k]}</option>)}</select></label>
-              <label className="capd" title="Osoba" style={{ ...capd, padding: '0 10px 0 4px', position: 'relative', cursor: canPlan && open(selected) ? 'pointer' : 'default' }}><span aria-hidden="true" style={{ ...avatar(20, 9), background: 'var(--bg-surface)' }}>{initials(selected.assigneeLabel)}</span>{selected.assigneeLabel}{canPlan && open(selected) && people.length > 0 && <select aria-label="Osoba" value={selected.assigneeId} disabled={busy || conflict} onChange={e => savePlan(e.target.value, selected.dueOn)} style={pickerStyle}>{!people.some(p => p.id === selected.assigneeId) && <option value={selected.assigneeId}>{selected.assigneeLabel}</option>}{people.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}</select>}</label>
-              {(() => { const d = dueLabel(selected, data.today); return <label className="capd" title={`Termin: ${longDay(selected.dueOn)}`} style={{ ...capd, fontWeight: 500, color: d.color, position: 'relative', cursor: canPlan && open(selected) ? 'pointer' : 'default' }}>{d.icon}{d.text}{canPlan && open(selected) && <input type="date" aria-label="Termin" value={selected.dueOn} disabled={busy || conflict} onClick={e => { try { e.currentTarget.showPicker(); } catch {} }} onChange={e => { if (e.target.value) savePlan(selected.assigneeId, e.target.value); }} style={{ ...pickerStyle, border: 0, padding: 0 }} />}</label>; })()}
-              <label className="capd" title="Etykieta" style={{ ...capd, padding: selected.label ? '0 10px' : 0, width: selected.label ? undefined : 28, justifyContent: 'center', position: 'relative', cursor: 'pointer', color: selected.label ? undefined : 'var(--text-secondary)' }}>{selected.label ? <><span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: taskLabels[selected.label].color }} />{taskLabels[selected.label].name}</> : <Plus size={14} className="shrink-0" aria-hidden />}<select aria-label="Etykieta" value={selected.label ?? ''} disabled={busy} onChange={e => void saveMeta(selected.priority, (e.target.value || null) as TaskLabel | null)} style={pickerStyle}><option value="">Bez etykiety</option>{(Object.keys(taskLabels) as TaskLabel[]).map(k => <option key={k} value={k}>{taskLabels[k].name}</option>)}</select></label>
-              <label className="capd" title={selected.link ? `${linkKind[selected.link.kind]}: ${selected.link.title}` : 'Powiąż ze zgłoszeniem, zleceniem lub ofertą'} style={{ ...capd, padding: selected.link ? '0 10px 0 8px' : 0, width: selected.link ? undefined : 28, justifyContent: 'center', position: 'relative', cursor: 'pointer', color: selected.link ? undefined : 'var(--text-secondary)' }} onPointerDown={() => void loadLinks()} onFocus={() => void loadLinks()}>
-                {selected.link ? <><span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><LinkIcon size={16} className="shrink-0" aria-hidden /></span><span className="mono" style={{ fontSize: 12 }}>{selected.link.code}</span></> : <span style={{ display: 'inline-flex' }}><LinkIcon size={16} className="shrink-0" aria-hidden /></span>}
-                <select aria-label="Powiązane zlecenie" value={selected.link?.id ?? ''} disabled={busy || conflict} onChange={e => saveLink(e.target.value)} style={pickerStyle}>
+            <div aria-label="Właściwości zadania" className="flex flex-wrap gap-2 px-5 pb-4">
+              <label title="Status  S" className={capsule({ pointer: selected.state !== 'cancelled' })}><StatusIcon state={selected.state} />{stateLabel[selected.state]}{selected.state !== 'cancelled' && <select aria-label="Status" value={selected.state} disabled={busy || conflict} onChange={e => void saveState(e.target.value as Progress)} className={picker}>{progressStates.map(k => <option key={k} value={k}>{stateLabel[k]}</option>)}</select>}</label>
+              <label title="Priorytet" className={capsule()}><PriorityIcon priority={selected.priority} />{priorityLabel[selected.priority]}<select aria-label="Priorytet" value={selected.priority} disabled={busy} onChange={e => void saveMeta(e.target.value as Priority, selected.label)} className={picker}>{(Object.keys(priorityLabel) as Priority[]).map(k => <option key={k} value={k}>{priorityLabel[k]}</option>)}</select></label>
+              <label title="Osoba" className={capsule({ pad: 'avatar', pointer: canPlan && open(selected) })}><span aria-hidden="true" className={avatarClasses(20, 'bg-surface')}>{initials(selected.assigneeLabel)}</span>{selected.assigneeLabel}{canPlan && open(selected) && people.length > 0 && <select aria-label="Osoba" value={selected.assigneeId} disabled={busy || conflict} onChange={e => savePlan(e.target.value, selected.dueOn)} className={picker}>{!people.some(p => p.id === selected.assigneeId) && <option value={selected.assigneeId}>{selected.assigneeLabel}</option>}{people.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}</select>}</label>
+              {(() => { const d = dueLabel(selected, data.today); return <label title={`Termin: ${longDay(selected.dueOn)}`} className={capsule({ color: d.color, weight: 'font-medium', pointer: canPlan && open(selected) })}>{d.icon}{d.text}{canPlan && open(selected) && <input type="date" aria-label="Termin" value={selected.dueOn} disabled={busy || conflict} onClick={e => { try { e.currentTarget.showPicker(); } catch {} }} onChange={e => { if (e.target.value) savePlan(selected.assigneeId, e.target.value); }} className={picker} />}</label>; })()}
+              <label title="Etykieta" className={capsule(selected.label ? {} : { pad: 'icon', color: 'text-secondary' })}>{selected.label ? <><Dot label={selected.label} />{taskLabels[selected.label].name}</> : <Plus size={14} className="shrink-0" aria-hidden />}<select aria-label="Etykieta" value={selected.label ?? ''} disabled={busy} onChange={e => void saveMeta(selected.priority, (e.target.value || null) as TaskLabel | null)} className={picker}><option value="">Bez etykiety</option>{(Object.keys(taskLabels) as TaskLabel[]).map(k => <option key={k} value={k}>{taskLabels[k].name}</option>)}</select></label>
+              <label title={selected.link ? `${linkKind[selected.link.kind]}: ${selected.link.title}` : 'Powiąż ze zgłoszeniem, zleceniem lub ofertą'} className={capsule(selected.link ? {} : { pad: 'icon', color: 'text-secondary' })} onPointerDown={() => void loadLinks()} onFocus={() => void loadLinks()}>
+                {selected.link ? <><LinkIcon size={16} className="shrink-0 text-tertiary" aria-hidden /><span className="font-mono text-small">{selected.link.code}</span></> : <LinkIcon size={16} className="shrink-0" aria-hidden />}
+                <select aria-label="Powiązane zlecenie" value={selected.link?.id ?? ''} disabled={busy || conflict} onChange={e => saveLink(e.target.value)} className={picker}>
                   <option value="">Bez powiązania</option>
                   {selected.link && !links?.some(l => l.id === selected.link!.id) && <option value={selected.link.id}>{selected.link.code} · {selected.link.title}</option>}
                   {links === null ? <option disabled value="__loading">Wczytywanie…</option> : links.map(l => <option key={l.id} value={l.id}>{l.code} · {l.title}</option>)}
                 </select>
               </label>
-              {selected.contactLabel && <span className="capd" title="Osoba kontaktowa" style={{ ...capd, padding: '0 10px' }}><span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgb(59, 130, 214)' }} />{selected.contactLabel}</span>}
+              {selected.contactLabel && <span title="Osoba kontaktowa" className={capsule({ pad: 'wide', editable: false, pointer: false })}><span aria-hidden="true" className="size-2 shrink-0 rounded-pill bg-ic-blue" />{selected.contactLabel}</span>}
             </div>
-            <Link href={myTaskCustomerHref(selected)} className="prop" style={{ display: 'flex', alignItems: 'center', gap: 8, height: 32, margin: '-8px 12px 12px', padding: '0 8px', borderRadius: 10, minWidth: 0 }}>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Klient</span>
-              <span className="ell">{selected.customerName}</span>
+            <Link href={myTaskCustomerHref(selected)} className="mx-3 mb-3 -mt-2 flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-primary no-underline transition-colors hover:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent">
+              <span className="text-small leading-4 text-secondary">Klient</span>
+              <span className="truncate">{selected.customerName}</span>
             </Link>
-            <section aria-label="Aktywność" style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', gap: 12, padding: '8px 20px 20px' }}>
-              <h3 style={{ margin: 0, fontSize: 12, lineHeight: '16px', fontWeight: 500, color: 'var(--text-secondary)' }}>Aktywność</h3>
-              <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}><span className="ell" style={{ flex: '1 1 auto' }}>Zadanie utworzone</span><span className="num" title={stamp(selected.createdAt)} style={{ color: 'var(--text-tertiary)' }}>{stampShort(selected.createdAt)}</span></li>
-                {selected.updatedAt !== selected.createdAt && <li style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: '16px', color: 'var(--text-secondary)' }}><span className="ell" style={{ flex: '1 1 auto' }}>Ostatnia zmiana</span><span className="num" title={stamp(selected.updatedAt)} style={{ color: 'var(--text-tertiary)' }}>{stampShort(selected.updatedAt)}</span></li>}
-                {selected.result && <li style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '8px 12px', borderRadius: 12, background: 'var(--bg-raised)' }}><span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: '16px' }}><span style={{ ...avatar(16, 8), fontWeight: 500 }}>{initials(selected.assigneeLabel)}</span><span style={{ flex: '1 1 auto', fontWeight: 500 }}>{selected.assigneeLabel}</span><span style={{ color: 'var(--text-tertiary)' }}>wynik</span></span><span style={{ whiteSpace: 'pre-wrap' }}>{selected.result}</span></li>}
-                {comments.map(c => <li key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '8px 12px', border: 0, borderRadius: 12, background: 'var(--bg-raised)' }}><span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: '16px' }}><span style={{ ...avatar(16, 8), fontWeight: 500 }}>{initials(c.authorLabel)}</span><span style={{ flex: '1 1 auto', fontWeight: 500 }}>{c.authorLabel}</span><span className="num" title={stamp(c.createdAt)} style={{ color: 'var(--text-tertiary)' }}>{stampShort(c.createdAt)}</span></span><span style={{ whiteSpace: 'pre-wrap' }}>{c.body}</span></li>)}
+            <section aria-label="Aktywność" className="flex flex-auto flex-col gap-3 px-5 pt-2 pb-5">
+              <h3 className="m-0 font-sans text-small leading-4 font-medium text-secondary">Aktywność</h3>
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                <li className="flex items-center gap-2 text-small leading-4 text-secondary"><span className="min-w-0 flex-auto truncate">Zadanie utworzone</span><span title={stamp(selected.createdAt)} className="text-tertiary tabular-nums">{stampShort(selected.createdAt)}</span></li>
+                {selected.updatedAt !== selected.createdAt && <li className="flex items-center gap-2 text-small leading-4 text-secondary"><span className="min-w-0 flex-auto truncate">Ostatnia zmiana</span><span title={stamp(selected.updatedAt)} className="text-tertiary tabular-nums">{stampShort(selected.updatedAt)}</span></li>}
+                {selected.result && <li className="flex flex-col gap-1 rounded-lg bg-raised px-3 py-2"><span className="flex items-center gap-2 text-small leading-4"><span className={avatarClasses(16)}>{initials(selected.assigneeLabel)}</span><span className="flex-auto font-medium">{selected.assigneeLabel}</span><span className="text-tertiary">wynik</span></span><span className="whitespace-pre-wrap">{selected.result}</span></li>}
+                {comments.map(c => <li key={c.id} className="flex flex-col gap-1 rounded-lg bg-raised px-3 py-2"><span className="flex items-center gap-2 text-small leading-4"><span className={avatarClasses(16)}>{initials(c.authorLabel)}</span><span className="flex-auto font-medium">{c.authorLabel}</span><span title={stamp(c.createdAt)} className="text-tertiary tabular-nums">{stampShort(c.createdAt)}</span></span><span className="whitespace-pre-wrap">{c.body}</span></li>)}
               </ol>
               <form onSubmit={addComment}>
-                <label htmlFor="tl-comment" className="vh">Dodaj komentarz</label>
-                <textarea id="tl-comment" rows={3} value={draft} maxLength={2000} disabled={posting} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }} placeholder="Dodaj komentarz…  ⌘↵" style={{ width: '100%', resize: 'none', padding: '8px 12px', border: 0, borderRadius: 10, background: 'var(--bg-raised)', font: 'inherit', color: 'var(--text-primary)', minHeight: 0, boxShadow: 'none' }} />
+                <label htmlFor="tl-comment" className="sr-only">Dodaj komentarz</label>
+                <textarea id="tl-comment" rows={3} value={draft} maxLength={2000} disabled={posting} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }} placeholder="Dodaj komentarz…  ⌘↵" className="m-0 block min-h-0 w-full resize-none rounded-md border-0 bg-raised px-3 py-2 font-sans text-body leading-5 text-primary shadow-none outline-0 placeholder:text-tertiary focus:field-ring focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50" />
               </form>
-              {selected.state === 'cancelled' && <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>Zadanie jest anulowane. Wznowisz je w karcie klienta.</p>}
-              {conflict && <button type="button" className="pri" onClick={() => { setConflict(false); setError(''); router.refresh(); }} style={{ alignSelf: 'flex-start', height: 28, display: 'inline-flex', alignItems: 'center', padding: '0 10px', border: 0, borderRadius: 8, background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 500 }}>Odśwież listę</button>}
-              {error && <p role="alert" style={{ margin: 0, fontSize: 12, color: 'var(--danger)' }}>{error}</p>}
+              {selected.state === 'cancelled' && <p className={cx(note, 'text-secondary')}>Zadanie jest anulowane. Wznowisz je w karcie klienta.</p>}
+              {conflict && <Button variant="pri" size="sm" className="self-start" onClick={() => { setConflict(false); setError(''); router.refresh(); }}>Odśwież listę</Button>}
+              {error && <p role="alert" className={cx(note, 'text-danger')}>{error}</p>}
             </section>
           </aside>
         )}
       </div>}
       {footer}
-    </main>
+    </TablePage>
   );
 }

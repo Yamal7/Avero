@@ -4,7 +4,10 @@ import { myTasksQuerySchema, myTasksSchema, type MyTasksQuery } from '@hvac/api-
 import { requireSession } from '@/lib/auth';
 import { TaskBoard } from '@/components/task-board';
 import { TaskListView } from '@/components/task-list';
-import { CaretRight, CheckSquare, Kanban, ListBullets } from '@phosphor-icons/react/ssr';
+import { PageHead, PageLink, Segmented, Spacer, ViewTabs, searchFrameClasses, searchInputClasses } from '@/components/table/page-chrome';
+import { buttonClasses } from '@/components/ui/button';
+import { cx } from '@/lib/cx';
+import { CheckSquare, Kanban, ListBullets, MagnifyingGlass } from '@phosphor-icons/react/ssr';
 
 /* Saved views of the design ("Wszystkie / Moje / Ten tydzień / F-gaz") map onto the filters the task query supports. */
 const views: [MyTasksQuery['filter'], string][] = [['open', 'Otwarte'], ['today', 'Dziś'], ['overdue', 'Po terminie'], ['upcoming', 'Nadchodzące'], ['closed', 'Zamknięte']];
@@ -23,45 +26,37 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
   const staff = ['admin', 'office'].includes(access.role);
 
   const header = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 12px 0 20px' }}>
-      <span style={{ display: 'inline-flex', color: 'var(--text-secondary)' }}><CheckSquare size={16} className="shrink-0" aria-hidden /></span>
-      <span style={{ color: 'var(--text-secondary)' }}>Projekty</span>
-      <span style={{ display: 'inline-flex', color: 'var(--text-tertiary)' }}><CaretRight size={12} className="shrink-0" aria-hidden /></span>
-      <h1 style={{ margin: 0, fontSize: 13, lineHeight: '20px', fontWeight: 500 }}>Zadania</h1>
-      <span style={{ flex: '1 1 auto' }} />
-      <span className="num" style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>{data.counts.open} otwartych</span>
-    </div>
+    <PageHead icon={<CheckSquare size={16} className="shrink-0" aria-hidden />} category="Projekty" title="Zadania">
+      <Spacer />
+      <span className="mr-1 text-small leading-4 text-tertiary tabular-nums">{data.counts.open} otwartych</span>
+    </PageHead>
   );
-  const tabs = (
-    <div role="tablist" aria-label="Widoki zadań" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-      {views.map(([filter, label]) => {
-        const on = query.filter === filter;
-        return <Link key={filter} role="tab" aria-selected={on} className="tab" href={href(filter)} title={`${label}: ${data.counts[filter]}`} style={{ height: 28, padding: '0 12px', borderRadius: 14, border: 0, background: on ? 'var(--bg-subtle)' : 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: on ? 500 : 400, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>{label}</Link>;
-      })}
-    </div>
-  );
+  const tabs = <ViewTabs label="Widoki zadań" items={views.map(([filter, label]) => ({ label, href: href(filter), active: query.filter === filter, title: `${label}: ${data.counts[filter]}` }))} />;
   const layout = (
-    <div role="group" aria-label="Układ" style={{ display: 'inline-flex', gap: 2, padding: 2, margin: '0 4px', borderRadius: 10, background: 'var(--bg-subtle)' }}>
-      <Link href={href(query.filter, query.page, 'list')} aria-current={view === 'list' ? 'page' : undefined} aria-label="Lista" title="Lista" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'list' ? 'var(--bg-surface)' : 'transparent', color: view === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}><ListBullets size={14} className="shrink-0" aria-hidden /></Link>
-      <Link href={href(query.filter, query.page, 'board')} aria-current={view === 'board' ? 'page' : undefined} aria-label="Tablica" title="Tablica" style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: view === 'board' ? 'var(--bg-surface)' : 'transparent', color: view === 'board' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}><Kanban size={14} className="shrink-0" aria-hidden /></Link>
-    </div>
+    <Segmented label="Układ" className="mx-1" items={[
+      { key: 'list', href: href(query.filter, query.page, 'list'), active: view === 'list', ariaLabel: 'Lista', title: 'Lista', children: <ListBullets size={14} className="shrink-0" aria-hidden /> },
+      { key: 'board', href: href(query.filter, query.page, 'board'), active: view === 'board', ariaLabel: 'Tablica', title: 'Tablica', children: <Kanban size={14} className="shrink-0" aria-hidden /> },
+    ]} />
   );
   const search = (
-    <form action="/dashboard/tasks" role="search" style={{ display: 'inline-flex' }}>
+    <form action="/dashboard/tasks" role="search" className="inline-flex">
       <input type="hidden" name="filter" value={query.filter} />
       {view === 'board' && <input type="hidden" name="view" value="board" />}
-      <label htmlFor="task-search" className="vh">Szukaj zadania lub klienta</label>
-      <input id="task-search" type="search" name="search" autoFocus maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta" style={{ width: 220, height: 28, padding: '0 10px', border: 0, borderRadius: 8, background: 'var(--bg-subtle)', font: 'inherit', color: 'var(--text-primary)', minHeight: 0, boxShadow: 'none' }} />
+      <label className={searchFrameClasses}>
+        <MagnifyingGlass size={14} className="shrink-0" aria-hidden />
+        <span className="sr-only">Szukaj zadania lub klienta</span>
+        <input id="task-search" type="search" name="search" autoFocus maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta" className={cx(searchInputClasses, 'w-56')} />
+      </label>
     </form>
   );
   const extra = staff
-    ? <Link href="/dashboard/team-tasks" className="pri" title="Zadania całego zespołu" style={{ height: 28, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 10px', marginLeft: 4, border: 0, borderRadius: 8, background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 500 }}>Zadania zespołu</Link>
+    ? <Link href="/dashboard/team-tasks" title="Zadania całego zespołu" className={buttonClasses({ variant: 'pri', size: 'sm', className: 'ml-1' })}>Zadania zespołu</Link>
     : null;
   const footer = (data.total > 20 || !parsed.success) && (
-    <nav aria-label="Strony zadań" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, minHeight: 36, padding: '0 20px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
-      {query.page > 1 ? <Link href={href(query.filter, query.page - 1)}>Poprzednia</Link> : <span />}
-      <span className="num">Strona {query.page} · zadań: {data.total}</span>
-      {query.page * 20 < data.total ? <Link href={href(query.filter, query.page + 1)}>Następna</Link> : <span />}
+    <nav aria-label="Strony zadań" className="flex min-h-row items-center justify-between gap-4 px-5 pb-4 text-small leading-4 text-secondary tabular-nums">
+      {query.page > 1 ? <PageLink href={href(query.filter, query.page - 1)}>Poprzednia</PageLink> : <span />}
+      <span>Strona {query.page} · zadań: {data.total}</span>
+      {query.page * 20 < data.total ? <PageLink href={href(query.filter, query.page + 1)}>Następna</PageLink> : <span />}
     </nav>
   );
 

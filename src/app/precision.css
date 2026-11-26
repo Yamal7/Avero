@@ -922,7 +922,6 @@ a.cmdk-opt.is-active > svg { color: var(--text-primary); }
 @media (max-width: 1100px) {
   .dk .rec-split { flex-direction: column; }
   .dk .rec-aside { flex: none !important; border-left: 0 !important; border-top: 1px solid var(--edge); }
-  .dk .tl-panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 40; width: min(100%, 440px); background: var(--bg-surface); box-shadow: var(--shadow-modal); overflow-y: auto; }
 }
 @media (max-width: 760px) { .dk dl[style*="repeat(4"] { grid-template-columns: repeat(2, minmax(0px, 1fr)) !important; } }
 @media (max-width: 900px) {

@@ -1,12 +1,12 @@
 /* Przycisk (Precision UI, M0.2): wyłącznie klasy Tailwinda na tokenach z docs/design/tokens.css.
-   Warianty: pri (akcja główna, akcent — 1–3 na ekranie), sec (wypełnienie bg-subtle, bez ramki), ghost, icon (okrągły, sama ikona).
+   Warianty: pri (akcja główna, akcent — 1–3 na ekranie), sec (wypełnienie bg-subtle, bez ramki), raised (sec na bloku bg-raised), ghost, icon (okrągły, sama ikona).
    Stany: hover, aktywny (wciśnięty), fokus (pierścień --accent), wyłączony, ładowanie (aria-busy, ikona obrotu).
    Ładowanie nie ustawia `disabled` — przycisk zostaje w kolejności fokusu (aria-disabled + blokada kliknięcia). */
 import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
 import { CircleNotch } from '@phosphor-icons/react/ssr';
 import { cx } from '@/lib/cx';
 
-export type ButtonVariant = 'pri' | 'sec' | 'ghost' | 'icon';
+export type ButtonVariant = 'pri' | 'sec' | 'raised' | 'ghost' | 'icon';
 export type ButtonSize = 'md' | 'sm';
 
 // Klasy bazowe nadpisują reguły legacy dla `button` (warstwa utilities wygrywa z warstwą legacy), także padding z globals.css.
@@ -25,6 +25,8 @@ const live = 'enabled:not-aria-disabled:';
 const variants: Record<ButtonVariant, string> = {
   pri: `bg-accent text-on-accent ${live}hover:bg-accent/90 ${live}active:bg-accent/80`,
   sec: `bg-subtle text-primary ${live}hover:bg-shell-hover ${live}active:bg-border`,
+  // drugorzędny na bloku bg-raised (np. akcje w sekcji Stan magazynu) — wypełnienie powierzchnią zamiast bg-subtle
+  raised: `bg-surface text-primary ${live}hover:bg-subtle ${live}active:bg-border`,
   ghost: `bg-transparent text-secondary ${live}hover:bg-subtle ${live}hover:text-primary ${live}active:bg-shell-hover`,
   icon: `bg-transparent text-secondary ${live}hover:bg-subtle ${live}hover:text-primary ${live}active:bg-shell-hover`,
 };

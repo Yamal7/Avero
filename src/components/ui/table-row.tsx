@@ -15,8 +15,8 @@ export function tableRowClasses({ variant = 'list', selected = false, disabled =
     'grid h-row min-w-0 grid-flow-col items-center gap-3 px-2 font-sans text-body leading-5 text-primary no-underline whitespace-nowrap transition-colors',
     variant === 'list' ? 'rounded-md' : 'border-b border-edge',
     selected ? 'bg-subtle' : interactive && !disabled ? 'hover:bg-subtle' : '',
-    interactive && 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
-    disabled && 'cursor-not-allowed opacity-50',
+    disabled ? 'cursor-not-allowed opacity-50' : interactive && 'cursor-pointer',
+    interactive && 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
     className,
   );
 }
