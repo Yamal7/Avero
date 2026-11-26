@@ -55,8 +55,14 @@ export function CustomerLogo({ name, kind = 'company', href, card, showName = fa
 
   useEffect(() => {
     if (!open) return;
-    // Esc w fazie przechwytywania: zamyka tylko kartę, nie panel szczegółów ekranu.
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); clear(); setOpen(false); setPos(null); } };
+    // Esc zamyka kartę. Gdy fokus jest na wyzwalaczu (karta otwarta klawiaturą), Esc należy do karty — zatrzymujemy go
+    // w fazie przechwytywania, żeby nie zamknął też panelu szczegółów. Przy karcie otwartej myszą tylko ją zamykamy,
+    // a Esc trafia dalej do innych obsług (panel, okno).
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (document.activeElement === trigger.current) { e.stopPropagation(); e.preventDefault(); }
+      clear(); setOpen(false); setPos(null);
+    };
     const away = () => { clear(); setOpen(false); setPos(null); };
     window.addEventListener('keydown', key, true);
     window.addEventListener('scroll', away, true);
@@ -89,7 +95,9 @@ export function CustomerLogo({ name, kind = 'company', href, card, showName = fa
         </span>
       </span>
       {rows.length > 0 && <span className={cx('flex flex-col text-small leading-4 text-secondary', offGrid.rows)}>{rows}</span>}
-      <Link href={href} tabIndex={-1} className={cx('flex items-center border-t border-edge pt-2 text-small leading-4 text-tertiary no-underline hover:text-secondary', offGrid.foot)}>
+      {/* Link dubluje wyzwalacz (ten sam adres, ↵ na wyzwalaczu) — dla myszy; ukryty przed czytnikami i poza kolejnością fokusu,
+          bo treść karty jest opisem wyzwalacza (role="tooltip" + aria-describedby). */}
+      <Link href={href} tabIndex={-1} aria-hidden="true" className={cx('flex items-center border-t border-edge pt-2 text-small leading-4 text-tertiary no-underline hover:text-secondary', offGrid.foot)}>
         Otwórz kartę klienta<span className="flex-auto" /><kbd className="font-mono text-micro">↵</kbd>
       </Link>
     </div>,
