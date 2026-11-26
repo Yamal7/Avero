@@ -49,6 +49,20 @@ Właściciel wybiera tryb zależnie od tego, ile ma czasu. Komendy są w `.claud
 | `/plany [N]` | chwila rano, reszta dnia zajęta | jedna akceptacja planów N modułów, potem bez pytań, scalanie automatyczne |
 | `/paczka [N]` | brak czasu, praca w tle | nigdzie — tylko „Warunki zatrzymania”; raport na końcu |
 
+### Modele i oszczędzanie limitu
+
+Sesja główna (koordynator) pracuje na modelu wybranym w Claude Code (Opus): planuje, sprawdza raporty, decyduje. `wykonawca` i `reviewer` mają w nagłówku `model: sonnet` — zużywają limit wolniej, a do implementacji według gotowego planu i do przeglądu wystarczają.
+
+**Moduł trudny → koordynator uruchamia `wykonawca` z modelem Opus** (nadpisanie modelu przy wywołaniu subagenta) i zapisuje to w opisie PR. Trudny to moduł, który:
+1. tworzy lub zmienia migracje z RLS, politykami albo uprawnieniami (np. M0.1);
+2. zawiera reguły F-gaz / CRO, stany magazynu albo inne pola zablokowane;
+3. zmienia architekturę współdzieloną przez wiele modułów (np. M0.4 silnik widoku kolekcji, M0.5 rejestr rozszerzeń);
+4. wymagał już poprawki po `reviewer` lub czerwonym CI na Sonnecie — kolejną próbę robi Opus.
+
+`reviewer` przy modułach z punktów 1–2 także działa na Opusie.
+
+Żeby nie marnować limitu: wykonawca czyta z makiety w `design/canvas/` tylko potrzebny ekran (wyszukaj atrybut `ekran`), a nie cały plik; koordynator przekazuje mu ścieżki do konkretnych plików zamiast streszczać je w poleceniu.
+
 ### CI i ochrona `main`
 
 - **CI** (`.github/workflows/ci.yml`) na każdym PR: zadanie **„Aplikacja”** (lint, typy, testy, build) i **„Baza danych”** (wszystkie migracje na czystej bazie, lint SQL, pgTAP).
@@ -379,3 +393,4 @@ Duży moduł — podziel na kroki z osobnymi commitami: pola własne → własne
 - 2026-11-23 — czat projektowy: aplikacja klienta na telefon odłożona (właściciel szuka innego kierunku niż A/B); usunięta z kryteriów M2.4 tu i w KRA-40. Priorytet: program na komputer.
 - 2026-11-23 — czat projektowy: odłożone w całości M1.6 Telefon technika (KRA-36) i M2.4 Portal klienta (KRA-40) — „[odłożone]” w tytule w Linear i adnotacja w sekcjach; priorytet: program na komputer.
 - 2026-11-23 — czat projektowy: nowy moduł M0.6 Lewy panel (rozwinięty / zwinięty / ukryty), KRA-68, po M0.2. Skrzynka, Planowanie i Ustawienia zostają w dwóch liniach (wariant „jedna linia” odrzucony) — bez zmian w modułach.
+- 2026-11-26 — „Modele i oszczędzanie limitu”: `wykonawca` i `reviewer` na Sonnecie, koordynator na Opusie, moduły trudne z wykonawcą na Opusie.
