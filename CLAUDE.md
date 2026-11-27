@@ -40,7 +40,7 @@ Zadanie KRA w Linear → gałąź `kra-…` → PR z `Closes KRA-…` → CI (�
 - Sentry konfiguruje `src/lib/monitoring/sentry-options.ts`; bez `NEXT_PUBLIC_SENTRY_DSN` jest wyłączone. Nie włączaj Session Replay ani `sendDefaultPii` — w danych są klienci i ich adresy.
 - Nowe miejsca, przez które mogą przejść dane osobowe do Sentry (własne `captureException` z kontekstem, `setUser`, `setExtra`), przepuszczaj przez `src/lib/monitoring/scrub.ts`; użytkownika zgłaszaj wyłącznie po `id`.
 - Błąd zgłoszony z Sentry: przeczytaj go przez konektor Sentry (stack trace, wydanie), napisz test odtwarzający, potem poprawkę.
-- Hosting jeszcze nie jest wybrany (`deploy/README.md`) — nie podpinaj repo do usługi hostingowej bez decyzji właściciela.
+- Hosting: **Vercel** (zespół `avero18`, decyzja właściciela 2026-11-27). Push na `main` = wdrożenie produkcyjne; każdy PR dostaje podgląd. Zmienne Supabase są ustawione **tylko dla produkcji** — podgląd PR nie łączy się z bazą „Avero” (branche Supabase świadomie pominięte). Sekrety (`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `SENTRY_AUTH_TOKEN`) wpisuje właściciel w panelu Vercel, nie Claude.
 
 ## Komendy
 

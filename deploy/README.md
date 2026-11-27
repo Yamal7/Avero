@@ -1,6 +1,6 @@
 # Konfiguracja pilotażu do uzupełnienia — 6.11.2026
 
-Hosting, domena i nadawca nie zostały jeszcze wybrane. Ten pakiet przygotowuje konfigurację; nie publikuje aplikacji i nie zakłada płatnych usług. Wymagany jest hosting uruchamiający serwer Node/Next.js oraz oddzielny projekt Supabase. Statyczny hosting HTML nie obsłuży tego programu.
+**Hosting: Vercel (zespół `avero18`) — decyzja właściciela 27.11.2026.** Domena własna i nadawca poczty nie zostały jeszcze wybrane. Na Vercel worker poczty nie działa jako stały proces — po włączeniu poczty zastąpi go Vercel Cron wywołujący POST `/api/internal/email/dispatch` z sekretem w nagłówku (osobne zadanie). Ten pakiet przygotowuje konfigurację; nie publikuje aplikacji i nie zakłada płatnych usług. Wymagany jest hosting uruchamiający serwer Node/Next.js oraz oddzielny projekt Supabase. Statyczny hosting HTML nie obsłuży tego programu.
 
 ## Przekazanie konfiguracji operatorowi
 
