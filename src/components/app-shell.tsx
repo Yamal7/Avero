@@ -1,5 +1,5 @@
 'use client';
-import { useEffect,useRef,useState,type ReactNode } from 'react';
+import { useCallback,useEffect,useRef,useState,type ReactNode } from 'react';
 import Link from 'next/link';
 import { NotificationBellSummary } from './notification-center';
 import { taskAlertsSchema,type TaskAlerts } from '@hvac/api-client';
@@ -11,12 +11,13 @@ import { roleLabels,type AccessRole } from '@/lib/access/types';
 import { Icon,type IconName } from './icon';
 import { ThemeCapsule } from './theme-switcher';
 import { CommandPalette,type PaletteEntry } from './command-palette';
-import { Bell, CaretDown, MagnifyingGlass, NotePencil, Plus } from '@phosphor-icons/react/ssr';
+import { Bell, CaretDown, MagnifyingGlass, NotePencil, Plus, SidebarSimple } from '@phosphor-icons/react/ssr';
 import { cx } from '@/lib/cx';
 
 import { offGrid, shell } from './app-shell-classes';
 import { OrgSwitcher } from './org-switcher';
 import type { Organization } from '@hvac/api-client';
+import { nextSidebarMode, parseSidebarMode, sidebarModeLabels, type SidebarMode } from '@/lib/navigation/sidebar-mode';
 type NavEntry={href:string;label:string;icon:IconName;soon?:boolean;roles?:string[];count?:number};
 type NavGroup={id:string;title:string;items:NavEntry[]};
 const soon=(slug:string)=>'/dashboard/soon/'+slug;
@@ -64,6 +65,10 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  const company=(companyName||'').trim()||'Avero';
  const router=useRouter();
  const [notificationUnread,setNotificationUnread]=useState(0);
+ const [sidebarMode, cycleSidebar] = useSidebarMode(taskAlerts.viewerId);
+ const [sidebarPeek, setSidebarPeek] = useState(false);
+ const peekHovered = useRef(false), sidebarButton = useRef<HTMLButtonElement>(null);
+ const compactSidebar = sidebarMode === 'collapsed', hiddenSidebar = sidebarMode === 'hidden';
  const mobileButton=useRef<HTMLButtonElement>(null),sidebar=useRef<HTMLElement>(null),wasOpen=useRef(false),dialog=useRef<HTMLDialogElement>(null),trigger=useRef<HTMLElement|null>(null);
  const [taskData,setTaskData]=useState<TaskAlerts|null>(taskAlerts),[taskLoading,setTaskLoading]=useState(false),[taskError,setTaskError]=useState(''),[alertReload,setAlertReload]=useState(0);
  useEffect(()=>{setTaskData(taskAlerts);},[taskAlerts]);
@@ -71,7 +76,37 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  const [mobileOpen,setMobileOpen]=useState(false),[panel,setPanel]=useState<Panel|null>(null),pathname=usePathname();
  useEffect(()=>{if(!mobileOpen)return;const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setMobileOpen(false);};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);},[mobileOpen]);
  useEffect(()=>{if(mobileOpen)sidebar.current?.querySelector<HTMLAnchorElement>('a')?.focus();else if(wasOpen.current)mobileButton.current?.focus();wasOpen.current=mobileOpen;},[mobileOpen]);
- useEffect(()=>{const desktop=window.matchMedia('(min-width:761px)');const close=()=>{if(desktop.matches)setMobileOpen(false);};desktop.addEventListener('change',close);return()=>desktop.removeEventListener('change',close);},[]);
+ useEffect(() => {
+  const desktop = window.matchMedia('(min-width:761px)');
+  function close() {
+   if (desktop.matches) setMobileOpen(false);
+   peekHovered.current = false;
+   setSidebarPeek(false);
+  }
+  desktop.addEventListener('change', close);
+  return () => desktop.removeEventListener('change', close);
+ }, []);
+ useEffect(() => {
+  function onKey(event: KeyboardEvent) {
+   if (event.defaultPrevented || panel || palette || mobileOpen || !window.matchMedia('(min-width:761px)').matches) return;
+   if (event.key === 'Escape' && sidebarPeek) {
+    if (sidebar.current?.contains(document.activeElement)) sidebarButton.current?.focus();
+    peekHovered.current = false;
+    setSidebarPeek(false);
+    return;
+   }
+   if (event.key !== '[' || event.repeat || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+   const target = event.target;
+   if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select, [role="textbox"], [role="menu"]'))) return;
+   if (compactSidebar && target instanceof Node && sidebar.current?.contains(target)) sidebarButton.current?.focus();
+   event.preventDefault();
+   peekHovered.current = false;
+   setSidebarPeek(false);
+   cycleSidebar();
+  }
+  window.addEventListener('keydown', onKey);
+  return () => window.removeEventListener('keydown', onKey);
+ }, [compactSidebar, cycleSidebar, mobileOpen, palette, panel, sidebarPeek]);
  useEffect(()=>{if(panel&&!dialog.current?.open){dialog.current?.showModal();if(panel==='search')dialog.current?.querySelector<HTMLInputElement>('input[type="search"]')?.focus();}else if(!panel&&dialog.current?.open)dialog.current.close();},[panel]);
  useEffect(()=>{const key=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();trigger.current=document.activeElement as HTMLElement;setMobileOpen(false);setPalette(true);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
  useEffect(()=>{if(panel!=='alerts')return;const controller=new AbortController();setTaskLoading(true);setTaskError('');
@@ -102,17 +137,32 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  };window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[router]);
  function item(entry:NavEntry){
   const active=current?.href===entry.href;
-  return <Link key={entry.href} href={entry.href} className={cx(shell.nav,active?shell.navActive:shell.navIdle)} aria-current={active?'page':undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:undefined} onClick={()=>setMobileOpen(false)}>
-   <Icon name={entry.icon} size={16} className={active?'shrink-0 text-primary':shell.navIcon}/><span className="min-w-0 flex-auto truncate">{entry.label}</span>
-   {!entry.soon&&entry.count?<span className="text-small text-tertiary tabular-nums">{entry.count}</span>:null}
+  const unread = entry.soon ? 0 : entry.count;
+  return <Link key={entry.href} href={entry.href} className={cx(shell.nav,compactSidebar&&shell.navCompact,active?shell.navActive:shell.navIdle)} aria-current={active?'page':undefined} aria-label={unread ? `${entry.label}, nieprzeczytane: ${unread}` : undefined} title={entry.soon?`${entry.label} — w przygotowaniu`:compactSidebar?entry.label:undefined}
+   onClick={() => {
+    setMobileOpen(false);
+    if (sidebarPeek) sidebarButton.current?.focus();
+    setSidebarPeek(false);
+   }}>
+   <Icon name={entry.icon} size={16} className={active?'shrink-0 text-primary':shell.navIcon}/><span className={cx('min-w-0 flex-auto truncate',compactSidebar&&'desktop:sr-only')}>{entry.label}</span>
+   {!!unread && <>
+    <span className={cx('text-small text-tertiary tabular-nums', compactSidebar && 'desktop:hidden')} aria-hidden="true">{unread}</span>
+    {compactSidebar && <span aria-hidden="true" className="absolute top-1 right-1 hidden size-1.5 rounded-pill bg-accent desktop:block" />}
+   </>}
   </Link>;
  }
- return <div className={shell.root}>
+ return <div className={shell.root} data-sidebar-mode={sidebarMode}>
  <header className={cx(shell.top,'no-print')}>
-  <div className={shell.topLeft}>
+  <div className={cx(shell.topLeft, sidebarMode === 'expanded' && 'desktop:basis-54')}>
    <button ref={mobileButton} type="button" className={cx(shell.round,'hidden bg-transparent hover:text-primary max-desktop:inline-flex')} aria-label={mobileOpen?'Zamknij menu':'Otwórz menu'} aria-expanded={mobileOpen} aria-controls="app-sidebar" onClick={()=>setMobileOpen(!mobileOpen)}><Icon name="menu" size={16}/></button>
    {/* M0.1: przy kilku firmach przycisk z nazwą firmy otwiera przełącznik (org-switcher.tsx); przy jednej — profil, jak dotąd. */}
-   {organizations.length>1?<OrgSwitcher organizations={organizations} onProfile={element=>openPanel('profile',element)}/>:<button type="button" className={shell.workspace} title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={shell.mark}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className="min-w-0 truncate font-medium max-desktop:hidden">{company}</span><CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden /></button>}
+   {organizations.length>1?<OrgSwitcher organizations={organizations} compact={compactSidebar} onProfile={element=>openPanel('profile',element)}/>:<button type="button" className={cx(shell.workspace,compactSidebar&&shell.workspaceCompact)} aria-label={`${company} — profil`} title={`${company} · ${displayName}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={shell.mark}>{company.trim()[0]?.toUpperCase()||'A'}</span><span className={cx(shell.workspaceLabel,compactSidebar&&'desktop:hidden')}>{company}</span><CaretDown size={14} className={cx(shell.workspaceCaret,compactSidebar&&'desktop:hidden')} aria-hidden /></button>}
+   <button ref={sidebarButton} type="button" className={cx(shell.round,'hidden bg-transparent desktop:inline-flex',sidebarMode!=='expanded'&&'desktop:text-accent')} aria-label={sidebarModeLabels[sidebarMode]} title={`${sidebarModeLabels[sidebarMode]}  [`} aria-keyshortcuts="[" aria-expanded={!hiddenSidebar||sidebarPeek} aria-controls="app-sidebar"
+    onClick={() => {
+     peekHovered.current = false;
+     setSidebarPeek(false);
+     cycleSidebar();
+    }}><SidebarSimple size={16} aria-hidden /></button>
    <button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label="Szukaj" title="Szukaj  ⌘K" aria-keyshortcuts="Meta+K Control+K" onClick={()=>{setMobileOpen(false);setPalette(true);}}><MagnifyingGlass size={16} aria-hidden /></button>
    <Link className={cx(shell.round,'inline-flex bg-surface')} href="/dashboard/service/new" aria-label="Nowe zgłoszenie" title="Nowe zgłoszenie  C"><NotePencil size={16} aria-hidden /></Link>
   </div>
@@ -127,11 +177,21 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
    <button type="button" className={cx(shell.round,'inline-flex bg-transparent')} aria-label={`${displayName}, ${roleLabels[role as AccessRole]||role}`} title={`${displayName} · ${roleLabels[role as AccessRole]||role}`} onClick={event=>openPanel('profile',event.currentTarget)}><span className={cx(shell.avatar,offGrid.avatarText)}>{initials||'U'}</span></button>
   </div>
  </header>
- <div className="flex min-h-0 flex-auto items-stretch">
+ <div className="relative flex min-h-0 flex-auto items-stretch">
   {mobileOpen&&<button className={shell.backdrop} aria-label="Zamknij menu" onClick={()=>setMobileOpen(false)}/>}
-  <aside ref={sidebar} className={cx(shell.side,mobileOpen?'max-desktop:visible max-desktop:translate-x-0':'max-desktop:invisible max-desktop:-translate-x-full','no-print')} id="app-sidebar" aria-label="Nawigacja główna">
+  {hiddenSidebar && <div className={shell.sideReveal} aria-hidden="true" onPointerEnter={event => { if (event.pointerType !== 'touch') setSidebarPeek(true); }} />}
+  <aside ref={sidebar} className={cx(shell.side,compactSidebar&&shell.sideCompact,hiddenSidebar&&shell.sideOverlay,hiddenSidebar&&!sidebarPeek&&'desktop:invisible',
+    mobileOpen?'max-desktop:visible max-desktop:translate-x-0':'max-desktop:invisible max-desktop:-translate-x-full','no-print')} id="app-sidebar" aria-label="Nawigacja główna"
+   onPointerEnter={() => { if (hiddenSidebar) peekHovered.current = true; }}
+   onPointerLeave={() => {
+    peekHovered.current = false;
+    if (hiddenSidebar && !sidebar.current?.contains(document.activeElement)) setSidebarPeek(false);
+   }}
+   onBlur={event => {
+    if (hiddenSidebar && !peekHovered.current && !event.currentTarget.contains(event.relatedTarget)) setSidebarPeek(false);
+   }}>
    <nav className={cx('flex flex-col',offGrid.navGap)} aria-label="Start">{top.map(entry=>item(entry.href==='/dashboard/notifications'?{...entry,count:notificationUnread}:entry))}</nav>
-   {groups.map(group=>{const items=group.items.filter(allowed);return items.length?<NavigationGroup key={group.id} id={group.id} title={group.title} viewerId={taskAlerts.viewerId}>{items.map(item)}</NavigationGroup>:null;})}
+   {groups.map(group=>{const items=group.items.filter(allowed);return items.length?<NavigationGroup key={group.id} id={group.id} title={group.title} viewerId={taskAlerts.viewerId} compact={compactSidebar}>{items.map(item)}</NavigationGroup>:null;})}
    <span className="flex-auto"/>
    <nav className={cx('flex flex-col',offGrid.navGap)} aria-label="Administracja">{bottom.filter(allowed).map(item)}</nav>
   </aside>
@@ -141,23 +201,105 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  <div hidden={panel!=='alerts'}><NotificationBellSummary open={panel==='alerts'} viewerId={taskAlerts.viewerId} onCount={setNotificationUnread} onNavigate={closePanel}/></div>
  {panel==='alerts'&&<div className="shell-alert-list"><p className="muted">Bieżące działania w Twoim dostępie. Zadania znikają z tej listy po wykonaniu lub przesunięciu terminu na przyszłość.</p><section className="shell-task-alerts" aria-labelledby="shell-task-alerts-title"><h3 id="shell-task-alerts-title">Twoje zadania</h3>{taskLoading?<p role="status" className="muted">Odświeżanie zadań…</p>:taskError?<div role="alert"><p className="error">{taskError}</p><button className="secondary" onClick={()=>setAlertReload(n=>n+1)}>Spróbuj ponownie</button></div>:taskData&&taskAlertTotal(taskData)>0?taskAlertLinks(taskData).map(item=><Link href={item.href} key={item.href} onClick={closePanel}><Icon name="check"/><span>{item.label}<strong>{item.count}</strong></span><Icon name="chevron" size={16}/></Link>):<p className="shell-no-alerts">Nie masz zaległych ani dzisiejszych zadań.</p>}<Link className="shell-task-agenda" href="/dashboard/tasks?filter=open" onClick={closePanel}>Otwórz moje zadania <Icon name="arrow" size={16}/></Link></section>{serviceAlerts>0&&<section aria-labelledby="shell-service-alerts-title"><h3 id="shell-service-alerts-title">Serwis i przeglądy</h3>{alerts.urgent>0&&<Link href="/dashboard/service?status=open" onClick={closePanel}><Icon name="wrench"/><span>Pilne zgłoszenia<strong>{alerts.urgent}</strong></span><Icon name="chevron" size={16}/></Link>}{alerts.overdue>0&&<Link href="/dashboard/maintenance?view=overdue" onClick={closePanel}><Icon name="calendar"/><span>Przeglądy po terminie<strong>{alerts.overdue}</strong></span><Icon name="chevron" size={16}/></Link>}{alerts.upcoming>0&&<Link href="/dashboard/maintenance?view=upcoming" onClick={closePanel}><Icon name="calendar"/><span>Przeglądy w ciągu 30 dni<strong>{alerts.upcoming}</strong></span><Icon name="chevron" size={16}/></Link>}</section>}</div>}
  {panel==='profile'&&<div className="profile-panel"><span className="avatar" aria-hidden="true">{initials||'U'}</span><h3>{displayName}</h3><p>{email}</p><p className="muted">{roleLabels[role as AccessRole]||role}</p><div className="pui-theme-row"><span>Ciemny motyw</span><ThemeCapsule/></div><Link className="button secondary" href="/dashboard/settings" onClick={closePanel}>Ustawienia konta</Link><form action={logout}><button className="profile-signout" type="submit">Wyloguj się</button></form></div>}</dialog>
- <div className={shell.main} inert={mobileOpen}><div className="workspace">{children}</div></div>
+ <div className={cx(shell.main,hiddenSidebar&&'desktop:ml-2 print:ml-0')} inert={mobileOpen}><div className="workspace">{children}</div></div>
  </div></div>;
 }
 
 /* Collapsed sidebar groups are kept on the account (design: they follow the person between devices); localStorage only
    makes the first paint match before the account answers. */
-let accountPrefs:Promise<Record<string,unknown>>|null=null;
-function loadPrefs(){accountPrefs??=fetch('/api/v1/me/preferences',{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({}));return accountPrefs;}
-function NavigationGroup({id,title,viewerId,children}:{id:string;title:string;viewerId:string;children:ReactNode}) {
+let accountPrefs: { viewerId: string; result: Promise<Record<string, unknown>> } | undefined;
+function loadPrefs(viewerId: string) {
+ if (accountPrefs?.viewerId !== viewerId) {
+  accountPrefs = { viewerId, result: fetch('/api/v1/me/preferences', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({})) };
+ }
+ return accountPrefs.result;
+}
+
+const sidebarPrefKey = 'nav.panel';
+const sidebarWrites = new Map<string, Promise<void>>();
+
+function saveSidebarMode(viewerId: string, pendingKey: string, mode: SidebarMode) {
+ const pending = sidebarWrites.get(viewerId);
+ const write = (pending ?? Promise.resolve()).then(async () => {
+  try {
+   const response = await fetch('/api/v1/me/preferences', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: sidebarPrefKey, value: mode }),
+    keepalive: true,
+   });
+   if (response.ok && sidebarWrites.get(viewerId) === write && localStorage.getItem(pendingKey) === mode) {
+    localStorage.removeItem(pendingKey);
+   }
+  } catch { /* Leave an unsaved choice locally so the next load can retry. */ }
+  if (accountPrefs?.viewerId === viewerId) accountPrefs = undefined;
+ });
+ sidebarWrites.set(viewerId, write);
+ void write.then(() => { if (sidebarWrites.get(viewerId) === write) sidebarWrites.delete(viewerId); });
+}
+
+function useSidebarMode(viewerId: string) {
+ const storageKey = `hvac.navigation.${viewerId}.panel`;
+ const pendingKey = `${storageKey}.pending`;
+ const [mode, setMode] = useState<SidebarMode>('expanded');
+ const current = useRef<SidebarMode>('expanded');
+ const revision = useRef(0);
+
+ useEffect(() => {
+  let live = true;
+  const startedAt = revision.current;
+  let localMode: SidebarMode = 'expanded';
+  let unsaved: SidebarMode | undefined;
+  try {
+   unsaved = parseSidebarMode(localStorage.getItem(pendingKey));
+   localMode = unsaved ?? parseSidebarMode(localStorage.getItem(storageKey)) ?? 'expanded';
+  } catch { /* The account can still supply the preference. */ }
+  current.current = localMode;
+  setMode(localMode);
+
+  if (unsaved) {
+   if (!sidebarWrites.has(viewerId)) saveSidebarMode(viewerId, pendingKey, unsaved);
+   return;
+  }
+
+  void loadPrefs(viewerId).then(prefs => {
+   const storedMode = parseSidebarMode(prefs[sidebarPrefKey]);
+   if (!live || revision.current !== startedAt || !storedMode) return;
+   current.current = storedMode;
+   setMode(storedMode);
+   try { localStorage.setItem(storageKey, storedMode); } catch { /* The UI still works without local storage. */ }
+  });
+  return () => { live = false; };
+ }, [pendingKey, storageKey, viewerId]);
+
+ const cycle = useCallback(() => {
+  const next = nextSidebarMode(current.current);
+  current.current = next;
+  revision.current++;
+  setMode(next);
+  try {
+   localStorage.setItem(storageKey, next);
+   localStorage.setItem(pendingKey, next);
+  } catch { /* The preference can still be saved on the account. */ }
+  saveSidebarMode(viewerId, pendingKey, next);
+ }, [pendingKey, storageKey, viewerId]);
+
+ return [mode, cycle] as const;
+}
+
+function NavigationGroup({id,title,viewerId,compact,children}:{id:string;title:string;viewerId:string;compact:boolean;children:ReactNode}) {
  const [collapsed,setCollapsed]=useState(false);
  const storageKey='hvac.navigation.'+viewerId+'.'+id,prefKey='nav.'+id.toLowerCase().replace(/[^a-z0-9_.-]/g,'-');
  useEffect(()=>{let live=true;try{setCollapsed(localStorage.getItem(storageKey)==='collapsed');}catch{setCollapsed(false);}
-  void loadPrefs().then(p=>{const v=p[prefKey];if(live&&typeof v==='boolean'){setCollapsed(v);try{localStorage.setItem(storageKey,v?'collapsed':'expanded');}catch{/* ignore */}}});
-  return()=>{live=false;};},[storageKey,prefKey]);
+  void loadPrefs(viewerId).then(p=>{const v=p[prefKey];if(live&&typeof v==='boolean'){setCollapsed(v);try{localStorage.setItem(storageKey,v?'collapsed':'expanded');}catch{/* ignore */}}});
+  return()=>{live=false;};},[storageKey,prefKey,viewerId]);
  function toggle(){const next=!collapsed;setCollapsed(next);try{localStorage.setItem(storageKey,next?'collapsed':'expanded');}catch{/* Navigation remains usable when storage is unavailable. */}
-  accountPrefs=null;void fetch('/api/v1/me/preferences',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:prefKey,value:next})}).catch(()=>{});}
- return <section className={cx('flex flex-col',offGrid.navGap)}><button type="button" className={shell.groupHead} aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={cx('inline-flex transition-transform',collapsed&&'-rotate-90')} aria-hidden="true"><Icon name="down" size={12}/></span></button><div id={'nav-group-'+id} className={cx(collapsed?'hidden':'flex','flex-col',offGrid.navGap)} hidden={collapsed}>{children}</div></section>;
+  accountPrefs=undefined;void fetch('/api/v1/me/preferences',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:prefKey,value:next})}).catch(()=>{});}
+ return <section className={cx('flex flex-col',offGrid.navGap)}>
+  {compact && <span aria-hidden="true" className={shell.groupDivider} />}
+  <button type="button" className={cx(shell.groupHead,compact&&'desktop:hidden')} aria-expanded={!collapsed} aria-controls={'nav-group-'+id} onClick={toggle}>{title}<span className={cx('inline-flex transition-transform',collapsed&&'-rotate-90')} aria-hidden="true"><Icon name="down" size={12}/></span></button>
+  <div id={'nav-group-'+id} className={cx(collapsed?'hidden':'flex',compact&&'desktop:flex','flex-col',offGrid.navGap)}>{children}</div>
+ </section>;
 }
 
 
