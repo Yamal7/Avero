@@ -8,5 +8,7 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   telemetry: false,
+  // Bez tunelu: SDK na Vercel generowałby trasę src/app/sentry-tunnel/route.js (bez typów, bez walidacji Zod).
+  tunnelRoute: false,
   sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN, deleteSourcemapsAfterUpload: true },
 });
