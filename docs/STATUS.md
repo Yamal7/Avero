@@ -57,6 +57,20 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 
 **Migracje** (tylko funkcje; bez zmian danych, polityk i grantów poza `execute … to authenticated` jak dotąd): `202611270001_customer_directory_groups.sql` — `customer_directory(text,boolean,text,integer,text[],text,text,text,text)` (nowe `p_group` none|category|city, `p_sort` + devices|revenue, `group` przy wierszu, `groups`); `202611270002_people_directory_sort.sql` — `people_directory(text,text,integer,text)` (`p_sort` name|last_contact); `202611270003_stock_item_list.sql` — nowa `stock_item_list(text,text,text[],text,text,integer)`; `202611270004_maintenance_schedule_sort.sql` — `maintenance_schedule(text,text,integer,uuid,text)` (`p_sort` due|customer|title). Stare sygnatury usunięte (bez przeciążeń). `GET /api/v1/maintenance-plans` przyjmuje `sort`.
 
+**Zachowanie po przeglądzie (2026-11-27).**
+- Filtr wielokrotny i filtr dat zatwierdza tylko „Zastosuj” (↵ w polu szukania lub dat); Esc i klik poza warstwą zamykają bez zmian (wcześniej filtr kategorii zapisywał wybór przy zamknięciu).
+- Warstwy pływające tworzą stos — Esc i klik poza zamykają tylko górną.
+- Zwinięcie grupy odznacza jej wiersze; zaznaczenie (pasek „Zaznaczone: N”, przyszłe akcje zbiorcze) zawiera wyłącznie widoczne wiersze bieżącej strony.
+- Zapisanych widoków jest najwyżej 12: przy komplecie nowa nazwa daje komunikat „Masz już 12 widoków. Usuń jeden, żeby zapisać następny.” (istniejący widok można nadpisać); wcześniej najstarszy był cicho usuwany.
+- Nieudany zapis kolumn przywraca poprzedni wybór kapsułek i pokazuje błąd.
+- Strona poza zakresem (np. `?page=9` przy 2 stronach) przekierowuje na ostatnią stronę wyniku (Firmy, Osoby, Magazyn, Przeglądy).
+- Magazyn: panel pozycji otwiera się sam tylko na szerokim ekranie (> 1100 px); węższy ekran (panel jako nakładka, telefon) pokazuje listę, a panel otwiera wybór pozycji (klik, ↵). J / K przy zamkniętym panelu tylko przesuwa kursor.
+- Zadania: w trakcie zapisu (status, plan, komentarz) J / K / X / ↵ listy nie działają.
+- `/` działa także z Shiftem (układy klawiatury, w których `/` = Shift+7).
+- `customer_directory` liczy miasto pierwszej lokalizacji dla całego wyniku tylko przy grupowaniu po mieście; wiersze strony dostają miasto jak dotąd.
+
+**Testy bazy.** `pnpm db:test` uruchamiaj na czystej bazie (`pnpm db:reset` przed testami) — testy 008, 021, 031, 036 liczą wiersze globalnie i nie przechodzą, gdy w bazie są dane testowe wgrane ręcznie.
+
 **Ograniczenia.**
 - Zadania: filtrowanie, sortowanie i grupowanie nadal na 20 wczytanych zadaniach w przeglądarce (`my_crm_tasks` bez tych parametrów) — poza kryteriami M0.4; tryb `local` silnika jest gotowy do zamiany na `url`, gdy RPC dostanie parametry. Zadania nie mają kolumny zaznaczenia (bez akcji zbiorczych X nic nie robi).
 - Pasek zaznaczonych nie ma jeszcze akcji domenowych (gniazdo dla M1.7 / M1.8 / M2.x).
