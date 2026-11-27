@@ -33,7 +33,8 @@ export function checkPilot(env) {
     if (!address(env.NOTIFICATION_MAIL_FROM)) errors.push('NOTIFICATION_MAIL_FROM: wymagany adres nadawcy.');
     const recipients = (env.NOTIFICATION_MAIL_RECIPIENTS || '').split(',').map(s => s.trim()).filter(Boolean);
     if (!recipients.length || recipients.length > 100 || !recipients.every(address)) errors.push('NOTIFICATION_MAIL_RECIPIENTS: wymagana jawna lista 1–100 poprawnych adresów.');
-    if (!env.NOTIFICATION_WORKER_SECRET || env.NOTIFICATION_WORKER_SECRET.length < 32 || placeholder(env.NOTIFICATION_WORKER_SECRET)) errors.push('NOTIFICATION_WORKER_SECRET: wymagany osobny losowy sekret co najmniej 32 znaków.');
+    const workerSecrets = [env.NOTIFICATION_WORKER_SECRET, env.CRON_SECRET].filter(Boolean);
+    if (!workerSecrets.some(secret => secret.length >= 32 && !placeholder(secret))) errors.push('NOTIFICATION_WORKER_SECRET lub CRON_SECRET: wymagany osobny losowy sekret co najmniej 32 znaków.');
     if (placeholder(env.SUPABASE_SERVICE_ROLE_KEY) || keyRole(env.SUPABASE_SERVICE_ROLE_KEY) !== 'service_role') errors.push('SUPABASE_SERVICE_ROLE_KEY: wymagany klucz serwerowy w sekrecie hostingu.');
     if (placeholder(env.RESEND_API_KEY)) errors.push('RESEND_API_KEY: wymagany sekret dostawcy poczty.');
     warnings.push('Sprawdź domenę nadawcy, zgodność kluczy z projektem oraz działanie harmonogramu. Walidator nie łączy się z dostawcą.');

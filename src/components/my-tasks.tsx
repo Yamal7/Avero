@@ -1,4 +1,5 @@
 'use client';
+import { useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -27,6 +28,7 @@ const isOpen = (t: TaskRow) => ['backlog', 'todo', 'in_progress', 'review'].incl
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 
 export function MyTasksBoard({ data, team = false }: { data: MyTasks; team?: boolean }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const panelRef = useRef<HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function MyTasksBoard({ data, team = false }: { data: MyTasks; team?: boo
     if (!input.success) { setError('Sprawdź status i długość wyniku (maksymalnie 2000 znaków, 80 wierszy).'); return; }
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) { setConflict(true); throw new Error('Zadanie zostało zmienione przez kogoś innego. Odśwież listę przed kolejną zmianą.'); } throw new Error(body.error?.message || 'Nie udało się zapisać postępu.'); }
       const task = crmTaskSchema.parse(body);
       if (task.id !== selected.id || task.customerId !== selected.customerId || task.assigneeId !== (team ? selected.assigneeId : data.viewerId)) throw new Error('Nieprawidłowa odpowiedź zapisu. Odśwież listę.');

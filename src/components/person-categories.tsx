@@ -1,5 +1,6 @@
 'use client';
 /* Person categories in the Osoby table (design: Decyzyjny, Techniczny, Płatnik, Zarządca). Office edits contacts in place. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { personCategoryLabels } from '@hvac/api-client';
@@ -10,6 +11,7 @@ export const personTint = (c: Cat) => `color-mix(in srgb, ${tint[c]} 16%, transp
 const chip = (c: Cat) => <span key={c} style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 6px', borderRadius: 6, background: personTint(c), color: 'var(--text-primary)', fontSize: 12, lineHeight: '16px', whiteSpace: 'nowrap' }}>{personCategoryLabels[c]}</span>;
 
 export function PersonCategories({ contactId, initial, editable }: { contactId: string | null; initial: Cat[]; editable: boolean }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const [open, setOpen] = useState(false), [cats, setCats] = useState(initial), [err, setErr] = useState('');
   const box = useRef<HTMLSpanElement>(null);
@@ -23,7 +25,7 @@ export function PersonCategories({ contactId, initial, editable }: { contactId: 
   }, [open]);
   async function toggle(c: Cat) {
     const next = cats.includes(c) ? cats.filter(x => x !== c) : [...cats, c]; setCats(next); setErr('');
-    const r = await fetch(`/api/v1/contacts/${contactId}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) });
+    const r = await organizationFetch(`/api/v1/contacts/${contactId}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) });
     if (!r.ok) { setCats(cats); setErr('Nie udało się zapisać.'); return; }
     router.refresh();
   }

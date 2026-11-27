@@ -1,15 +1,15 @@
-# HVAC MVP — Next.js + Supabase
+# Avero — Next.js + Supabase
 
 Kontynuacja: panel CRM, import CSV, użytkownicy i uprawnienia, serwis oraz mobilny portal klienta. Portal: [docs/CUSTOMER_PORTAL.md](docs/CUSTOMER_PORTAL.md). Serwis: [docs/SERVICE_WORKFLOW.md](docs/SERVICE_WORKFLOW.md). Zarządzanie dostępem: [docs/ACCESS_MANAGEMENT.md](docs/ACCESS_MANAGEMENT.md). Instrukcja oraz stan weryfikacji: [docs/CONTINUATION.md](docs/CONTINUATION.md).
 
 Startowy szkielet z migracją bazy, politykami RLS, prywatnym bucketem i testami. **Nie jest kompletną, audytowaną aplikacją produkcyjną.**
 
 ## Wymagania
-- Node.js 20+ (zalecane aktualne LTS), npm, Docker, Supabase CLI.
-- Dla uruchomienia lokalnego: `npm install`, `npx supabase start`.
-- Skopiuj `.env.example` do `.env.local` i wstaw wartości `API URL` i `anon key` z `npx supabase status`.
-- `npx supabase db reset` uruchamia migrację. `npm run dev` startuje portal.
-- `npm test`, `npm run typecheck`, `npm run lint`, `npm run db:test`.
+- Node.js 22, pnpm 10 i Docker. Supabase CLI instaluje się z zależnościami projektu.
+- Dla uruchomienia lokalnego: `pnpm install --frozen-lockfile`, `pnpm exec supabase start`.
+- Skopiuj `.env.example` do `.env.local` i wstaw wartości `API URL` i `anon key` z `pnpm exec supabase status`.
+- `pnpm db:reset` stosuje migracje na czystej lokalnej bazie. `pnpm dev --port 3100` uruchamia Avero zgodnie z domyślnym `APP_URL`.
+- `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm db:test`.
 
 ## Uprawnienia i provisioning
 - Nowe konta w Supabase Auth **nie uzyskują automatycznie** dostępu do żadnego klienta.
@@ -25,7 +25,7 @@ Startowy szkielet z migracją bazy, politykami RLS, prywatnym bucketem i testami
 - Test jednostkowy walidacji Zod oraz test SQL izolacji dwóch klientów i pracownika.
 
 ## Przed produkcją (blokery)
-1. Wykonaj testy RLS na lokalnej instancji i stagingu; zweryfikuj wersje zależności, migracje i `npm run build`.
+1. Wykonaj testy RLS na lokalnej instancji i stagingu; zweryfikuj wersje zależności, migracje i `pnpm build`.
 2. Panel admin UI/API jest wdrożony. Przed produkcją skonfiguruj SMTP, wymagane potwierdzanie e-mail, adresy powrotu i przeprowadź pilotaż zaproszeń.
 3. Dodaj pełne CRUD, walidację Zod dla każdego zapisu, limitowanie zgłoszeń i przesyłanych plików.
 4. Zaimplementuj workflow dokumentów: najpierw upload do ścieżki losowej, potem zatwierdzony rekord; sprzątanie osieroconych plików.

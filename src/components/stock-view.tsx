@@ -2,6 +2,7 @@
 /* Magazyn (M0.3, KRA-63): tabela pozycji i macierz „W samochodach” na wspólnej tabeli z src/components/table
    (wiersz 36 px, indeks i nazwa przypięte, przewijanie ←/→), panel pozycji i okna dokumentów PZ / RW / MM / WZ w Tailwindzie.
    Logika (dokumenty, szkice, rezerwacje, minimum na bus) bez zmian. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -161,13 +162,14 @@ export function StockView({ data, view, tickets, tasks = [], technicians }: { da
 }
 
 function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, tickets, tasks, onReserved }: { item: StockItem; locations: StockLocation[]; manage: boolean; canIssue: boolean; onClose: () => void; onDoc: (k: DocKind) => void; onEdit: () => void; tickets: StockTicket[]; tasks: StockTask[]; onReserved: () => void }) {
+  const organizationFetch = useOrganizationFetch();
   const [moves, setMoves] = useState<StockMove[] | null>(null), [movesError, setMovesError] = useState(false), [reserve, setReserve] = useState(false), [rTicket, setRTicket] = useState(''), [rQty, setRQty] = useState(''), [err, setErr] = useState('');
-  useEffect(() => { setMoves(null); setMovesError(false); const c = new AbortController(); fetch(`/api/v1/stock/items/${item.id}/moves`, { cache: 'no-store', signal: c.signal }).then(r => (r.ok ? r.json() : Promise.reject(new Error('moves')))).then(b => { const p = stockMovesSchema.safeParse(b); if (p.success) setMoves(p.data); else setMovesError(true); }).catch(() => { if (!c.signal.aborted) setMovesError(true); }); return () => c.abort(); }, [item.id, item.lastMove?.at]);
+  useEffect(() => { setMoves(null); setMovesError(false); const c = new AbortController(); organizationFetch(`/api/v1/stock/items/${item.id}/moves`, { cache: 'no-store', signal: c.signal }).then(r => (r.ok ? r.json() : Promise.reject(new Error('moves')))).then(b => { const p = stockMovesSchema.safeParse(b); if (p.success) setMoves(p.data); else setMovesError(true); }).catch(() => { if (!c.signal.aborted) setMovesError(true); }); return () => c.abort(); }, [item.id, item.lastMove?.at, organizationFetch]);
   const t = total(item), a = avail(item), low = below(item);
   async function doReserve() {
     const q = parseNum(rQty); if (!rTicket || !(q > 0)) { setErr('Wybierz zgłoszenie albo zadanie i ilość.'); return; }
     const [kind, target] = rTicket.split(':');
-    const r = await fetch('/api/v1/stock/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), itemId: item.id, ticketId: kind === 'ticket' ? target : null, taskId: kind === 'task' ? target : null, quantity: q }) });
+    const r = await organizationFetch('/api/v1/stock/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), itemId: item.id, ticketId: kind === 'ticket' ? target : null, taskId: kind === 'task' ? target : null, quantity: q }) });
     if (!r.ok) { setErr((await r.json()).error?.message || 'Nie udało się zarezerwować.'); return; }
     setReserve(false); setRQty(''); setErr(''); onReserved();
   }
@@ -241,6 +243,7 @@ function ItemPanel({ item, locations, manage, canIssue, onClose, onDoc, onEdit, 
 }
 
 function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }: { items: StockItem[]; main?: StockLocation; vans: StockLocation[]; manage: boolean; onMM: (itemId: string, to: string) => void; onAddVan: () => void; onDone: (t: string) => void; onError: (t: string) => void }) {
+  const organizationFetch = useOrganizationFetch();
   /* Each van has its own minimum per item; a van without a minimum for an item shows a grey dash when empty. */
   const carried = items.filter(i => vans.some(v => (i.levels[v.id] ?? 0) !== 0 || (i.vehicleMins[v.id] ?? 0) > 0) || (main && (i.levels[main.id] ?? 0) > 0));
   const short = (i: StockItem, v: StockLocation) => Math.max(0, (i.vehicleMins[v.id] ?? 0) - (i.levels[v.id] ?? 0));
@@ -252,14 +255,14 @@ function Vehicles({ items, main, vans, manage, onMM, onAddVan, onDone, onError }
   async function saveMin(i: StockItem, v: StockLocation) {
     const n = draft.trim() === '' ? 0 : parseNum(draft); setEditing(null);
     if (!(n >= 0) || n === (i.vehicleMins[v.id] ?? 0)) return;
-    const r = await fetch('/api/v1/stock/minimums', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId: v.id, itemId: i.id, minQuantity: Math.round(n * 1000) / 1000 }) });
+    const r = await organizationFetch('/api/v1/stock/minimums', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId: v.id, itemId: i.id, minQuantity: Math.round(n * 1000) / 1000 }) });
     if (!r.ok) { onError((await r.json()).error?.message || 'Nie udało się zapisać minimum.'); return; }
     onDone(n ? `Minimum ${i.code} w ${v.name}: ${fmt(n, i.unit)}.` : `Usunięto minimum ${i.code} w ${v.name}.`);
   }
   async function refill() {
     setBusy(true); request.current ??= crypto.randomUUID();
     try {
-      const r = await fetch('/api/v1/stock/refill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: request.current }) }), b = await r.json();
+      const r = await organizationFetch('/api/v1/stock/refill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: request.current }) }), b = await r.json();
       if (!r.ok) throw new Error(b.error?.message || 'Nie udało się uzupełnić braków.');
       const docs = stockRefillResultSchema.parse(b); request.current = null;
       onDone(docs.length ? `Zaksięgowano ${docs.map(d => d.number).join(', ')}.` : 'W bazie nie ma towaru na uzupełnienie braków.');
@@ -333,6 +336,7 @@ function Modal({ title, sub, children, onClose }: { title: string; sub?: string;
 }
 
 function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, initialItem, initialFrom, initialTo, onClose, onDone }: { kind: DocKind; draft?: StockDraft; items: StockItem[]; locations: StockLocation[]; manage: boolean; myVan?: StockLocation; tickets: StockTicket[]; initialItem?: string; initialFrom?: string; initialTo?: string; onClose: () => void; onDone: (t: string) => void }) {
+  const organizationFetch = useOrganizationFetch();
   const main = locations.find(l => l.kind === 'warehouse');
   const d = (k: string) => (typeof draft?.payload[k] === 'string' ? draft.payload[k] as string : undefined);
   const docId = useRef(draft?.id ?? crypto.randomUUID());
@@ -353,21 +357,21 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
     setBusy(true); setErr('');
     try {
       const payload = { itemId, ticketId, deviceId, from, to, qty, before, after, weigh: weigh ? 'yes' : 'no', op, supplier, note, cylinder };
-      const r = await fetch('/api/v1/stock/drafts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, payload }) });
+      const r = await organizationFetch('/api/v1/stock/drafts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, payload }) });
       if (!r.ok) throw new Error((await r.json()).error?.message || 'Nie udało się zapisać szkicu.');
       onDone(`Zapisano szkic ${kind}. Znajdziesz go na pasku nad tabelą.`);
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zapisać szkicu.'); } finally { setBusy(false); }
   }
   async function dropDraft() {
     if (!draft) return; setBusy(true);
-    const r = await fetch('/api/v1/stock/drafts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: draft.id }) });
+    const r = await organizationFetch('/api/v1/stock/drafts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: draft.id }) });
     setBusy(false); if (r.ok) onDone('Usunięto szkic.'); else setErr('Nie udało się usunąć szkicu.');
   }
   async function submit() {
     if (!valid || !item || busy) return; setBusy(true); setErr('');
     const line: Record<string, unknown> = { itemId: item.id, ...(useWeigh ? { massBefore: parseNum(before), massAfter: parseNum(after) } : { quantity: Math.round(amount * 1000) / 1000 }), ...(kind === 'RW' && isGas ? { operation: op } : {}), ...(kind === 'RW' && deviceId ? { deviceId } : {}), ...(isGas && cylinder.trim() ? { cylinder: cylinder.trim() } : {}) };
     try {
-      const r = await fetch('/api/v1/stock/documents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, from: kind === 'PZ' ? null : from, to: kind === 'RW' || kind === 'WZ' ? null : to, ticketId: kind === 'RW' ? ticketId : null, supplier: kind === 'PZ' || kind === 'WZ' ? supplier.trim() : '', note: note.trim(), lines: [line] }) }), body = await r.json();
+      const r = await organizationFetch('/api/v1/stock/documents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: docId.current, kind, from: kind === 'PZ' ? null : from, to: kind === 'RW' || kind === 'WZ' ? null : to, ticketId: kind === 'RW' ? ticketId : null, supplier: kind === 'PZ' || kind === 'WZ' ? supplier.trim() : '', note: note.trim(), lines: [line] }) }), body = await r.json();
       if (!r.ok) throw new Error(body.error?.message || 'Nie udało się zaksięgować dokumentu.');
       onDone(`Zaksięgowano ${stockDocumentResultSchema.parse(body).number}.`);
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zaksięgować.'); } finally { setBusy(false); }
@@ -420,13 +424,14 @@ function DocDialog({ kind, draft, items, locations, manage, myVan, tickets, init
 function Line({ l, v, warn }: { l: string; v: string; warn?: boolean }) { return <div className="flex items-center gap-2 text-small leading-4"><span className="flex-auto text-secondary">{l}</span><span className={cx('tabular-nums', warn ? 'text-danger' : 'text-primary')}>{v}</span></div>; }
 
 function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () => void; onDone: (t: string) => void }) {
+  const organizationFetch = useOrganizationFetch();
   const [f, setF] = useState({ code: item?.code ?? '', name: item?.name ?? '', category: item?.category ?? 'parts', unit: item?.unit ?? 'szt.', min: item ? String(item.minQuantity).replace('.', ',') : '0', bin: item?.bin ?? '', cls: item?.refrigerantClass ?? '', gwp: item?.gwp?.toString() ?? '', container: item?.container ?? '' }), [err, setErr] = useState(''), [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }));
   const gas = f.category === 'refrigerant';
   async function save() {
     setBusy(true); setErr('');
     try {
-      const r = await fetch('/api/v1/stock/items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: item?.id ?? crypto.randomUUID(), code: f.code, name: f.name, category: f.category, unit: f.unit, minQuantity: parseNum(f.min) || 0, bin: f.bin.trim(), refrigerantClass: gas ? f.cls.trim() : '', gwp: gas && f.gwp ? Number(f.gwp) : null, container: f.container.trim() }) }), b = await r.json();
+      const r = await organizationFetch('/api/v1/stock/items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: item?.id ?? crypto.randomUUID(), code: f.code, name: f.name, category: f.category, unit: f.unit, minQuantity: parseNum(f.min) || 0, bin: f.bin.trim(), refrigerantClass: gas ? f.cls.trim() : '', gwp: gas && f.gwp ? Number(f.gwp) : null, container: f.container.trim() }) }), b = await r.json();
       if (!r.ok) throw new Error(b.error?.message || 'Nie udało się zapisać pozycji.');
       onDone(item ? 'Pozycja zapisana.' : 'Dodano pozycję. Przyjmij ją dokumentem PZ.');
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
@@ -455,10 +460,11 @@ function ItemDialog({ item, onClose, onDone }: { item?: StockItem; onClose: () =
 }
 
 function VehicleDialog({ technicians, onClose, onDone }: { technicians: { id: string; label: string }[]; onClose: () => void; onDone: (t: string) => void }) {
+  const organizationFetch = useOrganizationFetch();
   const [tech, setTech] = useState(technicians[0]?.id ?? ''), [name, setName] = useState(''), [plate, setPlate] = useState(''), [err, setErr] = useState('');
   const def = useMemo(() => `Bus ${personName(technicians.find(t => t.id === tech)?.label ?? '')}`, [tech, technicians]);
   async function save() {
-    const r = await fetch('/api/v1/stock/vehicles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), technicianId: tech, name: (name || def).trim(), plate: plate.trim().toUpperCase() }) });
+    const r = await organizationFetch('/api/v1/stock/vehicles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), technicianId: tech, name: (name || def).trim(), plate: plate.trim().toUpperCase() }) });
     if (!r.ok) { setErr((await r.json()).error?.message || 'Nie udało się dodać samochodu.'); return; }
     onDone('Dodano samochód.');
   }

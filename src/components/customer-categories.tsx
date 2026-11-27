@@ -1,5 +1,6 @@
 'use client';
 /* Category chips of a customer (design: Karta firmy). Office adds and removes; everyone else sees the chips. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { customerCategorySchema } from '@hvac/api-client';
@@ -7,12 +8,13 @@ import { customerCategorySchema } from '@hvac/api-client';
 import { categoryTint } from '@/lib/crm/category-colors';
 
 export function CustomerCategories({ customer, initial, editable, colors }: { customer: string; initial: string[]; editable: boolean; colors?: Record<string, string> }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const [items, setItems] = useState(initial), [adding, setAdding] = useState(false), [draft, setDraft] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function save(next: string[]) {
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${customer}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${customer}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) }), body = await r.json();
       if (!r.ok) throw new Error(body.error?.message || 'Nie udało się zapisać kategorii.');
       setItems(body as string[]); setDraft(''); setAdding(false); router.refresh();
     } catch (e) { setError(e instanceof Error ? e.message : 'Nie udało się zapisać kategorii.'); } finally { setBusy(false); }

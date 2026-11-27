@@ -1,16 +1,18 @@
 'use client';
+import { useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useRef,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiErrorSchema,catalogCategories,catalogUnits,catalogSaveSchema,catalogSavedSchema,catalogGrossCents,catalogMargin,decimalToHundredths,hundredthsToDecimal,type CatalogItem,type CatalogSave } from '@hvac/api-client';
 import { catalogMoney,catalogPercent } from '@/lib/catalog/format';
-export async function persistCatalogItem(input:CatalogSave){
+export async function persistCatalogItem(input:CatalogSave, organizationFetch: typeof fetch = fetch){
  const parsed=catalogSaveSchema.safeParse(input);if(!parsed.success)throw new Error('Sprawdź kod, nazwę, kategorię, jednostkę, ceny i stawkę VAT.');
- const response=await fetch('/api/v1/catalog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(parsed.data),credentials:'same-origin',cache:'no-store',redirect:'error'}),data=await response.json().catch(()=>null);
+ const response=await organizationFetch('/api/v1/catalog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(parsed.data),credentials:'same-origin',cache:'no-store',redirect:'error'}),data=await response.json().catch(()=>null);
  if(!response.ok){const parsed=apiErrorSchema.safeParse(data);throw new Error(parsed.success?parsed.data.error.message:'Nie udało się zapisać pozycji.');}
  if(!catalogSavedSchema.safeParse(data).success)throw new Error('Nie udało się potwierdzić zapisu. Odśwież katalog przed ponowieniem.');
 }
 export function CatalogForm({record}:{record?:CatalogItem}){
+  const organizationFetch = useOrganizationFetch();
  const router=useRouter(),requestId=useRef<string|null>(null),busy=useRef(false);
  const [pending,setPending]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState(''),[category,setCategory]=useState<CatalogSave['category']>(record?.category||'device'),[unit,setUnit]=useState<CatalogSave['unit']>(record?.unit||'piece'),[cost,setCost]=useState(record?hundredthsToDecimal(record.costCents):''),[sale,setSale]=useState(record?hundredthsToDecimal(record.saleCents):''),[vat,setVat]=useState(hundredthsToDecimal(record?.vatBasisPoints??2300));
  let preview:{cost:number;sale:number;vat:number}|null=null;
@@ -22,7 +24,7 @@ export function CatalogForm({record}:{record?:CatalogItem}){
    requestId.current??=crypto.randomUUID();
    const parsed=catalogSaveSchema.safeParse({id:record?.id||requestId.current,version:record?.version??null,code:String(data.get('code')||''),name:String(data.get('name')||''),category,unit,costCents:decimalToHundredths(cost),saleCents:decimalToHundredths(sale),vatBasisPoints:decimalToHundredths(vat,10000),manufacturer:String(data.get('manufacturer')||''),model:String(data.get('model')||''),supplier:String(data.get('supplier')||''),description:String(data.get('description')||''),archived:record?.archived??false});
    if(!parsed.success)throw new Error('Uzupełnij kod i nazwę. Sprawdź limity pól, ceny oraz stawkę VAT (0–100%).');
-   busy.current=true;setPending(true);await persistCatalogItem(parsed.data);
+   busy.current=true;setPending(true);await persistCatalogItem(parsed.data, organizationFetch);
    if(!record)router.replace(`/dashboard/catalog/${parsed.data.id}?created=1`);else{setSuccess('Zmiany zapisano.');router.replace(`/dashboard/catalog/${record.id}?saved=1`);router.refresh();}
   }catch(error){setError(error instanceof Error?error.message:'Nie udało się zapisać pozycji.');}finally{busy.current=false;setPending(false);}
  }}>
@@ -35,6 +37,7 @@ export function CatalogForm({record}:{record?:CatalogItem}){
  <div className="button-group">{!record?.archived&&<button disabled={pending}>{pending?'Zapisywanie…':record?'Zapisz zmiany':'Dodaj pozycję'}</button>}<Link className="button secondary" href="/dashboard/catalog">Wróć do katalogu</Link></div></form>;
 }
 export function CatalogArchive({item}:{item:CatalogItem}){
+  const organizationFetch = useOrganizationFetch();
  const router=useRouter(),[pending,setPending]=useState(false),[error,setError]=useState('');
- return <form className="catalog-archive" onSubmit={async event=>{event.preventDefault();if(pending)return;setPending(true);setError('');try{const {createdAt: _createdAt,updatedAt: _updatedAt,...fields}=item;void _createdAt;void _updatedAt;await persistCatalogItem({...fields,archived:!item.archived});router.refresh();}catch(error){setError(error instanceof Error?error.message:'Nie udało się zmienić stanu.');}finally{setPending(false);}}}><p className="muted">{item.archived?'Przywrócenie udostępni pozycję ponownie w aktywnym katalogu.':'Archiwizacja ukryje pozycję z aktywnego katalogu i zachowa jej dane.'}</p><label className="checkbox"><input type="checkbox" required disabled={pending}/>Potwierdzam {item.archived?'przywrócenie':'archiwizację'} pozycji.</label>{error&&<p className="error" role="alert">{error}</p>}<button type="submit" className="secondary" disabled={pending}>{pending?'Zapisywanie…':item.archived?'Przywróć pozycję':'Archiwizuj pozycję'}</button></form>;
+ return <form className="catalog-archive" onSubmit={async event=>{event.preventDefault();if(pending)return;setPending(true);setError('');try{const {createdAt: _createdAt,updatedAt: _updatedAt,...fields}=item;void _createdAt;void _updatedAt;await persistCatalogItem({...fields,archived:!item.archived}, organizationFetch);router.refresh();}catch(error){setError(error instanceof Error?error.message:'Nie udało się zmienić stanu.');}finally{setPending(false);}}}><p className="muted">{item.archived?'Przywrócenie udostępni pozycję ponownie w aktywnym katalogu.':'Archiwizacja ukryje pozycję z aktywnego katalogu i zachowa jej dane.'}</p><label className="checkbox"><input type="checkbox" required disabled={pending}/>Potwierdzam {item.archived?'przywrócenie':'archiwizację'} pozycji.</label>{error&&<p className="error" role="alert">{error}</p>}<button type="submit" className="secondary" disabled={pending}>{pending?'Zapisywanie…':item.archived?'Przywróć pozycję':'Archiwizuj pozycję'}</button></form>;
 }
