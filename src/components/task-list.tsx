@@ -1,6 +1,7 @@
 'use client';
 /* Zadania — lista w jednej linii + panel zadania (M0.3, KRA-63): wspólna tabela z src/components/table
    (wiersz 36 px, kolumny do tytułu przypięte, przewijanie ←/→, klient jako logo z kartą podglądu). Tailwind na tokenach. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -65,6 +66,7 @@ const allColumns: (ColumnSpec & { view?: string })[] = [
 ];
 
 export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, search, board, footer, canPlan = false }: { canPlan?: boolean; data: MyTasks; header: ReactNode; toolbarTabs: ReactNode; toolbarExtra?: ReactNode; layoutSwitch: ReactNode; search: ReactNode; board?: ReactNode; footer?: ReactNode }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const items = data.items;
   const [panelOn, setPanelOn] = useState(true);
@@ -79,21 +81,21 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     setComments([]); setDraft('');
     if (!selectedKey) return;
     const [taskId, customerId] = selectedKey.split(':'), controller = new AbortController();
-    fetch(`/api/v1/customers/${customerId}/tasks/${taskId}/comments`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : []).then(body => { const parsed = crmTaskCommentsSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setComments(parsed.data); }).catch(() => {});
+    organizationFetch(`/api/v1/customers/${customerId}/tasks/${taskId}/comments`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : []).then(body => { const parsed = crmTaskCommentsSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setComments(parsed.data); }).catch(() => {});
     return () => controller.abort();
-  }, [selectedKey]);
+  }, [selectedKey, organizationFetch]);
   const [people, setPeople] = useState<{ id: string; label: string }[]>([]), [links, setLinks] = useState<CrmTaskLink[] | null>(null);
   useEffect(() => {
     setPeople([]); setLinks(null);
     if (!selectedKey || !canPlan) return;
     const [taskId, customerId] = selectedKey.split(':'), controller = new AbortController();
-    fetch(`/api/v1/customers/${customerId}/tasks/${taskId}/plan`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : null).then(body => { const parsed = taskPlanContextSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setPeople(parsed.data.assignees); }).catch(() => {});
+    organizationFetch(`/api/v1/customers/${customerId}/tasks/${taskId}/plan`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : null).then(body => { const parsed = taskPlanContextSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setPeople(parsed.data.assignees); }).catch(() => {});
     return () => controller.abort();
-  }, [selectedKey, canPlan]);
+  }, [selectedKey, canPlan, organizationFetch]);
   const selected = panelOn ? items.find(t => t.id === selectedId) ?? null : null;
   async function loadLinks() {
     if (!selected || links) return;
-    try { const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
+    try { const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
   }
   const view = useCollectionView('tasks', viewDefaults), vs = view.state, [optionsOpen, setOptionsOpen] = useState(false);
   const col = (c: string) => vs.columns.includes(c);
@@ -135,7 +137,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     if (!input.success) { setError('Nie udało się zmienić statusu.'); return; }
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) { setConflict(true); throw new Error('Zadanie zmienił ktoś inny. Odśwież listę przed kolejną zmianą.'); } throw new Error(body.error?.message || 'Nie udało się zmienić statusu.'); }
       const task = crmTaskSchema.parse(body);
       if (task.id !== selected.id || task.assigneeId !== data.viewerId) throw new Error('Nieprawidłowa odpowiedź zapisu. Odśwież listę.');
@@ -148,7 +150,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     if (!input.success) return;
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) setConflict(true); throw new Error(r.status === 409 ? 'Zadanie zmienił ktoś inny. Odśwież listę.' : body.error?.message || 'Nie udało się zapisać.'); }
       crmTaskSchema.parse(body); router.refresh();
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
@@ -157,7 +159,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     if (!selected) return;
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) setConflict(true); throw new Error(r.status === 409 ? 'Zadanie zmienił ktoś inny. Odśwież listę.' : body.error?.message || `Nie udało się zmienić: ${what}.`); }
       crmTaskSchema.parse(body); setNotice(`${selected.title}: zmieniono ${what}`); router.refresh();
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
@@ -177,7 +179,7 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     const body = draft.trim(); if (!body) return;
     setPosting(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), body }) }), json = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), body }) }), json = await r.json();
       if (!r.ok) throw new Error(json.error?.message || 'Nie udało się dodać komentarza.');
       const c = crmTaskCommentSchema.parse(json); setComments(list => [...list, c]); setDraft('');
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się dodać komentarza.'); } finally { setPosting(false); }

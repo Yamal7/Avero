@@ -25,17 +25,18 @@ Zmienne opisuje `.env.example`:
 | `APP_URL` | Kanoniczny adres aplikacji, HTTPS dla Resend; lokalnie loopback |
 | `SUPABASE_SERVICE_ROLE_KEY` | Wyłącznie serwerowy klucz odpowiedniego środowiska; nigdy `NEXT_PUBLIC_*` |
 | `NOTIFICATION_WORKER_SECRET` | Osobny losowy sekret co najmniej 32 znaków, wyłącznie na serwerze |
+| `CRON_SECRET` | Osobny sekret trasy GET Vercel Cron, co najmniej 32 znaki |
 | `RESEND_API_KEY` | Serwerowy klucz dostawcy, wymagany w trybie `resend` |
 
 Po skonfigurowaniu i uruchomieniu aplikacji:
 
 ```sh
-npm run notifications:worker
+pnpm notifications:worker
 # Pojedynczy kontrolowany cykl:
-npm run notifications:worker -- --once
+pnpm notifications:worker --once
 ```
 
-Skrypt wymaga Node obsługującego `--env-file`. Wczytuje `.env.local`, wykonuje pierwszy cykl od razu, następne co minutę i nie nakłada własnych cykli. Wywołuje `POST /api/internal/email/dispatch` z nagłówkiem Bearer. Samo uruchomienie aplikacji nie uruchamia workera. Na hostingu trzeba jawnie wdrożyć proces stale działający lub harmonogram wywołujący ten endpoint. Nie utworzono zadania systemowego ani harmonogramu hostingu. Nie należy umieszczać sekretu w URL.
+Skrypt wymaga Node obsługującego `--env-file`. Wczytuje `.env.local`, wykonuje pierwszy cykl od razu, następne co minutę i nie nakłada własnych cykli. Wywołuje `POST /api/internal/email/dispatch` z nagłówkiem Bearer. Samo uruchomienie aplikacji nie uruchamia workera. Na Vercel skonfiguruj harmonogram GET `/api/internal/email/cron`. Vercel dodaje nagłówek z `CRON_SECRET`, a trasa przekazuje pracę tej samej kolejce. Instrukcja i częstotliwość są w [konfiguracji wdrożenia](../deploy/README.md#worker-poczty--dopiero-po-konfiguracji). Nie należy umieszczać sekretu w URL.
 
 Cykl skanuje do 20 kont, przetwarza do 5 wysyłek i do 5 kontroli dostarczenia. To ograniczony pilotaż, nie rozwiązanie do masowego mailingu. Dane wysyłek obejmują adres i zamrożoną treść; dostęp administracyjny do bazy nadal wymaga ochrony. Retencja historii i monitorowanie procesu pozostają częścią przygotowania produkcji.
 

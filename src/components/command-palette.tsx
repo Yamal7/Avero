@@ -1,4 +1,5 @@
 'use client';
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon, type IconName } from './icon';
@@ -14,6 +15,7 @@ const norm = (s: string) => s.toLocaleLowerCase('pl').normalize('NFD').replace(/
 
 /** ⌘K palette from the design: actions, records (live search) and navigation, all keyboard-driven. */
 export function CommandPalette({ open, onClose, actions, places }: { open: boolean; onClose: () => void; actions: PaletteEntry[]; places: PaletteEntry[] }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null), input = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState(''), [hits, setHits] = useState<Hit[]>([]), [loading, setLoading] = useState(false), [failed, setFailed] = useState(false), [active, setActive] = useState(0);
@@ -30,7 +32,7 @@ export function CommandPalette({ open, onClose, actions, places }: { open: boole
     const controller = new AbortController(); setLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const r = await fetch(`/api/v1/search?${new URLSearchParams({ q })}`, { cache: 'no-store', signal: controller.signal });
+        const r = await organizationFetch(`/api/v1/search?${new URLSearchParams({ q })}`, { cache: 'no-store', signal: controller.signal });
         if (!r.ok) throw new Error();
         const body = await r.json() as { items: Hit[] };
         if (!controller.signal.aborted) setHits(body.items);
@@ -38,7 +40,7 @@ export function CommandPalette({ open, onClose, actions, places }: { open: boole
       finally { if (!controller.signal.aborted) setLoading(false); }
     }, 180);
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [query]);
+  }, [query, organizationFetch]);
 
   const options = useMemo<Option[]>(() => {
     const q = norm(query.trim());

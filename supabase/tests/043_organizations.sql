@@ -184,6 +184,18 @@ select is((select count(*)::int from jsonb_array_elements(public.my_organization
 select lives_ok($$select public.set_active_org('0a430000-0000-4000-8000-00000000000a')$$,'Worker switches back to firm A');
 select is(public.company_profile(),null,'Profile follows the active firm');
 
+-- Druga karta lub urządzenie nadal ma formularz firmy B. Polecenia są oceniane
+-- z oczekiwanym kontekstem przesłanym do PostgREST, w transakcji zapisu.
+select set_config('request.headers','{"x-avero-organization":"0a430000-0000-4000-8000-00000000000b"}',true);
+select throws_ok($$select public.save_customer_category('Stale form','blue')$$,'PT409',null,'An old B form cannot write a category in A');
+select throws_ok($$insert into public.customers(name) values('Stale form')$$,'PT409',null,'Direct insert protects the expected firm too');
+select throws_ok($$select public.current_access()$$,'PT409',null,'A stale context is not accepted by the HTTP role lookup');
+select set_config('request.headers','{"x-avero-organization":"0a430000-0000-4000-8000-00000000000a"}',true);
+select lives_ok($$select public.save_customer_category('Fresh form','blue')$$,'A form for the current firm can write');
+select set_config('request.headers','{}',true);
+select is((select count(*)::int from public.customer_category_colors where key='stale form'),0,'Rejected write has no side effect');
+
+
 -- Osoba bez dostępu.
 select pg_temp.as_user(7);
 select is(public.current_org_id(),null,'Outsider has no firm');

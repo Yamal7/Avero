@@ -2,6 +2,7 @@ import { beforeEach,afterEach,it,expect,vi } from 'vitest';
 const mocks=vi.hoisted(()=>({authenticate:vi.fn(),rpc:vi.fn(),create:vi.fn(),run:vi.fn()}));vi.mock('@/lib/api/http',async original=>({...await original<typeof import('@/lib/api/http')>(),authenticate:mocks.authenticate}));vi.mock('@supabase/supabase-js',()=>({createClient:mocks.create}));vi.mock('@/lib/email/worker',()=>({runEmailWorker:mocks.run}));
 import { GET,PUT } from '@/app/api/v1/notifications/email/route';
 import { POST } from '@/app/api/internal/email/dispatch/route';
+import { GET as cron } from '@/app/api/internal/email/cron/route';
 const id='ab230000-0000-4000-8000-000000000001',history={viewerId:id,enabled:false,version:null,total:0,items:[]},request=(body?:unknown)=>new Request('http://localhost:3100/api/v1/notifications/email',body?{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
 beforeEach(()=>{vi.clearAllMocks();vi.stubEnv('APP_URL','http://localhost:3100');vi.stubEnv('NOTIFICATION_MAIL_MODE','disabled');mocks.authenticate.mockResolvedValue({role:'office',user:{id,email:'staff@example.invalid'},db:{rpc:mocks.rpc}});mocks.rpc.mockResolvedValue({data:history,error:null});});afterEach(()=>vi.unstubAllEnvs());
 it.each(['client','none'])('denies %s history and preference',async role=>{mocks.authenticate.mockResolvedValue({role});expect((await GET(request())).status).toBe(403);expect((await PUT(request({enabled:true,version:null}))).status).toBe(403);expect(mocks.rpc).not.toHaveBeenCalled();});
@@ -12,3 +13,27 @@ it('rejects another viewer projection',async()=>{mocks.rpc.mockResolvedValue({da
 it('returns conflict on stale opt-in',async()=>{mocks.rpc.mockResolvedValue({data:null,error:{code:'40001'}});expect((await PUT(request({enabled:true,version:0}))).status).toBe(409);});
 it('worker stays disabled without configuration',async()=>{expect((await POST(new Request('http://localhost:3100/api/internal/email/dispatch',{method:'POST'}))).status).toBe(503);expect(mocks.run).not.toHaveBeenCalled();});
 it('worker rejects wrong credentials even when transport configured',async()=>{for(const [key,value] of Object.entries({NOTIFICATION_MAIL_MODE:'local',NOTIFICATION_MAIL_FROM:'noreply@hvac.local',NOTIFICATION_MAIL_RECIPIENTS:'staff@example.invalid',NOTIFICATION_WORKER_SECRET:'x'.repeat(40),SUPABASE_SERVICE_ROLE_KEY:'server-only',NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:54321'}))vi.stubEnv(key,value);expect((await POST(new Request('http://localhost:3100/api/internal/email/dispatch',{method:'POST',headers:{Authorization:'Bearer wrong'}}))).status).toBe(401);expect(mocks.create).not.toHaveBeenCalled();mocks.create.mockReturnValue({});mocks.run.mockResolvedValue({enqueued:1,processed:1,checked:0});expect((await POST(new Request('http://localhost:3100/api/internal/email/dispatch',{method:'POST',headers:{Authorization:'Bearer '+'x'.repeat(40)}}))).status).toBe(200);});
+
+it('cron accepts only its own Bearer secret and uses the same queue', async () => {
+  for (const [key, value] of Object.entries({
+    NOTIFICATION_MAIL_MODE: 'local',
+    NOTIFICATION_MAIL_FROM: 'noreply@hvac.local',
+    NOTIFICATION_MAIL_RECIPIENTS: 'staff@example.invalid',
+    NOTIFICATION_WORKER_SECRET: 'w'.repeat(40),
+    CRON_SECRET: 'c'.repeat(40),
+    SUPABASE_SERVICE_ROLE_KEY: 'server-only',
+    NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+  })) vi.stubEnv(key, value);
+
+  const url = 'http://localhost:3100/api/internal/email/cron';
+  expect((await cron(new Request(url))).status).toBe(401);
+  expect((await cron(new Request(url, { headers: { Authorization: 'Bearer ' + 'w'.repeat(40) } }))).status).toBe(401);
+  expect(mocks.create).not.toHaveBeenCalled();
+
+  mocks.create.mockReturnValue({});
+  mocks.run.mockResolvedValue({ enqueued: 1, processed: 1, checked: 0 });
+  const response = await cron(new Request(url, { headers: { Authorization: 'Bearer ' + 'c'.repeat(40) } }));
+  expect(response.status).toBe(200);
+  expect(response.headers.get('Cache-Control')).toBe('no-store');
+  expect(mocks.run).toHaveBeenCalledOnce();
+});

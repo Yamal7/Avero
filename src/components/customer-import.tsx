@@ -1,4 +1,5 @@
 'use client';
+import { useOrganizationId } from '@/components/organization-context';
 import { useState } from 'react';
 import Link from 'next/link';
 import { MAX_CSV_BYTES, mapCustomers, parseCsv, reportCsv, suggestMapping, type ColumnMapping, type CsvDocument, type ImportField, type Separator } from '@/lib/import/csv';
@@ -9,6 +10,7 @@ const labels: Record<ImportField, string> = { name: 'Nazwa / imię i nazwisko *'
 const statuses = { ready: 'Gotowy', invalid: 'Błąd', duplicate: 'Duplikat', imported: 'Dodano', skipped: 'Pominięto' };
 const emptyMapping: ColumnMapping = { name: null, email: null, phone: null, type: null };
 export function CustomerImport() {
+  const organizationId = useOrganizationId();
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState('');
   const [encoding, setEncoding] = useState('utf-8');
@@ -49,7 +51,7 @@ export function CustomerImport() {
     try {
       // Catch mapping errors before making a request; server repeats validation.
       mapCustomers(document, mapping);
-      const data = await previewImport(text, mapping, document.separator);
+      const data = await previewImport(text, mapping, document.separator, organizationId);
       if (data.error) setError(data.error);
       else { setPreview(data); setFilter('all'); setPage(1); }
     } catch (e) { setError(e instanceof Error ? e.message : 'Nie udało się przygotować podglądu.'); }
@@ -59,7 +61,7 @@ export function CustomerImport() {
     setBusy(true); setError('');
     try {
       if (preview?.batchId && !result) {
-        const discarded = await discardImport(preview.batchId);
+        const discarded = await discardImport(preview.batchId, organizationId);
         if (!discarded) { setError('Nie udało się anulować podglądu. Spróbuj ponownie po sprawdzeniu połączenia.'); return; }
       }
       setPreview(null); setResult(null); setConfirmed(false); setPage(1); setFilter('all');
@@ -71,7 +73,7 @@ export function CustomerImport() {
     if (!preview?.batchId || !confirmed) return;
     setBusy(true); setError('');
     try {
-      const data = await commitImport(preview.batchId);
+      const data = await commitImport(preview.batchId, organizationId);
       if (data.error) setError(data.error);
       else { setResult(data); setFilter('all'); setPage(1); }
     } catch { setError('Utracono połączenie. Ponów zatwierdzenie tego samego podglądu — nie doda klientów drugi raz.'); }

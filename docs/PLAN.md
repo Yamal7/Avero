@@ -83,10 +83,16 @@ Automatyczne przejścia ustawia się w Linear: Settings › Teams › Kranz_ ›
 
 Dwie etykiety w Linear:
 
-- **„projekt → kod”** — czat projektowy po zatwierdzeniu ekranu lub zmiany tworzy (albo aktualizuje) zadanie z kryteriami odbioru i dopisuje wiersz do tabeli modułów w tym pliku. Claude Code na starcie sesji sprawdza otwarte zadania z tą etykietą, które nie mają jeszcze wiersza w planie, i dopisuje je w odpowiedniej fazie.
+- **„projekt → kod”** — czat projektowy po zatwierdzeniu ekranu tworzy albo aktualizuje zadanie w Linear: kryteria odbioru, kamień milowy, numer modułu i zależności. Wiersz w tabeli dodaje synchronizacja. Jeśli tabela jest nieaktualna, wykonawca sprawdza status i zależności bezpośrednio w Linear.
 - **„kod → projekt”** — Claude Code przy pytaniu, sprzeczności albo błędzie w `docs/design/` lub makiecie tworzy zadanie z tą etykietą (powiązane z zadaniem modułu), dopisuje pytanie w `docs/STATUS.md` z numerem zadania i **przechodzi do innego modułu bez blokad** — nie czeka na odpowiedź, chyba że pytanie blokuje wszystko (wtedy warunek zatrzymania).
 
-### Zmiany planu
+#### Synchronizacja tabeli
+
+Workflow „Linear → plan” odczytuje zadania przez `LINEAR_API_KEY`. Do aktualizacji gałęzi i PR używa osobnego sekretu `LINEAR_PLAN_PR_TOKEN`. Ustaw token fine-grained ograniczony do `Yamal7/Avero` z uprawnieniami **Contents** i **Pull requests** (Read and write). Pozostaw wymagane kontrole „Aplikacja” i „Baza danych” oraz włącz auto-merge w repozytorium.
+
+Po ustawieniu sekretu uruchom „Linear → plan” z `main`. W istniejącym PR bota sprawdź, czy CI wystartowało dla aktualnego SHA w zdarzeniu `pull_request` i czy auto-merge nadal jest włączone. Przy wygaśnięciu tokenu odtwórz sekret i ponów ten sam workflow. GitHub wymaga zatwierdzenia przebiegów PR aktualizowanego wbudowanym `GITHUB_TOKEN`, dlatego wynik ręcznego uruchomienia CI na gałęzi nie rozwiązuje problemu tego przebiegu.
+
+## Zmiany planu
 
 **Linear jest jedynym źródłem prawdy o modułach** — zakres, kryteria odbioru, faza, kolejność (numer modułu), zależności i stan. Tabela modułów w tym pliku powstaje z Linear automatycznie; sekcje z kryteriami poniżej tabeli to kopia robocza dla Claude Code — przy rozbieżności obowiązuje zadanie w Linear.
 

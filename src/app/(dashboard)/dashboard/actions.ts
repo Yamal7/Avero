@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
+import { organizationChangedMessage } from '@/lib/organizations/scope';
 import { crmSchemas, entitySchema, formValues, uuid, type FormState } from '@/lib/validation/crm';
 
 export async function saveRecord(_: FormState, form: FormData): Promise<FormState> {
@@ -16,8 +17,10 @@ export async function saveRecord(_: FormState, form: FormData): Promise<FormStat
   if (entity.data !== 'customers' && !uuid.safeParse(customerId).success) return { error: 'Nieprawidłowy klient.' };
 
   let destination = `/dashboard/customers/${customerId}`;
+  const organization = uuid.safeParse(form.get('_organization'));
+  if (!organization.success) return { error: organizationChangedMessage };
   try {
-    const { db } = await requireStaff();
+    const { db } = await requireStaff(organization.data);
     // Verify the whole ownership chain, including hidden form identifiers.
     const rootId = entity.data === 'customers' ? id : customerId;
     if (rootId) {
@@ -49,9 +52,13 @@ export async function saveRecord(_: FormState, form: FormData): Promise<FormStat
       if (parentKey) query = query.eq(parentKey, parentId!);
     } else query = db.from(entity.data).insert(payload);
     const { data, error } = await query.select('id').single();
+    if (error?.code === 'PT409') return { error: organizationChangedMessage };
     if (error || !data) return { error: 'Nie udało się zapisać danych. Odśwież stronę i spróbuj ponownie.' };
     if (entity.data === 'customers') destination = `/dashboard/customers/${data.id}`;
-  } catch { return { error: 'Nie udało się zapisać. Sprawdź sesję i uprawnienia pracownika.' }; }
+  } catch (error) {
+    return { error: error instanceof Error && error.message === organizationChangedMessage
+      ? organizationChangedMessage : 'Nie udało się zapisać. Sprawdź sesję i uprawnienia pracownika.' };
+  }
   revalidatePath('/dashboard', 'layout');
   if (!id) redirect(destination);
   return { success: 'Zmiany zapisane.' };
@@ -60,11 +67,17 @@ export async function saveRecord(_: FormState, form: FormData): Promise<FormStat
 export async function archiveCustomer(_: FormState, form: FormData): Promise<FormState> {
   const id = uuid.safeParse(form.get('_id'));
   if (!id.success) return { error: 'Nieprawidłowy klient.' };
+  const organization = uuid.safeParse(form.get('_organization'));
+  if (!organization.success) return { error: organizationChangedMessage };
   try {
-    const { db } = await requireStaff();
+    const { db } = await requireStaff(organization.data);
     const { error, data } = await db.from('customers').update({ archived_at: new Date().toISOString() }).eq('id', id.data).is('archived_at', null).select('id').single();
+    if (error?.code === 'PT409') return { error: organizationChangedMessage };
     if (error || !data) return { error: 'Nie udało się zarchiwizować klienta.' };
-  } catch { return { error: 'Brak dostępu do archiwizacji.' }; }
+  } catch (error) {
+    return { error: error instanceof Error && error.message === organizationChangedMessage
+      ? organizationChangedMessage : 'Brak dostępu do archiwizacji.' };
+  }
   revalidatePath('/dashboard', 'layout');
   redirect('/dashboard/customers');
 }

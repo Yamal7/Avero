@@ -1,6 +1,7 @@
 'use client';
 /* Firmy i osoby — sort and filter bar from the design (Firmy · filtr kategorii): sort button, category filter chip with a
    popover (Którakolwiek / Wszystkie / Żadna, search, colour dots, counts) and „Zarządzaj” for category colours. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import { customerCategoryColors, type CustomerCategoryList } from '@hvac/api-client';
@@ -96,11 +97,12 @@ export function CustomerFilters({ base, categories, selected, mode, sort, manage
 }
 
 function ManageCategories({ categories, colors, onClose, onSaved }: { categories: CustomerCategoryList; colors: Record<string, string>; onClose: () => void; onSaved: () => void }) {
+  const organizationFetch = useOrganizationFetch();
   const [busy, setBusy] = useState(''), [err, setErr] = useState(''), [names, setNames] = useState<Record<string, string>>({});
   async function save(name: string, color: CategoryColorKey, rename?: string) {
     setBusy(name); setErr('');
     try {
-      const r = await fetch('/api/v1/customer-categories', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, color, ...(rename && rename.trim() !== name ? { rename: rename.trim() } : {}) }) });
+      const r = await organizationFetch('/api/v1/customer-categories', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, color, ...(rename && rename.trim() !== name ? { rename: rename.trim() } : {}) }) });
       if (!r.ok) throw new Error((await r.json()).error?.message || 'Nie udało się zapisać kategorii.');
       onSaved();
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zapisać kategorii.'); } finally { setBusy(''); }

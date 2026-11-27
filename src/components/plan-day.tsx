@@ -1,6 +1,7 @@
 'use client';
 /* Planowanie · dzień — ported 1:1 from the design artboard (inline styles copied from the rendered design).
    Drag a ticket from "Do zaplanowania" onto a technician row, or drag a planned visit to another time or person. */
+import { useOrganizationId, useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, type CSSProperties, type DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,6 +33,8 @@ function freeSlot(visits: PlanVisit[], techId: string, from: number) {
 
 export { localMinutes, hhmm, freeSlot };
 export function PlanDay({ day, isToday, nowIso, technicians, visits, backlog, due, canManage, base = null, geoPending = false }: { day: string; isToday: boolean; nowIso: string; technicians: PlanTech[]; visits: PlanVisit[]; backlog: PlanTicket[]; due: PlanDue[]; canManage: boolean; base?: LatLng | null; geoPending?: boolean }) {
+  const organizationId = useOrganizationId();
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const [busy, setBusy] = useState(false), [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null), [over, setOver] = useState<string | null>(null), [nowMin, setNowMin] = useState(() => localMinutes(nowIso));
   useEffect(() => { if (!isToday) return; const t = setInterval(() => setNowMin(localMinutes(new Date().toISOString())), 60000); return () => clearInterval(t); }, [isToday]);
@@ -39,9 +42,9 @@ export function PlanDay({ day, isToday, nowIso, technicians, visits, backlog, du
   useEffect(() => {
     if (!geoPending || !canManage) return;
     let stop = false;
-    (async () => { for (let i = 0; i < 10 && !stop; i++) { try { const r = await fetch('/api/v1/geocode', { method: 'POST' }); if (!r.ok) break; const b = await r.json(); if (!b.remaining) break; } catch { break; } } if (!stop) { setGeo(false); router.refresh(); } })();
+    (async () => { for (let i = 0; i < 10 && !stop; i++) { try { const r = await organizationFetch('/api/v1/geocode', { method: 'POST' }); if (!r.ok) break; const b = await r.json(); if (!b.remaining) break; } catch { break; } } if (!stop) { setGeo(false); router.refresh(); } })();
     return () => { stop = true; };
-  }, [geoPending, canManage, router]);
+  }, [geoPending, canManage, router, organizationFetch]);
   const from = isToday ? nowMin : DAY_START;
   const suggestions = useMemo(() => new Map(backlog.map(t => {
     const pool = t.assignedTo && technicians.some(x => x.id === t.assignedTo) ? technicians.filter(x => x.id === t.assignedTo) : technicians;
@@ -59,8 +62,8 @@ export function PlanDay({ day, isToday, nowIso, technicians, visits, backlog, du
     setBusy(true); setMsg(null);
     try {
       const ticket = backlog.find(t => t.id === ticketId), currentTech = visit ? visit.techIds[0] : ticket?.assignedTo;
-      if (currentTech !== techId) { const r = await assignTechnician(ticketId, techId); if (r.error) throw new Error(r.error); }
-      const r = await scheduleVisit({ ticketId, visitId: visit?.id ?? null, localStart: `${day}T${hhmm(at)}`, duration: visit?.minutes ?? SLOT, notes: visit?.notes ?? '' });
+      if (currentTech !== techId) { const r = await assignTechnician(ticketId, techId, organizationId); if (r.error) throw new Error(r.error); }
+      const r = await scheduleVisit({ ticketId, visitId: visit?.id ?? null, localStart: `${day}T${hhmm(at)}`, duration: visit?.minutes ?? SLOT, notes: visit?.notes ?? '' }, organizationId);
       if (r.error) throw new Error(r.error);
       setMsg({ ok: true, text: `Zaplanowano na ${hhmm(at)}.` }); router.refresh();
     } catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : 'Nie udało się zaplanować.' }); } finally { setBusy(false); }

@@ -1,6 +1,6 @@
 # Konfiguracja pilotażu do uzupełnienia — 6.11.2026
 
-**Hosting: Vercel (zespół `avero18`, projekt `avero`, region funkcji `fra1`, Node 22) — decyzja właściciela 27.11.2026.** Produkcja: `https://avero-avero18.vercel.app` (= `APP_URL`), chroniona logowaniem Vercel do czasu domeny własnej. Domena własna i nadawca poczty nie zostały jeszcze wybrane. Na Vercel worker poczty nie działa jako stały proces — po włączeniu poczty zastąpi go Vercel Cron wywołujący POST `/api/internal/email/dispatch` z sekretem w nagłówku (osobne zadanie). Ten pakiet przygotowuje konfigurację; nie publikuje aplikacji i nie zakłada płatnych usług. Wymagany jest hosting uruchamiający serwer Node/Next.js oraz oddzielny projekt Supabase. Statyczny hosting HTML nie obsłuży tego programu.
+**Hosting: Vercel (zespół `avero18`, projekt `avero`, region funkcji `fra1`, Node 22) — decyzja właściciela 27.11.2026.** Produkcja: `https://avero-avero18.vercel.app` (= `APP_URL`), chroniona logowaniem Vercel do czasu domeny własnej. Domena własna i nadawca poczty nie zostały jeszcze wybrane. Na Vercel kolejkę poczty może uruchamiać Vercel Cron przez GET `/api/internal/email/cron`. Ten pakiet przygotowuje konfigurację; nie publikuje aplikacji i nie zakłada płatnych usług. Wymagany jest hosting uruchamiający serwer Node/Next.js oraz oddzielny projekt Supabase. Statyczny hosting HTML nie obsłuży tego programu.
 
 ## Przekazanie konfiguracji operatorowi
 
@@ -13,7 +13,7 @@
 ```sh
 node --env-file=deploy/pilot.env scripts/pilot-preflight.mjs
 # Gdy hosting już wstrzykuje zmienne do procesu:
-npm run pilot:check
+pnpm pilot:check
 ```
 
 Kod wyjścia 1 blokuje uznanie konfiguracji za uzupełnioną; 0 oznacza wyłącznie przejście walidacji statycznej. Narzędzie nie drukuje wartości. Sprawdza adresy HTTPS, brak szablonowych wartości, typ klucza publicznego i wymagania poczty. Nie sprawdza podpisu JWT, przynależności klucza do projektu, DNS, połączenia z bazą ani uprawnień dostawcy — te elementy trzeba potwierdzić na środowisku docelowym.
@@ -30,6 +30,14 @@ Kod wyjścia 1 blokuje uznanie konfiguracji za uzupełnioną; 0 oznacza wyłącz
 - Pierwszy administrator wymaga świadomego przypisania istniejącego konta do właściwej roli; sam deploy nie tworzy admina. Pozostałe role/przypisania przez panel Użytkownicy.
 - Sprawdź `/login`, logowanie, odczyt klienta, pobranie PDF i upload/pobranie prywatnego pliku. Sam HTTP 200 logowania nie potwierdza zdrowia bazy ani Storage.
 
+## Wspólny odbiór na stagingu
+
+1. Utwórz osobny, chroniony projekt Vercel z własnym adresem HTTPS i osobny projekt Supabase. Przypisz do stagingu gałąź albo konkretny commit. Ustaw w nim własne `APP_URL` i publiczne zmienne Supabase, a w Supabase Auth ustaw wyłącznie adresy stagingu. Poczta przypomnień na start ma stan `disabled`.
+2. Zapisz SHA aplikacji i listę oczekujących migracji (`pnpm exec supabase db push --linked --dry-run` z checkoutu tego SHA). Zweryfikuj identyfikator projektu i punkt przywracania. Wgraj migracje, a potem wersję aplikacji; podgląd PR bez bazy sprawdza kompilację, a odbiór odbywa się na stagingu.
+3. Użyj fikcyjnych kont biura, technika i klienta. Przejdź [scenariusz odbioru](../docs/PILOT_READINESS.md), w tym pobranie PDF, przesłanie prywatnego pliku i próbę pobrania go po cofnięciu dostępu. Przy dwóch organizacjach otwórz nowy formularz w A, zmień firmę na B w drugiej sesji i potwierdź, że stary formularz nie zapisuje nic w B.
+4. Ustaw na stagingu `NEXT_PUBLIC_SENTRY_DSN` i osobne `NEXT_PUBLIC_SENTRY_ENVIRONMENT=staging`. Wyślij zdarzenie testowe narzędziem weryfikacji Sentry. Sprawdź przypisanie wydania do commita, czytelny stack trace oraz przepływ Sentry → Linear na testowym zgłoszeniu. Fakt wdrożenia i samo ustawienie DSN nie potwierdzają tej ścieżki.
+5. Przed scaleniem zmiany schematu powtórz plan migracji i kopię bazy oraz Storage dla środowiska docelowego. Przy migracji addytywnej zachowaj możliwość powrotu do poprzedniego wdrożenia Vercel bez cofania bazy. Jeśli poprzednia wersja aplikacji nie współpracuje z nowym schematem, wcześniej przećwicz skrypt cofający lub odtworzenie obu kopii. Zapisz wynik odbioru przy PR.
+
 ## Worker poczty — dopiero po konfiguracji
 
 Po weryfikacji nadawcy ustaw `resend`, jawnych odbiorców pilotażowych i serwerowe sekrety. Najpierw wykonaj pojedynczy kontrolowany cykl:
@@ -40,7 +48,17 @@ node --env-file=deploy/pilot.env scripts/notification-email-worker.mjs --once
 node --env-file=deploy/pilot.env scripts/notification-email-worker.mjs
 ```
 
-Na hostingu wstrzykującym zmienne użyj polecenia bez `--env-file`. Alternatywą jest harmonogram POST `/api/internal/email/dispatch` z sekretem Bearer w nagłówku, nigdy w URL. Sam serwer Next nie uruchamia workera. Potrzebne jest monitorowanie ostatniego poprawnego cyklu, błędów i wiadomości niepewnych. Przed realną próbą odbiorca musi włączyć własne przypomnienia. Szczegóły limitów i ponowień: [NOTIFICATION_EMAIL.md](../docs/NOTIFICATION_EMAIL.md).
+Na hostingu wstrzykującym zmienne użyj polecenia bez `--env-file`. Na serwerze z własnym harmonogramem wywołuj POST `/api/internal/email/dispatch` z `NOTIFICATION_WORKER_SECRET` w nagłówku Bearer. Sam serwer Next nie uruchamia workera. Potrzebne jest monitorowanie ostatniego poprawnego cyklu, błędów i wiadomości niepewnych. Przed realną próbą odbiorca musi włączyć własne przypomnienia. Szczegóły limitów i ponowień: [NOTIFICATION_EMAIL.md](../docs/NOTIFICATION_EMAIL.md).
+
+Na Vercel ustaw osobny `CRON_SECRET` i po udanej próbie odbioru dodaj do konfiguracji projektu:
+
+```json
+{
+  "crons": [{ "path": "/api/internal/email/cron", "schedule": "* * * * *" }]
+}
+```
+
+Częstotliwość minutowa odpowiada cyklowi workera i oknom ponowień. Przed włączeniem sprawdź, czy obsługuje ją plan Vercel. W przeciwnym razie użyj własnego harmonogramu POST. Vercel uruchamia cron na produkcyjnym wdrożeniu danego projektu, więc pierwszą próbę z listą odbiorców testowych wykonaj w osobnym projekcie staging. Sprawdź odpowiedź 2xx kolejki i wynik u dostawcy. [Dokumentacja Vercel Cron](https://vercel.com/docs/cron-jobs).
 
 ## Kopia i próba odtworzenia
 

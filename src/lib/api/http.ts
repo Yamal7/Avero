@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { createClient as bearerClient } from '@supabase/supabase-js';
 import { createClient as cookieClient } from '@/lib/supabase/server';
 import { roleSchema,validateApiOrigin } from '@hvac/api-client';
+import { organizationHeader, organizationChangedMessage } from '@/lib/organizations/scope';
 
 export class ApiFault extends Error {
  constructor(public status:number,public code:string,message:string){super(message);}
@@ -28,9 +29,9 @@ export function preflight(request:Request,methods:string[]){
   const requested=request.headers.get('Access-Control-Request-Method');
   if(!requested||!methods.includes(requested))fail(405,'METHOD_NOT_ALLOWED','Niedozwolona metoda.');
   const requestedHeaders=(request.headers.get('Access-Control-Request-Headers')||'').toLowerCase().split(',').map(v=>v.trim()).filter(Boolean);
-  if(requestedHeaders.some(v=>!['authorization','content-type','x-hvac-client'].includes(v)))fail(403,'HEADERS_DENIED','Niedozwolone nagłówki.');
+  if(requestedHeaders.some(v=>!['authorization','content-type','x-hvac-client',organizationHeader].includes(v)))fail(403,'HEADERS_DENIED','Niedozwolone nagłówki.');
   const headers=responseHeaders(request);
-  headers.set('Access-Control-Allow-Methods',methods.join(', '));headers.set('Access-Control-Allow-Headers','Authorization, Content-Type, X-HVAC-Client');
+  headers.set('Access-Control-Allow-Methods',methods.join(', '));headers.set('Access-Control-Allow-Headers',`Authorization, Content-Type, X-HVAC-Client, ${organizationHeader}`);
   return new Response(null,{status:204,headers});
  });
 }
@@ -48,21 +49,24 @@ export function json<T>(request:Request,schema:z.ZodType<T>,value:unknown,status
 }
 export async function authenticate(request:Request){
  const {origin,own}=policy(request),authorization=request.headers.get('Authorization');
+ const organization=request.headers.get(organizationHeader);
+ const expectedOrganization=organization===null?undefined:uuid.parse(organization);
  let db:Awaited<ReturnType<typeof cookieClient>>;
  let token:string|undefined;
  if(authorization!==null){
   const match=/^Bearer ([^\s]+)$/i.exec(authorization);
   if(!match||match[1].length>16384)fail(401,'AUTH_REQUIRED','Zaloguj się ponownie.');
   token=match[1];
-  db=bearerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{global:{headers:{Authorization:`Bearer ${token}`}},auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+  db=bearerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{global:{headers:{Authorization:`Bearer ${token}`,...(expectedOrganization ? {[organizationHeader]:expectedOrganization} : {})}},auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
  }else{
   if(origin&&origin!==own)fail(401,'BEARER_REQUIRED','Aplikacja wymaga zalogowania.');
   if(!['GET','HEAD','OPTIONS'].includes(request.method)&&origin!==own)fail(403,'ORIGIN_REQUIRED','Nie udało się potwierdzić źródła żądania.');
-  db=await cookieClient();
+  db=await (expectedOrganization ? cookieClient(expectedOrganization) : cookieClient());
  }
  const {data,error}=await db.auth.getUser(token);
  if(error||!data.user)fail(401,'AUTH_REQUIRED','Zaloguj się ponownie.');
  const access=await db.rpc('current_access');
+ if(access.error?.code==='PT409')databaseError(access.error);
  if(access.error)fail(503,'ACCESS_UNAVAILABLE','Nie udało się sprawdzić uprawnień.');
  const parsed=z.object({role:roleSchema,blocked:z.boolean()}).safeParse(access.data);
  if(!parsed.success||parsed.data.blocked)fail(403,'ACCESS_DENIED','Brak dostępu do aplikacji.');
@@ -70,6 +74,7 @@ export async function authenticate(request:Request){
 }
 export function databaseError(error:{code?:string}|null){
  if(!error)return;
+ if(error.code==='PT409')fail(409,'ORGANIZATION_CHANGED',organizationChangedMessage);
  if(error.code==='42501')fail(403,'ACCESS_DENIED','Brak dostępu do tych danych.');
  if(['22023','22P02'].includes(error.code||''))fail(400,'INVALID_INPUT','Sprawdź przesłane dane.');
  if(['23505','23P01','40001','P0001'].includes(error.code||''))fail(409,'CONFLICT','Nie można wykonać operacji. Odśwież dane i spróbuj ponownie.');
