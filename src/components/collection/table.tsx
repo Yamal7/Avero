@@ -95,7 +95,7 @@ export function CollectionTable({ layout, label, rows, groups, header, lines = f
         tabIndex={-1}
         data-row-id={r.id}
         data-checked={on || undefined}
-        onFocus={e => { if (e.target === e.currentTarget) dispatch({ type: 'focus', id: r.id }); }}
+        onFocus={() => dispatch({ type: 'focus', id: r.id })}
         onClick={e => rowClick(e, r.id)}
         className="outline-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
       >

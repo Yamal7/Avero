@@ -65,7 +65,8 @@ export function Popover({ open, onClose, anchor, label, role = 'dialog', width =
     if (!open) return;
     // Fokus do środka: pierwsze pole albo pozycja menu (zaznaczona, jeśli jest).
     const el = box.current;
-    const target = el?.querySelector<HTMLElement>('[aria-checked="true"][role^="menuitem"],[autofocus]') ?? el?.querySelector<HTMLElement>(role === 'dialog' ? FOCUSABLE : ITEMS) ?? el;
+    // Pole z autoFocus (np. szukanie w filtrze) dostało już fokus przy montowaniu — nie przenosimy go.
+    const target = el?.contains(document.activeElement) ? null : el?.querySelector<HTMLElement>('[aria-checked="true"][role^="menuitem"],[autofocus]') ?? el?.querySelector<HTMLElement>(role === 'dialog' ? FOCUSABLE : ITEMS) ?? el;
     target?.focus({ preventScroll: true });
     const back = () => { const a = anchor.current; if (a && (!document.activeElement || document.activeElement === document.body || box.current?.contains(document.activeElement))) a.focus({ preventScroll: true }); };
     const key = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); back(); close.current(); } };

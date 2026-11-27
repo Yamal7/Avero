@@ -191,6 +191,8 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
         const i = s.cursor ? ids.indexOf(s.cursor) : -1;
         const id = ids[i < 0 ? 0 : Math.min(ids.length - 1, Math.max(0, i + delta))]!;
         dispatch({ type: 'move', ids, delta, extend });
+        // kolejne naciśnięcie przed przerysowaniem liczy od nowego kursora
+        selectionRef.current = selectionReducer(s, { type: 'move', ids, delta, extend });
         focusRow(id);
         h().onCursor?.(id);
       };
