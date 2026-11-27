@@ -17,6 +17,8 @@ import { pageBase, segmentedBase, toolbarBase } from '@/components/table/page-ch
 import { scrollBase } from '@/components/table/table-scroll';
 import { logoBase } from '@/components/table/logo';
 import { customerLogoBase } from '@/components/table/customer-logo';
+import { plainBase } from '@/components/collection/classes';
+import { popoverBase } from '@/components/ui/popover';
 
 const root = resolve(__dirname, '..');
 const entry = resolve(root, 'src/app/tailwind.css');
@@ -29,9 +31,20 @@ const FILES = [
   'src/components/task-list.tsx', 'src/components/stock-view.tsx',
   'src/app/(dashboard)/dashboard/customers/page.tsx', 'src/app/(dashboard)/dashboard/tasks/page.tsx',
   'src/app/(dashboard)/dashboard/customers/loading.tsx', 'src/app/(dashboard)/dashboard/tasks/loading.tsx', 'src/app/(dashboard)/dashboard/stock/loading.tsx',
+  // M0.4 silnik widoku kolekcji
+  'src/components/ui/popover.tsx', 'src/components/collection/classes.ts', 'src/components/collection/provider.tsx', 'src/components/collection/toolbar.tsx',
+  'src/components/collection/view-options.tsx', 'src/components/collection/table.tsx', 'src/components/collection/footer.tsx', 'src/components/collection/skeleton.tsx',
+  'src/components/category-manager.tsx', 'src/components/person-categories.tsx', 'src/components/record-actions.tsx', 'src/components/maintenance-new-plan.tsx',
+  'src/app/(dashboard)/dashboard/maintenance/page.tsx', 'src/app/(dashboard)/dashboard/maintenance/loading.tsx', 'src/app/(dashboard)/dashboard/stock/page.tsx',
 ];
+
 /** Komponenty, których className dokleja się do klas bazowych. */
 const COMPONENT_BASE: Record<string, string> = { Cell: cellBase, Row: rowBase, HeaderRow: headerRowBase, TableScroll: scrollBase, TablePage: pageBase, Toolbar: toolbarBase, Segmented: segmentedBase, Logo: logoBase, CustomerLogo: customerLogoBase };
+
+/** Importowane funkcje zwracające zestaw klas (wywołanie traktowane jak jego klasy domyślne; parametry tła i grubości
+    podaje się argumentem, więc doklejone klasy nie mogą ich ustawiać). */
+const IMPORTED_FN: Record<string, string> = { plain: `${plainBase} bg-transparent font-normal` };
+void popoverBase;
 
 /** Argument zestawu: lista wzajemnie wykluczających się alternatyw (każda = napis klas). */
 type Arg = string[];
@@ -98,6 +111,7 @@ function collect(file: string): ClassSet[] {
     }
     const body = fns.get(callee);
     if (body && ts.isCallExpression(body)) return callArgs(body, depth);
+    if (IMPORTED_FN[callee] !== undefined) return [[IMPORTED_FN[callee]!]];
     return null;
   };
 
@@ -216,6 +230,27 @@ describe('konflikty klas Tailwinda w ekranach tabel (M0.3)', () => {
           for (const a of x.split(/\s+/).filter(Boolean)) for (const b of y.split(/\s+/).filter(Boolean)) check(s, a, b, false);
     }
     expect([...problems].sort()).toEqual([]);
+  }, 60_000);
+
+  it('każda klasa z tych plików istnieje w @theme (literówka lub klasa spoza tokenów nie przechodzi po cichu)', async () => {
+    const sets = FILES.flatMap(collect);
+    const words = new Set<string>();
+    for (const s of sets) for (const a of s.args) for (const alt of a) for (const t of alt.split(/\s+/)) if (t) words.add(t);
+    // napisy, które nie są klasami (adresy, klucze, formaty dat, nazwy ról ARIA itp.)
+    const classLike = (t: string) => /^-?[a-z][a-z0-9]*(?:-[a-z0-9./]+)+$|^[a-z-]+:[a-z0-9:./-]+$/.test(t) || ['flex', 'grid', 'hidden', 'block', 'relative', 'absolute', 'fixed', 'sticky', 'truncate', 'border', 'invisible', 'visible', 'grow', 'shrink', 'contents', 'italic', 'underline', 'uppercase', 'rounded', 'outline'].includes(t);
+    const ignore = /^(aria-|data-|pl-PL|max-age|no-store|use-client|text\/|application\/|view\.|views\.|e[0-9a-f]{7}-|[0-9a-f]{8}-)|^(sr-only|record-actions-button|record-actions-dialog|record-actions-content|shell-dialog|shell-dialog-heading|sidebar-icon-button|tabular-nums|eslint-disable|eslint-enable|list-page|l-none|tasks-search|tl-comment)$|:$/;
+    const candidates = [...words].filter(t => classLike(t) && !ignore.test(t));
+    expect(candidates.length).toBeGreaterThan(300);
+    const compiler = await compile(await readFile(entry, 'utf8'), {
+      base: dirname(entry),
+      async loadStylesheet(id, base) { const path = id.startsWith('.') ? resolve(base, id) : require.resolve(id); return { path, base: dirname(path), content: await readFile(path, 'utf8') }; },
+    });
+    const empty = compiler.build([]);
+    // build([t]) dopisuje do tego samego arkusza — porównujemy przyrost
+    const missing: string[] = [];
+    let last = empty;
+    for (const t of candidates) { const out = compiler.build([t]); if (out === last) missing.push(t); last = out; }
+    expect(missing.sort()).toEqual([]);
   }, 60_000);
 
   it('wykrywa znane konflikty (kontrola samego testu)', async () => {

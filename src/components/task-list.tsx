@@ -1,22 +1,24 @@
 'use client';
 /* Zadania — lista w jednej linii + panel zadania (M0.3, KRA-63): wspólna tabela z src/components/table
-   (wiersz 36 px, kolumny do tytułu przypięte, przewijanie ←/→, klient jako logo z kartą podglądu). Tailwind na tokenach. */
+   (wiersz 36 px, kolumny do tytułu przypięte, przewijanie ←/→, klient jako logo z kartą podglądu). Tailwind na tokenach.
+   M0.4 (KRA-31): Opcje widoku, zapisane widoki, grupy i klawiatura z silnika widoku kolekcji (tryb local — filtrowanie,
+   sortowanie i grupowanie 20 wczytanych zadań zostaje w przeglądarce; ustawienia w preferencjach `view.tasks`). */
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { crmTaskCommentSchema, crmTaskCommentsSchema, crmTaskLinkOptionsSchema, crmTaskMetaSchema, taskPlanChangeSchema, taskPlanContextSchema, type CrmTaskLink, crmTaskProgressSchema, crmTaskSchema, type CrmTaskComment, type MyTask, type MyTasks } from '@hvac/api-client';
 import { myTaskCustomerHref } from '@/lib/crm/tasks';
-import { SavedViewPills, ViewOptions, useCollectionView, type ViewState } from './collection-view';
+import { CollectionProvider, CollectionTable, CollectionViews, ViewOptionsButton, useCollection, type CollectionGroup, type CollectionRow } from '@/components/collection';
+import { tasksSpec } from '@/lib/collection/specs';
+import { collectionLayout, visibleColumns, type CollectionPrefs } from '@/lib/collection/views';
 import { PriorityIcon, StatusIcon } from '@/components/glyphs';
 import { CustomerLogo } from '@/components/table/customer-logo';
-import { Cell, GroupBar, Row, RowGroup, TableMessage } from '@/components/table/table';
-import { TableScroll } from '@/components/table/table-scroll';
+import { Cell, TableMessage } from '@/components/table/table';
 import { Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
 import { Button, buttonClasses } from '@/components/ui/button';
-import { columnLayout, type ColumnSpec } from '@/lib/table/columns';
 import { isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from '@/lib/tasks/labels';
 import { cx } from '@/lib/cx';
-import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, FunnelSimple, LinkIcon, Plus, SidebarSimple, SlidersHorizontal, X } from '@phosphor-icons/react/ssr';
+import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, FunnelSimple, LinkIcon, Plus, SidebarSimple, X } from '@phosphor-icons/react/ssr';
 
 type Task = MyTask;
 type State = Task['state'];
@@ -24,7 +26,6 @@ const zone = 'Europe/Warsaw';
 const stateLabel = taskStateLabel;
 const linkKind: Record<CrmTaskLink['kind'], string> = { ticket: 'Zgłoszenie', order: 'Zlecenie', offer: 'Oferta' };
 const priorityRank: Record<Priority, number> = { urgent: 0, high: 1, normal: 2, low: 3, none: 4 };
-const viewDefaults: ViewState = { group: 'status', sort: 'priority', showDone: true, showEmpty: false, columns: ['priority', 'number', 'label', 'due', 'assignee', 'customer'], filters: { priority: [], label: [] } };
 type Group = { key: string; label: string; icon: ReactNode; rows: Task[] };
 const groupOrder: State[] = ['in_progress', 'review', 'todo', 'backlog', 'done', 'cancelled'];
 type Progress = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
@@ -56,20 +57,20 @@ function dueLabel(t: Task, today: string) {
   if (t.dueOn === addDays(today, 1)) return { text: 'Jutro', title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'text-secondary', weight: 'font-normal' as const };
   return { text: short(t.dueOn), title: 'Termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden />, color: 'text-secondary', weight: 'font-normal' as const };
 }
-const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
-/* Wszystkie możliwe kolumny; widoczne wybiera Opcje widoku. Do tytułu (główna) przypięte. */
-const allColumns: (ColumnSpec & { view?: string })[] = [
-  { key: 'priority', width: 14, view: 'priority' }, { key: 'number', width: 56, view: 'number' }, { key: 'status', width: 14 },
-  { key: 'title', fr: 1, main: true }, { key: 'customer', width: 20, view: 'customer' }, { key: 'label', width: 112, view: 'label' },
-  { key: 'due', width: 76, view: 'due' }, { key: 'assignee', width: 20, view: 'assignee' },
-];
+/* Kolumny (kolejność, szerokości, które da się ukryć) — tasksSpec w src/lib/collection/specs.ts. Do tytułu (główna) przypięte. */
+const labelDots = Object.fromEntries((Object.keys(taskLabels) as TaskLabel[]).map(l => [l, <Dot key={l} label={l} small />]));
 
-export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, search, board, footer, canPlan = false }: { canPlan?: boolean; data: MyTasks; header: ReactNode; toolbarTabs: ReactNode; toolbarExtra?: ReactNode; layoutSwitch: ReactNode; search: ReactNode; board?: ReactNode; footer?: ReactNode }) {
+type Props = { canPlan?: boolean; data: MyTasks; prefs: CollectionPrefs; header: ReactNode; toolbarTabs: ReactNode; toolbarExtra?: ReactNode; layoutSwitch: ReactNode; search: ReactNode; board?: ReactNode; footer?: ReactNode };
+
+export function TaskListView(props: Props) {
+  return <CollectionProvider spec={tasksSpec} mode="local" prefs={props.prefs} defaultCollapsed={['done', 'cancelled']}><TaskList {...props} /></CollectionProvider>;
+}
+
+function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, search, board, footer, canPlan = false }: Props) {
   const router = useRouter();
   const items = data.items;
   const [panelOn, setPanelOn] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(items[0]?.id ?? null);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({ done: true, cancelled: true });
   const [showSearch, setShowSearch] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [conflict, setConflict] = useState(false), [notice, setNotice] = useState(''), [copied, setCopied] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
@@ -95,7 +96,8 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     if (!selected || links) return;
     try { const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
   }
-  const view = useCollectionView('tasks', viewDefaults), vs = view.state, [optionsOpen, setOptionsOpen] = useState(false);
+  const c = useCollection(), q = c.query;
+  const vs = { group: q.group, sort: q.sort, showDone: (q.filters.done?.[0] ?? '1') === '1', showEmpty: q.filters.empty?.[0] === '1', columns: visibleColumns(tasksSpec, c.columns).map(x => x.key), filters: { priority: q.filters.priority ?? [], label: q.filters.label ?? [] } };
   const col = (c: string) => vs.columns.includes(c);
   const fp = vs.filters.priority ?? [], fl = vs.filters.label ?? [];
   const shownItems = items.filter(t => (vs.showDone || open(t)) && (!fp.length || fp.includes(t.priority)) && (!fl.length || (!!t.label && fl.includes(t.label))))
@@ -108,25 +110,19 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
     : groupOrder.map(st => ({ key: st, label: stateLabel[st], icon: <StatusIcon state={st} />, test: (t: Task) => t.state === st })))
     .map(g => ({ key: g.key, label: g.label, icon: g.icon, rows: shownItems.filter(g.test) }))
     .filter(g => g.rows.length || (vs.showEmpty && (vs.showDone || !['done', 'cancelled'].includes(g.key))));
-  const layout = columnLayout(allColumns.filter(c => !c.view || col(c.view)));
-  const visible = groups.flatMap(g => collapsed[g.key] ? [] : g.rows);
+  const layout = collectionLayout(tasksSpec, c.columns);
 
   useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
-  function select(t: Task | null) { setSelectedId(t?.id ?? null); setError(''); setConflict(false); setCopied(false); setNotice(''); if (t) { setPanelOn(true); requestAnimationFrame(() => document.getElementById(`task-${t.id}`)?.scrollIntoView({ block: 'nearest' })); } }
+  function select(t: Task | null) { setSelectedId(t?.id ?? null); setError(''); setConflict(false); setCopied(false); setNotice(''); if (t) { setPanelOn(true); requestAnimationFrame(() => document.querySelector(`[data-row-id="${t.id}"]`)?.scrollIntoView({ block: 'nearest' })); } }
+  // Klawisze z silnika kolekcji: J / K przesuwa kursor (panel podąża), Esc zamyka panel, ] przełącza panel, F pokazuje szukanie.
+  const { bindKeys } = c;
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.metaKey || e.ctrlKey || e.altKey || busy || document.querySelector('dialog[open]')) return;
-      if (e.key === 'Escape' && selected) { e.preventDefault(); setPanelOn(false); return; }
-      if (typing(e.target)) return;
-      if (e.key === ']') { e.preventDefault(); setPanelOn(v => !v); return; }
-      if (e.key === 'v' && !board) { e.preventDefault(); setOptionsOpen(v => !v); return; }
-      if (e.key === 'j' || e.key === 'k') {
-        if (!visible.length) return; e.preventDefault();
-        const i = visible.findIndex(t => t.id === selectedId);
-        select(visible[i < 0 ? 0 : Math.min(visible.length - 1, Math.max(0, i + (e.key === 'j' ? 1 : -1)))]);
-      }
-    }
-    window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
+    bindKeys({
+      onEscape: () => { if (selected) setPanelOn(false); },
+      onPanel: board ? undefined : () => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); },
+      onCursor: id => { if (!busy) select(items.find(t => t.id === id) ?? null); },
+      onFilterKey: () => setShowSearch(v => !v),
+    });
   });
 
   async function saveState(state: Progress) {
@@ -185,62 +181,47 @@ export function TaskListView({ data, header, toolbarTabs, toolbarExtra, layoutSw
   async function copyLink() { if (!selected) return; try { await navigator.clipboard.writeText(new URL(myTaskCustomerHref(selected), location.origin).toString()); setCopied(true); } catch { setError('Nie udało się skopiować linku.'); } }
 
   const n = layout.keys.length;
+  const tableGroups: CollectionGroup[] = groups.map(g => ({ key: g.key, label: g.label, count: g.rows.length, icon: g.icon }));
+  const rows: CollectionRow[] = groups.flatMap(g => g.rows.map(t => {
+    const due = dueLabel(t, data.today), sel = t.id === selected?.id;
+    return {
+      id: t.id, label: t.title, group: g.key,
+      cells: <>
+        {col('priority') && <Cell layout={layout} col="priority"><span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} className="inline-flex"><PriorityIcon priority={t.priority} /></span></Cell>}
+        {col('number') && <Cell layout={layout} col="number" className="font-mono text-small text-tertiary">{taskNumber(t.number)}</Cell>}
+        <Cell layout={layout} col="status"><span role="img" aria-label={stateLabel[t.state]} title={stateLabel[t.state]} className="inline-flex"><StatusIcon state={t.state} /></span></Cell>
+        <Cell layout={layout} col="title">
+          <a href={myTaskCustomerHref(t)} aria-current={sel ? 'true' : undefined} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); select(t); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{t.title}</a>
+          {t.link && <span title={`${linkKind[t.link.kind]}: ${t.link.title}`} className="shrink-0 font-mono text-micro text-tertiary">{t.link.code}</span>}
+        </Cell>
+        {col('customer') && <Cell layout={layout} col="customer"><CustomerLogo name={t.customerName} href={`/dashboard/customers/${t.customerId}`} /></Cell>}
+        {col('label') && <Cell layout={layout} col="label" align="right">{t.label && <span className="inline-flex h-5 items-center gap-1 rounded-xs bg-subtle px-2 text-small leading-4 whitespace-nowrap text-secondary"><Dot label={t.label} small />{taskLabels[t.label].name}</span>}</Cell>}
+        {col('due') && <Cell gap={1} layout={layout} col="due" align="right" title={`${due.title}: ${longDay(t.dueOn)}`} className={cx('text-small tabular-nums', due.color, due.weight)}>{due.icon}<span>{due.text}</span></Cell>}
+        {col('assignee') && <Cell layout={layout} col="assignee" align="right"><span title={t.assigneeLabel} className={avatarClasses(20)}>{initials(t.assigneeLabel)}</span></Cell>}
+      </>,
+    };
+  }));
   return (
     <TablePage>
       {header}
       <Toolbar>
         {toolbarTabs}
-        <SavedViewPills view={view} />
+        <CollectionViews label="Zapisane widoki" builtIn={false} />
         <Spacer />
         {showSearch && search}
         <Button variant="icon" size="sm" aria-label="Filtruj" title="Szukaj zadania lub klienta" shortcut="F" aria-pressed={showSearch} onClick={() => setShowSearch(v => !v)} icon={<FunnelSimple size={16} className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />
         {layoutSwitch}
-        {!board && <span className="relative inline-flex">
-          <Button variant="icon" size="sm" data-view-options-trigger aria-label="Opcje widoku" title="Opcje widoku" shortcut="V" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(v => !v)} icon={<SlidersHorizontal size={16} className="shrink-0" aria-hidden />} className="aria-expanded:bg-subtle aria-expanded:text-primary" />
-          {optionsOpen && <ViewOptions view={view} onClose={() => setOptionsOpen(false)}
-            groups={[{ value: 'status', label: 'Status' }, { value: 'priority', label: 'Priorytet' }, { value: 'label', label: 'Etykieta' }, { value: 'assignee', label: 'Osoba' }, { value: 'none', label: 'Bez grupowania' }]}
-            sorts={[{ value: 'priority', label: 'Priorytet' }, { value: 'due', label: 'Termin' }, { value: 'number', label: 'Numer' }, { value: 'created', label: 'Utworzone' }]}
-            columns={[{ value: 'priority', label: 'Priorytet' }, { value: 'number', label: 'Numer' }, { value: 'customer', label: 'Klient' }, { value: 'label', label: 'Etykieta' }, { value: 'due', label: 'Termin' }, { value: 'assignee', label: 'Osoba' }]}
-            filters={[{ key: 'priority', label: 'priorytet', options: (Object.keys(priorityRank) as Priority[]).map(p => ({ value: p, label: priorityLabel[p] })) }, { key: 'label', label: 'etykieta', options: (Object.keys(taskLabels) as TaskLabel[]).map(l => ({ value: l, label: taskLabels[l].name, dot: <Dot label={l} small /> })) }]} />}
-        </span>}
+        {!board && <ViewOptionsButton inlineFilters dots={{ label: labelDots }} />}
         {!board && <Button variant="icon" size="sm" aria-label="Panel szczegółów" title="Panel szczegółów" shortcut="]" aria-pressed={panelOn} onClick={() => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); }} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
         {toolbarExtra}
       </Toolbar>
       {board ?? <div className="flex min-h-0 flex-auto items-stretch">
         <div className="flex min-w-0 flex-auto flex-col gap-4 px-3 pt-1 pb-6">
           {notice && <p role="status" className={cx(note, 'mx-2 text-success')}>{notice}</p>}
-          <TableScroll layout={layout} label="Zadania">
-            {items.length === 0 && <TableMessage columns={n}>Brak zadań w tym widoku. Wybierz inny widok lub zmień wyszukiwanie — nowe zadanie dodasz w karcie klienta.</TableMessage>}
-            {items.length > 0 && !groups.length && <TableMessage columns={n} action={<Button size="sm" onClick={view.reset} disabled={view.isDefault}>Przywróć domyślne</Button>}>Żadne zadanie nie pasuje do filtrów widoku.</TableMessage>}
-            {items.length > 0 && groups.map(g => {
-              const isCollapsed = !!collapsed[g.key];
-              return (
-                <RowGroup key={g.key} label={g.label}>
-                  <GroupBar columns={n} label={g.label} count={g.rows.length} icon={g.icon} collapsed={isCollapsed} onToggle={() => setCollapsed(c => ({ ...c, [g.key]: !isCollapsed }))} />
-                  {!isCollapsed && <div className="mb-4 flex flex-col">
-                    {g.rows.map(t => {
-                      const due = dueLabel(t, data.today), sel = t.id === selected?.id;
-                      return (
-                        <Row key={t.id} id={`task-${t.id}`} layout={layout} interactive selected={sel} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey || (e.target as HTMLElement).closest('a')) return; select(t); }}>
-                          {col('priority') && <Cell layout={layout} col="priority"><span role="img" aria-label={`Priorytet: ${priorityLabel[t.priority]}`} title={`Priorytet: ${priorityLabel[t.priority]}`} className="inline-flex"><PriorityIcon priority={t.priority} /></span></Cell>}
-                          {col('number') && <Cell layout={layout} col="number" className="font-mono text-small text-tertiary">{taskNumber(t.number)}</Cell>}
-                          <Cell layout={layout} col="status"><span role="img" aria-label={stateLabel[t.state]} title={stateLabel[t.state]} className="inline-flex"><StatusIcon state={t.state} /></span></Cell>
-                          <Cell layout={layout} col="title">
-                            <a href={myTaskCustomerHref(t)} aria-current={sel ? 'true' : undefined} onClick={e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); select(t); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{t.title}</a>
-                            {t.link && <span title={`${linkKind[t.link.kind]}: ${t.link.title}`} className="shrink-0 font-mono text-micro text-tertiary">{t.link.code}</span>}
-                          </Cell>
-                          {col('customer') && <Cell layout={layout} col="customer"><CustomerLogo name={t.customerName} href={`/dashboard/customers/${t.customerId}`} /></Cell>}
-                          {col('label') && <Cell layout={layout} col="label" align="right">{t.label && <span className="inline-flex h-5 items-center gap-1 rounded-xs bg-subtle px-2 text-small leading-4 whitespace-nowrap text-secondary"><Dot label={t.label} small />{taskLabels[t.label].name}</span>}</Cell>}
-                          {col('due') && <Cell gap={1} layout={layout} col="due" align="right" title={`${due.title}: ${longDay(t.dueOn)}`} className={cx('text-small tabular-nums', due.color, due.weight)}>{due.icon}<span>{due.text}</span></Cell>}
-                          {col('assignee') && <Cell layout={layout} col="assignee" align="right"><span title={t.assigneeLabel} className={avatarClasses(20)}>{initials(t.assigneeLabel)}</span></Cell>}
-                        </Row>
-                      );
-                    })}
-                  </div>}
-                </RowGroup>
-              );
-            })}
-          </TableScroll>
+          <CollectionTable layout={layout} label="Zadania" rows={rows} groups={tableGroups} showEmptyGroups={vs.showEmpty} groupGap activeId={selected?.id ?? null} onActivate={id => select(items.find(t => t.id === id) ?? null)}
+            message={items.length === 0
+              ? <TableMessage columns={n}>Brak zadań w tym widoku. Wybierz inny widok lub zmień wyszukiwanie — nowe zadanie dodasz w karcie klienta.</TableMessage>
+              : <TableMessage columns={n} action={<Button size="sm" onClick={c.reset} disabled={c.isDefault}>Przywróć domyślne</Button>}>Żadne zadanie nie pasuje do filtrów widoku.</TableMessage>} />
         </div>
         {selected && (
           <aside ref={panelRef} aria-label={`Szczegóły zadania: ${selected.title}`} className="flex w-100 min-w-0 flex-none flex-col border-l border-edge max-panel:fixed max-panel:inset-y-0 max-panel:right-0 max-panel:z-40 max-panel:w-full max-panel:max-w-110 max-panel:overflow-y-auto max-panel:bg-surface max-panel:shadow-modal">
