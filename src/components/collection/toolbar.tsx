@@ -167,18 +167,18 @@ function MultiFilter({ def, options, anchor, manage, onClose }: { def: Extract<F
   const c = useCollection();
   const current = c.query.filters[def.key] ?? [], currentMode = c.query.modes[def.key] ?? 'any';
   const [pick, setPick] = useState(current), [mode, setMode] = useState<FilterMode>(currentMode), [term, setTerm] = useState('');
-  const pickRef = useRef({ pick, mode });
-  useEffect(() => { pickRef.current = { pick, mode }; });
   const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
   const shown = options.filter(o => o.label.toLowerCase().includes(term.trim().toLowerCase()));
-  function apply() {
-    const { pick: p, mode: m } = pickRef.current;
-    const changed = p.length !== current.length || p.some((v, i) => v !== current[i]) || (p.length > 0 && m !== currentMode);
-    if (changed) c.setQuery({ filters: { [def.key]: p }, ...(def.modeKey ? { modes: { [def.key]: m } } : {}) });
+  // Zatwierdzenie tylko „Zastosuj” (↵ w polu szukania); Esc i klik poza warstwą zamykają bez zmian — jak filtr dat.
+  function apply(e?: FormEvent) {
+    e?.preventDefault();
+    const changed = pick.length !== current.length || pick.some((v, i) => v !== current[i]) || (pick.length > 0 && mode !== currentMode);
+    if (changed) c.setQuery({ filters: { [def.key]: pick }, ...(def.modeKey ? { modes: { [def.key]: mode } } : {}) });
     onClose();
   }
   return (
-    <Popover open onClose={apply} anchor={anchor} label={`Filtr: ${def.label}`} width="w-72" padding="p-0">
+    <Popover open onClose={onClose} anchor={anchor} label={`Filtr: ${def.label}`} width="w-72" padding="p-0">
+      <form onSubmit={apply} className="m-0 flex flex-col">
       <div className="flex flex-col gap-2 px-2 pt-2 pb-1">
         {def.modeKey && (
           <div role="radiogroup" aria-label="Warunek" className="flex gap-1 rounded-md bg-subtle p-1">
@@ -211,9 +211,10 @@ function MultiFilter({ def, options, anchor, manage, onClose }: { def: Extract<F
         <Button variant="ghost" size="sm" onClick={() => { setPick([]); setMode('any'); }} disabled={!pick.length}>Wyczyść</Button>
         <span className="inline-flex gap-1">
           {manage && <Button variant="ghost" size="sm" title="Zarządzaj: nazwy i kolory" onClick={() => c.setFilterOpen(`${def.key}:manage`)} icon={<GearSix size={14} className="shrink-0" aria-hidden />}>Zarządzaj</Button>}
-          <Button variant="pri" size="sm" onClick={apply}>Zastosuj</Button>
+          <Button type="submit" variant="pri" size="sm" shortcut="↵">Zastosuj</Button>
         </span>
       </div>
+      </form>
     </Popover>
   );
 }
@@ -224,18 +225,18 @@ function DatesFilter({ def, anchor, onClose }: { def: Extract<FilterDef, { kind:
   const [from, setFrom] = useState(cur[0] ?? ''), [to, setTo] = useState(cur[1] ?? '');
   const invalid = !!from && !!to && from > to;
   const field = 'm-0 h-control min-h-0 w-full rounded-md border-0 bg-raised px-3 py-0 font-sans text-body leading-5 text-primary shadow-none outline-0 focus:field-ring focus:ring-accent';
-  function apply() { if (!invalid) c.setQuery({ filters: { [def.key]: from || to ? [from, to] : [] } }); onClose(); }
+  function apply(e: FormEvent) { e.preventDefault(); if (invalid) return; c.setQuery({ filters: { [def.key]: from || to ? [from, to] : [] } }); onClose(); }
   return (
     <Popover open onClose={onClose} anchor={anchor} label={`Filtr: ${def.label}`} width="w-72" padding="p-2">
-      <div className="flex flex-col gap-2">
+      <form onSubmit={apply} className="m-0 flex flex-col gap-2">
         <label className="m-0 flex flex-col gap-1 text-small leading-4 font-normal text-secondary">Od<input type="date" value={from} max={to || undefined} onChange={e => setFrom(e.target.value)} className={field} /></label>
         <label className="m-0 flex flex-col gap-1 text-small leading-4 font-normal text-secondary">Do<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className={field} /></label>
         {invalid && <p role="alert" className="m-0 text-small leading-4 text-danger">Data „od” jest późniejsza niż „do”.</p>}
         <div className="flex items-center justify-between gap-1">
           <Button variant="ghost" size="sm" onClick={() => { setFrom(''); setTo(''); }}>Wyczyść</Button>
-          <Button variant="pri" size="sm" disabled={invalid} onClick={apply}>Zastosuj</Button>
+          <Button type="submit" variant="pri" size="sm" shortcut="↵" disabled={invalid}>Zastosuj</Button>
         </div>
-      </div>
+      </form>
     </Popover>
   );
 }

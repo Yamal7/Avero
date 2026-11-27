@@ -27,6 +27,10 @@ export function useIsPhone() {
 const ITEMS = '[role="menuitem"]:not([disabled]),[role="menuitemradio"]:not([disabled]),[role="menuitemcheckbox"]:not([disabled]),[role="option"]:not([aria-disabled="true"])';
 const FOCUSABLE = 'input:not([disabled]),select:not([disabled]),textarea:not([disabled]),button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])';
 
+/* Stos otwartych warstw: Esc i klik poza zamykają tylko górną (np. menu otwarte z innej warstwy). */
+const stack: symbol[] = [];
+const isTop = (id: symbol) => stack[stack.length - 1] === id;
+
 export const popoverBase = 'z-60 flex flex-col overflow-y-auto border border-edge bg-surface font-sans text-body leading-5 font-normal whitespace-normal text-primary shadow-pop';
 
 type Props = {
@@ -63,21 +67,23 @@ export function Popover({ open, onClose, anchor, label, role = 'dialog', width =
 
   useEffect(() => {
     if (!open) return;
+    const id = Symbol('popover');
+    stack.push(id);
     // Fokus do środka: pierwsze pole albo pozycja menu (zaznaczona, jeśli jest).
     const el = box.current;
     // Pole z autoFocus (np. szukanie w filtrze) dostało już fokus przy montowaniu — nie przenosimy go.
     const target = el?.contains(document.activeElement) ? null : el?.querySelector<HTMLElement>('[aria-checked="true"][role^="menuitem"],[autofocus]') ?? el?.querySelector<HTMLElement>(role === 'dialog' ? FOCUSABLE : ITEMS) ?? el;
     target?.focus({ preventScroll: true });
     const back = () => { const a = anchor.current; if (a && (!document.activeElement || document.activeElement === document.body || box.current?.contains(document.activeElement))) a.focus({ preventScroll: true }); };
-    const key = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); back(); close.current(); } };
-    const down = (e: MouseEvent) => { const t = e.target as Node; if (box.current?.contains(t) || anchor.current?.contains(t)) return; close.current(); };
+    const key = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape' && isTop(id)) { e.stopPropagation(); e.preventDefault(); back(); close.current(); } };
+    const down = (e: MouseEvent) => { const t = e.target as Node; if (!isTop(id) || box.current?.contains(t) || anchor.current?.contains(t)) return; close.current(); };
     const resize = () => place();
     const scroll = (e: Event) => { if (box.current?.contains(e.target as Node)) return; place(); };
     window.addEventListener('keydown', key, true);
     document.addEventListener('mousedown', down);
     window.addEventListener('resize', resize);
     window.addEventListener('scroll', scroll, true);
-    return () => { window.removeEventListener('keydown', key, true); document.removeEventListener('mousedown', down); window.removeEventListener('resize', resize); window.removeEventListener('scroll', scroll, true); };
+    return () => { const i = stack.indexOf(id); if (i >= 0) stack.splice(i, 1); window.removeEventListener('keydown', key, true); document.removeEventListener('mousedown', down); window.removeEventListener('resize', resize); window.removeEventListener('scroll', scroll, true); };
   }, [open, anchor, role, place]);
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {

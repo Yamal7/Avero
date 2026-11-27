@@ -1,11 +1,11 @@
 /* Stopka kolekcji (M0.4): liczby (podaje ekran) i strony. Bez stanu — działa w komponencie serwerowym. */
 import type { ReactNode } from 'react';
 import { PageLink, TableFooter } from '@/components/table/page-chrome';
-import { patchQuery, queryHref } from '@/lib/collection/query';
+import { lastPage, patchQuery, queryHref } from '@/lib/collection/query';
 import type { CollectionSpec, Query } from '@/lib/collection/spec';
 
 export function CollectionFooter({ spec, query, total, children }: { spec: CollectionSpec; query: Query; total: number; children?: ReactNode }) {
-  const pages = Math.max(1, Math.ceil(total / spec.pageSize)), page = Math.min(query.page, Math.max(pages, query.page));
+  const pages = lastPage(total, spec.pageSize), page = Math.min(query.page, pages);
   const to = (p: number) => queryHref(spec, patchQuery(spec, query, { page: p }));
   return (
     <TableFooter>

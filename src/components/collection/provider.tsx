@@ -10,14 +10,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { defaultQuery, isDefaultQuery, parseQuery, patchQuery, queryHref, savedQueryKey, type QueryPatch } from '@/lib/collection/query';
-import { activeSavedView, chosenColumns, removeSavedView, upsertSavedView, type CollectionPrefs, type SavedView } from '@/lib/collection/views';
+import { activeSavedView, chosenColumns, removeSavedView, SAVED_VIEWS_FULL_MESSAGE, savedViewsFull, upsertSavedView, type CollectionPrefs, type SavedView } from '@/lib/collection/views';
 import { initialSelection, keyCommand, selectionReducer, type Selection, type SelectionAction } from '@/lib/collection/selection';
 import { savePreference } from '@/lib/collection/preferences';
 import type { CollectionSpec, Query } from '@/lib/collection/spec';
 
 type RowHandlers = { ids: string[]; open?: (id: string) => void };
 /** Obsługa klawiszy zależna od ekranu (panel, kursor, F). */
-export type KeyHandlers = { onEscape?: () => void; onPanel?: () => void; onCursor?: (id: string) => void; onFilterKey?: () => void };
+export type KeyHandlers = { onEscape?: () => void; onPanel?: () => void; onCursor?: (id: string) => void; onFilterKey?: () => void; /** Trwa zapis — klawisze wierszy (J / K / X / ↵) nie działają. */ locked?: boolean };
 
 export type CollectionState = {
   spec: CollectionSpec;
@@ -127,12 +127,14 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
   const href = useCallback((patch: QueryPatch) => queryHref(spec, patchQuery(spec, query, patch)), [spec, query]);
 
   const setColumns = useCallback((next: string[]) => {
+    const previous = columns;
     setColumnsState(next);
     void presentation({ columns: next }).then(ok => {
-      if (!ok) { setError('Nie udało się zapisać kolumn. Spróbuj ponownie.'); return; }
+      // Zapis się nie udał — kapsułki wracają do stanu sprzed kliknięcia.
+      if (!ok) { setColumnsState(previous); setError('Nie udało się zapisać kolumn. Spróbuj ponownie.'); return; }
       if (mode === 'url') startTransition(() => router.refresh());
     });
-  }, [mode, presentation, router]);
+  }, [mode, presentation, router, columns]);
 
   const toggleGroup = useCallback((key: string) => {
     const next = collapsed.includes(key) ? collapsed.filter(k => k !== key) : [...collapsed, key];
@@ -142,6 +144,7 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
 
   const queryKey = savedQueryKey(spec, query);
   const saveView = useCallback(async (name: string) => {
+    if (savedViewsFull(saved, name)) { setError(SAVED_VIEWS_FULL_MESSAGE); return false; }
     const next = upsertSavedView(saved, { name, query: queryKey, columns });
     if (next === saved) return false;
     const ok = await savePreference(`views.${spec.id}`, next);
@@ -192,6 +195,7 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
       if (!cmd) return;
       // W warstwie pływającej (menu, filtr, Opcje widoku) klawisze należą do niej; V zamyka Opcje widoku.
       if (cmd !== 'options' && (e.target as HTMLElement | null)?.closest?.('[data-popover]')) return;
+      if (h().locked && ['next', 'prev', 'extendNext', 'extendPrev', 'toggle', 'range', 'open'].includes(cmd)) return;
       const s = selectionRef.current, ids = rows.current.ids;
       const move = (delta: number, extend = false) => {
         if (!ids.length) return;

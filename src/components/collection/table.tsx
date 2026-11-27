@@ -12,6 +12,7 @@ import type { TableLayout } from '@/lib/table/columns';
 import { cx } from '@/lib/cx';
 import { checkBox, plain } from './classes';
 import { useCollection } from './provider';
+import { visibleRowIds } from '@/lib/collection/selection';
 
 export type CollectionRow = {
   id: string;
@@ -60,14 +61,11 @@ export function CollectionTable({ layout, label, rows, groups, header, lines = f
   const n = layout.keys.length;
 
   // Kolejność widocznych wierszy (bez zwiniętych grup) do J / K i zakresu Shift+X.
-  const ordered = useMemo(() => {
-    if (!groups) return rows;
-    return groups.flatMap(g => (collapsed.includes(g.key) ? [] : rows.filter(r => (r.group ?? '') === g.key)));
-  }, [rows, groups, collapsed]);
-  const ids = useMemo(() => ordered.map(r => r.id), [ordered]);
-  const allIds = useMemo(() => rows.map(r => r.id), [rows]);
+  const ids = useMemo(() => visibleRowIds(rows, groups, collapsed), [rows, groups, collapsed]);
   useEffect(() => { registerRows({ ids, open: onActivate }); }, [registerRows, ids, onActivate]);
-  useEffect(() => { dispatch({ type: 'sync', ids: allIds }); }, [allIds, dispatch]);
+  // Zaznaczenie obejmuje tylko widoczne wiersze: znikają wiersze spoza strony i ze zwiniętych grup.
+  const idsKey = ids.join('\u0000');
+  useEffect(() => { dispatch({ type: 'sync', ids }); }, [idsKey, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selected = selection.selected;
   const allOn = ids.length > 0 && ids.every(id => selected.includes(id));
@@ -133,9 +131,9 @@ export function CollectionTable({ layout, label, rows, groups, header, lines = f
             {header}
           </HeaderRow>
         )}
-        {!rows.length && message}
+        {!rows.length && !(showEmptyGroups && groups?.length) && message}
         {rows.length > 0 && !groups && rows.map(renderRow)}
-        {rows.length > 0 && groups?.map(g => {
+        {(rows.length > 0 || showEmptyGroups) && groups?.map(g => {
           const inGroup = rows.filter(r => (r.group ?? '') === g.key), shut = collapsed.includes(g.key);
           if (!inGroup.length && !showEmptyGroups) return null;
           return (
