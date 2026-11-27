@@ -193,7 +193,10 @@ select throws_ok($$select public.current_access()$$,'PT409',null,'A stale contex
 select set_config('request.headers','{"x-avero-organization":"0a430000-0000-4000-8000-00000000000a"}',true);
 select lives_ok($$select public.save_customer_category('Fresh form','blue')$$,'A form for the current firm can write');
 select set_config('request.headers','{}',true);
-select is((select count(*)::int from public.customer_category_colors where key='stale form'),0,'Rejected write has no side effect');
+reset role;
+select is((select count(*)::int from public.customer_category_colors where key='stale form'),0,'Rejected write has no side effect in either firm');
+select is((select org_id from public.customer_category_colors where key='fresh form'),'0a430000-0000-4000-8000-00000000000a'::uuid,'Accepted write is saved in the expected firm');
+set local role authenticated;
 
 
 -- Osoba bez dostępu.
