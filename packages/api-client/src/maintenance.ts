@@ -6,6 +6,7 @@ export const maintenanceRowSchema=z.object({id:z.string().uuid(),installation_id
 export const maintenanceListSchema=z.object({apiVersion:z.literal('1'),today:maintenanceDateSchema,total:z.number().int().nonnegative(),plans:z.array(maintenanceRowSchema),summary:z.object({overdue:z.number().int().nonnegative(),upcoming:z.number().int().nonnegative(),active:z.number().int().nonnegative(),paused:z.number().int().nonnegative()}),page:z.number().int().positive(),pageSize:z.literal(20)});
 export const maintenanceSavedSchema=z.object({apiVersion:z.literal('1'),planId:z.string().uuid()});
 export type MaintenancePlan=z.infer<typeof maintenanceRowSchema>;
+export type MaintenanceList=z.infer<typeof maintenanceListSchema>;
 export type MaintenanceSave=z.infer<typeof maintenanceSaveSchema>;
 export type MaintenanceQuery=z.input<typeof maintenanceQuerySchema>;
 // Calendar months, clamped to the last day of the target month; no local timezone conversion.
