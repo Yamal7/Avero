@@ -1,16 +1,23 @@
 'use client';
-/* Magazyn (M0.3, KRA-63): tabela pozycji i macierz „W samochodach” na wspólnej tabeli z src/components/table
-   (wiersz 36 px, indeks i nazwa przypięte, przewijanie ←/→), panel pozycji i okna dokumentów PZ / RW / MM / WZ w Tailwindzie.
-   Logika (dokumenty, szkice, rezerwacje, minimum na bus) bez zmian. */
+/* Magazyn (M0.3, KRA-63; M0.4, KRA-31): lista pozycji na silniku widoku kolekcji — widoki, szukanie, filtr kategorii,
+   sortowanie i grupowanie w SQL (RPC stock_item_list, 50 na stronę), kolumny i zapisane widoki na koncie, J / K / X, ] panel,
+   Esc zamyka panel. Macierz „W samochodach”, panel pozycji i okna dokumentów PZ / RW / MM / WZ korzystają ze stock_overview —
+   logika (dokumenty, szkice, rezerwacje, minimum na bus) bez zmian. */
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockRefillResultSchema, stockUnits, type StockDraft, type StockItem, type StockLocation, type StockMove, type StockOverview } from '@hvac/api-client';
+import { stockCategories, stockDocumentResultSchema, stockMovesSchema, stockRefillResultSchema, stockUnits, type StockDraft, type StockItem, type StockLocation, type StockItemList, type StockMove, type StockOverview } from '@hvac/api-client';
 import { PersonAvatar } from '@/components/glyphs';
 import { Cell, GroupBar, HeaderCell, HeaderRow, Row, RowGroup, TableMessage } from '@/components/table/table';
 import { TableScroll } from '@/components/table/table-scroll';
-import { PageHead, Spacer, TablePage, Toolbar, ViewTabs } from '@/components/table/page-chrome';
-import { Button } from '@/components/ui/button';
+import { PageHead, Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
+import { Button, buttonClasses } from '@/components/ui/button';
+import { CollectionNotice, CollectionProvider, CollectionSearch, CollectionTable, CollectionViews, FilterBar, SortMenu, ViewOptionsButton, type CollectionGroup, type CollectionRow } from '@/components/collection';
+import { CollectionFooter } from '@/components/collection/footer';
+import { clearFilters, isFiltered, queryHref } from '@/lib/collection/query';
+import { stockSpec } from '@/lib/collection/specs';
+import { collectionLayout, type CollectionPrefs } from '@/lib/collection/views';
+import type { Query } from '@/lib/collection/spec';
 import { columnLayout } from '@/lib/table/columns';
 import { personName, taskNumber, ticketCode } from '@/lib/tasks/labels';
 import { cx } from '@/lib/cx';
@@ -77,86 +84,98 @@ const avail = (i: StockItem) => total(i) - i.reserved;
 const below = (i: StockItem) => i.minQuantity > 0 && avail(i) < i.minQuantity;
 const parseNum = (s: string) => { const n = Number(s.replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) ? n : NaN; };
 
-const itemsLayout = columnLayout([{ key: 'code', width: 84 }, { key: 'name', fr: 1, main: true }, { key: 'state', width: 88 }, { key: 'reserved', width: 80 }, { key: 'available', width: 104 }, { key: 'move', width: 72 }]);
-
-export function StockView({ data, view, tickets, tasks = [], technicians }: { data: StockOverview; view: View; tickets: StockTicket[]; tasks?: StockTask[]; technicians: { id: string; label: string }[] }) {
+export function StockView({ data, list, query, prefs, tickets, tasks = [], technicians }: { data: StockOverview; list: StockItemList | null; query: Query; prefs: CollectionPrefs; tickets: StockTicket[]; tasks?: StockTask[]; technicians: { id: string; label: string }[] }) {
   const router = useRouter();
+  const view = query.view as View;
   const items = data.items, manage = data.canManage;
   const main = data.locations.find(l => l.kind === 'warehouse'), vans = data.locations.filter(l => l.kind === 'vehicle'), myVan = vans.find(v => v.technicianId === data.viewerId);
-  const visible = view === 'refrigerant' ? items.filter(i => i.category === 'refrigerant') : view === 'below' ? items.filter(below) : items;
-  const [selectedId, setSelectedId] = useState<string | null>(visible[0]?.id ?? null), [panelOn, setPanelOn] = useState(view !== 'vehicles'), [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const visible = useMemo(() => list?.items ?? [], [list]);
+  const [selectedId, setSelectedId] = useState<string | null>(visible[0]?.id ?? null), [panelOn, setPanelOn] = useState(view !== 'vehicles');
   const [dialog, setDialog] = useState<Dialog>(null), [notice, setNotice] = useState('');
-  const selected = panelOn ? items.find(i => i.id === selectedId) ?? null : null;
+  const selected = panelOn ? visible.find(i => i.id === selectedId) ?? items.find(i => i.id === selectedId) ?? null : null;
   useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
-  const groups = (Object.keys(stockCategories) as (keyof typeof stockCategories)[]).map(c => ({ c, rows: visible.filter(i => i.category === c) })).filter(g => g.rows.length);
-  const belowCount = items.filter(below).length;
-  const href = (v: View) => (v === 'all' ? '/dashboard/stock' : `/dashboard/stock?view=${v}`);
+  const belowCount = list?.summary.below ?? items.filter(below).length;
   function done(text: string) { setDialog(null); setNotice(text); router.refresh(); }
-  const layout = itemsLayout, n = layout.keys.length;
+  const layout = collectionLayout(stockSpec, prefs.presentation.columns), n = layout.keys.length;
+  const keys = layout.keys.filter(k => k !== 'select');
+  const pick = useCallback((id: string) => { setSelectedId(id); setPanelOn(true); }, []);
+  const head: Record<string, ReactNode> = {
+    code: <HeaderCell key="code" layout={layout} col="code" icon={H.code}>Indeks</HeaderCell>,
+    name: <HeaderCell key="name" layout={layout} col="name" icon={H.name}>Nazwa</HeaderCell>,
+    state: <HeaderCell key="state" layout={layout} col="state" icon={H.state} align="right" title="Stan zmienia się tylko dokumentem: PZ, RW, MM">Stan</HeaderCell>,
+    reserved: <HeaderCell key="reserved" layout={layout} col="reserved" icon={H.reserved} align="right" title="Zarezerwowane na zlecenia">Rezerw.</HeaderCell>,
+    available: <HeaderCell key="available" layout={layout} col="available" icon={H.available} align="right">Dostępne</HeaderCell>,
+    move: <HeaderCell key="move" layout={layout} col="move" icon={H.move} align="right" title="Ostatni ruch">Ruch</HeaderCell>,
+  };
+  const rows: CollectionRow[] = visible.map(i => {
+    const t = total(i), a = avail(i), low = below(i), neg = a < 0, sel = i.id === selected?.id;
+    const cell: Record<string, ReactNode> = {
+      code: <Cell key="code" layout={layout} col="code" className="font-mono text-small text-tertiary"><span className="truncate">{i.code}</span></Cell>,
+      name: <Cell key="name" layout={layout} col="name" title={[i.container, i.gwp !== null ? `GWP ${i.gwp}` : ''].filter(Boolean).join(' · ') || undefined}>
+        <a href={`#${i.code.toLowerCase()}`} aria-current={sel ? 'true' : undefined} onClick={e => { e.preventDefault(); pick(i.id); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{i.name}</a>
+      </Cell>,
+      state: <Cell key="state" layout={layout} col="state" align="right" className="tabular-nums">{fmt(t, i.unit)}</Cell>,
+      reserved: <Cell key="reserved" gap={1} layout={layout} col="reserved" align="right" title="Zarezerwowane na zlecenia" className={cx('tabular-nums', i.reserved ? 'text-primary' : 'text-tertiary')}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</Cell>,
+      available: <Cell key="available" layout={layout} col="available" align="right" title={i.minQuantity ? `Minimum ${fmt(i.minQuantity, i.unit)}${low ? ' · poniżej minimum' : ''}` : undefined} className={cx('tabular-nums', neg ? 'text-danger' : 'text-primary', low || neg ? 'font-medium' : 'font-normal')}>{neg ? I.err : low ? I.warn : null}<span>{fmt(a, i.unit)}</span></Cell>,
+      move: <Cell key="move" gap={1} layout={layout} col="move" align="right" title={i.lastMove ? `Ostatni ruch: ${full(i.lastMove.at)}` : 'Brak ruchów'} className="text-small text-secondary tabular-nums">{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</Cell>,
+    };
+    return { id: i.id, label: `${i.code} ${i.name}`, group: query.group === 'category' ? i.category : undefined, cells: keys.map(k => cell[k]) };
+  });
+  const groups: CollectionGroup[] | undefined = list && query.group === 'category' ? list.groups.map(g => ({ key: g.key, label: stockCategories[g.key], count: g.count })) : undefined;
+  const filtered = isFiltered(stockSpec, query);
+  const message = !list
+    ? <TableMessage columns={n} kind="error" action={<Button size="sm" onClick={() => router.refresh()}>Spróbuj ponownie</Button>}>Nie udało się wczytać pozycji magazynu. Sprawdź połączenie i spróbuj ponownie.</TableMessage>
+    : filtered
+      ? <TableMessage columns={n} action={<Link href={queryHref(stockSpec, clearFilters(stockSpec, query))} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Wyczyść filtry</Link>}>Nic nie pasuje do wyszukiwania ani filtrów.</TableMessage>
+      : <TableMessage columns={n} action={manage && view !== 'below' ? <Button size="sm" onClick={() => setDialog({ kind: 'item' })} icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button> : undefined}>{view === 'below' ? 'Wszystkie pozycje są powyżej minimum.' : view === 'refrigerant' ? 'Brak czynników chłodniczych w magazynie.' : manage ? 'Magazyn jest pusty. Dodaj pierwszą pozycję, a potem przyjmij ją dokumentem PZ.' : 'Magazyn jest pusty.'}</TableMessage>;
 
   return (
-    <TablePage>
-      <PageHead icon={I.box} category="Finanse i magazyn" title="Magazyn">
-        <Spacer />
-        <span className="mr-1 text-small leading-4 text-tertiary tabular-nums">{items.length} pozycji · {belowCount} poniżej minimum</span>
-      </PageHead>
-      <Toolbar>
-        <ViewTabs label="Zapisane widoki" items={([['all', 'Wszystkie'], ['refrigerant', 'Czynniki chłodnicze'], ['below', 'Poniżej minimum'], ['vehicles', 'W samochodach']] as [View, string][]).map(([v, l]) => ({ label: l, href: href(v), active: view === v }))} />
-        <Spacer />
-        {view !== 'vehicles' && <Button variant="icon" size="sm" aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" onClick={() => setPanelOn(v => !v)} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
-        {manage && <Button size="sm" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} className="ml-1" icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button>}
-        {data.drafts.map(d => <Button key={d.id} size="sm" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} variant="ghost" icon={I.draft}>Szkic {d.kind}</Button>)}
-        {manage && <Button size="sm" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} icon={I.in}>Przyjęcie</Button>}
-        {manage && <Button size="sm" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} icon={I.out}>WZ</Button>}
-        <Button variant="pri" size="sm" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} icon={<ArrowLineUp size={14} className="shrink-0" aria-hidden />}>Wydanie</Button>
-      </Toolbar>
-      {notice && <p role="status" className={cx(note, 'mx-5 mb-2 text-success')}>{notice}</p>}
-
-      {view === 'vehicles'
-        ? <Vehicles items={items} main={main} vans={vans} manage={manage} onMM={(itemId, to) => setDialog({ kind: 'MM', itemId, from: main?.id, to })} onAddVan={() => setDialog({ kind: 'vehicle' })} onDone={done} onError={setNotice} />
-        : (
-          <div className="flex min-h-0 flex-auto items-stretch">
-            <div className="min-w-0 flex-auto px-3 pb-6">
-              <TableScroll layout={layout} label="Pozycje magazynowe">
-                <HeaderRow layout={layout} className="border-b-0">
-                  <HeaderCell layout={layout} col="code" icon={H.code}>Indeks</HeaderCell>
-                  <HeaderCell layout={layout} col="name" icon={H.name}>Nazwa</HeaderCell>
-                  <HeaderCell layout={layout} col="state" icon={H.state} align="right" title="Stan zmienia się tylko dokumentem: PZ, RW, MM">Stan</HeaderCell>
-                  <HeaderCell layout={layout} col="reserved" icon={H.reserved} align="right" title="Zarezerwowane na zlecenia">Rezerw.</HeaderCell>
-                  <HeaderCell layout={layout} col="available" icon={H.available} align="right">Dostępne</HeaderCell>
-                  <HeaderCell layout={layout} col="move" icon={H.move} align="right" title="Ostatni ruch">Ruch</HeaderCell>
-                </HeaderRow>
-                {groups.map(g => (
-                  <RowGroup key={g.c} label={stockCategories[g.c]}>
-                    <GroupBar columns={n} label={stockCategories[g.c]} count={g.rows.length} collapsed={!!collapsed[g.c]} onToggle={() => setCollapsed(s => ({ ...s, [g.c]: !s[g.c] }))} />
-                    {!collapsed[g.c] && <div className="mb-4 flex flex-col">{g.rows.map(i => {
-                      const t = total(i), a = avail(i), low = below(i), neg = a < 0, sel = i.id === selected?.id;
-                      const pick = () => { setSelectedId(i.id); setPanelOn(true); };
-                      return (
-                        <Row key={i.id} layout={layout} interactive selected={sel} onClick={e => { if ((e.target as HTMLElement).closest('a')) return; pick(); }}>
-                          <Cell layout={layout} col="code" className="font-mono text-small text-tertiary"><span className="truncate">{i.code}</span></Cell>
-                          <Cell layout={layout} col="name" title={[i.container, i.gwp !== null ? `GWP ${i.gwp}` : ''].filter(Boolean).join(' · ') || undefined}>
-                            <a href={`#${i.code.toLowerCase()}`} aria-current={sel ? 'true' : undefined} onClick={e => { e.preventDefault(); pick(); }} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{i.name}</a>
-                          </Cell>
-                          <Cell layout={layout} col="state" align="right" className="tabular-nums">{fmt(t, i.unit)}</Cell>
-                          <Cell gap={1} layout={layout} col="reserved" align="right" title="Zarezerwowane na zlecenia" className={cx('tabular-nums', i.reserved ? 'text-primary' : 'text-tertiary')}>{i.reserved ? <>{I.lock}<span>{fmt(i.reserved, i.unit)}</span></> : '—'}</Cell>
-                          <Cell layout={layout} col="available" align="right" title={i.minQuantity ? `Minimum ${fmt(i.minQuantity, i.unit)}${low ? ' · poniżej minimum' : ''}` : undefined} className={cx('tabular-nums', neg ? 'text-danger' : 'text-primary', low || neg ? 'font-medium' : 'font-normal')}>{neg ? I.err : low ? I.warn : null}<span>{fmt(a, i.unit)}</span></Cell>
-                          <Cell gap={1} layout={layout} col="move" align="right" title={i.lastMove ? `Ostatni ruch: ${full(i.lastMove.at)}` : 'Brak ruchów'} className="text-small text-secondary tabular-nums">{i.lastMove ? <>{i.lastMove.delta > 0 ? I.in : I.out}<span>{day(i.lastMove.at)}</span></> : '—'}</Cell>
-                        </Row>
-                      );
-                    })}</div>}
-                  </RowGroup>
-                ))}
-                {!groups.length && <TableMessage columns={n} action={manage && view !== 'below' ? <Button size="sm" onClick={() => setDialog({ kind: 'item' })} icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button> : undefined}>{view === 'below' ? 'Wszystkie pozycje są powyżej minimum.' : manage ? 'Magazyn jest pusty. Dodaj pierwszą pozycję, a potem przyjmij ją dokumentem PZ.' : 'Magazyn jest pusty.'}</TableMessage>}
-              </TableScroll>
-            </div>
-            {selected && <ItemPanel item={selected} locations={data.locations} manage={manage} canIssue={manage || !!myVan} onClose={() => setPanelOn(false)} onDoc={kind => setDialog({ kind, itemId: selected.id })} onEdit={() => setDialog({ kind: 'item', item: selected })} tickets={tickets} tasks={tasks} onReserved={() => { setNotice('Zarezerwowano.'); router.refresh(); }} />}
+    <CollectionProvider spec={stockSpec} query={query} prefs={prefs}
+      onEscape={() => setPanelOn(false)}
+      onPanel={view !== 'vehicles' ? () => { setPanelOn(v => !v); if (!selectedId && visible[0]) setSelectedId(visible[0].id); } : undefined}
+      onCursor={id => { if (panelOn) setSelectedId(id); }}>
+      <TablePage>
+        <PageHead icon={I.box} category="Finanse i magazyn" title="Magazyn">
+          <Spacer />
+          <span className="mr-1 text-small leading-4 text-tertiary tabular-nums">{list?.summary.all ?? items.length} pozycji · {belowCount} poniżej minimum</span>
+        </PageHead>
+        <Toolbar>
+          <CollectionViews label="Widoki magazynu" />
+          <Spacer />
+          {view !== 'vehicles' && <ViewOptionsButton />}
+          {view !== 'vehicles' && <Button variant="icon" size="sm" aria-label="Panel szczegółów" aria-pressed={panelOn} title="Panel szczegółów" shortcut="]" onClick={() => { setPanelOn(v => !v); if (!selectedId && visible[0]) setSelectedId(visible[0].id); }} icon={<SidebarSimple size={16} mirrored className="shrink-0" aria-hidden />} className="aria-pressed:bg-subtle aria-pressed:text-primary" />}
+          {manage && <Button size="sm" title="Nowa pozycja magazynowa" onClick={() => setDialog({ kind: 'item' })} className="ml-1" icon={<Plus size={14} className="shrink-0" aria-hidden />}>Pozycja</Button>}
+          {data.drafts.map(d => <Button key={d.id} size="sm" title={`Szkic ${d.kind} z ${full(d.updatedAt)}`} onClick={() => setDialog({ kind: d.kind, draft: d, itemId: typeof d.payload.itemId === 'string' ? d.payload.itemId : undefined })} variant="ghost" icon={I.draft}>Szkic {d.kind}</Button>)}
+          {manage && <Button size="sm" title="Przyjęcie (PZ)" onClick={() => setDialog({ kind: 'PZ', itemId: selected?.id })} icon={I.in}>Przyjęcie</Button>}
+          {manage && <Button size="sm" title="Wydanie zewnętrzne, np. sprzedaż (WZ)" onClick={() => setDialog({ kind: 'WZ', itemId: selected?.id })} icon={I.out}>WZ</Button>}
+          <Button variant="pri" size="sm" title="Wydanie na zlecenie (RW)" onClick={() => setDialog({ kind: 'RW', itemId: selected?.id })} disabled={!manage && !myVan} icon={<ArrowLineUp size={14} className="shrink-0" aria-hidden />}>Wydanie</Button>
+        </Toolbar>
+        {view !== 'vehicles' && (
+          <div className="flex min-w-0 flex-wrap items-center gap-2 pr-3 pb-2 pl-4 max-desktop:pl-3">
+            <CollectionSearch />
+            <FilterBar />
+            <SortMenu />
           </div>
         )}
-      {dialog && dialog.kind === 'item' && <ItemDialog item={dialog.item} onClose={() => setDialog(null)} onDone={done} />}
-      {dialog && dialog.kind === 'vehicle' && <VehicleDialog technicians={technicians.filter(t => !vans.some(v => v.technicianId === t.id))} onClose={() => setDialog(null)} onDone={done} />}
-      {dialog && (dialog.kind === 'PZ' || dialog.kind === 'RW' || dialog.kind === 'MM' || dialog.kind === 'WZ') && <DocDialog key={dialog.draft?.id ?? dialog.kind} draft={dialog.draft} kind={dialog.kind} items={items} locations={data.locations} manage={manage} myVan={myVan} tickets={tickets} initialItem={dialog.itemId} initialFrom={dialog.from} initialTo={dialog.to} onClose={() => setDialog(null)} onDone={done} />}
-    </TablePage>
+        <CollectionNotice />
+        {notice && <p role="status" className={cx(note, 'mx-5 mb-2 text-success')}>{notice}</p>}
+
+        {view === 'vehicles'
+          ? <Vehicles items={items} main={main} vans={vans} manage={manage} onMM={(itemId, to) => setDialog({ kind: 'MM', itemId, from: main?.id, to })} onAddVan={() => setDialog({ kind: 'vehicle' })} onDone={done} onError={setNotice} />
+          : (
+            <div className="flex min-h-0 flex-auto items-stretch">
+              <div className="flex min-w-0 flex-auto flex-col px-3 pb-6">
+                <CollectionTable layout={layout} label="Pozycje magazynowe" header={keys.map(k => head[k])} rows={rows} groups={groups} groupGap activeId={selected?.id ?? null} onActivate={pick} message={message} />
+                {list && list.total > stockSpec.pageSize && <CollectionFooter spec={stockSpec} query={query} total={list.total}><span>{list.total} pozycji</span></CollectionFooter>}
+              </div>
+              {selected && <ItemPanel item={selected} locations={data.locations} manage={manage} canIssue={manage || !!myVan} onClose={() => setPanelOn(false)} onDoc={kind => setDialog({ kind, itemId: selected.id })} onEdit={() => setDialog({ kind: 'item', item: selected })} tickets={tickets} tasks={tasks} onReserved={() => { setNotice('Zarezerwowano.'); router.refresh(); }} />}
+            </div>
+          )}
+        {dialog && dialog.kind === 'item' && <ItemDialog item={dialog.item} onClose={() => setDialog(null)} onDone={done} />}
+        {dialog && dialog.kind === 'vehicle' && <VehicleDialog technicians={technicians.filter(t => !vans.some(v => v.technicianId === t.id))} onClose={() => setDialog(null)} onDone={done} />}
+        {dialog && (dialog.kind === 'PZ' || dialog.kind === 'RW' || dialog.kind === 'MM' || dialog.kind === 'WZ') && <DocDialog key={dialog.draft?.id ?? dialog.kind} draft={dialog.draft} kind={dialog.kind} items={items} locations={data.locations} manage={manage} myVan={myVan} tickets={tickets} initialItem={dialog.itemId} initialFrom={dialog.from} initialTo={dialog.to} onClose={() => setDialog(null)} onDone={done} />}
+      </TablePage>
+    </CollectionProvider>
   );
 }
 
