@@ -4,7 +4,7 @@ import { ApiFault,authenticate,databaseError,endpoint,json,preflight,readBody } 
 export function GET(request:Request){return endpoint(request,async()=>{
  const {db,role}=await authenticate(request);if(!['admin','office','technician'].includes(role))throw new ApiFault(403,'ACCESS_DENIED','Harmonogram firmy jest dostępny dla pracowników.');
  const input=maintenanceQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams));
- const result=await db.rpc('maintenance_schedule',{p_search:input.search,p_view:input.view,p_page:input.page,p_installation:input.installation||null});databaseError(result.error);
+ const result=await db.rpc('maintenance_schedule',{p_search:input.search,p_view:input.view,p_page:input.page,p_installation:input.installation||null,p_sort:input.sort});databaseError(result.error);
  return json(request,maintenanceListSchema,{...result.data,apiVersion:'1',page:input.page,pageSize:20});
 });}
 export function POST(request:Request){return endpoint(request,async()=>{
