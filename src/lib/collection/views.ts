@@ -86,3 +86,9 @@ export function collectionLayout(spec: CollectionSpec, chosen: string[] | null) 
   const cols = visibleColumns(spec, chosen).map(c => (c.fr === undefined ? { key: c.key, width: c.width } : { key: c.key, fr: c.fr, main: c.main, min: c.min }) as ColumnSpec);
   return columnLayout(spec.selectable ? [SELECT_COLUMN, ...cols] : cols);
 }
+
+export type CollectionPrefs = { presentation: Presentation; saved: SavedView[] };
+/** Preferencje kolekcji z odpowiedzi my_preferences() (`view.<id>`, `views.<id>`). */
+export function collectionPrefs(spec: CollectionSpec, all: Record<string, unknown> | null | undefined): CollectionPrefs {
+  return { presentation: readPresentation(spec, all?.[`view.${spec.id}`]), saved: readSavedViews(spec, all?.[`views.${spec.id}`]) };
+}
