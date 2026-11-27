@@ -22,7 +22,8 @@ declare q text:=lower(trim(coalesce(p_search,'')));manage boolean:=public.can_ma
   select v.*,(select max(x) from(select max(created_at) x from public.crm_notes where customer_id=v.id union all select max(created_at) from public.service_tickets where customer_id=v.id union all select max(updated_at) from public.crm_tasks where customer_id=v.id) s) last_contact,
    (select count(*) from public.devices d join public.installations i on i.id=d.installation_id join public.locations l on l.id=i.location_id where l.customer_id=v.id) device_count,
    case when manage then (select coalesce(sum((vr->>'netCents')::bigint),0) from public.offer_publications op cross join lateral jsonb_array_elements(op.snapshot->'variants') vr where op.customer_id=v.id and op.state='accepted' and op.accepted_at>now()-interval '12 months' and vr->>'id'=op.selected_variant_id::text) end revenue,
-   (select l.city from public.locations l where l.customer_id=v.id order by l.created_at,l.id limit 1) first_city
+   -- miasto pierwszej lokalizacji liczone dla całego wyniku tylko przy grupowaniu po mieście (wiersze strony biorą je niżej)
+   case when p_group='city' then (select l.city from public.locations l where l.customer_id=v.id order by l.created_at,l.id limit 1) end first_city
   from visible v where v.type::text=p_kind
    and(cardinality(cats)=0
     or p_mode='any' and exists(select 1 from unnest(v.categories) x where lower(x)=any(cats))
@@ -49,7 +50,7 @@ declare q text:=lower(trim(coalesce(p_search,'')));manage boolean:=public.can_ma
     from(select group_key,min(group_label) label,count(*) n,min(rn) first_rn from ordered group by group_key) g),'[]') end,
   'items',coalesce((select jsonb_agg(jsonb_build_object(
     'id',p.id,'name',p.name,'type',p.type,'email',p.email,'phone',p.phone,'categories',to_jsonb(p.categories),
-    'city',p.first_city,'devices',p.device_count,'lastContact',p.last_contact,
+    'city',(select l.city from public.locations l where l.customer_id=p.id order by l.created_at,l.id limit 1),'devices',p.device_count,'lastContact',p.last_contact,
     'ownerId',(select o.owner_id from public.crm_owners o where o.id=p.id),
     'ownerLabel',(select public.crm_staff_label(o.owner_id) from public.crm_owners o where o.id=p.id and o.owner_id is not null),
     'revenueCents',p.revenue,'group',p.group_key
