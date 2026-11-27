@@ -3,6 +3,7 @@
    people_directory (filtry, sortowanie, grupy i strony w SQL). Kolumny, zwinięte grupy i zapisane widoki — preferencje konta.
    Makieta: ekrany `firmy` (+ `filtr: kategoria`) i `osoby` (design/canvas/Main.dc.html). */
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { customerCategoryListSchema, customerDirectoryParamsSchema, customerDirectorySchema, peopleDirectoryParamsSchema, peopleDirectorySchema, type CustomerDirectory, type PeopleDirectory } from '@hvac/api-client';
 import { CategoryManager } from '@/components/category-manager';
@@ -15,7 +16,7 @@ import { Cell, HeaderCell, TableMessage } from '@/components/table/table';
 import { PageHead, Segmented, Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
 import { buttonClasses } from '@/components/ui/button';
 import { categoryColorKey, categoryDotClass, categoryTintClass, colorMap } from '@/lib/crm/category-colors';
-import { clearFilters, isFiltered, parseQuery, queryHref } from '@/lib/collection/query';
+import { clampPage, clearFilters, isFiltered, parseQuery, patchQuery, queryHref } from '@/lib/collection/query';
 import { archivedIndividualsColumns, companiesSpec, peopleSpec } from '@/lib/collection/specs';
 import { collectionLayout, collectionPrefs, SELECT_COLUMN, visibleColumns } from '@/lib/collection/views';
 import { loadPreferences } from '@/lib/collection/server';
@@ -87,6 +88,9 @@ export default async function Customers({ searchParams }: { searchParams: Promis
   const categories = catList.error ? [] : customerCategoryListSchema.parse(catList.data), colors = colorMap(categories);
   const pplParsed = ppl && !ppl.error ? peopleDirectorySchema.safeParse(ppl.data) : null;
   const persons: PeopleDirectory | null = pplParsed?.success ? pplParsed.data : null;
+  // Strona poza zakresem (np. po zawężeniu filtra albo z zapisanego adresu) → ostatnia strona wyniku.
+  const page = usePeople ? (persons ? clampPage({ total: persons.total, count: persons.items.length, page: query.page }, spec.pageSize) : null) : data ? clampPage({ total: data.total, count: data.items.length, page: query.page }, spec.pageSize) : null;
+  if (page) redirect(queryHref(spec, patchQuery(spec, query, { page })));
   const prefs = collectionPrefs(spec, prefsAll);
   const kindHref = (k: 'company' | 'individual') => `/dashboard/customers?${new URLSearchParams({ kind: k, ...(archived ? { view: 'archived' } : {}) })}`;
 

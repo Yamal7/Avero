@@ -90,10 +90,11 @@ export function StockView({ data, list, query, prefs, tickets, tasks = [], techn
   const items = data.items, manage = data.canManage;
   const main = data.locations.find(l => l.kind === 'warehouse'), vans = data.locations.filter(l => l.kind === 'vehicle'), myVan = vans.find(v => v.technicianId === data.viewerId);
   const visible = useMemo(() => list?.items ?? [], [list]);
-  const [selectedId, setSelectedId] = useState<string | null>(visible[0]?.id ?? null), [panelOn, setPanelOn] = useState(view !== 'vehicles');
+  const [selectedId, setSelectedId] = useState<string | null>(visible[0]?.id ?? null), [panelOn, setPanelOn] = useState(false);
   const [dialog, setDialog] = useState<Dialog>(null), [notice, setNotice] = useState('');
   const selected = panelOn ? visible.find(i => i.id === selectedId) ?? items.find(i => i.id === selectedId) ?? null : null;
-  useEffect(() => { if (window.matchMedia('(max-width: 1100px)').matches) setPanelOn(false); }, []);
+  // Panel otwiera się sam tylko na szerokim ekranie (> 1100 px); węższy (nakładka) — dopiero po wyborze pozycji (klik, ↵).
+  useEffect(() => { if (view !== 'vehicles' && window.matchMedia('(min-width: 1101px)').matches) setPanelOn(true); }, [view]);
   const belowCount = list?.summary.below ?? items.filter(below).length;
   function done(text: string) { setDialog(null); setNotice(text); router.refresh(); }
   const layout = collectionLayout(stockSpec, prefs.presentation.columns), n = layout.keys.length;
@@ -133,7 +134,7 @@ export function StockView({ data, list, query, prefs, tickets, tasks = [], techn
     <CollectionProvider spec={stockSpec} query={query} prefs={prefs}
       onEscape={() => setPanelOn(false)}
       onPanel={view !== 'vehicles' ? () => { setPanelOn(v => !v); if (!selectedId && visible[0]) setSelectedId(visible[0].id); } : undefined}
-      onCursor={id => { if (panelOn) setSelectedId(id); }}>
+      onCursor={id => setSelectedId(id)}>
       <TablePage>
         <PageHead icon={I.box} category="Finanse i magazyn" title="Magazyn">
           <Spacer />

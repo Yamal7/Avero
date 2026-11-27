@@ -2,7 +2,7 @@
    w jednej linii z M0.3, Tailwind. Zapytanie w adresie → maintenance_schedule (szukanie, widok, sortowanie, strony w SQL).
    Pełny projekt z makiety `przeglądy` (statusy, grupy po miesiącach, pasek SMS, panel F-gaz) — M1.8. */
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { z } from 'zod';
 import { maintenanceListSchema, maintenanceScheduleParamsSchema, type MaintenanceList, type MaintenancePlan } from '@hvac/api-client';
@@ -16,7 +16,7 @@ import { CustomerLogo } from '@/components/table/customer-logo';
 import { Cell, HeaderCell, TableMessage } from '@/components/table/table';
 import { PageHead, Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
 import { buttonClasses } from '@/components/ui/button';
-import { clearFilters, isFiltered, parseQuery, queryHref } from '@/lib/collection/query';
+import { clampPage, clearFilters, isFiltered, parseQuery, patchQuery, queryHref } from '@/lib/collection/query';
 import { maintenanceSpec } from '@/lib/collection/specs';
 import { collectionLayout, collectionPrefs } from '@/lib/collection/views';
 import { loadPreferences } from '@/lib/collection/server';
@@ -67,6 +67,8 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
   const [result, prefsAll] = await Promise.all([db.rpc('maintenance_schedule', params), loadPreferences(db)]);
   const parsed = result.error ? null : maintenanceListSchema.safeParse({ ...result.data, apiVersion: '1', page: query.page, pageSize: 20 });
   const list: MaintenanceList | null = parsed?.success ? parsed.data : null;
+  const lastPage = list ? clampPage({ total: list.total, count: list.plans.length, page: query.page }, maintenanceSpec.pageSize) : null;
+  if (lastPage) redirect(queryHref(maintenanceSpec, patchQuery(maintenanceSpec, query, { page: lastPage })));
   const canAdd = manager && (!context || (context.status !== 'archived' && !context.locations.customers.archived_at));
   let options: InstallationOption[] = [];
   if (canAdd) {

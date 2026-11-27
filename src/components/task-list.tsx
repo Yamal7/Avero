@@ -122,6 +122,8 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
       onPanel: board ? undefined : () => { setPanelOn(v => !v); if (!selectedId && items[0]) setSelectedId(items[0].id); },
       onCursor: id => { if (!busy) select(items.find(t => t.id === id) ?? null); },
       onFilterKey: () => setShowSearch(v => !v),
+      // W trakcie zapisu J / K nie przesuwa kursora (panel pokazuje zapisywane zadanie).
+      locked: busy || posting,
     });
   });
 

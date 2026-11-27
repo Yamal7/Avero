@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { stockItemListParamsSchema, stockItemListSchema, stockOverviewSchema, type StockItemList } from '@hvac/api-client';
 import { requireSession } from '@/lib/auth';
-import { parseQuery } from '@/lib/collection/query';
+import { clampPage, parseQuery, patchQuery, queryHref } from '@/lib/collection/query';
 import { stockSpec } from '@/lib/collection/specs';
 import { collectionPrefs } from '@/lib/collection/views';
 import { loadPreferences } from '@/lib/collection/server';
@@ -27,6 +27,8 @@ export default async function StockPage({ searchParams }: { searchParams: Promis
   // Błąd samej listy pokazuje komunikat w tabeli (z „Spróbuj ponownie”), a nie stronę błędu.
   const parsedList = listResult && !listResult.error ? stockItemListSchema.safeParse(listResult.data) : null;
   const list: StockItemList | null = parsedList?.success ? parsedList.data : null;
+  const lastPage = list ? clampPage({ total: list.total, count: list.items.length, page: query.page }, stockSpec.pageSize) : null;
+  if (lastPage) redirect(queryHref(stockSpec, patchQuery(stockSpec, query, { page: lastPage })));
   type Row = { id: string; ticket_number: number; subject: string; customer: { name: string } | null; installation: { devices: { id: string; manufacturer: string; model: string | null; serial_number: string | null }[] } | null };
   const tickets: StockTicket[] = ((open.data || []) as unknown as Row[]).map(t => ({ id: t.id, number: t.ticket_number, subject: t.subject, customer: t.customer?.name ?? '', devices: (t.installation?.devices ?? []).map(d => ({ id: d.id, label: [d.manufacturer, d.model, d.serial_number && `nr ${d.serial_number}`].filter(Boolean).join(' ') })) }));
   let technicians: { id: string; label: string }[] = [], tasks: StockTask[] = [];
