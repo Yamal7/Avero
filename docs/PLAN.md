@@ -117,41 +117,42 @@ Działa (szczegóły w `docs/STATUS.md`): rama aplikacji i skróty, Mój dzień 
 Tabela poniżej jest **generowana z Linear** (workflow „Linear → plan”: codziennie, po każdym scaleniu do `main` i na żądanie). Nie edytuj jej ręcznie — zmień zadanie w Linear: faza = kamień milowy „Faza N · …”, numer modułu = „Moduł w `docs/PLAN.md`: M1.3” w opisie, zależności = relacje „blokowane przez”, stan = status zadania.
 
 <!-- linear:moduly:start -->
-| | Moduł | Linear | Zależy od |
-|---|---|---|---|
-| **Faza 0 — Fundament** | | | |
-| [ ] | M0.1 Wielofirmowość: organizacje, `org_id`, RLS | KRA-27 | — |
-| [ ] | M0.2 Tailwind v4 na tokenach z `tokens.css`, ikony Phosphor | KRA-26 | — |
-| [ ] | M0.3 Tabele w jednej linii, logo z kartą podglądu, przypięta kolumna | KRA-63 | M0.2 |
-| [ ] | M0.4 Silnik widoku kolekcji w Magazynie, Firmach, Przeglądach | KRA-31 | M0.3 |
-| [ ] | M0.5 Rejestr rozszerzeń i pakiet HVACR | KRA-29 | M0.1 |
-| **Faza 1 — Serwis** | | | |
-| [ ] | M1.1 Obiekty: lista i karta obiektu | KRA-48 | M0.4 |
-| [ ] | M1.2 Karta firmy: pozostałe zakładki, lista Urządzeń | KRA-64 | M0.4, M1.1 |
-| [ ] | M1.3 Karta urządzenia z F-gaz i CRO (pakiet) | KRA-34 | M0.5, M1.2 |
-| [ ] | M1.4 RW czynnika aktualizuje ładunek urządzenia | KRA-35 | M1.3 |
-| [ ] | M1.5 Szablony protokołów: edytor sekcji | KRA-65 | M0.2, M0.5 |
-| [ ] | M1.6 Telefon technika: dzień, wizyta, protokół | KRA-36 | M1.3, M1.5 |
-| [ ] | M1.7 Zgłoszenia: lista i podgląd | KRA-37 | M0.4 |
-| [ ] | M1.8 Przeglądy i umowy serwisowe | KRA-41 | M1.3, M1.7 |
-| **Faza 2 — Sprzedaż i realizacja** | | | |
-| [ ] | M2.1 Katalog i import cennika | KRA-47 | M0.4 |
-| [ ] | M2.2 Zakupy: zapotrzebowanie, zamówienia, dostawcy, cenniki | KRA-46 | M2.1 |
-| [ ] | M2.3 Leady, Szanse, Oferty (nowy wygląd i logika) | KRA-45 | M2.1 |
-| [ ] | M2.4 Widoki klienta i portal klienta | KRA-40 | M2.3 |
-| [ ] | M2.5 Zlecenie montażu | KRA-38 | M2.3, M2.2 |
-| [ ] | M2.6 Faktury i należności, faktura końcowa | KRA-39 | M2.5 |
-| [ ] | M2.7 Projekty: lista, rekord, oś czasu | KRA-49 | M2.5 |
-| [ ] | M2.8 Reklamacje i gwarancje | KRA-50 | M1.3, M2.2 |
-| [ ] | M2.9 Mój dzień: kolejność sekcji, widżet Sprzedaż | KRA-66 | M1.7, M2.3 |
-| **Faza 3 — Konfiguracja i raporty** | | | |
-| [ ] | M3.1 Ustawienia: wszystkie zakładki | KRA-43 | M0.1 |
-| [ ] | M3.2 Ustawienia › Moduły i pakiety | KRA-33 | M0.5, M3.1 |
-| [ ] | M3.3 Wymagania rdzenia ze sprawdzianu (reszta) | KRA-28 | M1.5, M3.2 |
-| [ ] | M3.4 Warstwa elastyczna: pola własne, własne tabele | KRA-30 | M0.1, M3.2 |
-| [ ] | M3.5 Raporty | KRA-42 | M2.6 |
-| [ ] | M3.6 Skrzynka (najpierw portal i formularz, poczta po KRA-58) | KRA-44 | M1.7 |
-| [ ] | M3.7 Audyt motywu ciemnego na wszystkich ekranach | KRA-32 | wszystkie |
+| | Moduł | Linear | Stan | Zależy od |
+|---|---|---|---|---|
+| **Faza 0 — Wielofirmowość i rejestr rozszerzeń · Fundament UI** | | | | |
+| [x] | M0.1 Wielofirmowość: org_id i RLS we wszystkich tabelach | KRA-27 | Done | — |
+| [x] | M0.2 Tailwind v4 na tokenach z tokens.css i ikony Phosphor | KRA-26 | Done | — |
+| [x] | M0.3 Tabele w jednej linii: logo firmy z kartą podglądu, kolorowe ikony, przewijanie z przypiętą kolumną | KRA-63 | Done | M0.2 |
+| [ ] | M0.4 Silnik widoku kolekcji: Magazyn, Firmy, Przeglądy | KRA-31 | Backlog | M0.2, M0.3 |
+| [ ] | M0.5 Rejestr rozszerzeń i wydzielenie pakietu HVACR | KRA-29 | Backlog | M0.1 |
+| [ ] | M0.6 Lewy panel nawigacji: rozwinięty, zwinięty do ikon, ukryty | KRA-68 | Backlog | M0.2 |
+| **Faza 1 — Serwis** | | | | |
+| [ ] | M1.1 Obiekty: lista i karta obiektu | KRA-48 | Backlog | M0.4 |
+| [ ] | M1.2 Karta firmy: pozostałe zakładki i lista Urządzeń | KRA-64 | Backlog | M0.4, M1.1 |
+| [ ] | M1.3 Karta urządzenia z F-gaz i CRO | KRA-34 | Backlog | M0.2, M0.5, M1.2 |
+| [ ] | M1.4 RW czynnika aktualizuje ładunek urządzenia | KRA-35 | Backlog | M1.3 |
+| [ ] | M1.5 Szablony protokołów: edytor sekcji w Ustawieniach | KRA-65 | Backlog | M0.2, M0.5 |
+| [ ] | M1.6 [odłożone] Telefon technika: Mój dzień, zlecenie w terenie, protokół | KRA-36 | Backlog | M0.2, M1.3, M1.5 |
+| [ ] | M1.7 Zgłoszenia serwisowe według makiety | KRA-37 | Backlog | M0.4 |
+| [ ] | M1.8 Przeglądy i umowy serwisowe | KRA-41 | Backlog | M0.4, M1.3, M1.7 |
+| **Faza 2 — Sprzedaż i realizacja** | | | | |
+| [ ] | M2.1 Katalog produktów i import cennika | KRA-47 | Backlog | M0.4 |
+| [ ] | M2.2 Zakupy: zamówienia do dostawców, dostawcy i cenniki | KRA-46 | Backlog | M0.4, M2.1 |
+| [ ] | M2.3 Leady, szanse sprzedaży i nowy wygląd ofert | KRA-45 | Backlog | M0.4, M2.1 |
+| [ ] | M2.4 [odłożone] Widoki klienta i portal klienta | KRA-40 | Backlog | M0.2, M2.3 |
+| [ ] | M2.5 Zlecenie montażu według makiety | KRA-38 | Backlog | M0.2, M2.3, M2.2 |
+| [ ] | M2.6 Faktury i należności: do wystawienia, wszystkie, zaliczki, faktura końcowa | KRA-39 | Backlog | M0.4, M2.5 |
+| [ ] | M2.7 Projekty: lista, rekord projektu i oś czasu | KRA-49 | Backlog | M0.4, M2.5 |
+| [ ] | M2.8 Reklamacje i gwarancje | KRA-50 | Backlog | M0.4, M1.3, M2.2 |
+| [ ] | M2.9 Mój dzień: kolejność sekcji i widżet Sprzedaż (porządki 21 lis) | KRA-66 | Backlog | M1.7, M2.3 |
+| **Faza 3 — Ustawienia, raporty, skrzynka · Pakiety i warstwa elastyczna** | | | | |
+| [ ] | M3.1 Ustawienia: wszystkie zakładki z makiety | KRA-43 | Backlog | M0.2, M0.1 |
+| [ ] | M3.2 Ekran Ustawienia → Moduły i pakiety | KRA-33 | Backlog | M0.5, M3.1 |
+| [ ] | M3.3 Wymagania rdzenia ze sprawdzianu (ekran 25) | KRA-28 | Backlog | M3.2, M1.5 |
+| [ ] | M3.4 Warstwa elastyczna: pola własne, własne tabele, widoki, import, raporty, akcje | KRA-30 | Backlog | M0.1, M3.2 |
+| [ ] | M3.5 Raporty według makiety | KRA-42 | Backlog | M0.2, M2.6 |
+| [ ] | M3.6 Skrzynka: poczta M365 / Gmail powiązana z klientami | KRA-44 | Backlog | M0.2, M1.7, KRA-58 |
+| [ ] | M3.7 Audyt motywu ciemnego na wszystkich ekranach | KRA-32 | Backlog | M0.2 |
 <!-- linear:moduly:end -->
 
 Poza tym planem: zadania czatu projektowego (KRA-53, KRA-54, KRA-55) i pilotaż (projekt „Pilotaż i wdrożenie”, KRA-51–62).
