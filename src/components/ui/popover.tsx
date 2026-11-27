@@ -103,6 +103,7 @@ export function Popover({ open, onClose, anchor, label, role = 'dialog', width =
       ref={box}
       role={role}
       aria-label={label}
+      data-popover=""
       tabIndex={-1}
       onKeyDown={onKeyDown}
       onBlur={onBlur}

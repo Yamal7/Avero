@@ -111,11 +111,17 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
     return savePreference(`view.${spec.id}`, value);
   }, [columns, collapsed, mode, spec, localQuery]);
 
+  // Ten sam adres (np. „Przywróć domyślne” zmienia tylko kolumny) — odświeżenie zamiast nawigacji.
+  const navigate = useCallback((href: string) => startTransition(() => {
+    if (href === `${window.location.pathname}${window.location.search}`) router.refresh();
+    else router.push(href, { scroll: false });
+  }), [router]);
+
   const go = useCallback((q: Query) => {
     setError('');
     if (mode === 'local') { setLocalQuery(q); void presentation({ query: q }); return; }
-    startTransition(() => router.push(queryHref(spec, q), { scroll: false }));
-  }, [mode, presentation, router, spec]);
+    navigate(queryHref(spec, q));
+  }, [mode, presentation, navigate, spec]);
 
   const setQuery = useCallback((patch: QueryPatch) => go(patchQuery(spec, query, patch)), [go, spec, query]);
   const href = useCallback((patch: QueryPatch) => queryHref(spec, patchQuery(spec, query, patch)), [spec, query]);
@@ -155,16 +161,16 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
     const cols = view.columns ? chosenColumns(spec, view.columns) : columns;
     setColumnsState(cols);
     if (mode === 'local') { setLocalQuery(q); void presentation({ query: q, columns: cols }); return; }
-    void presentation({ columns: cols }).then(() => startTransition(() => router.push(queryHref(spec, q), { scroll: false })));
-  }, [spec, columns, mode, presentation, router]);
+    void presentation({ columns: cols }).then(() => navigate(queryHref(spec, q)));
+  }, [spec, columns, mode, presentation, navigate]);
 
   const reset = useCallback(() => {
     const cols = chosenColumns(spec, null);
     const q = defaultQuery(spec, query.view, query.context);
     setColumnsState(cols);
     if (mode === 'local') { const d = defaultQuery(spec); setLocalQuery(d); void presentation({ query: d, columns: cols }); return; }
-    void presentation({ columns: cols }).then(() => startTransition(() => router.push(queryHref(spec, q), { scroll: false })));
-  }, [spec, query, mode, presentation, router]);
+    void presentation({ columns: cols }).then(() => navigate(queryHref(spec, q)));
+  }, [spec, query, mode, presentation, navigate]);
 
   const replaceQuery = useCallback((q: Query) => go(q), [go]);
   const registerRows = useCallback((h: RowHandlers) => { rows.current = h; }, []);
@@ -184,6 +190,8 @@ export function CollectionProvider({ spec, prefs, children, query: serverQuery, 
       if (e.defaultPrevented || modalOpen()) return;
       const cmd = keyCommand({ key: e.key, shiftKey: e.shiftKey, metaKey: e.metaKey, ctrlKey: e.ctrlKey, altKey: e.altKey, typing: typing(e.target) });
       if (!cmd) return;
+      // W warstwie pływającej (menu, filtr, Opcje widoku) klawisze należą do niej; V zamyka Opcje widoku.
+      if (cmd !== 'options' && (e.target as HTMLElement | null)?.closest?.('[data-popover]')) return;
       const s = selectionRef.current, ids = rows.current.ids;
       const move = (delta: number, extend = false) => {
         if (!ids.length) return;
