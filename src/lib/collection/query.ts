@@ -165,3 +165,10 @@ export function clearFilters(spec: CollectionSpec, query: Query): Query {
 export function isDefaultQuery(spec: CollectionSpec, query: Query) {
   return savedQueryKey(spec, query) === savedQueryKey(spec, defaultQuery(spec, query.view, query.context));
 }
+
+/** Ostatnia strona wyniku (co najmniej 1). */
+export const lastPage = (total: number, pageSize: number) => Math.max(1, Math.ceil(total / pageSize));
+/** Strona poza zakresem (wynik niepusty, a na tej stronie nic): numer ostatniej strony do przekierowania, inaczej null. */
+export function clampPage({ total, count, page }: { total: number; count: number; page: number }, pageSize: number) {
+  return total > 0 && count === 0 && page > 1 ? lastPage(total, pageSize) : null;
+}

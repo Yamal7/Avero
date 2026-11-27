@@ -55,11 +55,19 @@ export function readPresentation(spec: CollectionSpec, raw: unknown): Presentati
   return { columns: null, collapsed: null, query: null };
 }
 
+/** Komplet zapisanych widoków: nowej nazwy nie da się dodać (istniejącą można nadpisać). */
+export function savedViewsFull(list: SavedView[], name: string) {
+  const n = name.trim().slice(0, VIEW_NAME_MAX);
+  return list.length >= SAVED_VIEWS_MAX && !list.some(v => v.name === n);
+}
+export const SAVED_VIEWS_FULL_MESSAGE = `Masz już ${SAVED_VIEWS_MAX} widoków. Usuń jeden, żeby zapisać następny.`;
+
+/** Zapis widoku (nadpisuje ten sam tytuł). Przy komplecie i nowej nazwie zwraca listę bez zmian — sprawdź savedViewsFull. */
 export function upsertSavedView(list: SavedView[], view: SavedView): SavedView[] {
   const name = view.name.trim().slice(0, VIEW_NAME_MAX);
-  if (!name) return list;
+  if (!name || savedViewsFull(list, name)) return list;
   const next: SavedView = { name, query: view.query, ...(view.columns ? { columns: view.columns } : {}) };
-  return [...list.filter(v => v.name !== name), next].slice(-SAVED_VIEWS_MAX);
+  return [...list.filter(v => v.name !== name), next];
 }
 
 export const removeSavedView = (list: SavedView[], name: string) => list.filter(v => v.name !== name);

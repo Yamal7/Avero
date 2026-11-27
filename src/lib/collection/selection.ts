@@ -64,12 +64,19 @@ export function keyCommand(e: { key: string; shiftKey: boolean; metaKey: boolean
   if (k === 'j') return e.shiftKey ? 'extendNext' : 'next';
   if (k === 'k') return e.shiftKey ? 'extendPrev' : 'prev';
   if (k === 'x') return e.shiftKey ? 'range' : 'toggle';
+  // `/` bywa na Shift (np. Shift+7 w części układów) — działa z Shiftem i bez.
+  if (k === '/') return 'search';
   if (e.shiftKey) return null;
   if (k === 'Enter') return 'open';
   if (k === 'Escape') return 'escape';
   if (k === ']') return 'panel';
   if (k === 'v') return 'options';
-  if (k === '/') return 'search';
   if (k === 'f') return 'filter';
   return null;
+}
+
+/** Id wierszy widocznych (bez zwiniętych grup) w kolejności grup — do J / K, zakresu i synchronizacji zaznaczenia. */
+export function visibleRowIds(rows: { id: string; group?: string }[], groups: { key: string }[] | undefined, collapsed: string[]) {
+  if (!groups) return rows.map(r => r.id);
+  return groups.flatMap(g => (collapsed.includes(g.key) ? [] : rows.filter(r => (r.group ?? '') === g.key).map(r => r.id)));
 }

@@ -2,9 +2,9 @@
    zaznaczanie i klawiatura, spójność konfiguracji kolekcji z parametrami RPC. */
 import { describe, expect, it } from 'vitest';
 import { customerDirectoryGroups, customerDirectorySorts, maintenanceQuerySchema, peopleDirectorySorts, stockListGroups, stockListSorts, stockListViews } from '@hvac/api-client';
-import { clearFilters, defaultQuery, isDefaultQuery, isFiltered, parseQuery, patchQuery, queryHref, savedQueryKey, serializeQuery, viewQuery } from '@/lib/collection/query';
-import { activeSavedView, collectionLayout, readPresentation, readSavedViews, removeSavedView, upsertSavedView, visibleColumns } from '@/lib/collection/views';
-import { initialSelection, keyCommand, selectionReducer, type Selection } from '@/lib/collection/selection';
+import { clampPage, clearFilters, defaultQuery, isDefaultQuery, lastPage, isFiltered, parseQuery, patchQuery, queryHref, savedQueryKey, serializeQuery, viewQuery } from '@/lib/collection/query';
+import { activeSavedView, collectionLayout, readPresentation, readSavedViews, removeSavedView, savedViewsFull, upsertSavedView, visibleColumns } from '@/lib/collection/views';
+import { initialSelection, keyCommand, selectionReducer, visibleRowIds, type Selection } from '@/lib/collection/selection';
 import { companiesSpec, maintenanceSpec, peopleSpec, stockSpec, tasksSpec } from '@/lib/collection/specs';
 import type { CollectionSpec } from '@/lib/collection/spec';
 
@@ -82,6 +82,15 @@ describe('stan zapytania ↔ URL', () => {
     expect(cleared).toMatchObject({ view: 'no_contact_30', q: '', filters: { cat: [] }, modes: { cat: 'any' }, sort: 'devices', page: 1 });
   });
 
+  it('strona poza zakresem wraca na ostatnią', () => {
+    expect(lastPage(0, 25)).toBe(1);
+    expect(lastPage(51, 25)).toBe(3);
+    expect(clampPage({ total: 51, count: 0, page: 9 }, 25)).toBe(3);
+    expect(clampPage({ total: 51, count: 1, page: 3 }, 25)).toBeNull();
+    expect(clampPage({ total: 0, count: 0, page: 4 }, 25)).toBeNull();
+    expect(clampPage({ total: 10, count: 0, page: 1 }, 25)).toBeNull();
+  });
+
   it('domyślne ustawienia widoku', () => {
     expect(isDefaultQuery(companiesSpec, parseQuery(companiesSpec, sp('view=no_contact_30')))).toBe(true);
     expect(isDefaultQuery(companiesSpec, parseQuery(companiesSpec, sp('group=city')))).toBe(false);
@@ -100,18 +109,24 @@ describe('stan zapytania ↔ URL', () => {
 });
 
 describe('zapisane widoki i prezentacja', () => {
-  it('zapis: nazwa przycięta, ten sam tytuł nadpisuje, najwyżej 12', () => {
+  it('zapis: nazwa przycięta, ten sam tytuł nadpisuje, najwyżej 12 (13. nowy widok odrzucony, nie ucina najstarszego)', () => {
     let list = upsertSavedView([], { name: '  Rumia VIP  ', query: 'kind=company&cat=VIP', columns: ['categories'] });
     expect(list).toEqual([{ name: 'Rumia VIP', query: 'kind=company&cat=VIP', columns: ['categories'] }]);
     list = upsertSavedView(list, { name: 'Rumia VIP', query: 'kind=company&cat=VIP&group=city' });
     expect(list).toHaveLength(1);
     expect(list[0]!.query).toContain('group=city');
-    for (let i = 0; i < 15; i++) list = upsertSavedView(list, { name: `Widok ${i}`, query: `q=${i}` });
+    for (let i = 0; i < 11; i++) list = upsertSavedView(list, { name: `Widok ${i}`, query: `q=${i}` });
     expect(list).toHaveLength(12);
-    expect(list.at(-1)!.name).toBe('Widok 14');
+    expect(savedViewsFull(list, 'Nowy')).toBe(true);
+    expect(savedViewsFull(list, 'Rumia VIP')).toBe(false);
+    expect(upsertSavedView(list, { name: 'Nowy', query: 'q=x' })).toBe(list);
+    expect(list[0]!.name).toBe('Rumia VIP');
+    expect(upsertSavedView(list, { name: 'Widok 3', query: 'q=nowe' }).find(v => v.name === 'Widok 3')!.query).toBe('q=nowe');
+    expect(list.at(-1)!.name).toBe('Widok 10');
     expect(upsertSavedView(list, { name: '   ', query: '' })).toBe(list);
     expect(upsertSavedView([], { name: 'x'.repeat(60), query: '' })[0]!.name).toHaveLength(40);
-    expect(removeSavedView(list, 'Widok 14').some(v => v.name === 'Widok 14')).toBe(false);
+    expect(removeSavedView(list, 'Widok 10').some(v => v.name === 'Widok 10')).toBe(false);
+    expect(savedViewsFull(removeSavedView(list, 'Widok 10'), 'Nowy')).toBe(false);
   });
 
   it('zastosowanie: aktywny widok to ten sam klucz zapytania i te same kolumny', () => {
@@ -183,6 +198,16 @@ describe('zaznaczanie i klawiatura', () => {
     expect([...s.selected].sort()).toEqual(['b', 'c', 'd']);
   });
 
+  it('zwinięcie grupy odznacza jej wiersze (zostają tylko widoczne id)', () => {
+    const rows = [{ id: 'a', group: 'g1' }, { id: 'b', group: 'g1' }, { id: 'c', group: 'g2' }, { id: 'd' }];
+    const groups = [{ key: 'g1' }, { key: 'g2' }, { key: '' }];
+    expect(visibleRowIds(rows, groups, [])).toEqual(['a', 'b', 'c', 'd']);
+    expect(visibleRowIds(rows, groups, ['g1'])).toEqual(['c', 'd']);
+    expect(visibleRowIds(rows, undefined, ['g1'])).toEqual(['a', 'b', 'c', 'd']);
+    const s = run([{ type: 'toggle', id: 'a' }, { type: 'toggle', id: 'c' }]);
+    expect(run([{ type: 'sync', ids: visibleRowIds(rows, groups, ['g1']) }], s).selected).toEqual(['c']);
+  });
+
   it('Esc czyści zaznaczenie; synchronizacja usuwa znikające wiersze', () => {
     const s = run([{ type: 'toggle', id: 'a' }, { type: 'toggle', id: 'c' }]);
     expect(run([{ type: 'clear' }], s).selected).toEqual([]);
@@ -204,6 +229,7 @@ describe('zaznaczanie i klawiatura', () => {
     expect(k(']')).toBe('panel');
     expect(k('v')).toBe('options');
     expect(k('/')).toBe('search');
+    expect(k('/', { shiftKey: true })).toBe('search');
     expect(k('f')).toBe('filter');
     expect(k('j', { typing: true })).toBe(null);
     expect(k('j', { metaKey: true })).toBe(null);
