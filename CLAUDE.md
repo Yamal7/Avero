@@ -33,6 +33,15 @@ Nie zmieniaj plików w `docs/design/` ani `design/` — to obszar czatu projekto
 - Mapa: kafelki OpenStreetMap z nakładką SVG (MapLibre odłożone — patrz DECISIONS).
 - Docelowe biblioteki UI ze skilla Precision UI (Radix/React Aria, cmdk, Motion, Sonner, Phosphor, Geist) — **każdą nową zależność dodawaj dopiero po zgodzie właściciela**.
 
+## Obieg zmian i monitoring
+
+Zadanie KRA w Linear → gałąź `kra-…` → PR z `Closes KRA-…` → CI („Aplikacja”, „Baza danych”) → scalenie do `main` → wdrożenie → błędy produkcji w **Sentry** (`avero-bg/avero`, region UE) → zgłoszenie KRA z błędu.
+
+- Sentry konfiguruje `src/lib/monitoring/sentry-options.ts`; bez `NEXT_PUBLIC_SENTRY_DSN` jest wyłączone. Nie włączaj Session Replay ani `sendDefaultPii` — w danych są klienci i ich adresy.
+- Nowe miejsca, przez które mogą przejść dane osobowe do Sentry (własne `captureException` z kontekstem, `setUser`, `setExtra`), przepuszczaj przez `src/lib/monitoring/scrub.ts`; użytkownika zgłaszaj wyłącznie po `id`.
+- Błąd zgłoszony z Sentry: przeczytaj go przez konektor Sentry (stack trace, wydanie), napisz test odtwarzający, potem poprawkę.
+- Hosting: **Vercel** (zespół `avero18`, decyzja właściciela 2026-11-27). Push na `main` = wdrożenie produkcyjne; każdy PR dostaje podgląd. Zmienne Supabase są ustawione **tylko dla produkcji** — podgląd PR nie łączy się z bazą „Avero” (branche Supabase świadomie pominięte). Sekrety (`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `SENTRY_AUTH_TOKEN`) wpisuje właściciel w panelu Vercel, nie Claude.
+
 ## Komendy
 
 ```bash
