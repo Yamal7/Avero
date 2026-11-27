@@ -122,7 +122,7 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
         <PageHead icon={<CalendarCheck size={16} className="shrink-0" aria-hidden />} category="Serwis" title="Przeglądy">
           <Spacer />
           {list && (
-            <span title={`Terminy według daty ${fullDay(list.today)} w Polsce. Plan przeglądu nie jest rezerwacją wizyty — po wykonaniu potwierdź go na podstawie zatwierdzonego protokołu. Liczniki uwzględniają wybraną instalację i wyszukiwanie.`} className="mr-1 inline-flex flex-wrap items-center gap-3 text-small leading-4 text-secondary">
+            <span title={`Terminy według daty ${fullDay(list.today)} w Polsce. Plan przeglądu nie jest rezerwacją wizyty — po wykonaniu potwierdź go na podstawie zatwierdzonego protokołu. Liczniki uwzględniają wybraną instalację i wyszukiwanie.`} className="mr-1 inline-flex min-w-0 items-center gap-3 overflow-hidden text-small leading-4 text-secondary">
               {counter(state.overdue.icon, list.summary.overdue, 'po terminie')}
               {counter(state.upcoming.icon, list.summary.upcoming, 'w ciągu 30 dni')}
               {counter(<CalendarCheck size={14} className="shrink-0 text-success" aria-hidden />, list.summary.active, 'aktywnych planów')}

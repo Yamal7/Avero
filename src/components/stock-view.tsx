@@ -137,7 +137,7 @@ export function StockView({ data, list, query, prefs, tickets, tasks = [], techn
       <TablePage>
         <PageHead icon={I.box} category="Finanse i magazyn" title="Magazyn">
           <Spacer />
-          <span className="mr-1 text-small leading-4 text-tertiary tabular-nums">{list?.summary.all ?? items.length} pozycji · {belowCount} poniżej minimum</span>
+          <span className="mr-1 min-w-0 truncate text-small leading-4 text-tertiary tabular-nums">{list?.summary.all ?? items.length} pozycji · {belowCount} poniżej minimum</span>
         </PageHead>
         <Toolbar>
           <CollectionViews label="Widoki magazynu" />

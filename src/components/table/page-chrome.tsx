@@ -18,9 +18,10 @@ export function TablePage({ children, className }: { children: ReactNode; classN
 
 export function PageHead({ icon, category, title, children }: { icon?: ReactNode; category: string; title: string; children?: ReactNode }) {
   return (
-    <div className="flex h-11 items-center gap-2 pr-3 pl-5 max-desktop:pl-3">
+    <div className="flex h-11 min-w-0 items-center gap-2 pr-3 pl-5 max-desktop:pl-3">
       {icon && <span className="inline-flex text-secondary">{icon}</span>}
-      <span className="whitespace-nowrap text-secondary">{category}</span>
+      {/* Kategoria ustępuje miejsca na wąskim ekranie (bez poziomego przewijania strony na telefonie, M0.4). */}
+      <span className="min-w-0 truncate text-secondary">{category}</span>
       <span className="inline-flex text-tertiary"><CaretRight size={12} className="shrink-0" aria-hidden /></span>
       <h1 className="m-0 whitespace-nowrap font-sans text-body leading-5 font-medium text-primary">{title}</h1>
       {children}
