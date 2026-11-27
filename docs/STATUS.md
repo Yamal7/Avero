@@ -9,7 +9,7 @@ Stos: Next.js 15 (App Router), React 19, TypeScript, Supabase (Postgres z RLS, d
 | Moduł / ekran | Stan | Data | Uwagi |
 |---|---|---|---|
 | Tabele w jednej linii · logo z kartą podglądu · przypięta kolumna (M0.3, KRA-63) | działa; sprawdzone w przeglądarce w obu motywach (Firmy z kartą podglądu, przewijanie z przypiętą kolumną przy 1000 px, Magazyn); Zadania sprawdzone tylko w pustym stanie | 2026-11-26 | wspólne komponenty `src/components/table/` (`TableScroll`, `Row`, `Cell`, `HeaderRow`/`HeaderCell`, `RowGroup`/`GroupBar`, `TableMessage`, `TableSkeleton`, `Logo`, `CustomerLogo` z kartą 280 px w portalu, rama `page-chrome.tsx`); logika w `src/lib/table/` (inicjały, kolor marki, układ kolumn i przypięcia, ←/→, pozycja karty) z testami `tests/table-logic.test.ts`; Firmy, Osoby, Zadania (lista + panel) i Magazyn (pozycje, W samochodach, panel, okna PZ/RW/MM/WZ) przeniesione na Tailwind bez `style={{}}`; szkielety `loading.tsx` dla Firm, Zadań i Magazynu |
-| Wielofirmowość: organizacje, `org_id`, RLS (M0.1, KRA-27) | działa lokalnie, **nie wgrane na Supabase „Avero”** | 2026-11-23 | 7 migracji `202611230001…7`; każda tabela danych ma `org_id` i politykę `org_isolation`; RPC działają jako rola `avero_rpc` bez BYPASSRLS; numeracja, profil firmy (z kontem bankowym) i blokada konta per firma; przełącznik firmy w ramie (przy >1 firmie). Szczegóły niżej › „M0.1 Wielofirmowość” |
+| Wielofirmowość: organizacje, `org_id`, RLS (M0.1, KRA-27) | działa; **wgrane na Supabase „Avero” 2026-11-27** (cała historia 60 migracji — szczegóły niżej › „Stan Supabase „Avero””) | 2026-11-23 | 7 migracji `202611230001…7`; każda tabela danych ma `org_id` i politykę `org_isolation`; RPC działają jako rola `avero_rpc` bez BYPASSRLS; numeracja, profil firmy (z kontem bankowym) i blokada konta per firma; przełącznik firmy w ramie (przy >1 firmie). Szczegóły niżej › „M0.1 Wielofirmowość” |
 | Tailwind v4 na tokenach · ikony Phosphor (M0.2, KRA-26) | działa | 2026-11-23 | `src/app/tailwind.css` (`@theme inline reference`, domyślne skale wyłączone, wariant `dark` = `[data-theme=dark]`, bez preflightu); warstwy `theme → legacy (globals.css, precision.css) → tokens (docs/design/tokens.css) → utilities`; wspólne elementy w `src/components/ui/` (Button, Input, Pill, TableRow — stany: hover, aktywny, fokus, wyłączony, ładowanie, pusty, błąd); rama (`app-shell.tsx`) i układ list (`list-layout.tsx`) w Tailwindzie; reguła ESLint `avero/tailwind-tokens` (wartości dowolne, odstępy spoza siatki 4 px) |
 | Widok kolekcji (silnik) | działa w Zadaniach | 2026-11-20 | grupowanie, sortowanie, kolumny, filtry priorytetu i etykiety, zapisane widoki jako pigułki; ustawienia na koncie |
 | Rama aplikacji · skróty | działa | 2026-11-20 | ⌥T / ⌘T nowa karta, ⌥1–9 / ⌘1–9 przełączanie kart; zwinięte grupy menu zapisane na koncie |
@@ -56,7 +56,36 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 
 **Dla kolejnych modułów.** Nowa tabela: `org_id uuid not null default public.org_default() references public.organizations(id)` + indeks + polityki `org_isolation` (restrictive) i `rpc_access` (jak w `202611230002_org_id_columns.sql`). Nowa funkcja `security definer`: `alter function … owner to avero_rpc;`. Unikalności biznesowe — z `org_id`. Test 044 nie przepuści braków. Warto dopisać to do `CLAUDE.md` (decyzja koordynatora / właściciela).
 
-### Wgranie na Supabase „Avero” — instrukcja dla właściciela (ręcznie, po scaleniu PR)
+### Stan Supabase „Avero” (2026-11-27)
+
+**Prototyp usunięty.** Projekt `vxifjnmxdamgzziozewj` miał wcześniejszy prototyp z 13 listopada: 2 własne migracje (`01_tenancy_base`, `02_core_service`), tabele `companies`, `clients`, `sites`, `service_orders`… oraz wyzwalacz `on_auth_user_created` na `auth.users`. Nie miał żadnej z migracji repo. Był pusty poza słownikiem 15 czynników chłodniczych w tabeli `refrigerants`; jego kopia jest w CSV u koordynatora, w repo nie ma odpowiednika tej tabeli. Prototyp usunięto za zgodą właściciela.
+
+**Wgranie.** Właściciel wgrał `supabase db push --linked` całą historię repo (60 migracji, `202610240001` … `202611230007`, w tym M0.1). Dane prototypu nie wymagały przeniesienia, więc test liczności i skrypt cofający nie były potrzebne.
+
+**Sprawdzone po wgraniu (MCP Supabase):**
+- historia: 60 wersji;
+- organizacje: tylko „Kranz HVACR”;
+- `avero_rpc`: bez BYPASSRLS i bez logowania;
+- 61 tabel, wszystkie z RLS;
+- 57 kolumn `org_id`, wszystkie `not null`;
+- każda tabela z `org_id` (poza `org_active`) ma politykę restrictive;
+- 181 funkcji `security definer` ma właściciela `avero_rpc`, a 22 pozostałe zgadzają się z wyjątkami z `044_org_guard.sql` (w tym funkcje wyzwalaczy);
+- bucket `hvac-documents` jest prywatny;
+- na `auth.users` nie ma wyzwalaczy.
+
+**Test izolacji na żywej bazie** (transakcja zakończona celowym błędem, nic nie zostało zapisane):
+- użytkownik Kranz widzi tylko klienta Kranz i nie zmieni klienta firmy B (0 wierszy); `my_organizations()` zwraca mu tylko Kranz;
+- użytkownik firmy B widzi tylko swojego klienta;
+- `anon` nie widzi nic;
+- `authenticated` nie czyta `organizations` bezpośrednio.
+
+**Doradca bezpieczeństwa Supabase:** same ostrzeżenia, bez błędów.
+- 158 funkcji `security definer` dostępnych dla `authenticated` — to model RPC, zamierzone.
+- 5 funkcji wykonywalnych przez `anon`: `is_staff`, `can_access_customer`, `customer_for_installation`, `customer_for_ticket`, `audit_crm_change`. Granty pochodzą z `202610240001_core.sql`. Dzięki izolacji anon nie dostaje przez nie danych, ale EXECUTE do odebrania — dopisane do KRA-71.
+
+Baza nie ma jeszcze kont ani danych. Pierwszy administrator Kranz i import klientów to osobny krok (pilotaż).
+
+### Wgranie na Supabase „Avero” — instrukcja dla właściciela (wykonane 2026-11-27; zostaje jako wzór dla kolejnych migracji)
 
 Claude Code niczego nie wgrywa na projekt „Avero”. Kolejność:
 1. **Sprawdzenie przed.** W SQL Editor: `select version();` (wymagany Postgres ≥ 15 — `on delete set null (kolumna)`); `select rolcreaterole, rolbypassrls from pg_roles where rolname='postgres';` (oba `true`); `select admin_option from pg_auth_members where roleid='authenticated'::regrole and member='postgres'::regrole;` (`true` — migracja wykonuje `grant authenticated to avero_rpc`); `select has_table_privilege('postgres','auth.users','select');` (`true` — widok `auth_user_directory`). Zapisz wynik zapytania liczności (to samo co w `scripts/db/m0-1-count-check.sh`, funkcja `counts`) — do porównania.
