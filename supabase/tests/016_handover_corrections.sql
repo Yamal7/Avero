@@ -103,7 +103,7 @@ select throws_ok($$select public.save_handover('9a000000-0000-4000-8000-00000000
 select throws_ok($$select public.acknowledge_handover('c7000000-0000-4000-8000-000000000001','9a000000-0000-4000-8000-000000000001','accepted','',true)$$,'42501',null,'Staff preview cannot acknowledge on behalf of client');
 select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000004',true);
 select ok(public.portal_handover('c7000000-0000-4000-8000-000000000001','9a000000-0000-4000-8000-000000000001')::text !~ 'SECRET|PRIVATE|fields|internalNote|costCents|received_by','Client projection contains public data only');
-select is((select count(*) from public.installation_handovers),0::bigint,'Client cannot select raw draft or internal data');
+select throws_ok($$select count(*) from public.installation_handovers$$,'42501',null,'Client cannot select raw draft or internal data');
 select throws_ok($$select public.handover_context('9a000000-0000-4000-8000-000000000001')$$,'42501',null,'Client cannot use staff detail');
 select throws_ok($$select public.portal_handover('c7000000-0000-4000-8000-000000000002','9a000000-0000-4000-8000-000000000001')$$,'42501',null,'Foreign customer protocol denied');
 select throws_ok($$select public.acknowledge_handover('c7000000-0000-4000-8000-000000000001','9a000000-0000-4000-8000-000000000001','accepted','',false)$$,'22023',null,'Explicit client confirmation required');
