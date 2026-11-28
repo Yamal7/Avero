@@ -76,8 +76,8 @@ select is(pg_temp.authenticated_extra_grants(),0,'Control query: authenticated h
 -- (c) Domyślne uprawnienia: nowa sekwencja (także identity) utworzona przez postgres nie daje authenticated niczego.
 create table public.kra76_probe(id bigint generated always as identity primary key, name text);
 create sequence public.kra76_probe_seq;
--- Domyślne granty authenticated na nowych tabelach nie są tu zakresem (patrz docs/STATUS.md › KRA-76); sonda ich nie potrzebuje.
-revoke all on public.kra76_probe from authenticated;
+-- Od KRA-77 nowa tabela nie daje authenticated niczego (pełny test domyślnych uprawnień: 049_default_privileges.sql).
+select is(pg_temp.authenticated_extra_grants(),0,'New table and sequence add nothing to the control query');
 select ok(not has_sequence_privilege('authenticated','public.kra76_probe_seq','usage,select,update'),
  'New sequence gives authenticated nothing by default');
 select ok(not has_sequence_privilege('authenticated',pg_get_serial_sequence('public.kra76_probe','id'),'usage,select,update'),

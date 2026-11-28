@@ -56,8 +56,9 @@ select ok(not has_table_privilege('anon','public.kra74_probe_view','select,inser
 select ok(not has_sequence_privilege('anon','public.kra74_probe_seq','usage,select,update'),'New sequence gives anon nothing by default');
 select ok(not has_sequence_privilege('anon',pg_get_serial_sequence('public.kra74_probe','id'),'usage,select,update'),
  'Identity sequence of a new table gives anon nothing by default');
--- Pozostałe role API zachowują domyślne granty do tabel (authenticated: patrz 048_authenticated_grants.sql).
-select ok(has_table_privilege('authenticated','public.kra74_probe','select,insert,update,delete'),'authenticated keeps default table grants');
+-- Pozostałe role zachowują domyślne granty do tabel; authenticated od KRA-77 nie dostaje niczego
+-- (patrz 049_default_privileges.sql).
+select ok(not has_table_privilege('authenticated','public.kra74_probe','select,insert,update,delete'),'authenticated gets no default table grants');
 select ok(has_table_privilege('service_role','public.kra74_probe','select,insert,update,delete,truncate'),'service_role keeps default table grants');
 select ok(has_table_privilege('avero_rpc','public.kra74_probe','select,insert,update,delete'),'avero_rpc keeps default table grants');
 -- Kontrola negatywna: zapytanie kontrolne wyłapuje granty dla PUBLIC i na kolumny (aclexplode by ich nie pokazał).
