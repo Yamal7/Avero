@@ -1,33 +1,160 @@
+/* Przeglądy na silniku widoku kolekcji (M0.4, KRA-31): obecna lista planów (kolumny i widoki jak dotąd) w tabeli
+   w jednej linii z M0.3, Tailwind. Zapytanie w adresie → maintenance_schedule (szukanie, widok, sortowanie, strony w SQL).
+   Pełny projekt z makiety `przeglądy` (statusy, grupy po miesiącach, pasek SMS, panel F-gaz) — M1.8. */
 import Link from 'next/link';
-import { OpenDetails } from '@/components/open-details';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { z } from 'zod';
-import { maintenanceListSchema,type MaintenanceQuery } from '@hvac/api-client';
+import { maintenanceListSchema, maintenanceScheduleParamsSchema, type MaintenanceList, type MaintenancePlan } from '@hvac/api-client';
 import { requireSession } from '@/lib/auth';
-import { ListHeader,ListSearch,ListTabs,ListTable } from '@/components/list-layout';
+import { CollectionNotice, CollectionProvider, CollectionSearch, CollectionTable, CollectionViews, SortMenu, ViewOptionsButton, type CollectionRow } from '@/components/collection';
+import { CollectionFooter } from '@/components/collection/footer';
 import { RecordActions } from '@/components/record-actions';
-import { Icon } from '@/components/icon';
-import { MaintenancePlanForm,MaintenanceToggle } from '@/components/maintenance-forms';
+import { MaintenancePlanForm, MaintenanceToggle } from '@/components/maintenance-forms';
+import { NewMaintenancePlan } from '@/components/maintenance-new-plan';
+import { CustomerLogo } from '@/components/table/customer-logo';
+import { Cell, HeaderCell, TableMessage } from '@/components/table/table';
+import { PageHead, Spacer, TablePage, Toolbar } from '@/components/table/page-chrome';
+import { buttonClasses } from '@/components/ui/button';
+import { clampPage, clearFilters, isFiltered, parseQuery, patchQuery, queryHref } from '@/lib/collection/query';
+import { maintenanceSpec } from '@/lib/collection/specs';
+import { collectionLayout, collectionPrefs } from '@/lib/collection/views';
+import { loadPreferences } from '@/lib/collection/server';
 import type { InstallationOption } from '@/lib/service/types';
-type InstallationContext={id:string;type:string;status:string;locations:{customer_id:string;address:string;city:string;customers:{name:string;archived_at:string|null}}};
-const labels={overdue:'Po terminie',upcoming:'W ciągu 30 dni',later:'Późniejszy termin',paused:'Wstrzymany',archived:'Archiwalna instalacja lub klient'};
-export default async function MaintenancePage({searchParams}:{searchParams:Promise<{installation?:string;search?:string;view?:string;page?:string}>}){
- const raw=await searchParams;if(raw.installation&&!z.string().uuid().safeParse(raw.installation).success)notFound();
- const installation=raw.installation||undefined,search=typeof raw.search==='string'?raw.search.trim().slice(0,200):'',view=(['attention','overdue','upcoming','all','paused'].includes(raw.view||'')?raw.view:'attention') as MaintenanceQuery['view'],page=Math.min(100000,Math.max(1,Number.parseInt(raw.page||'1')||1));
- const {db,access}=await requireSession(),manager=['admin','office'].includes(access.role);
- let context:InstallationContext|null=null;
- if(installation){const result=await db.from('installations').select('id,type,status,locations!inner(customer_id,address,city,customers!inner(name,archived_at))').eq('id',installation).maybeSingle();if(result.error)throw new Error('Nie udało się pobrać instalacji.');if(!result.data)notFound();context=result.data as unknown as InstallationContext;}
- const result=await db.rpc('maintenance_schedule',{p_search:search,p_view:view,p_page:page,p_installation:installation||null});if(result.error)throw new Error('Nie udało się pobrać harmonogramu przeglądów.');
- const list=maintenanceListSchema.parse({...result.data,apiVersion:'1',page,pageSize:20});
- let options:InstallationOption[]=[];if(manager){const result=await db.rpc('find_service_installations',{p_search:''});if(result.error)throw new Error('Nie udało się pobrać instalacji.');options=result.data as InstallationOption[];if(context&&context.status!=='archived'&&!context.locations.customers.archived_at&&!options.some(option=>option.id===context!.id))options.unshift({id:context.id,label:`${context.locations.customers.name} · ${context.locations.address}, ${context.locations.city} · ${context.type}`});}
- const href=(nextPage:number)=>{const params=new URLSearchParams({view:view!,search,page:String(nextPage)});if(installation)params.set('installation',installation);return `?${params}`;};
- return <main className="list-page">{context&&<Link href={`/dashboard/customers/${context.locations.customer_id}`}>← Karta klienta</Link>}<ListHeader category="Serwis" title="Przeglądy">{context?<Link className="button secondary" href="/dashboard/maintenance">Wszystkie instalacje</Link>:manager&&<OpenDetails id="new-maintenance-plan"><Icon name="plus" size={19}/>Dodaj plan</OpenDetails>}</ListHeader>{context&&<p className="muted">{context.locations.customers.name} · {context.type} · {context.locations.address}, {context.locations.city}</p>}
- <div className="metrics maintenance-metrics"><section className="card metric"><div><p>Po terminie</p><strong>{list.summary.overdue}</strong></div></section><section className="card metric"><div><p>W ciągu 30 dni</p><strong>{list.summary.upcoming}</strong></div></section><section className="card metric"><div><p>Aktywne plany</p><strong>{list.summary.active}</strong></div></section><section className="card metric"><div><p>Wstrzymane</p><strong>{list.summary.paused}</strong></div></section></div>
- <p className="muted">Terminy według daty {list.today} w Polsce. Plan przeglądu nie jest rezerwacją wizyty. Po wykonaniu przeglądu potwierdź go na podstawie zatwierdzonego protokołu.</p>
- {manager&&(!context||(context.status!=='archived'&&!context.locations.customers.archived_at))&&<details id="new-maintenance-plan" className="card list-create-form"><summary>+ Dodaj plan przeglądu</summary><MaintenancePlanForm selected={installation} options={options} /></details>}
- <div className="list-toolbar"><ListSearch action="/dashboard/maintenance" name="search" value={search} placeholder="Szukaj planu, klienta lub instalacji" hidden={{view:view!,...(installation?{installation}:{})}}/><ListTabs label="Terminy przeglądów" items={Object.entries({attention:'Wymagające uwagi',all:'Wszystkie',overdue:'Po terminie',upcoming:'W ciągu 30 dni',paused:'Wstrzymane'}).map(([value,label])=>{const params=new URLSearchParams({view:value,search});if(installation)params.set('installation',installation);return {label,href:`?${params}`,active:view===value};})}/></div>
- <ListTable label="Lista planów przeglądów"><thead><tr><th>Plan</th><th>Klient / instalacja</th><th>Status</th><th>Następny termin</th><th>Cykl</th><th><span className="sr-only">Działania</span></th></tr></thead><tbody>{list.plans.map(plan=><tr key={`${plan.id}:${plan.version}`}><td><Link className="list-record-title" href={`/dashboard/maintenance/${plan.id}`}>{plan.title}</Link></td><td><Link className="list-cell-link" href={`/dashboard/customers/${plan.customer_id}`}>{plan.customer_name}</Link><span className="list-record-subtitle">{plan.installation_type} · {plan.address}, {plan.city}</span></td><td><span className={`badge maintenance-${plan.state}`}>{labels[plan.state]}</span></td><td>{plan.next_due_on}</td><td>Co {plan.interval_months} mies.</td><td className="list-actions"><RecordActions label={plan.title}><Link href={`/dashboard/maintenance/${plan.id}`}>Wykonanie i historia<Icon name="arrow" size={18}/></Link>{plan.active&&plan.parent_active&&<Link href={`/dashboard/service/new?installation=${plan.installation_id}`}>Utwórz zgłoszenie serwisowe<Icon name="wrench" size={18}/></Link>}<Link href={`/dashboard/maintenance?installation=${plan.installation_id}&view=all`}>Plany tej instalacji<Icon name="calendar" size={18}/></Link>{manager&&plan.parent_active&&<><MaintenanceToggle plan={plan}/><details><summary>Edytuj plan / ustaw następny termin</summary><MaintenancePlanForm record={plan}/></details></>}</RecordActions></td></tr>)}</tbody></ListTable>
- {!list.plans.length&&<div className="list-empty"><Icon name="calendar" size={30}/><h2>Brak planów dla wybranych filtrów</h2><p>Dodaj plan dla instalacji lub zmień widok na „Wszystkie”.</p></div>}
- <div className="list-footer"><span className="muted">Wyniki: {list.total}</span>
- <div className="pagination">{page>1&&<Link href={href(page-1)}>← Poprzednia</Link>}<span>Strona {page}</span>{page*20<list.total&&<Link href={href(page+1)}>Następna →</Link>}</div></div><p className="muted">Liczniki uwzględniają wybraną instalację i wyszukiwanie.</p></main>;
+import { cx } from '@/lib/cx';
+import { Archive, ArrowLeft, ArrowRight, CalendarBlank, CalendarCheck, CalendarDot, CalendarX, ClockCounterClockwise, Building, PauseCircle, Wrench, Calendar, Repeat, ListChecks, MapPin } from '@phosphor-icons/react/ssr';
+
+type InstallationContext = { id: string; type: string; status: string; locations: { customer_id: string; address: string; city: string; customers: { name: string; archived_at: string | null } } };
+type State = MaintenancePlan['state'];
+
+const zone = 'Europe/Warsaw';
+const fullDay = (d: string) => new Intl.DateTimeFormat('pl-PL', { timeZone: zone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${d}T12:00:00Z`));
+function shortDay(d: string, today: string) {
+  const sameYear = d.slice(0, 4) === today.slice(0, 4);
+  return new Intl.DateTimeFormat('pl-PL', { timeZone: zone, day: 'numeric', month: 'short', ...(sameYear ? {} : { year: 'numeric' }) }).format(new Date(`${d}T12:00:00Z`)).replace('.', '');
+}
+/* Status: kształt + kolor + tekst. */
+const state: Record<State, { label: string; icon: ReactNode }> = {
+  overdue: { label: 'Po terminie', icon: <CalendarX size={14} className="shrink-0 text-danger" aria-hidden /> },
+  upcoming: { label: 'W ciągu 30 dni', icon: <CalendarDot size={14} className="shrink-0 text-warning" aria-hidden /> },
+  later: { label: 'Późniejszy termin', icon: <CalendarBlank size={14} className="shrink-0 text-tertiary" aria-hidden /> },
+  paused: { label: 'Wstrzymany', icon: <PauseCircle size={14} className="shrink-0 text-tertiary" aria-hidden /> },
+  archived: { label: 'Archiwalny', icon: <Archive size={14} className="shrink-0 text-tertiary" aria-hidden /> },
+};
+const H = {
+  title: <ListChecks size={14} className="shrink-0 text-ic-green" aria-hidden />,
+  customer: <Building size={14} className="shrink-0 text-ic-indigo" aria-hidden />,
+  installation: <MapPin size={14} className="shrink-0 text-ic-red" aria-hidden />,
+  state: <CalendarCheck size={14} className="shrink-0 text-ic-slate" aria-hidden />,
+  due: <Calendar size={14} className="shrink-0 text-ic-blue" aria-hidden />,
+  interval: <Repeat size={14} className="shrink-0 text-ic-teal" aria-hidden />,
+};
+const actionLink = 'flex items-center justify-between gap-2';
+
+export default async function MaintenancePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const raw = await searchParams;
+  if (typeof raw.installation === 'string' && !z.string().uuid().safeParse(raw.installation).success) notFound();
+  const query = parseQuery(maintenanceSpec, raw), installation = query.context.installation;
+  const { db, access } = await requireSession(), manager = ['admin', 'office'].includes(access.role);
+  let context: InstallationContext | null = null;
+  if (installation) {
+    const result = await db.from('installations').select('id,type,status,locations!inner(customer_id,address,city,customers!inner(name,archived_at))').eq('id', installation).maybeSingle();
+    if (result.error) throw new Error('Nie udało się pobrać instalacji.');
+    if (!result.data) notFound();
+    context = result.data as unknown as InstallationContext;
+  }
+  const params = maintenanceScheduleParamsSchema.parse({ p_search: query.q, p_view: query.view, p_page: query.page, p_installation: installation ?? null, p_sort: query.sort });
+  const [result, prefsAll] = await Promise.all([db.rpc('maintenance_schedule', params), loadPreferences(db)]);
+  const parsed = result.error ? null : maintenanceListSchema.safeParse({ ...result.data, apiVersion: '1', page: query.page, pageSize: 20 });
+  const list: MaintenanceList | null = parsed?.success ? parsed.data : null;
+  const lastPage = list ? clampPage({ total: list.total, count: list.plans.length, page: query.page }, maintenanceSpec.pageSize) : null;
+  if (lastPage) redirect(queryHref(maintenanceSpec, patchQuery(maintenanceSpec, query, { page: lastPage })));
+  const canAdd = manager && (!context || (context.status !== 'archived' && !context.locations.customers.archived_at));
+  let options: InstallationOption[] = [];
+  if (canAdd) {
+    const found = await db.rpc('find_service_installations', { p_search: '' });
+    if (!found.error) options = found.data as InstallationOption[];
+    if (context && !options.some(o => o.id === context!.id)) options.unshift({ id: context.id, label: `${context.locations.customers.name} · ${context.locations.address}, ${context.locations.city} · ${context.type}` });
+  }
+  const prefs = collectionPrefs(maintenanceSpec, prefsAll);
+  const layout = collectionLayout(maintenanceSpec, prefs.presentation.columns), n = layout.keys.length;
+  const keys = layout.keys.filter(k => k !== 'select'), filtered = isFiltered(maintenanceSpec, query);
+  const today = list?.today ?? new Date().toISOString().slice(0, 10);
+  const head: Record<string, ReactNode> = {
+    title: <HeaderCell key="title" layout={layout} col="title" icon={H.title}>Plan</HeaderCell>,
+    customer: <HeaderCell key="customer" layout={layout} col="customer" icon={H.customer}>Klient</HeaderCell>,
+    installation: <HeaderCell key="installation" layout={layout} col="installation" icon={H.installation}>Instalacja</HeaderCell>,
+    state: <HeaderCell key="state" layout={layout} col="state" icon={H.state}>Status</HeaderCell>,
+    due: <HeaderCell key="due" layout={layout} col="due" icon={H.due} align="right" title="Następny termin">Termin</HeaderCell>,
+    interval: <HeaderCell key="interval" layout={layout} col="interval" icon={H.interval} align="right">Cykl</HeaderCell>,
+    actions: <HeaderCell key="actions" layout={layout} col="actions" label="Działania" />,
+  };
+  const rows: CollectionRow[] = (list?.plans ?? []).map(plan => {
+    const st = state[plan.state], where = `${plan.installation_type} · ${plan.address}, ${plan.city}`;
+    const cell: Record<string, ReactNode> = {
+      title: <Cell key="title" layout={layout} col="title"><Link href={`/dashboard/maintenance/${plan.id}`} className="min-w-0 truncate rounded-xs font-medium text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent">{plan.title}</Link></Cell>,
+      customer: <Cell key="customer" layout={layout} col="customer"><CustomerLogo name={plan.customer_name} href={`/dashboard/customers/${plan.customer_id}`} card={{ city: plan.city }} showName /></Cell>,
+      installation: <Cell key="installation" layout={layout} col="installation" title={where} className="text-secondary"><span className="truncate">{where}</span></Cell>,
+      state: <Cell key="state" layout={layout} col="state" gap={1} className="text-secondary">{st.icon}<span className="truncate">{st.label}</span></Cell>,
+      due: <Cell key="due" layout={layout} col="due" align="right" title={`Następny termin: ${fullDay(plan.next_due_on)}`} className={cx('tabular-nums', plan.state === 'overdue' ? 'font-medium text-danger' : 'font-normal text-primary')}>{shortDay(plan.next_due_on, today)}</Cell>,
+      interval: <Cell key="interval" layout={layout} col="interval" align="right" className="text-secondary tabular-nums">co {plan.interval_months} mies.</Cell>,
+      actions: <Cell key="actions" layout={layout} col="actions" align="right" clip={false}>
+        <RecordActions compact label={plan.title}>
+          <Link className={actionLink} href={`/dashboard/maintenance/${plan.id}`}>Wykonanie i historia<ClockCounterClockwise size={18} aria-hidden /></Link>
+          {plan.active && plan.parent_active && <Link className={actionLink} href={`/dashboard/service/new?installation=${plan.installation_id}`}>Utwórz zgłoszenie serwisowe<Wrench size={18} aria-hidden /></Link>}
+          <Link className={actionLink} href={`/dashboard/maintenance?installation=${plan.installation_id}&view=all`}>Plany tej instalacji<ArrowRight size={18} aria-hidden /></Link>
+          {manager && plan.parent_active && <><MaintenanceToggle plan={plan} /><details><summary>Edytuj plan / ustaw następny termin</summary><MaintenancePlanForm record={plan} /></details></>}
+        </RecordActions>
+      </Cell>,
+    };
+    return { id: `${plan.id}:${plan.version}`, label: plan.title, cells: keys.map(k => cell[k]) };
+  });
+  const message = !list
+    ? <TableMessage columns={n} kind="error" action={<Link href={queryHref(maintenanceSpec, query)} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Spróbuj ponownie</Link>}>Nie udało się pobrać harmonogramu przeglądów. Sprawdź połączenie i spróbuj ponownie.</TableMessage>
+    : filtered
+      ? <TableMessage columns={n} action={<Link href={queryHref(maintenanceSpec, clearFilters(maintenanceSpec, query))} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Wyczyść szukanie</Link>}>Żaden plan nie pasuje do wyszukiwania.</TableMessage>
+      : <TableMessage columns={n} action={query.view !== 'all' ? <Link href={queryHref(maintenanceSpec, { ...query, view: 'all', sort: query.sort, page: 1 })} className={buttonClasses({ variant: 'sec', size: 'sm' })}>Pokaż wszystkie</Link> : undefined}>
+          {query.view === 'all' ? (manager ? 'Nie ma jeszcze planów przeglądów. Dodaj plan dla instalacji.' : 'Nie ma jeszcze planów przeglądów.') : 'Brak planów w tym widoku.'}
+        </TableMessage>;
+  const counter = (icon: ReactNode, value: number, label: string) => <span title={label} className="inline-flex items-center gap-1 tabular-nums">{icon}{value}<span className="sr-only"> {label}</span></span>;
+
+  return (
+    <CollectionProvider spec={maintenanceSpec} query={query} prefs={prefs}>
+      <TablePage>
+        <PageHead icon={<CalendarCheck size={16} className="shrink-0" aria-hidden />} category="Serwis" title="Przeglądy">
+          <Spacer />
+          {list && (
+            <span title={`Terminy według daty ${fullDay(list.today)} w Polsce. Plan przeglądu nie jest rezerwacją wizyty — po wykonaniu potwierdź go na podstawie zatwierdzonego protokołu. Liczniki uwzględniają wybraną instalację i wyszukiwanie.`} className="mr-1 inline-flex min-w-0 items-center gap-3 overflow-hidden text-small leading-4 text-secondary">
+              {counter(state.overdue.icon, list.summary.overdue, 'po terminie')}
+              {counter(state.upcoming.icon, list.summary.upcoming, 'w ciągu 30 dni')}
+              {counter(<CalendarCheck size={14} className="shrink-0 text-success" aria-hidden />, list.summary.active, 'aktywnych planów')}
+              {counter(state.paused.icon, list.summary.paused, 'wstrzymanych')}
+            </span>
+          )}
+        </PageHead>
+        {context && (
+          <div className="flex min-w-0 flex-wrap items-center gap-2 pr-3 pb-1 pl-5 text-small leading-4 text-secondary max-desktop:pl-3">
+            <Link href={`/dashboard/customers/${context.locations.customer_id}`} className="inline-flex items-center gap-1 rounded-xs text-secondary no-underline hover:text-primary focus-visible:outline-2 focus-visible:outline-accent"><ArrowLeft size={12} className="shrink-0" aria-hidden />Karta klienta</Link>
+            <span className="min-w-0 truncate text-primary">{context.locations.customers.name} · {context.type} · {context.locations.address}, {context.locations.city}</span>
+            <Link href="/dashboard/maintenance" className="rounded-xs text-secondary no-underline hover:text-primary focus-visible:outline-2 focus-visible:outline-accent">Wszystkie instalacje</Link>
+          </div>
+        )}
+        <Toolbar>
+          <CollectionViews label="Terminy przeglądów" />
+          <Spacer />
+          <ViewOptionsButton />
+          {canAdd && <NewMaintenancePlan options={options} selected={installation} />}
+        </Toolbar>
+        <div className="flex min-w-0 flex-wrap items-center gap-2 pr-3 pb-2 pl-4 max-desktop:pl-3">
+          <CollectionSearch />
+          <SortMenu />
+        </div>
+        <CollectionNotice />
+        <div className="flex min-w-0 flex-auto flex-col px-3 pb-6">
+          <CollectionTable layout={layout} label="Plany przeglądów" header={keys.map(k => head[k])} rows={rows} message={message} />
+        </div>
+        {list && <CollectionFooter spec={maintenanceSpec} query={query} total={list.total}><span>{filtered ? 'Pasujące plany' : 'Plany'}: {list.total}</span></CollectionFooter>}
+      </TablePage>
+    </CollectionProvider>
+  );
 }

@@ -27,3 +27,5 @@ export * from './service-job';
 export * from './stock';
 
 export * from './organizations';
+
+export * from './collections';

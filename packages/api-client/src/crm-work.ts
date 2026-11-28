@@ -54,8 +54,8 @@ export type TaskPlanContext=z.infer<typeof taskPlanContextSchema>;
 
 export const customerCategorySchema=z.string().trim().min(1).max(40).refine(v=>!/[\u0000-\u001f\u007f]/.test(v));
 export const customerCategoriesInputSchema=z.object({categories:z.array(customerCategorySchema).max(8)}).strict();
-export const customerDirectoryItemSchema=z.object({id:z.string().uuid(),name:z.string(),type:z.enum(['company','individual']),email:z.string().nullable(),phone:z.string().nullable(),categories:z.array(z.string()),city:z.string().nullable(),devices:count,lastContact:z.string().nullable(),ownerId:z.string().uuid().nullable(),ownerLabel:z.string().nullable(),revenueCents:z.number().int().nonnegative().nullable()}).strict();
-export const customerDirectorySchema=z.object({total:count,counts:z.object({company:count,individual:count}).strict(),summary:z.object({all:count,devices:count,revenueCents:z.number().int().nonnegative().nullable()}).strict(),items:z.array(customerDirectoryItemSchema).max(25)}).strict();
+export const customerDirectoryItemSchema=z.object({id:z.string().uuid(),name:z.string(),type:z.enum(['company','individual']),email:z.string().nullable(),phone:z.string().nullable(),categories:z.array(z.string()),city:z.string().nullable(),devices:count,lastContact:z.string().nullable(),ownerId:z.string().uuid().nullable(),ownerLabel:z.string().nullable(),revenueCents:z.number().int().nonnegative().nullable(),group:z.string()}).strict();
+export const customerDirectorySchema=z.object({total:count,counts:z.object({company:count,individual:count}).strict(),summary:z.object({all:count,devices:count,revenueCents:z.number().int().nonnegative().nullable()}).strict(),groups:z.array(z.object({key:z.string(),label:z.string(),count}).strict()),items:z.array(customerDirectoryItemSchema).max(25)}).strict();
 export type CustomerDirectory=z.infer<typeof customerDirectorySchema>;
 
 export const crmTaskLinkKinds=['ticket','order','offer'] as const;

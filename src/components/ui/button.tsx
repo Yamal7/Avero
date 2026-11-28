@@ -2,7 +2,7 @@
    Warianty: pri (akcja główna, akcent — 1–3 na ekranie), sec (wypełnienie bg-subtle, bez ramki), raised (sec na bloku bg-raised), ghost, icon (okrągły, sama ikona).
    Stany: hover, aktywny (wciśnięty), fokus (pierścień --accent), wyłączony, ładowanie (aria-busy, ikona obrotu).
    Ładowanie nie ustawia `disabled` — przycisk zostaje w kolejności fokusu (aria-disabled + blokada kliknięcia). */
-import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
 import { CircleNotch } from '@phosphor-icons/react/ssr';
 import { cx } from '@/lib/cx';
 
@@ -55,6 +55,8 @@ type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   shortcut?: string;
   loading?: boolean;
   children?: ReactNode;
+  /** React 19: ref jako zwykły atrybut (np. kotwica warstwy pływającej). */
+  ref?: Ref<HTMLButtonElement>;
 };
 
 export function Button({ variant = 'sec', size = 'md', icon, shortcut, loading = false, disabled, className, title, type = 'button', onClick, children, ...rest }: Props) {

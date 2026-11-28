@@ -1,11 +1,12 @@
 import { z } from 'zod';
 export const maintenanceDateSchema=z.string().date().refine(date=>date>='1900-01-01'&&date<='2199-12-31');
 export const maintenanceSaveSchema=z.object({id:z.string().uuid(),installationId:z.string().uuid(),title:z.string().trim().min(1).max(160),intervalMonths:z.number().int().min(1).max(120),nextDueOn:maintenanceDateSchema,active:z.boolean(),version:z.number().int().nonnegative().nullable()}).strict();
-export const maintenanceQuerySchema=z.object({installation:z.string().uuid().optional(),search:z.string().trim().max(200).default(''),view:z.enum(['attention','overdue','upcoming','all','paused']).default('attention'),page:z.coerce.number().int().min(1).max(100000).default(1)}).strict();
+export const maintenanceQuerySchema=z.object({installation:z.string().uuid().optional(),search:z.string().trim().max(200).default(''),view:z.enum(['attention','overdue','upcoming','all','paused']).default('attention'),sort:z.enum(['due','customer','title']).default('due'),page:z.coerce.number().int().min(1).max(100000).default(1)}).strict();
 export const maintenanceRowSchema=z.object({id:z.string().uuid(),installation_id:z.string().uuid(),customer_id:z.string().uuid(),title:z.string(),interval_months:z.number().int(),next_due_on:maintenanceDateSchema,active:z.boolean(),version:z.number().int(),customer_name:z.string(),installation_type:z.string(),address:z.string(),city:z.string(),parent_active:z.boolean(),state:z.enum(['overdue','upcoming','later','paused','archived'])});
 export const maintenanceListSchema=z.object({apiVersion:z.literal('1'),today:maintenanceDateSchema,total:z.number().int().nonnegative(),plans:z.array(maintenanceRowSchema),summary:z.object({overdue:z.number().int().nonnegative(),upcoming:z.number().int().nonnegative(),active:z.number().int().nonnegative(),paused:z.number().int().nonnegative()}),page:z.number().int().positive(),pageSize:z.literal(20)});
 export const maintenanceSavedSchema=z.object({apiVersion:z.literal('1'),planId:z.string().uuid()});
 export type MaintenancePlan=z.infer<typeof maintenanceRowSchema>;
+export type MaintenanceList=z.infer<typeof maintenanceListSchema>;
 export type MaintenanceSave=z.infer<typeof maintenanceSaveSchema>;
 export type MaintenanceQuery=z.input<typeof maintenanceQuerySchema>;
 // Calendar months, clamped to the last day of the target month; no local timezone conversion.

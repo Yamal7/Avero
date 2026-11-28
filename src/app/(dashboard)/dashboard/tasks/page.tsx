@@ -7,6 +7,9 @@ import { TaskListView } from '@/components/task-list';
 import { PageHead, PageLink, Segmented, Spacer, ViewTabs, searchFrameClasses, searchInputClasses } from '@/components/table/page-chrome';
 import { buttonClasses } from '@/components/ui/button';
 import { cx } from '@/lib/cx';
+import { loadPreferences } from '@/lib/collection/server';
+import { collectionPrefs } from '@/lib/collection/views';
+import { tasksSpec } from '@/lib/collection/specs';
 import { CheckSquare, Kanban, ListBullets, MagnifyingGlass } from '@phosphor-icons/react/ssr';
 
 /* Saved views of the design ("Wszystkie / Moje / Ten tydzień / F-gaz") map onto the filters the task query supports. */
@@ -19,7 +22,7 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
   const view = viewParam === 'board' ? 'board' : 'list';
   const parsed = myTasksQuerySchema.safeParse({ filter: 'open', ...raw });
   const query = parsed.success ? parsed.data : myTasksQuerySchema.parse({ filter: 'open' });
-  const r = await db.rpc('my_crm_tasks', { p_filter: query.filter, p_search: query.search, p_page: query.page });
+  const [r, prefsAll] = await Promise.all([db.rpc('my_crm_tasks', { p_filter: query.filter, p_search: query.search, p_page: query.page }), loadPreferences(db)]);
   if (r.error) throw new Error('Nie udało się pobrać Twoich zadań.');
   const data = myTasksSchema.refine(v => v.viewerId === user.id).parse(r.data);
   const href = (filter: MyTasksQuery['filter'], page = 1, v: string = view) => `/dashboard/tasks?${new URLSearchParams({ filter, ...(query.search ? { search: query.search } : {}), ...(page > 1 ? { page: String(page) } : {}), ...(v === 'board' ? { view: 'board' } : {}) })}`;
@@ -45,7 +48,7 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
       <label className={searchFrameClasses}>
         <MagnifyingGlass size={14} className="shrink-0" aria-hidden />
         <span className="sr-only">Szukaj zadania lub klienta</span>
-        <input id="task-search" type="search" name="search" autoFocus maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta" className={cx(searchInputClasses, 'w-56')} />
+        <input id="tasks-search" type="search" name="search" autoFocus maxLength={160} defaultValue={query.search} placeholder="Szukaj zadania lub klienta" className={cx(searchInputClasses, 'w-56')} />
       </label>
     </form>
   );
@@ -60,5 +63,5 @@ export default async function MyTasksPage({ searchParams }: { searchParams: Prom
     </nav>
   );
 
-  return <TaskListView key={`${query.filter}-${query.search}-${query.page}-${view}`} data={data} header={header} toolbarTabs={tabs} layoutSwitch={layout} search={search} toolbarExtra={extra} footer={footer} canPlan={staff} board={view === 'board' ? <TaskBoard data={data} /> : undefined} />;
+  return <TaskListView key={`${query.filter}-${query.search}-${query.page}-${view}`} data={data} prefs={collectionPrefs(tasksSpec, prefsAll)} header={header} toolbarTabs={tabs} layoutSwitch={layout} search={search} toolbarExtra={extra} footer={footer} canPlan={staff} board={view === 'board' ? <TaskBoard data={data} /> : undefined} />;
 }
