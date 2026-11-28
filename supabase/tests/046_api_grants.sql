@@ -18,7 +18,7 @@ select is(array(
  cross join (select unnest(array['truncate','references','trigger']
    ||case when current_setting('server_version_num')::int>=170000 then array['maintain'] else '{}'::text[] end)) p(priv)
  where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v','m','f')
- and has_table_privilege(r.role,c.oid,p.priv)
+ and case when c.relkind in ('r','p','v','m','f') then has_table_privilege(r.role,c.oid,p.priv) else false end
  order by 1),array[]::text[],'No public table grants TRUNCATE, REFERENCES, TRIGGER or MAINTAIN to anon or authenticated');
 
 -- (b) EXECUTE dla anon i PUBLIC

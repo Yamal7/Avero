@@ -89,11 +89,11 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 
 **Co odebrano** (decyzja właściciela; tylko zawężenie, dane bez zmian) — migracja `202611280007_revoke_anon_tables.sql`:
 - `anon`: wszystkie uprawnienia do tabel, widoków, widoków zmaterializowanych i tabel obcych `public`. Przed: 30 grantów (SELECT na 9 tabelach rdzenia — customers, devices, documents, installations, locations, maintenance_plans, sales_inquiries, service_tickets, service_visits — oraz INSERT/UPDATE/DELETE na 7 z nich). Po: 0.
-- `anon`: wszystkie uprawnienia do sekwencji `public`. Przed: USAGE/SELECT/UPDATE na `audit_logs_id_seq` i `access_audit_logs_id_seq` (6 wpisów ACL). Po: 0.
+- `anon`: wszystkie uprawnienia do sekwencji `public`. Przed: USAGE/SELECT/UPDATE na `audit_logs_id_seq` i `access_audit_logs_id_seq` (2 sekwencje, 6 wpisów ACL). Po: 0.
 - Domyślne uprawnienia `postgres` w `public`: nowa tabela, widok i sekwencja (także sekwencja kolumny identity) nie dają `anon` niczego.
-- `authenticated`, `service_role` i `avero_rpc` bez zmian (w tym USAGE `authenticated` na sekwencjach audytu i DML na tabelach rdzenia — chronione przez RLS, poza zakresem KRA-74).
+- `authenticated`, `service_role` i `avero_rpc` bez zmian (poza zakresem KRA-74). `authenticated` ma nadal USAGE/SELECT/UPDATE na obu sekwencjach audytu — RLS ich nie obejmuje, więc zalogowany może wołać `nextval` — oraz INSERT/UPDATE/DELETE na tabelach rdzenia (te chroni RLS). Patrz „Pytania do projektu” › KRA-74.
 
-**Skutek:** PostgREST z kluczem anon bez sesji odpowiada na tabelach `42501 permission denied` zamiast `[]` (sprawdzone na `http://127.0.0.1:55321`: `customers`, `offers` → 42501, `rpc/is_staff` → 42501). Z sesją (`biuro.m04@example.invalid`) `customers`, `rpc/current_access`, `rpc/my_organizations` działają jak dotąd.
+**Skutek:** PostgREST z kluczem anon bez sesji odpowiada na tabelach HTTP 401 z kodem `42501 permission denied` zamiast HTTP 200 `[]` (sprawdzone na `http://127.0.0.1:55321`: `customers`, `offers` → 42501, `rpc/is_staff` → 42501). Z sesją (`biuro.m04@example.invalid`) `customers`, `rpc/current_access`, `rpc/my_organizations` działają jak dotąd.
 
 **Sprawdzone drogi bez sesji** (nic nie czyta tabel jako `anon`):
 - logowanie: `signInWithPassword` w Supabase Auth (schemat `auth`, nie PostgREST); `/auth/v1/health` i `/auth/v1/settings` → 200;
@@ -105,15 +105,17 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 - storage: `storage.objects` ma polityki tylko dla `authenticated` i `avero_rpc`, kubeł `hvac-documents` prywatny; anon `object/list` → `[]` (jak przed zmianą — KRA-74 nie dotyczy schematu `storage`);
 - realtime i GraphQL: aplikacja ich nie używa.
 
-**Zapytanie kontrolne po wgraniu na „Avero”** (SQL Editor; wynik = 0). Na Supabase `postgres` nie jest superuserem — REVOKE odbiera tylko granty nadane przez `postgres`; grant innego grantora (np. `supabase_admin`) zostaje z samym ostrzeżeniem, dlatego trzeba to sprawdzić:
+**Zapytanie kontrolne po wgraniu na „Avero”** (SQL Editor; wynik = 0). Na Supabase `postgres` nie jest superuserem — REVOKE odbiera tylko granty nadane przez `postgres`; grant innego grantora (np. `supabase_admin`) zostaje z samym ostrzeżeniem, dlatego trzeba to sprawdzić. Zapytanie opiera się na `has_*_privilege`, więc liczy też granty dla `PUBLIC` i na kolumny (to samo zapytanie jest asercją w teście 047):
 ```sql
-select count(*) from pg_class c, aclexplode(c.relacl) a
+select count(*) from pg_class c
 where c.relnamespace = 'public'::regnamespace and c.relkind in ('r','p','v','m','f','S')
-  and a.grantee = 'anon'::regrole;
+  and case when c.relkind = 'S' then has_sequence_privilege('anon', c.oid, 'usage,select,update')
+    else has_table_privilege('anon', c.oid, 'select,insert,update,delete,truncate,references,trigger')
+      or has_any_column_privilege('anon', c.oid, 'select,insert,update,references') end;
 ```
-Jeśli wynik > 0: `select c.relname, a.privilege_type, a.grantor::regrole from …` (to samo `from`/`where`) pokaże grantora — wtedy zgłosić koordynatorowi, nie poprawiać ręcznie. Zostaje znane ograniczenie z KRA-71: domyślne uprawnienia `supabase_admin` w `public` dają `anon` dostęp do obiektów tworzonych przez tę rolę (np. rozszerzenie włączone z panelu do `public`); dziś takich nie ma, a test 047 wyłapie je lokalnie.
+Jeśli wynik > 0, pomocniczo pokaż grantora (to zapytanie widzi tylko jawne wpisy dla `anon`, bez `PUBLIC` i kolumn): `select c.relname, a.privilege_type, a.grantor::regrole from pg_class c, aclexplode(c.relacl) a where c.relnamespace = 'public'::regnamespace and a.grantee = 'anon'::regrole;` — wtedy zgłosić koordynatorowi, nie poprawiać ręcznie. Zostaje znane ograniczenie z KRA-71: domyślne uprawnienia `supabase_admin` w `public` dają `anon` dostęp do obiektów tworzonych przez tę rolę (np. rozszerzenie włączone z panelu do `public`); dziś takich nie ma, a test 047 wyłapie je lokalnie.
 
-**Testy:** nowy `047_anon_no_table_access.sql` (brak uprawnień `anon` do tabel, kolumn i sekwencji `public`; tabela, widok, sekwencja i identity utworzone w teście nic nie dają `anon`; `authenticated`/`service_role`/`avero_rpc` zachowują domyślne granty; `anon` dostaje 42501 na 9 tabelach rdzenia, INSERT/UPDATE/DELETE i `nextval`; personel czyta przez RLS). W `043_organizations.sql` i `046_api_grants.sql` oczekiwanie „anon widzi 0 wierszy” zmienione na 42501.
+**Testy:** nowy `047_anon_no_table_access.sql` (brak uprawnień `anon` do tabel, kolumn i sekwencji `public`; tabela, widok, sekwencja i identity utworzone w teście nic nie dają `anon`; `authenticated`/`service_role`/`avero_rpc` zachowują domyślne granty do tabel; zapytanie kontrolne = 0 i wyłapuje granty dla `PUBLIC` na sekwencję i kolumnę (kontrola negatywna); `anon` dostaje 42501 na 9 tabelach rdzenia, INSERT/UPDATE/DELETE i `nextval`; personel czyta przez RLS). W `043_organizations.sql` i `046_api_grants.sql` oczekiwanie „anon widzi 0 wierszy” zmienione na 42501.
 
 ## KRA-71 Granty ról API
 
@@ -245,6 +247,7 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 
 ## Pytania do projektu
 
+- **KRA-74 (do koordynatora, nie do czatu projektowego):** `authenticated` ma USAGE/SELECT/UPDATE na `audit_logs_id_seq` i `access_audit_logs_id_seq` (może wołać `nextval`; zapisy audytu idą przez funkcje SECURITY DEFINER, więc aplikacja tego nie potrzebuje) oraz INSERT/UPDATE/DELETE na tabelach rdzenia (chronione RLS). Czy odebrać to w osobnym zadaniu?
 - **M0.4 · pole zaznaczenia w tabelach:** makieta ma checkbox w wierszu tylko w Przeglądach. Kod dodał kolumnę zaznaczenia (16 px, zawsze widoczna — także na telefonie, gdzie nie ma najechania) w Firmach, Osobach, Magazynie i Przeglądach. Czy pokazywać ją zawsze, tylko po najechaniu / przy zaznaczeniu (jak w Linear), czy tylko tam, gdzie są akcje zbiorcze?
 - **M0.4 · wygląd zaznaczonego wiersza i kursora:** zaznaczony = tło `--bg-subtle` + pole z akcentem, kursor J / K = pierścień fokusu akcentu na wierszu. Czy zaznaczenie ma mieć osobne tło (np. akcent 8–10 %)? Wymagałoby nieprzezroczystego tokenu dla przypiętych kolumn.
 - **M0.4 · grupowanie Firm po kategorii:** firma z kilkoma kategoriami trafia do grupy pierwszej z nich. Czy grupa ma być wg kategorii głównej (pole do ustalenia), czy firma może być w kilku grupach naraz?
@@ -279,7 +282,7 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
-- 2026-11-28 — KRA-74: `anon` traci wszystkie uprawnienia do tabel, widoków i sekwencji `public` (30 grantów tabel + 2 sekwencje → 0) oraz domyślne uprawnienia do nowych tabel i sekwencji. PostgREST bez sesji: 42501 zamiast `[]`. Test `047_anon_no_table_access.sql`. Na Supabase „Avero” niewgrane.
+- 2026-11-28 — KRA-74: `anon` traci wszystkie uprawnienia do tabel, widoków i sekwencji `public` (30 grantów tabel + 2 sekwencje, 6 wpisów ACL → 0) oraz domyślne uprawnienia do nowych tabel i sekwencji. PostgREST bez sesji: HTTP 401 / `42501` zamiast HTTP 200 `[]`. Test `047_anon_no_table_access.sql`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-71: rolom API odebrano TRUNCATE, REFERENCES, TRIGGER i MAINTAIN na tabelach `public` oraz EXECUTE dla `PUBLIC`/`anon` na funkcjach `public` (2 migracje). Domyślne uprawnienia zawężone. Wyjątków dla anon brak. Test `046_api_grants.sql`. Na Supabase „Avero” niewgrane.
 
 - 2026-11-27 — M0.4 (KRA-31): silnik widoku kolekcji — `src/lib/collection/`, `src/components/collection/`, `ui/Popover`; Firmy, Osoby, Magazyn i Przeglądy na silniku z filtrami, sortowaniem, grupami i stronami w SQL (4 migracje funkcji, test `045_collection_queries.sql`); Zadania na tych samych komponentach; `collection-view.tsx` i `customer-filters.tsx` usunięte; testy `tests/collection.test.ts`, test konfliktów i istnienia klas dla nowych plików.

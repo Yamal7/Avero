@@ -5,6 +5,10 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
 
+-- has_table_privilege / has_column_privilege / has_sequence_privilege liczą też granty dla PUBLIC.
+-- Wywołania są osłonięte `case` po relkind, żeby wynik nie zależał od planu zapytania
+-- (has_sequence_privilege na indeksie lub tabeli kończy się błędem „… is not a sequence”).
+
 -- (a) Żadna tabela, widok, widok zmaterializowany, tabela obca ani tabela partycjonowana w public nie daje anon niczego.
 select is(array(
  select c.relname::text||' '||p.priv
@@ -12,7 +16,7 @@ select is(array(
  cross join (select unnest(array['select','insert','update','delete','truncate','references','trigger']
    ||case when current_setting('server_version_num')::int>=170000 then array['maintain'] else '{}'::text[] end)) p(priv)
  where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v','m','f')
- and has_table_privilege('anon',c.oid,p.priv)
+ and case when c.relkind in ('r','p','v','m','f') then has_table_privilege('anon',c.oid,p.priv) else false end
  order by 1),array[]::text[],'anon has no privilege on any public table or view');
 
 -- Uprawnienia do kolumn też się liczą (grant select(kolumna) omija test na poziomie tabeli).
@@ -21,7 +25,7 @@ select is(array(
  from pg_class c join pg_attribute a on a.attrelid=c.oid and a.attnum>0 and not a.attisdropped
  cross join (values ('select'),('insert'),('update'),('references')) p(priv)
  where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v','m','f')
- and has_column_privilege('anon',c.oid,a.attnum,p.priv)
+ and case when c.relkind in ('r','p','v','m','f') then has_column_privilege('anon',c.oid,a.attnum,p.priv) else false end
  order by 1),array[]::text[],'anon has no column privilege in public');
 
 select is(array(
@@ -29,12 +33,18 @@ select is(array(
  from pg_class c
  cross join (values ('usage'),('select'),('update')) p(priv)
  where c.relnamespace='public'::regnamespace and c.relkind='S'
- and has_sequence_privilege('anon',c.oid,p.priv)
+ and case when c.relkind='S' then has_sequence_privilege('anon',c.oid,p.priv) else false end
  order by 1),array[]::text[],'anon has no privilege on any public sequence');
 
--- Kontrola jak w STATUS.md: liczba jawnych wpisów ACL dla anon w public = 0.
-select is((select count(*)::int from pg_class c, aclexplode(c.relacl) a
- where c.relnamespace='public'::regnamespace and a.grantee='anon'::regrole),0,'No ACL entry for anon on public relations');
+-- Zapytanie kontrolne z docs/STATUS.md › KRA-74 (to samo, co ma uruchomić właściciel na „Avero”) = 0.
+create function pg_temp.anon_public_grants() returns int language sql stable as $$
+ select count(*)::int from pg_class c
+ where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v','m','f','S')
+ and case when c.relkind='S' then has_sequence_privilege('anon',c.oid,'usage,select,update')
+   else has_table_privilege('anon',c.oid,'select,insert,update,delete,truncate,references,trigger')
+     or has_any_column_privilege('anon',c.oid,'select,insert,update,references') end
+$$;
+select is(pg_temp.anon_public_grants(),0,'Control query: anon has no privilege on public relations');
 
 -- (b) Domyślne uprawnienia: nowa tabela i sekwencja utworzone przez postgres nie dają anon niczego.
 create table public.kra74_probe(id bigint generated always as identity primary key, name text);
@@ -48,9 +58,17 @@ select ok(not has_sequence_privilege('anon',pg_get_serial_sequence('public.kra74
  'Identity sequence of a new table gives anon nothing by default');
 -- Pozostałe role API zachowują domyślne granty (zakres KRA-74 to wyłącznie anon).
 select ok(has_table_privilege('authenticated','public.kra74_probe','select,insert,update,delete'),'authenticated keeps default table grants');
-select ok(has_sequence_privilege('authenticated','public.kra74_probe_seq','usage'),'authenticated keeps default sequence grants');
+-- Domyślne granty authenticated na nowych sekwencjach nie są utrwalane (pytanie w docs/STATUS.md).
 select ok(has_table_privilege('service_role','public.kra74_probe','select,insert,update,delete,truncate'),'service_role keeps default table grants');
 select ok(has_table_privilege('avero_rpc','public.kra74_probe','select,insert,update,delete'),'avero_rpc keeps default table grants');
+-- Kontrola negatywna: zapytanie kontrolne wyłapuje granty dla PUBLIC i na kolumny (aclexplode by ich nie pokazał).
+grant usage on sequence public.kra74_probe_seq to public;
+select is(pg_temp.anon_public_grants(),1,'Control query sees a sequence grant to PUBLIC');
+revoke usage on sequence public.kra74_probe_seq from public;
+grant select(name) on public.kra74_probe to public;
+select is(pg_temp.anon_public_grants(),1,'Control query sees a column grant to PUBLIC');
+revoke select(name) on public.kra74_probe from public;
+select is(pg_temp.anon_public_grants(),0,'Control query is back to 0 after revoke');
 drop view public.kra74_probe_view;
 drop sequence public.kra74_probe_seq;
 drop table public.kra74_probe;
@@ -60,7 +78,8 @@ select ok(has_table_privilege('authenticated','public.'||t,'select,insert,update
  from unnest(array['customers','locations','devices','installations','sales_inquiries']) t;
 select ok(has_table_privilege('authenticated','public.'||t,'select'),'authenticated keeps select on '||t)
  from unnest(array['catalog_items','documents','maintenance_plans','offers','service_protocols','service_tickets','service_visits','work_orders']) t;
-select ok(has_sequence_privilege('authenticated','public.audit_logs_id_seq','usage'),'authenticated keeps usage on audit sequence');
+-- authenticated ma dziś USAGE/SELECT/UPDATE na sekwencjach audytu — stan obecny, do decyzji (pytanie w docs/STATUS.md),
+-- dlatego test go nie utrwala.
 select ok(has_table_privilege('service_role','public.customers','select,insert,update,delete'),'service_role keeps DML on customers');
 
 -- Dane: firma, pracownik, klient.
