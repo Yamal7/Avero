@@ -2,6 +2,7 @@
 -- na żadnej tabeli ani widoku w public, a anon (i PUBLIC) nie wykonuje żadnej funkcji z public.
 -- Nowa tabela lub funkcja, która dostanie te uprawnienia (np. z domyślnych grantów), = czerwony test.
 -- Od KRA-74 anon nie ma żadnego uprawnienia do tabel public (pełny test: 047_anon_no_table_access.sql).
+-- Od KRA-76 authenticated ma w public tylko listę dozwolonych uprawnień (pełny test: 048_authenticated_grants.sql).
 begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();

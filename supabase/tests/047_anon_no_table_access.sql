@@ -56,9 +56,8 @@ select ok(not has_table_privilege('anon','public.kra74_probe_view','select,inser
 select ok(not has_sequence_privilege('anon','public.kra74_probe_seq','usage,select,update'),'New sequence gives anon nothing by default');
 select ok(not has_sequence_privilege('anon',pg_get_serial_sequence('public.kra74_probe','id'),'usage,select,update'),
  'Identity sequence of a new table gives anon nothing by default');
--- Pozostałe role API zachowują domyślne granty (zakres KRA-74 to wyłącznie anon).
+-- Pozostałe role API zachowują domyślne granty do tabel (authenticated: patrz 048_authenticated_grants.sql).
 select ok(has_table_privilege('authenticated','public.kra74_probe','select,insert,update,delete'),'authenticated keeps default table grants');
--- Domyślne granty authenticated na nowych sekwencjach nie są utrwalane (pytanie w docs/STATUS.md).
 select ok(has_table_privilege('service_role','public.kra74_probe','select,insert,update,delete,truncate'),'service_role keeps default table grants');
 select ok(has_table_privilege('avero_rpc','public.kra74_probe','select,insert,update,delete'),'avero_rpc keeps default table grants');
 -- Kontrola negatywna: zapytanie kontrolne wyłapuje granty dla PUBLIC i na kolumny (aclexplode by ich nie pokazał).
@@ -73,13 +72,13 @@ drop view public.kra74_probe_view;
 drop sequence public.kra74_probe_seq;
 drop table public.kra74_probe;
 
--- (c) authenticated zachowuje uprawnienia do tabel rdzenia, z których aplikacja czyta przez RLS.
-select ok(has_table_privilege('authenticated','public.'||t,'select,insert,update,delete'),'authenticated keeps DML on '||t)
- from unnest(array['customers','locations','devices','installations','sales_inquiries']) t;
+-- (c) authenticated zachowuje uprawnienia, których aplikacja używa (pełna lista dozwolonych od KRA-76:
+-- 048_authenticated_grants.sql — tam też brak uprawnień do sekwencji i brak DELETE).
+select ok(has_table_privilege('authenticated','public.'||t,'select,insert,update'),'authenticated keeps select, insert, update on '||t)
+ from unnest(array['customers','locations','devices','installations']) t;
 select ok(has_table_privilege('authenticated','public.'||t,'select'),'authenticated keeps select on '||t)
- from unnest(array['catalog_items','documents','maintenance_plans','offers','service_protocols','service_tickets','service_visits','work_orders']) t;
--- authenticated ma dziś USAGE/SELECT/UPDATE na sekwencjach audytu — stan obecny, do decyzji (pytanie w docs/STATUS.md),
--- dlatego test go nie utrwala.
+ from unnest(array['catalog_items','documents','maintenance_plans','offers','service_protocols','service_tickets','service_visits']) t;
+select ok(not has_sequence_privilege('authenticated','public.audit_logs_id_seq','usage,select,update'),'authenticated has no privilege on audit sequence');
 select ok(has_table_privilege('service_role','public.customers','select,insert,update,delete'),'service_role keeps DML on customers');
 
 -- Dane: firma, pracownik, klient.
