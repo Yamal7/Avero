@@ -41,14 +41,17 @@ select ok(not has_table_privilege('authenticated','public.kra71_probe','truncate
  and not has_table_privilege('anon','public.kra71_probe','truncate')
  and not has_table_privilege('authenticated','public.kra71_probe','references')
  and not has_table_privilege('authenticated','public.kra71_probe','trigger')
- and (current_setting('server_version_num')::int<170000 or not has_table_privilege('anon','public.kra71_probe','maintain')),
+ and (current_setting('server_version_num')::int<170000 or (not has_table_privilege('anon','public.kra71_probe','maintain') and not has_table_privilege('authenticated','public.kra71_probe','maintain'))),
  'New table gets no TRUNCATE, REFERENCES, TRIGGER or MAINTAIN for API roles by default');
 select ok(has_table_privilege('service_role','public.kra71_probe','truncate'),'service_role keeps its default table grants');
 select ok(not exists(select 1 from pg_proc p, aclexplode(p.proacl) a
  where p.oid='public.kra71_probe_fn()'::regprocedure and a.grantee='anon'::regrole),'New function gets no explicit EXECUTE for anon by default');
 revoke all on function public.kra71_probe_fn() from public;
 select ok(not has_function_privilege('anon','public.kra71_probe_fn()','execute'),'After revoke from public a new function is closed to anon');
-select ok(has_function_privilege('authenticated','public.kra71_probe_fn()','execute'),'authenticated keeps default EXECUTE on new functions');
+-- Domyślnie authenticated nadal dostaje EXECUTE na nowej funkcji — dlatego CLAUDE.md każe robić
+-- `revoke all … from public, anon, authenticated` i nadawać EXECUTE jawnie. Nie zapisujemy tego jako wymagania,
+-- żeby późniejsze zawężenie domyślnych uprawnień nie zaświeciło testu na czerwono.
+select ok(true,'(informacyjnie) domyślne EXECUTE dla authenticated nie jest wymaganiem');
 drop function public.kra71_probe_fn();
 drop table public.kra71_probe;
 
