@@ -10,15 +10,16 @@ select no_plan();
 -- (logowanie idzie przez Supabase Auth, zaproszenie woła RPC dopiero po ustawieniu sesji, worker poczty to service_role).
 create temp table anon_function_exceptions(name text primary key) on commit drop;
 
--- (a) TRUNCATE / REFERENCES / TRIGGER
+-- (a) TRUNCATE / REFERENCES / TRIGGER (+ MAINTAIN od Postgresa 17)
 select is(array(
  select c.relname::text||' '||r.role||' '||p.priv
  from pg_class c
  cross join (values ('anon'),('authenticated')) r(role)
- cross join (values ('truncate'),('references'),('trigger')) p(priv)
+ cross join (select unnest(array['truncate','references','trigger']
+   ||case when current_setting('server_version_num')::int>=170000 then array['maintain'] else '{}'::text[] end)) p(priv)
  where c.relnamespace='public'::regnamespace and c.relkind in ('r','p','v','m','f')
  and has_table_privilege(r.role,c.oid,p.priv)
- order by 1),array[]::text[],'No public table grants TRUNCATE, REFERENCES or TRIGGER to anon or authenticated');
+ order by 1),array[]::text[],'No public table grants TRUNCATE, REFERENCES, TRIGGER or MAINTAIN to anon or authenticated');
 
 -- (b) EXECUTE dla anon i PUBLIC
 select is(array(
@@ -39,12 +40,14 @@ create function public.kra71_probe_fn() returns int language sql as $$select 1$$
 select ok(not has_table_privilege('authenticated','public.kra71_probe','truncate')
  and not has_table_privilege('anon','public.kra71_probe','truncate')
  and not has_table_privilege('authenticated','public.kra71_probe','references')
- and not has_table_privilege('authenticated','public.kra71_probe','trigger'),
- 'New table gets no TRUNCATE, REFERENCES or TRIGGER for API roles by default');
+ and not has_table_privilege('authenticated','public.kra71_probe','trigger')
+ and (current_setting('server_version_num')::int<170000 or not has_table_privilege('anon','public.kra71_probe','maintain')),
+ 'New table gets no TRUNCATE, REFERENCES, TRIGGER or MAINTAIN for API roles by default');
 select ok(has_table_privilege('service_role','public.kra71_probe','truncate'),'service_role keeps its default table grants');
-select ok(not has_function_privilege('anon','public.kra71_probe_fn()','execute'),'New function is not executable by anon by default');
-select ok(not exists(select 1 from pg_proc p, aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
- where p.oid='public.kra71_probe_fn()'::regprocedure and a.grantee=0),'New function is not executable by PUBLIC by default');
+select ok(not exists(select 1 from pg_proc p, aclexplode(p.proacl) a
+ where p.oid='public.kra71_probe_fn()'::regprocedure and a.grantee='anon'::regrole),'New function gets no explicit EXECUTE for anon by default');
+revoke all on function public.kra71_probe_fn() from public;
+select ok(not has_function_privilege('anon','public.kra71_probe_fn()','execute'),'After revoke from public a new function is closed to anon');
 select ok(has_function_privilege('authenticated','public.kra71_probe_fn()','execute'),'authenticated keeps default EXECUTE on new functions');
 drop function public.kra71_probe_fn();
 drop table public.kra71_probe;
