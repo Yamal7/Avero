@@ -8,6 +8,7 @@ Stos: Next.js 15 (App Router), React 19, TypeScript, Supabase (Postgres z RLS, d
 
 | Moduł / ekran | Stan | Data | Uwagi |
 |---|---|---|---|
+| Domyślne uprawnienia: nowe tabele i funkcje `public` bez grantów dla `authenticated` (KRA-77) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracja `202611280009_default_privileges_authenticated.sql`; test `049_default_privileges.sql`. Szczegóły niżej › „KRA-77 Domyślne uprawnienia” |
 | Granty authenticated: tylko używane uprawnienia w `public` (KRA-76) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracja `202611280008_revoke_authenticated_unused.sql`; test `048_authenticated_grants.sql`. Szczegóły niżej › „KRA-76 Granty authenticated” |
 | Granty anon: brak dostępu do tabel i sekwencji `public` (KRA-74) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracja `202611280007_revoke_anon_tables.sql`; test `047_anon_no_table_access.sql`. Szczegóły niżej › „KRA-74 Granty anon” |
 | Granty ról API: bez TRUNCATE i bez EXECUTE dla anon (KRA-71) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracje `202611280005_revoke_api_grants.sql`, `202611280006_revoke_api_maintain.sql`; test `046_api_grants.sql`. Szczegóły niżej › „KRA-71 Granty ról API” |
@@ -86,6 +87,32 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 - Osoby › „Zarchiwizowane” (klienci indywidualni z archiwum) mają stałe kolumny bez Opcji kolumn.
 - Wyglądu nie sprawdzono w przeglądarce (zrobi to koordynator) — strony renderują się bez błędów na danych testowych (curl z sesją lokalną).
 
+## KRA-77 Domyślne uprawnienia
+
+**Co zmieniono** (decyzja właściciela, cd. KRA-71/74/76; tylko zawężenie, istniejące obiekty, granty i dane bez zmian) — migracja `202611280009_default_privileges_authenticated.sql`: `alter default privileges for role postgres in schema public revoke all on tables from authenticated` oraz `… revoke execute on functions from authenticated`.
+
+`pg_default_acl` (rola `postgres`, schemat `public`):
+
+| Typ | Przed | Po |
+|---|---|---|
+| `r` tabele/widoki | `postgres=arwdDxtm, authenticated=arwd, service_role=arwdDxtm, avero_rpc=arwd` | `postgres=arwdDxtm, service_role=arwdDxtm, avero_rpc=arwd` |
+| `f` funkcje | `postgres=X, authenticated=X, service_role=X, avero_rpc=X` | `postgres=X, service_role=X, avero_rpc=X` |
+| `S` sekwencje | `postgres=rwU, service_role=rwU, avero_rpc=rwU` (od KRA-76) | bez zmian |
+
+**Co to daje:** nowa tabela, widok lub sekwencja utworzone migracją bez jawnego GRANT są dla `authenticated` zamknięte (`42501`) — dostęp przez RPC; bezpośredni grant tylko jawnie, z uzasadnieniem i wpisem do listy dozwolonych w teście 048. Nowa funkcja nie dostaje osobnego wpisu EXECUTE dla `authenticated`.
+
+**Czego nie daje:** EXECUTE dla `PUBLIC` na nowej funkcji to wbudowana, globalna wartość Postgresa (nie wpis schematu) — `authenticated` nadal wykona nową funkcję przez `PUBLIC`, dopóki migracja nie zrobi `revoke all … from public, anon, authenticated` (zasada w `CLAUDE.md` bez zmian). Globalnego odebrania świadomie nie robimy (KRA-71: objęłoby `pg_temp` i inne schematy). Funkcje w `pg_temp` nie podlegają domyślnym uprawnieniom schematu `public` — potwierdzone testem 049 (`authenticated` je wykonuje). Domyślne uprawnienia `supabase_admin` w `public` (obiekty platformy) są poza zasięgiem `postgres`.
+
+**Zapytanie kontrolne po wgraniu na „Avero”** (SQL Editor; wynik = 0):
+```sql
+select count(*) from pg_default_acl d, aclexplode(d.defaclacl) a
+where d.defaclrole = 'postgres'::regrole and d.defaclnamespace = 'public'::regnamespace
+  and a.grantee in ('authenticated'::regrole, 'anon'::regrole);
+```
+Podgląd: `select defaclobjtype, defaclacl from pg_default_acl where defaclrole='postgres'::regrole and defaclnamespace='public'::regnamespace;` — oczekiwane jak w kolumnie „Po”.
+
+**Testy:** nowy `049_default_privileges.sql` (brak `authenticated`/`anon` w `pg_default_acl` dla `postgres`/`public`; `service_role` i `avero_rpc` zachowują domyślne uprawnienia do tabel, sekwencji i funkcji; nowa tabela, widok, sekwencja i identity bez uprawnień `authenticated`, odczyt → 42501; nowa funkcja bez wpisu `authenticated`, wykonywalna tylko przez `PUBLIC`, po `revoke … from public` zamknięta, jawny `grant execute` działa; funkcja `pg_temp` wykonywalna dla `authenticated`). Dostosowane do stanu docelowego: `046` (sonda funkcji po revoke zamknięta dla `authenticated` zamiast asercji informacyjnej), `047` („authenticated keeps default table grants” → „gets no default table grants”), `048` (sonda nie odbiera już grantów ręcznie; zapytanie kontrolne = 0 po utworzeniu nowej tabeli i sekwencji). Testy `002` i `009` tworzą w `public` funkcje wyzwalaczy — EXECUTE nie jest sprawdzane przy odpaleniu wyzwalacza, bez zmian.
+
 ## KRA-76 Granty authenticated
 
 **Co odebrano** (decyzja właściciela, cd. KRA-71/KRA-74; tylko zawężenie, dane i polityki RLS bez zmian) — migracja `202611280008_revoke_authenticated_unused.sql`:
@@ -103,7 +130,7 @@ Razem uprawnienia `authenticated` do relacji `public`: **34 → 20** (tabele) i 
 - SELECT na `documents` — funkcje security invoker `portal_documents`, `portal_file`, `document_file`, `portal_overview` oraz polityka storage `hvac_files_read` (podzapytanie na `documents` przy pobieraniu pliku: `api/v1/documents/[id]/download`, `api/v1/portal/documents/[id]/download`, `portal/documents/[id]/download`).
 - SELECT na `maintenance_plans`, `maintenance_completions`, `offers` — funkcje security invoker wykonywane przez `authenticated`: `portal_installation(s)`, `portal_overview`, `maintenance_completion_history`, `offer_detail`, `list_offers`.
 
-**Poza zakresem, do decyzji:** domyślne uprawnienia `postgres` w `public` nadal dają `authenticated` SELECT/INSERT/UPDATE/DELETE na **nowych tabelach** (migracje modułów odbierają je jawnie). Zawężenie (`alter default privileges … revoke all on tables from authenticated`) jest bezpieczne dla obecnych migracji, ale zmienia wzorzec dla następnych — test 048 i tak zaświeci na czerwono przy każdej nowej tabeli z grantem dla `authenticated`, więc nowy moduł musi albo odebrać grant, albo dopisać tabelę do listy dozwolonych z uzasadnieniem.
+**Domyślne uprawnienia nowych tabel:** rozstrzygnięte w KRA-77 (sekcja wyżej) — nowa tabela nie daje `authenticated` niczego.
 
 **Martwe polityki RLS (po przeglądzie KRA-76):** bez grantu SELECT/INSERT/UPDATE polityki na 7 tabelach nie są już oceniane: `import_batches_read`, `offer_documents_read`, `offer_publications_staff`, `work_orders_staff`, `work_visits_staff`, `installation_handovers_staff`, `inquiries_read`, `inquiries_insert`, `inquiries_staff_update`. Tak samo wcześniej martwe były `tickets_insert`, `tickets_staff_update`, `visits_staff_insert`, `visits_staff_update` (na `service_tickets` / `service_visits` `authenticated` nie ma INSERT/UPDATE). Testy izolacji „0 wierszy” dla tych 7 tabel zamieniono na 42501, więc **przywrócenie grantu wymaga przywrócenia testów izolacji tych polityk** — test 048 zaświeci na czerwono przy każdym takim grancie. Ewentualne usunięcie martwych polityk to osobna decyzja.
 
@@ -243,6 +270,8 @@ Baza nie ma jeszcze kont ani danych. Pierwszy administrator Kranz i import klien
 
 **Do wgrania przez właściciela (KRA-76, 2026-11-28):** `202611280008_revoke_authenticated_unused.sql` → `supabase db push --linked`, po migracjach KRA-74. Tylko odbiera uprawnienia `authenticated`, dane bez zmian. Kod aplikacji bez zmian — migracja nie wymaga nowej wersji aplikacji. Sprawdzenie: zapytanie kontrolne w sekcji „KRA-76 Granty authenticated” → 0.
 
+**Do wgrania przez właściciela (KRA-77, 2026-11-28):** `202611280009_default_privileges_authenticated.sql` → `supabase db push --linked`, po migracji KRA-76. Zmienia tylko domyślne uprawnienia dla przyszłych obiektów; istniejące granty i dane bez zmian, kod aplikacji bez zmian. Sprawdzenie: zapytanie kontrolne w sekcji „KRA-77 Domyślne uprawnienia” → 0.
+
 ### Wgranie na Supabase „Avero” — instrukcja dla właściciela (wykonane 2026-11-27; zostaje jako wzór dla kolejnych migracji)
 
 Claude Code niczego nie wgrywa na projekt „Avero”. Kolejność:
@@ -329,6 +358,7 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
+- 2026-11-28 — KRA-77: domyślne uprawnienia `postgres` w `public` nie dają `authenticated` niczego na nowych tabelach/widokach (było `arwd`) ani EXECUTE na nowych funkcjach (było `X`); `PUBLIC` bez zmian. Test `049_default_privileges.sql`, dostosowane `046`–`048`, zasada „Granty” w `CLAUDE.md`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-76: `authenticated` traci uprawnienia do sekwencji `public` (6 → 0, też domyślne), DELETE na 5 tabelach, INSERT/UPDATE na `sales_inquiries` i SELECT na 7 tabelach czytanych tylko przez RPC (uprawnienia do tabel 34 → 20). Zostają SELECT na 12 tabelach i INSERT/UPDATE na 4 tabelach CRM (`saveRecord`). Test `048_authenticated_grants.sql`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-74: `anon` traci wszystkie uprawnienia do tabel, widoków i sekwencji `public` (30 grantów tabel + 2 sekwencje, 6 wpisów ACL → 0) oraz domyślne uprawnienia do nowych tabel i sekwencji. PostgREST bez sesji: HTTP 401 / `42501` zamiast HTTP 200 `[]`. Test `047_anon_no_table_access.sql`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-71: rolom API odebrano TRUNCATE, REFERENCES, TRIGGER i MAINTAIN na tabelach `public` oraz EXECUTE dla `PUBLIC`/`anon` na funkcjach `public` (2 migracje). Domyślne uprawnienia zawężone. Wyjątków dla anon brak. Test `046_api_grants.sql`. Na Supabase „Avero” niewgrane.
