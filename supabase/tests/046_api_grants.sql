@@ -1,7 +1,7 @@
 -- KRA-71: granty ról API. Rolom anon i authenticated nie przysługuje TRUNCATE / REFERENCES / TRIGGER
 -- na żadnej tabeli ani widoku w public, a anon (i PUBLIC) nie wykonuje żadnej funkcji z public.
 -- Nowa tabela lub funkcja, która dostanie te uprawnienia (np. z domyślnych grantów), = czerwony test.
--- Dzisiejsze zachowanie anon się nie zmienia: select z tabel rdzenia zwraca 0 wierszy lub błąd uprawnień.
+-- Od KRA-74 anon nie ma żadnego uprawnienia do tabel public (pełny test: 047_anon_no_table_access.sql).
 begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
@@ -75,18 +75,17 @@ insert into public.customers(id,org_id,name,type) values
 insert into public.locations(id,org_id,customer_id,address,city) values
  ('d4600000-0000-4000-8000-000000000001','0a460000-0000-4000-8000-00000000000a','c4600000-0000-4000-8000-000000000001','Polna 6','Rumia');
 
--- (c) anon: select z tabel rdzenia daje 0 wierszy (polityki nie wołają odebranych funkcji),
--- tabele bez grantu dla anon nadal odpowiadają błędem uprawnień, RPC nadal odmawia.
+-- (c) anon: od KRA-74 wszystkie tabele odpowiadają błędem uprawnień, RPC nadal odmawia.
 set local role anon;
-select is((select count(*)::int from public.customers),0,'anon sees no customers');
-select is((select count(*)::int from public.locations),0,'anon sees no locations');
-select is((select count(*)::int from public.devices),0,'anon sees no devices');
-select is((select count(*)::int from public.installations),0,'anon sees no installations');
-select is((select count(*)::int from public.documents),0,'anon sees no documents');
-select is((select count(*)::int from public.maintenance_plans),0,'anon sees no maintenance plans');
-select is((select count(*)::int from public.sales_inquiries),0,'anon sees no sales inquiries');
-select is((select count(*)::int from public.service_tickets),0,'anon sees no service tickets');
-select is((select count(*)::int from public.service_visits),0,'anon sees no service visits');
+select throws_ok($$select count(*) from public.customers$$,'42501',null,'anon has no access to customers');
+select throws_ok($$select count(*) from public.locations$$,'42501',null,'anon has no access to locations');
+select throws_ok($$select count(*) from public.devices$$,'42501',null,'anon has no access to devices');
+select throws_ok($$select count(*) from public.installations$$,'42501',null,'anon has no access to installations');
+select throws_ok($$select count(*) from public.documents$$,'42501',null,'anon has no access to documents');
+select throws_ok($$select count(*) from public.maintenance_plans$$,'42501',null,'anon has no access to maintenance plans');
+select throws_ok($$select count(*) from public.sales_inquiries$$,'42501',null,'anon has no access to sales inquiries');
+select throws_ok($$select count(*) from public.service_tickets$$,'42501',null,'anon has no access to service tickets');
+select throws_ok($$select count(*) from public.service_visits$$,'42501',null,'anon has no access to service visits');
 select throws_ok($$select count(*) from public.offers$$,'42501',null,'anon has no access to offers');
 select throws_ok($$select count(*) from public.offer_publications$$,'42501',null,'anon has no access to offer publications');
 select throws_ok($$truncate public.customers$$,'42501',null,'anon cannot truncate customers');

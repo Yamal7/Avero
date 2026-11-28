@@ -279,7 +279,7 @@ select is((public.geocode_lookup(array['leśna 2, reda'])->'leśna 2, reda'->>'l
 reset role;
 
 set local role anon;
-select is((select count(*)::int from public.customers),0,'Anonymous sees no customers');
+select throws_ok($$select count(*) from public.customers$$,'42501',null,'Anonymous has no access to customers');
 reset role;
 
 select * from finish();
