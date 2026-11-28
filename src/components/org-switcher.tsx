@@ -10,12 +10,13 @@ import { CaretDown, Check, CircleNotch, UserCircle } from '@phosphor-icons/react
 import { apiErrorSchema, nextOrganizationIndex, organizationChanged, organizationsSchema, type Organization } from '@hvac/api-client';
 import { roleLabels, type AccessRole } from '@/lib/access/types';
 import { shell } from './app-shell-classes';
+import { cx } from '@/lib/cx';
 
 const focusRing = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent';
 const item = `flex h-8 min-h-0 w-full items-center gap-2 rounded-md border-0 bg-transparent px-2 py-0 text-left text-body leading-5 font-normal text-primary transition-colors hover:bg-subtle data-[highlight=true]:bg-subtle aria-disabled:cursor-not-allowed aria-disabled:opacity-50 ${focusRing}`;
 const roleLabel = (role: Organization['role']) => role === 'client' ? 'Portal klienta' : roleLabels[role as AccessRole] ?? role;
 
-export function OrgSwitcher({ organizations, onProfile }: { organizations: Organization[]; onProfile: (trigger: HTMLElement) => void }) {
+export function OrgSwitcher({ organizations, onProfile, compact }: { organizations: Organization[]; onProfile: (trigger: HTMLElement) => void; compact: boolean }) {
   const router = useRouter();
   const menuId = useId();
   const trigger = useRef<HTMLButtonElement>(null), menu = useRef<HTMLDivElement>(null);
@@ -94,12 +95,12 @@ export function OrgSwitcher({ organizations, onProfile }: { organizations: Organ
     if (event.key === 'Tab') hide(false);
   }
 
-  return <div className="relative flex min-w-0 flex-auto">
-    <button ref={trigger} type="button" className={shell.workspace} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? menuId : undefined}
+  return <div className={cx("relative flex min-w-0 flex-auto", compact && "desktop:flex-none")}>
+    <button ref={trigger} type="button" className={cx(shell.workspace, compact && shell.workspaceCompact)} aria-label={`${name} — przełącz firmę`} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? menuId : undefined}
       title={`${name} — przełącz firmę (Enter, strzałki)`} onClick={() => open ? hide() : show('active')} onKeyDown={onTriggerKey}>
       <span className={shell.mark}>{name.trim()[0]?.toUpperCase() || 'A'}</span>
-      <span className="min-w-0 truncate font-medium max-desktop:hidden">{name}</span>
-      <CaretDown size={14} className="shrink-0 text-tertiary" aria-hidden />
+      <span className={cx(shell.workspaceLabel, compact && "desktop:hidden")}>{name}</span>
+      <CaretDown size={14} className={cx(shell.workspaceCaret, compact && "desktop:hidden")} aria-hidden />
     </button>
     {notice && <p role="status" className="absolute top-full left-0 z-70 m-0 mt-1 w-68 rounded-xl border border-edge bg-surface px-3 py-2 text-small leading-4 text-primary shadow-pop">{notice}</p>}
     {open && <div ref={menu} id={menuId} role="menu" aria-label="Firmy" aria-busy={pending ? true : undefined} onKeyDown={onMenuKey}
