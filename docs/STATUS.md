@@ -8,6 +8,7 @@ Stos: Next.js 15 (App Router), React 19, TypeScript, Supabase (Postgres z RLS, d
 
 | Moduł / ekran | Stan | Data | Uwagi |
 |---|---|---|---|
+| Granty authenticated: tylko używane uprawnienia w `public` (KRA-76) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracja `202611280008_revoke_authenticated_unused.sql`; test `048_authenticated_grants.sql`. Szczegóły niżej › „KRA-76 Granty authenticated” |
 | Granty anon: brak dostępu do tabel i sekwencji `public` (KRA-74) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracja `202611280007_revoke_anon_tables.sql`; test `047_anon_no_table_access.sql`. Szczegóły niżej › „KRA-74 Granty anon” |
 | Granty ról API: bez TRUNCATE i bez EXECUTE dla anon (KRA-71) | działa lokalnie; **na Supabase „Avero” niewgrane** | 2026-11-28 | migracje `202611280005_revoke_api_grants.sql`, `202611280006_revoke_api_maintain.sql`; test `046_api_grants.sql`. Szczegóły niżej › „KRA-71 Granty ról API” |
 | Silnik widoku kolekcji: Firmy, Osoby, Magazyn, Przeglądy (M0.4, KRA-31) | działa; sprawdzone w przeglądarce: Firmy (J/K/X, grupowanie po mieście), Magazyn, Przeglądy; telefon 375 px w ciemnym motywie bez poziomego przewijania (Firmy, Magazyn, Przeglądy, Zadania). Niesprawdzone wzrokowo: okna PZ/RW/MM/WZ, Osoby, ciemny motyw na szerokim ekranie | 2026-11-27 | wspólny komponent listy `src/components/collection/` (pasek widoków, szukanie, kapsułki filtrów, sortowanie, Opcje widoku, tabela z grupami, zaznaczanie, stopka ze stronami, szkielet) i `src/components/ui/popover.tsx`; logika w `src/lib/collection/` (stan zapytania ↔ URL z Zod, zapisane widoki, kursor i zaznaczenie, konfiguracje kolekcji); filtry, sortowanie, grupowanie i strony w SQL (`customer_directory`, `people_directory`, nowe `stock_item_list`, `maintenance_schedule`); Zadania na tych samych komponentach (filtrowanie w przeglądarce). Szczegóły i instrukcja niżej › „M0.4 Silnik widoku kolekcji” |
@@ -85,13 +86,58 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 - Osoby › „Zarchiwizowane” (klienci indywidualni z archiwum) mają stałe kolumny bez Opcji kolumn.
 - Wyglądu nie sprawdzono w przeglądarce (zrobi to koordynator) — strony renderują się bez błędów na danych testowych (curl z sesją lokalną).
 
+## KRA-76 Granty authenticated
+
+**Co odebrano** (decyzja właściciela, cd. KRA-71/KRA-74; tylko zawężenie, dane i polityki RLS bez zmian) — migracja `202611280008_revoke_authenticated_unused.sql`:
+- sekwencje `public` (`audit_logs_id_seq`, `access_audit_logs_id_seq`): USAGE/SELECT/UPDATE → brak (6 wpisów → 0). Zalogowany nie wywoła już `nextval`/`setval`; wiersze audytu zapisuje wyzwalacz `audit_crm_change()` (SECURITY DEFINER) i RPC właściciela `avero_rpc`;
+- DELETE na `customers`, `devices`, `installations`, `locations`, `sales_inquiries` (żadna tabela nie ma polityki DELETE, kod nie usuwa wierszy — archiwizacja to UPDATE);
+- INSERT/UPDATE na `sales_inquiries` (kod nie zapisuje zapytań ofertowych bezpośrednio; dotąd klient z dostępem do firmy mógł je wstawić z pominięciem RPC);
+- SELECT na `sales_inquiries`, `customer_import_batches`, `installation_handovers`, `offer_documents`, `offer_publications`, `work_orders`, `work_order_visits` — nic ich nie czyta jako `authenticated` (odczyt wyłącznie przez RPC SECURITY DEFINER). Polityki SELECT tych tabel zostają (bez grantu nie są oceniane);
+- domyślne uprawnienia `postgres` w `public`: nowa sekwencja (także identity) nie daje `authenticated` niczego.
+
+Razem uprawnienia `authenticated` do relacji `public`: **34 → 20** (tabele) i **6 → 0** (sekwencje).
+
+**Co zostało i dlaczego** (lista dozwolonych w teście 048; każdy wpis ma realne użycie):
+- INSERT, UPDATE na `customers`, `locations`, `installations`, `devices` — server action `saveRecord` (`src/app/(dashboard)/dashboard/actions.ts:51`, `:53`; encje z `entitySchema`) i `archiveCustomer` (`actions.ts:74`); zapis ograniczają polityki `*_staff_insert` / `*_staff_update` (`can_manage_crm()`).
+- SELECT na `customers`, `locations`, `installations`, `devices`, `service_tickets`, `service_visits`, `service_protocols`, `catalog_items` — bezpośrednie zapytania PostgREST i osadzenia, m.in. `src/lib/data/crm.ts:10`, `src/lib/data/customers.ts:9`, `dashboard/page.tsx:96–99`, `customers/[id]/page.tsx:40–45`, `installations/page.tsx:12`, `calendar/page.tsx:61,69`, `stock/page.tsx:21`, `src/lib/service/data.ts:5`, `service/protocols/[id]/page.tsx:9`, `catalog/[id]/page.tsx:9`, `api/v1/catalog/[id]/route.ts:6`, `api/v1/search/route.ts:20`, `api/v1/offers/options/route.ts:8`; także funkcje security invoker (`search_customers`, `find_service_installations`, `list_service_tickets`, `calendar_service_visits`, `portal_*`, `list_catalog_items`) i podzapytania polityk (`installations_read` → `locations`, `protocols_read` → `service_visits`).
+- SELECT na `documents` — funkcje security invoker `portal_documents`, `portal_file`, `document_file`, `portal_overview` oraz polityka storage `hvac_files_read` (podzapytanie na `documents` przy pobieraniu pliku: `api/v1/documents/[id]/download`, `api/v1/portal/documents/[id]/download`, `portal/documents/[id]/download`).
+- SELECT na `maintenance_plans`, `maintenance_completions`, `offers` — funkcje security invoker wykonywane przez `authenticated`: `portal_installation(s)`, `portal_overview`, `maintenance_completion_history`, `offer_detail`, `list_offers`.
+
+**Poza zakresem, do decyzji:** domyślne uprawnienia `postgres` w `public` nadal dają `authenticated` SELECT/INSERT/UPDATE/DELETE na **nowych tabelach** (migracje modułów odbierają je jawnie). Zawężenie (`alter default privileges … revoke all on tables from authenticated`) jest bezpieczne dla obecnych migracji, ale zmienia wzorzec dla następnych — test 048 i tak zaświeci na czerwono przy każdej nowej tabeli z grantem dla `authenticated`, więc nowy moduł musi albo odebrać grant, albo dopisać tabelę do listy dozwolonych z uzasadnieniem.
+
+**Martwe polityki RLS (po przeglądzie KRA-76):** bez grantu SELECT/INSERT/UPDATE polityki na 7 tabelach nie są już oceniane: `import_batches_read`, `offer_documents_read`, `offer_publications_staff`, `work_orders_staff`, `work_visits_staff`, `installation_handovers_staff`, `inquiries_read`, `inquiries_insert`, `inquiries_staff_update`. Tak samo wcześniej martwe były `tickets_insert`, `tickets_staff_update`, `visits_staff_insert`, `visits_staff_update` (na `service_tickets` / `service_visits` `authenticated` nie ma INSERT/UPDATE). Testy izolacji „0 wierszy” dla tych 7 tabel zamieniono na 42501, więc **przywrócenie grantu wymaga przywrócenia testów izolacji tych polityk** — test 048 zaświeci na czerwono przy każdym takim grancie. Ewentualne usunięcie martwych polityk to osobna decyzja.
+
+**MAINTAIN:** zapytanie kontrolne niżej nie sprawdza MAINTAIN — pilnuje go test 046 (KRA-71) i zapytanie kontrolne KRA-71.
+
+**Sprawdzone lokalnie:** PostgREST z sesją `biuro.m04@example.invalid`: `customers` → 200, `PATCH locations` → 204, `work_orders`, `sales_inquiries`, `PATCH sales_inquiries`, `DELETE customers`, `audit_logs` → 403 (`42501`). Serwer deweloperski z sesją (wykonawca, curl): `/dashboard`, Firmy, karta firmy, Magazyn, Przeglądy, Zadania, Kalendarz, Instalacje, Katalog, Serwis, Oferty, Realizacje → 200 bez komunikatów błędu. Koordynator w przeglądarce, po migracji KRA-76: lista Firm i karta firmy „Hotel Bryza Jurata” działają. Przegląd: zapisy `saveRecord` / archiwizacja klienta (INSERT/UPDATE … RETURNING na customers, locations, installations, devices) i RPC list (oferty, realizacje, przeglądy, kalendarz, zgłoszenia, katalog, magazyn) → 200; `offer_detail` i `work_order_detail` tylko analiza statyczna i pgTAP (brak lokalnych ofert i realizacji).
+
+**Zapytanie kontrolne po wgraniu na „Avero”** (SQL Editor; wynik = 0 — liczy każde uprawnienie `authenticated` do relacji `public` spoza listy dozwolonych, łącznie z grantami dla `PUBLIC` i na kolumny; to samo zapytanie jest asercją w teście 048):
+```sql
+select count(*) from pg_class c
+cross join (values ('select'),('insert'),('update'),('delete'),('truncate'),('references'),('trigger')) p(priv)
+where c.relnamespace = 'public'::regnamespace and c.relkind in ('r','p','v','m','f','S')
+  and case when c.relkind = 'S' then p.priv = 'select' and has_sequence_privilege('authenticated', c.oid, 'usage,select,update')
+    else (has_table_privilege('authenticated', c.oid, p.priv)
+      or (p.priv in ('select','insert','update','references') and has_any_column_privilege('authenticated', c.oid, p.priv)))
+      and (c.relname, p.priv) not in (values
+        ('catalog_items','select'),('customers','select'),('devices','select'),('documents','select'),
+        ('installations','select'),('locations','select'),('maintenance_completions','select'),
+        ('maintenance_plans','select'),('offers','select'),('service_protocols','select'),
+        ('service_tickets','select'),('service_visits','select'),
+        ('customers','insert'),('customers','update'),('locations','insert'),('locations','update'),
+        ('installations','insert'),('installations','update'),('devices','insert'),('devices','update')) end;
+```
+Jeśli wynik > 0: `select c.relname, a.privilege_type, a.grantor::regrole from pg_class c, aclexplode(c.relacl) a where c.relnamespace = 'public'::regnamespace and a.grantee = 'authenticated'::regrole;` i zgłosić koordynatorowi (grant innego grantora niż `postgres` REVOKE pomija z ostrzeżeniem).
+
+**Testy:** nowy `048_authenticated_grants.sql` (lista dozwolonych w obie strony, brak uprawnień do kolumn i sekwencji, domyślne uprawnienia nowej sekwencji i identity, zapytanie kontrolne z kontrolą negatywną: grant dla `PUBLIC` na sekwencję, DELETE, grant na kolumnę; personel zapisuje CRM bezpośrednio, audyt dalej się zapisuje, `nextval`, DELETE, zapis `sales_inquiries` i odczyt 7 tabel → 42501, `search_customers` i polityka storage działają). W `047` asercje „stan obecny, do decyzji” zastąpione stanem docelowym. W `002`, `012`–`016` sprawdzenia izolacji „0 wierszy” na tabelach bez SELECT zmienione na 42501, a odczyty kontrolne stanu po RPC (`customer_import_batches`, `offer_publications.accepted_by`) przeniesione na rolę `postgres`.
+
 ## KRA-74 Granty anon
 
 **Co odebrano** (decyzja właściciela; tylko zawężenie, dane bez zmian) — migracja `202611280007_revoke_anon_tables.sql`:
 - `anon`: wszystkie uprawnienia do tabel, widoków, widoków zmaterializowanych i tabel obcych `public`. Przed: 30 grantów (SELECT na 9 tabelach rdzenia — customers, devices, documents, installations, locations, maintenance_plans, sales_inquiries, service_tickets, service_visits — oraz INSERT/UPDATE/DELETE na 7 z nich). Po: 0.
 - `anon`: wszystkie uprawnienia do sekwencji `public`. Przed: USAGE/SELECT/UPDATE na `audit_logs_id_seq` i `access_audit_logs_id_seq` (2 sekwencje, 6 wpisów ACL). Po: 0.
 - Domyślne uprawnienia `postgres` w `public`: nowa tabela, widok i sekwencja (także sekwencja kolumny identity) nie dają `anon` niczego.
-- `authenticated`, `service_role` i `avero_rpc` bez zmian (poza zakresem KRA-74). `authenticated` ma nadal USAGE/SELECT/UPDATE na obu sekwencjach audytu — RLS ich nie obejmuje, więc zalogowany może wołać `nextval` — oraz INSERT/UPDATE/DELETE na tabelach rdzenia (te chroni RLS). Patrz „Pytania do projektu” › KRA-74.
+- `authenticated`, `service_role` i `avero_rpc` bez zmian w KRA-74. Uprawnienia `authenticated` do sekwencji audytu i nieużywane DML/SELECT na tabelach rdzenia odebrano w KRA-76 (sekcja wyżej).
 
 **Skutek:** PostgREST z kluczem anon bez sesji odpowiada na tabelach HTTP 401 z kodem `42501 permission denied` zamiast HTTP 200 `[]` (sprawdzone na `http://127.0.0.1:55321`: `customers`, `offers` → 42501, `rpc/is_staff` → 42501). Z sesją (`biuro.m04@example.invalid`) `customers`, `rpc/current_access`, `rpc/my_organizations` działają jak dotąd.
 
@@ -195,6 +241,8 @@ Baza nie ma jeszcze kont ani danych. Pierwszy administrator Kranz i import klien
 
 **Do wgrania przez właściciela (KRA-74, 2026-11-28):** `202611280007_revoke_anon_tables.sql` → `supabase db push --linked`, po migracjach KRA-71. Tylko odbiera uprawnienia `anon`, dane bez zmian. Sprawdzenie: zapytanie kontrolne w sekcji „KRA-74 Granty anon” → 0.
 
+**Do wgrania przez właściciela (KRA-76, 2026-11-28):** `202611280008_revoke_authenticated_unused.sql` → `supabase db push --linked`, po migracjach KRA-74. Tylko odbiera uprawnienia `authenticated`, dane bez zmian. Kod aplikacji bez zmian — migracja nie wymaga nowej wersji aplikacji. Sprawdzenie: zapytanie kontrolne w sekcji „KRA-76 Granty authenticated” → 0.
+
 ### Wgranie na Supabase „Avero” — instrukcja dla właściciela (wykonane 2026-11-27; zostaje jako wzór dla kolejnych migracji)
 
 Claude Code niczego nie wgrywa na projekt „Avero”. Kolejność:
@@ -247,7 +295,6 @@ Co świadomie zrobiono inaczej niż w `docs/design/` i dlaczego.
 
 ## Pytania do projektu
 
-- **KRA-74 (do koordynatora, nie do czatu projektowego):** `authenticated` ma USAGE/SELECT/UPDATE na `audit_logs_id_seq` i `access_audit_logs_id_seq` (może wołać `nextval`; zapisy audytu idą przez funkcje SECURITY DEFINER, więc aplikacja tego nie potrzebuje) oraz INSERT/UPDATE/DELETE na tabelach rdzenia (chronione RLS). Czy odebrać to w osobnym zadaniu?
 - **M0.4 · pole zaznaczenia w tabelach:** makieta ma checkbox w wierszu tylko w Przeglądach. Kod dodał kolumnę zaznaczenia (16 px, zawsze widoczna — także na telefonie, gdzie nie ma najechania) w Firmach, Osobach, Magazynie i Przeglądach. Czy pokazywać ją zawsze, tylko po najechaniu / przy zaznaczeniu (jak w Linear), czy tylko tam, gdzie są akcje zbiorcze?
 - **M0.4 · wygląd zaznaczonego wiersza i kursora:** zaznaczony = tło `--bg-subtle` + pole z akcentem, kursor J / K = pierścień fokusu akcentu na wierszu. Czy zaznaczenie ma mieć osobne tło (np. akcent 8–10 %)? Wymagałoby nieprzezroczystego tokenu dla przypiętych kolumn.
 - **M0.4 · grupowanie Firm po kategorii:** firma z kilkoma kategoriami trafia do grupy pierwszej z nich. Czy grupa ma być wg kategorii głównej (pole do ustalenia), czy firma może być w kilku grupach naraz?
@@ -282,6 +329,7 @@ Rozstrzygnięte przez właściciela 2026-11-20:
 
 ## Dziennik
 
+- 2026-11-28 — KRA-76: `authenticated` traci uprawnienia do sekwencji `public` (6 → 0, też domyślne), DELETE na 5 tabelach, INSERT/UPDATE na `sales_inquiries` i SELECT na 7 tabelach czytanych tylko przez RPC (uprawnienia do tabel 34 → 20). Zostają SELECT na 12 tabelach i INSERT/UPDATE na 4 tabelach CRM (`saveRecord`). Test `048_authenticated_grants.sql`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-74: `anon` traci wszystkie uprawnienia do tabel, widoków i sekwencji `public` (30 grantów tabel + 2 sekwencje, 6 wpisów ACL → 0) oraz domyślne uprawnienia do nowych tabel i sekwencji. PostgREST bez sesji: HTTP 401 / `42501` zamiast HTTP 200 `[]`. Test `047_anon_no_table_access.sql`. Na Supabase „Avero” niewgrane.
 - 2026-11-28 — KRA-71: rolom API odebrano TRUNCATE, REFERENCES, TRIGGER i MAINTAIN na tabelach `public` oraz EXECUTE dla `PUBLIC`/`anon` na funkcjach `public` (2 migracje). Domyślne uprawnienia zawężone. Wyjątków dla anon brak. Test `046_api_grants.sql`. Na Supabase „Avero” niewgrane.
 

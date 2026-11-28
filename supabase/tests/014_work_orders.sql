@@ -72,7 +72,7 @@ select is(public.schedule_work_visit('9a000000-0000-4000-8000-000000000001',1,'9
 select is(jsonb_array_length(public.calendar_work_visits('2030-03-04')),2,'Calendar contains both montage dates');
 select throws_ok($$select public.change_work_order('9a000000-0000-4000-8000-000000000001',2,'completed')$$,'40001',null,'Order cannot finish with open montage dates');
 select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000003',true);
-select is((select count(*) from public.work_orders),0::bigint,'Technician cannot access raw financial snapshot');
+select throws_ok($$select count(*) from public.work_orders$$,'42501',null,'Technician cannot access raw financial snapshot');
 select is(public.work_order_detail('9a000000-0000-4000-8000-000000000001')->'grossCents','null'::jsonb,'Technician projection hides price');
 select is(jsonb_array_length(public.work_order_detail('9a000000-0000-4000-8000-000000000001')->'visits'),1,'Technician sees own crew visits only');
 select is(jsonb_array_length(public.calendar_work_visits('2030-03-04')),1,'Technician calendar contains own work only');

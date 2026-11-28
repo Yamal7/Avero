@@ -47,7 +47,7 @@ select is(public.portal_offer('c7000000-0000-4000-8000-000000000001','99000000-0
 select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000002',true);
 select throws_ok($$select public.accept_offer_publication('c7000000-0000-4000-8000-000000000001','99000000-0000-4000-8000-000000000002','e7000000-0000-4000-8000-000000000001',true)$$,'42501',null,'Office preview cannot accept even with customer membership');
 select set_config('request.jwt.claim.sub','a7000000-0000-4000-8000-000000000004',true);
-select is((select count(*) from public.offer_publications),0::bigint,'Clients cannot read raw publication table');
+select throws_ok($$select count(*) from public.offer_publications$$,'42501',null,'Clients cannot read raw publication table');
 select is(public.portal_offers('c7000000-0000-4000-8000-000000000001')->>'total','2','Customer sees only deliberately published editions');
 select throws_ok($$select public.portal_offers('c7000000-0000-4000-8000-000000000002')$$,'42501',null,'Other customer list denied');
 select throws_ok($$select public.offer_publication_pdf('c7000000-0000-4000-8000-000000000002','99000000-0000-4000-8000-000000000002')$$,'42501',null,'Other customer PDF denied');
@@ -70,7 +70,10 @@ select throws_ok($$select public.withdraw_offer_publication('99000000-0000-4000-
 select throws_ok($$select public.publish_offer('99000000-0000-4000-8000-000000000003','98000000-0000-4000-8000-000000000002',1,1,'JVBERi1maXh0dXJl')$$,'40001',null,'Accepted offer cannot be republished');
 select is(public.offer_publication_summaries(array['98000000-0000-4000-8000-000000000002'::uuid])->0->>'state','accepted','Staff list exposes acceptance status');
 select is(public.offer_publication_summaries(array['98000000-0000-4000-8000-000000000002'::uuid])->0->>'grossCents','1220','Staff list shows accepted frozen price rather than a later draft');
+-- KRA-76: authenticated nie ma SELECT na offer_publications — kolumnę sprawdzamy jako postgres.
+reset role;
 select is((select accepted_by::text from public.offer_publications where id='99000000-0000-4000-8000-000000000002'),'a7000000-0000-4000-8000-000000000004','Acceptance identity comes from authenticated client, not request data');
+set local role authenticated;
 select public.save_offer('98000000-0000-4000-8000-000000000004',pg_temp.body())->>'version';
 select public.save_offer_document('98000000-0000-4000-8000-000000000004',pg_temp.valid_doc(),null,0)->>'version';
 select public.publish_offer('99000000-0000-4000-8000-000000000004','98000000-0000-4000-8000-000000000004',0,0,'JVBERi1maXh0dXJl')->>'revision';

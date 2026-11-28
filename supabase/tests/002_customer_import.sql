@@ -22,11 +22,14 @@ select set_config('test.import_batch', (public.preview_customer_import('[
  {"row_number":5,"name":"IMPORT TEST D","email":"ARCHIVED-IMPORT@example.test","phone":null,"type":"individual"}
 ]')->>'batch_id'),true);
 select is((select count(*)::int from public.customers where name='IMPORT TEST A'),0,'Preview does not write customers');
+-- KRA-76: authenticated nie ma SELECT na customer_import_batches — stan partii sprawdzamy jako postgres.
+reset role;
 select is((select count(*)::int from public.customer_import_batches b, lateral jsonb_array_elements(b.rows) r where b.id=current_setting('test.import_batch')::uuid and r->>'status'='ready'),1,'Only one row ready');
 select is((select count(*)::int from public.customer_import_batches b, lateral jsonb_array_elements(b.rows) r where b.id=current_setting('test.import_batch')::uuid and r->>'status'='duplicate'),3,'Detects name, phone and archived email duplicates');
+set local role authenticated;
 select throws_ok($$update public.customer_import_batches set rows='[]'$$,'42501',null,'Staff cannot forge staged rows directly');
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-000000000012',true);
-select is((select count(*)::int from public.customer_import_batches),0,'Other staff cannot read staged contacts');
+select throws_ok($$select count(*) from public.customer_import_batches$$,'42501',null,'Other staff cannot read staged contacts');
 select throws_ok($$select public.commit_customer_import(current_setting('test.import_batch')::uuid)$$,'P0001',null,'Other staff cannot commit this batch');
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-000000000013',true);
 select throws_ok($$select public.commit_customer_import(current_setting('test.import_batch')::uuid)$$,'42501',null,'Client cannot commit imports');
@@ -34,7 +37,9 @@ select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-000000000011'
 select is((public.commit_customer_import(current_setting('test.import_batch')::uuid)->>'imported')::int,1,'Imports one ready row');
 select is((public.commit_customer_import(current_setting('test.import_batch')::uuid)->>'skipped')::int,3,'Replay returns original skipped count');
 select is((select count(*)::int from public.customers where name='IMPORT TEST A'),1,'Repeated commit does not duplicate customer');
+reset role;
 select is((select rows from public.customer_import_batches where id=current_setting('test.import_batch')::uuid),'[]'::jsonb,'Clears staged contact data after commit');
+set local role authenticated;
 select set_config('test.race_batch',(public.preview_customer_import('[{"row_number":2,"name":"LATE IMPORT TEST","email":null,"phone":null,"type":"individual"}]')->>'batch_id'),true);
 insert into public.customers(name) values('LATE IMPORT TEST');
 select is((public.commit_customer_import(current_setting('test.race_batch')::uuid)->>'imported')::int,0,'Rechecks duplicates added after preview');
