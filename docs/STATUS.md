@@ -106,9 +106,10 @@ Ekrany przenoszone 1:1 z makiet (wartości odstępów, promieni i kolorów skopi
 **Zapytanie kontrolne po wgraniu na „Avero”** (SQL Editor; wynik = 0):
 ```sql
 select count(*) from pg_default_acl d, aclexplode(d.defaclacl) a
-where d.defaclrole = 'postgres'::regrole and d.defaclnamespace = 'public'::regnamespace
+where d.defaclrole = 'postgres'::regrole and d.defaclnamespace in (0, 'public'::regnamespace)
   and a.grantee in ('authenticated'::regrole, 'anon'::regrole);
 ```
+`defaclnamespace = 0` to globalne domyślne uprawnienia — rewizja na poziomie schematu ich nie usuwa, więc zapytanie sprawdza oba poziomy. Sprawdzenie skutku (wynik `f`): `begin; create table public.kra77_check(id int); select has_table_privilege('authenticated','public.kra77_check','select'); rollback;`.
 Podgląd: `select defaclobjtype, defaclacl from pg_default_acl where defaclrole='postgres'::regrole and defaclnamespace='public'::regnamespace;` — oczekiwane jak w kolumnie „Po”.
 
 **Testy:** nowy `049_default_privileges.sql` (brak `authenticated`/`anon` w `pg_default_acl` dla `postgres`/`public`; `service_role` i `avero_rpc` zachowują domyślne uprawnienia do tabel, sekwencji i funkcji; nowa tabela, widok, sekwencja i identity bez uprawnień `authenticated`, odczyt → 42501; nowa funkcja bez wpisu `authenticated`, wykonywalna tylko przez `PUBLIC`, po `revoke … from public` zamknięta, jawny `grant execute` działa; funkcja `pg_temp` wykonywalna dla `authenticated`). Dostosowane do stanu docelowego: `046` (sonda funkcji po revoke zamknięta dla `authenticated` zamiast asercji informacyjnej), `047` („authenticated keeps default table grants” → „gets no default table grants”), `048` (sonda nie odbiera już grantów ręcznie; zapytanie kontrolne = 0 po utworzeniu nowej tabeli i sekwencji). Testy `002` i `009` tworzą w `public` funkcje wyzwalaczy — EXECUTE nie jest sprawdzane przy odpaleniu wyzwalacza, bez zmian.
