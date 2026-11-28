@@ -5,6 +5,7 @@ import { NotificationBellSummary } from './notification-center';
 import { taskAlertsSchema,type TaskAlerts } from '@hvac/api-client';
 import { taskAlertTotal,taskAlertLinks } from '@/lib/crm/task-alerts';
 import { usePathname,useRouter } from 'next/navigation';
+import { useOrganizationFetch } from '@/components/organization-context';
 import { logout } from '@/app/(dashboard)/dashboard/actions';
 import { roleLabels,type AccessRole } from '@/lib/access/types';
 import { Icon,type IconName } from './icon';
@@ -59,6 +60,7 @@ const isActive=(href:string,pathname:string)=>href==='/dashboard'?pathname===hre
 type Panel='search'|'alerts'|'profile';
 const paletteActions=(role:string):PaletteEntry[]=>[{href:'/dashboard/service/new',label:'Nowe zgłoszenie serwisowe',icon:'alert'},...(staff.includes(role)?[{href:'/dashboard/customers/new',label:'Nowy klient',icon:'building' as IconName},{href:'/dashboard/offers',label:'Nowa oferta',icon:'offer' as IconName},{href:'/dashboard/catalog/new',label:'Nowa pozycja katalogu',icon:'book' as IconName}]:[])];
 export function AppShell({children,email,displayName,role,alerts,taskAlerts,companyName,organizations=[]}:{taskAlerts:TaskAlerts;children:ReactNode;email:string;displayName:string;role:string;alerts:{overdue:number;upcoming:number;urgent:number};companyName?:string|null;organizations?:Organization[]}){
+ const organizationFetch = useOrganizationFetch();
  const company=(companyName||'').trim()||'Avero';
  const router=useRouter();
  const [notificationUnread,setNotificationUnread]=useState(0);
@@ -73,9 +75,9 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  useEffect(()=>{if(panel&&!dialog.current?.open){dialog.current?.showModal();if(panel==='search')dialog.current?.querySelector<HTMLInputElement>('input[type="search"]')?.focus();}else if(!panel&&dialog.current?.open)dialog.current.close();},[panel]);
  useEffect(()=>{const key=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();trigger.current=document.activeElement as HTMLElement;setMobileOpen(false);setPalette(true);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
  useEffect(()=>{if(panel!=='alerts')return;const controller=new AbortController();setTaskLoading(true);setTaskError('');
-  void (async()=>{try{const r=await fetch('/api/v1/tasks/alerts',{cache:'no-store',signal:controller.signal});if(!r.ok)throw new Error('Nie udało się odświeżyć zadań.');const parsed=taskAlertsSchema.refine(v=>v.viewerId===taskAlerts.viewerId).parse(await r.json());if(!controller.signal.aborted)setTaskData(parsed);}catch{if(!controller.signal.aborted){setTaskData(null);setTaskError('Nie udało się odświeżyć Twoich zadań. Spróbuj ponownie.');}}finally{if(!controller.signal.aborted)setTaskLoading(false);}})();
+  void (async()=>{try{const r=await organizationFetch('/api/v1/tasks/alerts',{cache:'no-store',signal:controller.signal});if(!r.ok)throw new Error('Nie udało się odświeżyć zadań.');const parsed=taskAlertsSchema.refine(v=>v.viewerId===taskAlerts.viewerId).parse(await r.json());if(!controller.signal.aborted)setTaskData(parsed);}catch{if(!controller.signal.aborted){setTaskData(null);setTaskError('Nie udało się odświeżyć Twoich zadań. Spróbuj ponownie.');}}finally{if(!controller.signal.aborted)setTaskLoading(false);}})();
   return()=>controller.abort();
- },[panel,alertReload,taskAlerts.viewerId]);
+ },[panel,alertReload,taskAlerts.viewerId,organizationFetch]);
  function openPanel(value:Panel,element:HTMLElement){if(value==='alerts'){setTaskLoading(true);router.refresh();}trigger.current=element;setMobileOpen(false);setPanel(value);}
  function closePanel(){setPanel(null);}
  function finishClose(){setPanel(null);const mobile=window.matchMedia('(max-width:760px)').matches;if(mobile)mobileButton.current?.focus();else trigger.current?.focus();}

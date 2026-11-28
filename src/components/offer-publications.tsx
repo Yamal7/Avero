@@ -1,4 +1,5 @@
 'use client';
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useEffect,useRef,useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -6,13 +7,14 @@ import { offerPublicationSchema,publicationLabels,type OfferPublication } from '
 import { displayDateTime } from '@/lib/service/dates';
 import { catalogMoney } from '@/lib/catalog/format';
 export function OfferPublications({id,customerId,customerName,title,offerVersion,documentVersion,archived,documentDirty=false,initial}:{id:string;customerId:string;customerName:string;title:string;offerVersion:number;documentVersion:number|null;archived:boolean;documentDirty?:boolean;initial:OfferPublication[]}){
+  const organizationFetch = useOrganizationFetch();
  const router=useRouter(),dialog=useRef<HTMLDialogElement>(null),request=useRef<{key:string;id:string}|null>(null),[items,setItems]=useState(initial),[action,setAction]=useState<'publish'|string>('publish'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  useEffect(()=>setItems(initial),[initial]);
  const accepted=items.some(p=>p.state==='accepted');
  function open(value:string){setError('');setAction(value);dialog.current?.querySelector('form')?.reset();dialog.current?.showModal();}
  async function confirm(event:React.FormEvent){event.preventDefault();if(busy)return;setBusy(true);setError('');setNotice('');try{
   const key=`${offerVersion}:${documentVersion}`;if(action==='publish'&&(!request.current||request.current.key!==key))request.current={key,id:crypto.randomUUID()};
-  const response=await fetch(action==='publish'?`/api/v1/offers/${id}/publications`:`/api/v1/offer-publications/${action}/withdraw`,{method:'POST',headers:{'Content-Type':'application/json'},...(action==='publish'?{body:JSON.stringify({requestId:request.current!.id,offerVersion,documentVersion})}:{})});
+  const response=await organizationFetch(action==='publish'?`/api/v1/offers/${id}/publications`:`/api/v1/offer-publications/${action}/withdraw`,{method:'POST',headers:{'Content-Type':'application/json'},...(action==='publish'?{body:JSON.stringify({requestId:request.current!.id,offerVersion,documentVersion})}:{})});
   const result=await response.json();if(!response.ok)throw new Error(result.error?.message||'Nie udało się zmienić udostępnienia.');const publication=offerPublicationSchema.parse(result);
   setItems(old=>[publication,...old.filter(p=>p.id!==publication.id).map(p=>action==='publish'&&p.state==='published'?{...p,state:'superseded' as const}:p)].sort((a,b)=>b.revision-a.revision));request.current=null;dialog.current?.close();setNotice(action==='publish'?(publication.state==='published'?'Oferta jest dostępna w portalu właściwego klienta. Nie wysłano e-maila.':'Operacja została już zapisana. Sprawdź aktualny status tej wersji w historii.'):'Oferta została wycofana z akceptacji. Historia i PDF pozostają dostępne.');router.refresh();
  }catch(e){setError(e instanceof Error?e.message:'Nie udało się wykonać operacji.');}finally{setBusy(false);}}

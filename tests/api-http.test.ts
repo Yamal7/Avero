@@ -28,3 +28,29 @@ it('validates JSON format and limits streamed bodies before parsing',async()=>{
  expect((await read({'Content-Type':'text/plain'},'{}')).status).toBe(415);expect((await read({'Content-Type':'application/json'},'{')).status).toBe(400);expect((await read({'Content-Type':'application/json'},'x'.repeat(65537))).status).toBe(413);
  expect(await (await read({'Content-Type':'application/json'},'{"ok":true}')).json()).toEqual({ok:true});
 });
+
+it('passes the rendered organization to PostgREST with a cookie or Bearer session', async () => {
+  const organization = 'a0000000-0000-4000-8000-000000000002';
+  const headers = { 'x-avero-organization': organization };
+  expect((await auth(req('POST', { ...headers, Origin: 'http://localhost:3100' }))).status).toBe(200);
+  expect(mocks.cookie).toHaveBeenCalledWith(organization);
+
+  expect((await auth(req('GET', { ...headers, Authorization: 'Bearer valid-token' }))).status).toBe(200);
+  expect(mocks.bearer).toHaveBeenCalledWith(expect.any(String), 'public-test-key', expect.objectContaining({
+    global: { headers: { Authorization: 'Bearer valid-token', ...headers } },
+  }));
+});
+
+it('rejects an invalid or stale organization scope before handling a write', async () => {
+  const origin = 'http://localhost:3100';
+  expect((await auth(req('POST', { Origin: origin, 'x-avero-organization': 'invalid' }))).status).toBe(400);
+  expect(mocks.cookie).not.toHaveBeenCalled();
+
+  mocks.rpc.mockResolvedValue({ data: null, error: { code: 'PT409' } });
+  const result = await auth(req('POST', {
+    Origin: origin,
+    'x-avero-organization': 'a0000000-0000-4000-8000-000000000002',
+  }));
+  expect(result.status).toBe(409);
+  expect(await result.json()).toMatchObject({ error: { code: 'ORGANIZATION_CHANGED' } });
+});

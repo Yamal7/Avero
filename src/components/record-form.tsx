@@ -1,5 +1,6 @@
 'use client';
 import { useActionState } from 'react';
+import { useOrganizationId } from '@/components/organization-context';
 import { saveRecord, archiveCustomer } from '@/app/(dashboard)/dashboard/actions';
 import type { Entity, FormState } from '@/lib/validation/crm';
 
@@ -12,10 +13,11 @@ const fields: Record<Entity, Field[]> = {
 };
 
 export function RecordForm({ entity, record = {}, customerId, parentId }: { entity: Entity; record?: Record<string, string | null>; customerId?: string; parentId?: string }) {
+  const organizationId = useOrganizationId();
   const [state, action, pending] = useActionState<FormState, FormData>(saveRecord, {});
   return <form action={action} className="record-form">
     <input type="hidden" name="_entity" value={entity} />
-    <input type="hidden" name="_id" value={record.id || ''} />
+    <input type="hidden" name="_organization" value={organizationId} /><input type="hidden" name="_id" value={record.id || ''} />
     <input type="hidden" name="_customer" value={customerId || ''} />
     <input type="hidden" name="_parent" value={parentId || ''} />
     <div className="fields">{fields[entity].map(field => <label key={field.name}>{field.label}
@@ -29,8 +31,9 @@ export function RecordForm({ entity, record = {}, customerId, parentId }: { enti
 }
 
 export function ArchiveForm({ id }: { id: string }) {
+  const organizationId = useOrganizationId();
   const [state, action, pending] = useActionState<FormState, FormData>(archiveCustomer, {});
-  return <form action={action} className="archive"><input type="hidden" name="_id" value={id} />
+  return <form action={action} className="archive"><input type="hidden" name="_organization" value={organizationId} /><input type="hidden" name="_id" value={id} />
     <p>Archiwizacja ukryje klienta na liście. Historia instalacji zostanie zachowana.</p>
     <label className="checkbox"><input type="checkbox" required /> Chcę zarchiwizować tego klienta</label>
     {state.error && <p role="alert">{state.error}</p>}

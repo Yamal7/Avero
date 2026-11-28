@@ -11,15 +11,17 @@ import { plain } from '@/components/collection/classes';
 import { useCollection } from '@/components/collection/provider';
 import { categoryColorKey, categoryColorNames, categoryDotClass, categoryTintClass, colorMap, type CategoryColorKey } from '@/lib/crm/category-colors';
 import { cx } from '@/lib/cx';
+import { useOrganizationFetch } from '@/components/organization-context';
 
 export function CategoryManager({ categories }: { categories: CustomerCategoryList }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter(), { setFilterOpen } = useCollection();
   const [busy, setBusy] = useState(''), [err, setErr] = useState(''), [names, setNames] = useState<Record<string, string>>({});
   const colors = colorMap(categories);
   async function save(name: string, color: CategoryColorKey, rename?: string) {
     setBusy(name); setErr('');
     try {
-      const r = await fetch('/api/v1/customer-categories', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, color, ...(rename && rename.trim() !== name ? { rename: rename.trim() } : {}) }) });
+      const r = await organizationFetch('/api/v1/customer-categories', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, color, ...(rename && rename.trim() !== name ? { rename: rename.trim() } : {}) }) });
       if (!r.ok) throw new Error((await r.json()).error?.message || 'Nie udało się zapisać kategorii.');
       router.refresh();
     } catch (e) { setErr(e instanceof Error ? e.message : 'Nie udało się zapisać kategorii.'); } finally { setBusy(''); }

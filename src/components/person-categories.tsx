@@ -8,6 +8,7 @@ import { personCategoryLabels } from '@hvac/api-client';
 import { Popover } from '@/components/ui/popover';
 import { checkBox, itemClasses, plain } from '@/components/collection/classes';
 import { cx } from '@/lib/cx';
+import { useOrganizationFetch } from '@/components/organization-context';
 
 type Cat = keyof typeof personCategoryLabels;
 const tint: Record<Cat, string> = { decision: 'bg-ic-violet/16', technical: 'bg-ic-teal/16', payer: 'bg-ic-yellow/16', manager: 'bg-ic-blue/16', individual: 'bg-ic-slate/16' };
@@ -15,13 +16,14 @@ const dot: Record<Cat, string> = { decision: 'bg-ic-violet', technical: 'bg-ic-t
 const chip = (c: Cat) => <span key={c} className={cx('inline-flex h-5 items-center rounded-xs px-2 text-small leading-4 whitespace-nowrap text-primary', tint[c])}>{personCategoryLabels[c]}</span>;
 
 export function PersonCategories({ contactId, initial, editable }: { contactId: string | null; initial: Cat[]; editable: boolean }) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const ref = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false), [cats, setCats] = useState(initial), [err, setErr] = useState('');
   useEffect(() => { setCats(initial); }, [initial]);
   async function toggle(c: Cat) {
     const next = cats.includes(c) ? cats.filter(x => x !== c) : [...cats, c]; setCats(next); setErr('');
-    const r = await fetch(`/api/v1/contacts/${contactId}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) }).catch(() => null);
+    const r = await organizationFetch(`/api/v1/contacts/${contactId}/categories`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories: next }) }).catch(() => null);
     if (!r?.ok) { setCats(cats); setErr('Nie udało się zapisać. Spróbuj ponownie.'); return; }
     router.refresh();
   }

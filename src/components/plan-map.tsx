@@ -1,6 +1,7 @@
 'use client';
 /* Planowanie · mapa tras — layout and overlays follow the design artboard; the map itself is OpenStreetMap tiles
    (muted with CSS) in Web Mercator with an SVG overlay. Requires the © OpenStreetMap attribution. */
+import { useOrganizationId, useOrganizationFetch } from '@/components/organization-context';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,8 @@ const km = (v: number) => (v < 10 ? v.toFixed(1).replace('.', ',') : String(Math
 type Pop = { kind: 'ticket'; id: string } | { kind: 'visit'; id: string } | null;
 
 export function PlanMap({ day, isToday, nowIso, technicians, visits, backlog, base, baseLabel, canManage, geoPending }: { day: string; isToday: boolean; nowIso: string; technicians: PlanTech[]; visits: PlanVisit[]; backlog: PlanTicket[]; base: LatLng | null; baseLabel: string; canManage: boolean; geoPending: boolean }) {
+  const organizationId = useOrganizationId();
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 900, h: 700 }), [zoom, setZoom] = useState<number | null>(null), [center, setCenter] = useState<{ x: number; y: number } | null>(null);
@@ -26,9 +29,9 @@ export function PlanMap({ day, isToday, nowIso, technicians, visits, backlog, ba
   useEffect(() => { const el = box.current; if (!el) return; const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height })); ro.observe(el); return () => ro.disconnect(); }, []);
   useEffect(() => {
     if (!geoPending || !canManage) return; let stop = false;
-    (async () => { for (let i = 0; i < 10 && !stop; i++) { try { const r = await fetch('/api/v1/geocode', { method: 'POST' }); if (!r.ok) break; const b = await r.json(); if (!b.remaining) break; } catch { break; } } if (!stop) { setGeo(false); router.refresh(); } })();
+    (async () => { for (let i = 0; i < 10 && !stop; i++) { try { const r = await organizationFetch('/api/v1/geocode', { method: 'POST' }); if (!r.ok) break; const b = await r.json(); if (!b.remaining) break; } catch { break; } } if (!stop) { setGeo(false); router.refresh(); } })();
     return () => { stop = true; };
-  }, [geoPending, canManage, router]);
+  }, [geoPending, canManage, router, organizationFetch]);
 
   const points = useMemo(() => [...visits.map(v => v.at), ...backlog.map(t => t.at), base].filter((p): p is LatLng => !!p), [visits, backlog, base]);
   const fit = useMemo(() => {
@@ -59,8 +62,8 @@ export function PlanMap({ day, isToday, nowIso, technicians, visits, backlog, ba
   async function plan(t: PlanTicket, techId: string, at: number) {
     if (!canManage || busy) return; setBusy(true); setMsg(null);
     try {
-      if (t.assignedTo !== techId) { const r = await assignTechnician(t.id, techId); if (r.error) throw new Error(r.error); }
-      const r = await scheduleVisit({ ticketId: t.id, visitId: null, localStart: `${day}T${hhmm(at)}`, duration: 60, notes: '' }); if (r.error) throw new Error(r.error);
+      if (t.assignedTo !== techId) { const r = await assignTechnician(t.id, techId, organizationId); if (r.error) throw new Error(r.error); }
+      const r = await scheduleVisit({ ticketId: t.id, visitId: null, localStart: `${day}T${hhmm(at)}`, duration: 60, notes: '' }, organizationId); if (r.error) throw new Error(r.error);
       setMsg({ ok: true, text: `${ticketCode(t.number)} zaplanowane na ${hhmm(at)}.` }); setPop(null); router.refresh();
     } catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : 'Nie udało się zaplanować.' }); } finally { setBusy(false); }
   }

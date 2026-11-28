@@ -19,6 +19,7 @@ import { Button, buttonClasses } from '@/components/ui/button';
 import { isOpenTask, taskStateLabel, priorityLabel, taskLabels, taskNumber, type Priority, type TaskLabel } from '@/lib/tasks/labels';
 import { cx } from '@/lib/cx';
 import { BuildingOffice, CalendarBlank, CalendarDot, CalendarX, FunnelSimple, LinkIcon, Plus, SidebarSimple, X } from '@phosphor-icons/react/ssr';
+import { useOrganizationFetch } from '@/components/organization-context';
 
 type Task = MyTask;
 type State = Task['state'];
@@ -67,6 +68,7 @@ export function TaskListView(props: Props) {
 }
 
 function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, search, board, footer, canPlan = false }: Props) {
+  const organizationFetch = useOrganizationFetch();
   const router = useRouter();
   const items = data.items;
   const [panelOn, setPanelOn] = useState(true);
@@ -80,21 +82,21 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
     setComments([]); setDraft('');
     if (!selectedKey) return;
     const [taskId, customerId] = selectedKey.split(':'), controller = new AbortController();
-    fetch(`/api/v1/customers/${customerId}/tasks/${taskId}/comments`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : []).then(body => { const parsed = crmTaskCommentsSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setComments(parsed.data); }).catch(() => {});
+    organizationFetch(`/api/v1/customers/${customerId}/tasks/${taskId}/comments`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : []).then(body => { const parsed = crmTaskCommentsSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setComments(parsed.data); }).catch(() => {});
     return () => controller.abort();
-  }, [selectedKey]);
+  }, [selectedKey, organizationFetch]);
   const [people, setPeople] = useState<{ id: string; label: string }[]>([]), [links, setLinks] = useState<CrmTaskLink[] | null>(null);
   useEffect(() => {
     setPeople([]); setLinks(null);
     if (!selectedKey || !canPlan) return;
     const [taskId, customerId] = selectedKey.split(':'), controller = new AbortController();
-    fetch(`/api/v1/customers/${customerId}/tasks/${taskId}/plan`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : null).then(body => { const parsed = taskPlanContextSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setPeople(parsed.data.assignees); }).catch(() => {});
+    organizationFetch(`/api/v1/customers/${customerId}/tasks/${taskId}/plan`, { cache: 'no-store', signal: controller.signal }).then(r => r.ok ? r.json() : null).then(body => { const parsed = taskPlanContextSchema.safeParse(body); if (parsed.success && !controller.signal.aborted) setPeople(parsed.data.assignees); }).catch(() => {});
     return () => controller.abort();
-  }, [selectedKey, canPlan]);
+  }, [selectedKey, canPlan, organizationFetch]);
   const selected = panelOn ? items.find(t => t.id === selectedId) ?? null : null;
   async function loadLinks() {
     if (!selected || links) return;
-    try { const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
+    try { const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/link`, { cache: 'no-store' }); const parsed = crmTaskLinkOptionsSchema.safeParse(r.ok ? await r.json() : null); setLinks(parsed.success ? parsed.data : []); } catch { setLinks([]); }
   }
   const c = useCollection(), q = c.query;
   const vs = { group: q.group, sort: q.sort, showDone: (q.filters.done?.[0] ?? '1') === '1', showEmpty: q.filters.empty?.[0] === '1', columns: visibleColumns(tasksSpec, c.columns).map(x => x.key), filters: { priority: q.filters.priority ?? [], label: q.filters.label ?? [] } };
@@ -133,7 +135,7 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
     if (!input.success) { setError('Nie udało się zmienić statusu.'); return; }
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/progress`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) { setConflict(true); throw new Error('Zadanie zmienił ktoś inny. Odśwież listę przed kolejną zmianą.'); } throw new Error(body.error?.message || 'Nie udało się zmienić statusu.'); }
       const task = crmTaskSchema.parse(body);
       if (task.id !== selected.id || task.assigneeId !== data.viewerId) throw new Error('Nieprawidłowa odpowiedź zapisu. Odśwież listę.');
@@ -146,7 +148,7 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
     if (!input.success) return;
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input.data) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) setConflict(true); throw new Error(r.status === 409 ? 'Zadanie zmienił ktoś inny. Odśwież listę.' : body.error?.message || 'Nie udało się zapisać.'); }
       crmTaskSchema.parse(body); router.refresh();
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
@@ -155,7 +157,7 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
     if (!selected) return;
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }), body = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }), body = await r.json();
       if (!r.ok) { if (r.status === 409) setConflict(true); throw new Error(r.status === 409 ? 'Zadanie zmienił ktoś inny. Odśwież listę.' : body.error?.message || `Nie udało się zmienić: ${what}.`); }
       crmTaskSchema.parse(body); setNotice(`${selected.title}: zmieniono ${what}`); router.refresh();
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
@@ -175,7 +177,7 @@ function TaskList({ data, header, toolbarTabs, toolbarExtra, layoutSwitch, searc
     const body = draft.trim(); if (!body) return;
     setPosting(true); setError('');
     try {
-      const r = await fetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), body }) }), json = await r.json();
+      const r = await organizationFetch(`/api/v1/customers/${selected.customerId}/tasks/${selected.id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: crypto.randomUUID(), body }) }), json = await r.json();
       if (!r.ok) throw new Error(json.error?.message || 'Nie udało się dodać komentarza.');
       const c = crmTaskCommentSchema.parse(json); setComments(list => [...list, c]); setDraft('');
     } catch (err) { setError(err instanceof Error ? err.message : 'Nie udało się dodać komentarza.'); } finally { setPosting(false); }

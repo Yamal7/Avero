@@ -1,6 +1,6 @@
 # Linear → docs/PLAN.md: generuje tabelę modułów z Linear i proponuje ją jako PR.
 # Uruchamia się codziennie, po każdym scaleniu do main i na żądanie (Actions › Linear → plan › Run workflow).
-# PR scala się sam po zielonym CI (auto-merge). Klucz: sekret repozytorium LINEAR_API_KEY (tylko odczyt).
+# Do wygenerowania planu służy LINEAR_API_KEY (tylko odczyt). Do aktualizacji PR służy LINEAR_PLAN_PR_TOKEN.
 name: Linear → plan
 
 on:
@@ -15,9 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+  contents: read
 
 env:
   BRANCH: bot/linear-plan-sync
@@ -25,10 +23,14 @@ env:
 jobs:
   sync:
     name: Synchronizacja planu
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -52,15 +54,21 @@ jobs:
       - name: PR z aktualną tabelą
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.LINEAR_PLAN_PR_TOKEN }}
         run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Ustaw LINEAR_PLAN_PR_TOKEN z dostępem Contents i Pull requests (Read and write) do tego repozytorium."
+            exit 1
+          fi
+          gh auth setup-git
+          expected=$(git ls-remote --heads origin "refs/heads/$BRANCH" | cut -f1)
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add docs/PLAN.md
           git commit -m "Plan: tabela modułów z Linear ($(date -u +%Y-%m-%d))"
           # Gałąź należy tylko do tego workflow — zawsze odtwarzana od aktualnego main.
-          git push --force origin "$BRANCH"
+          git push --force-with-lease="refs/heads/$BRANCH:$expected" origin "$BRANCH"
 
           pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
           if [ -z "$pr" ]; then
@@ -69,7 +77,4 @@ jobs:
               --body "Automatyczna aktualizacja tabeli modułów w \`docs/PLAN.md\` z Linear (fazy = kamienie milowe, numer modułu z opisu zadania, zależności = relacje „blokowane przez”, stan = status zadania). Scali się sama po zielonym CI. Nie edytuj tej tabeli ręcznie — zmień zadanie w Linear."
             pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
           fi
-          gh pr merge "$pr" --auto --squash
-
-          # Zdarzenia z tokenu workflow nie uruchamiają innych workflow — CI dla tego PR uruchamiamy jawnie.
-          gh workflow run ci.yml --ref "$BRANCH"
+          gh pr merge "$pr" --auto --squash --match-head-commit "$(git rev-parse HEAD)"

@@ -1,5 +1,6 @@
 'use client';
 /* Zlecenie (design ZS-1047): measurements, materials and the activity thread, styled with the design's inline values. */
+import { useOrganizationFetch } from '@/components/organization-context';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { serviceJobSchema, type ServiceJob, type ServiceMaterial, type ServiceMeasurement } from '@hvac/api-client';
 import { PersonAvatar } from '@/components/glyphs';
@@ -23,6 +24,7 @@ function parseQuantity(raw: string) { const n = Number(raw.replace(',', '.').tri
 function parseMoney(raw: string) { const n = Number(raw.replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : NaN; }
 
 export function ServiceJobSections({ ticketId, initial, events, editable, closed, visitLabel }: { ticketId: string; initial: ServiceJob; events: JobEvent[]; editable: boolean; closed: boolean; visitLabel: string | null }) {
+  const organizationFetch = useOrganizationFetch();
   const [job, setJob] = useState(initial), [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const [mDraft, setMDraft] = useState<ServiceMeasurement | null>(null), [matDraft, setMatDraft] = useState<(Omit<ServiceMaterial, 'quantity' | 'netCents'> & { quantity: string; net: string }) | null>(null), [comment, setComment] = useState('');
   useEffect(() => setJob(initial), [initial]);
@@ -30,7 +32,7 @@ export function ServiceJobSections({ ticketId, initial, events, editable, closed
   async function call(path: string, method: 'POST' | 'DELETE', body: unknown, ok?: () => void) {
     setBusy(true); setError('');
     try {
-      const r = await fetch(`/api/v1/service/tickets/${ticketId}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }), json = await r.json();
+      const r = await organizationFetch(`/api/v1/service/tickets/${ticketId}/${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }), json = await r.json();
       if (!r.ok) throw new Error(json.error?.message || 'Nie udało się zapisać.');
       setJob(serviceJobSchema.parse(json)); ok?.();
     } catch (e) { setError(e instanceof Error ? e.message : 'Nie udało się zapisać.'); } finally { setBusy(false); }
