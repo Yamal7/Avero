@@ -179,7 +179,18 @@ export function AppShell({children,email,displayName,role,alerts,taskAlerts,comp
  </header>
  <div className="relative flex min-h-0 flex-auto items-stretch">
   {mobileOpen&&<button className={shell.backdrop} aria-label="Zamknij menu" onClick={()=>setMobileOpen(false)}/>}
-  {hiddenSidebar && <div className={shell.sideReveal} aria-hidden="true" onPointerEnter={event => { if (event.pointerType !== 'touch') setSidebarPeek(true); }} />}
+  {hiddenSidebar && <div className={shell.sideReveal} aria-hidden="true"
+   onPointerEnter={event => {
+    if (event.pointerType === 'touch') return;
+    peekHovered.current = true;
+    setSidebarPeek(true);
+   }}
+   onPointerLeave={event => {
+    // A fast move can leave the gutter without entering the revealed panel.
+    if (event.relatedTarget instanceof Node && sidebar.current?.contains(event.relatedTarget)) return;
+    peekHovered.current = false;
+    if (!sidebar.current?.contains(document.activeElement)) setSidebarPeek(false);
+   }} />}
   <aside ref={sidebar} className={cx(shell.side,compactSidebar&&shell.sideCompact,hiddenSidebar&&shell.sideOverlay,hiddenSidebar&&!sidebarPeek&&'desktop:invisible',
     mobileOpen?'max-desktop:visible max-desktop:translate-x-0':'max-desktop:invisible max-desktop:-translate-x-full','no-print')} id="app-sidebar" aria-label="Nawigacja główna"
    onPointerEnter={() => { if (hiddenSidebar) peekHovered.current = true; }}
