@@ -129,7 +129,7 @@ Tabela poniżej jest **generowana z Linear** (workflow „Linear → plan”: co
 | [x] | M0.1 Wielofirmowość: org_id i RLS we wszystkich tabelach | KRA-27 | Done | — |
 | [x] | M0.2 Tailwind v4 na tokenach z tokens.css i ikony Phosphor | KRA-26 | Done | — |
 | [x] | M0.3 Tabele w jednej linii: logo firmy z kartą podglądu, kolorowe ikony, przewijanie z przypiętą kolumną | KRA-63 | Done | M0.2 |
-| [ ] | M0.4 Silnik widoku kolekcji: Magazyn, Firmy, Przeglądy | KRA-31 | In Progress | M0.2, M0.3 |
+| [x] | M0.4 Silnik widoku kolekcji: Magazyn, Firmy, Przeglądy | KRA-31 | Done | M0.2, M0.3 |
 | [ ] | M0.5 Rejestr rozszerzeń i wydzielenie pakietu HVACR | KRA-29 | Backlog | M0.1 |
 | [x] | M0.6 Lewy panel nawigacji: rozwinięty, zwinięty do ikon, ukryty | KRA-68 | Done | M0.2 |
 | **Faza 1 — Serwis** | | | | |
